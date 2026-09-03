@@ -1,0 +1,28 @@
+{
+  "skill": "planf3",
+  "iteration": 1,
+  "scope": "Focused adaptive-runtime and full-visual-plan evaluations",
+  "runs_per_configuration": 1,
+  "model": "openai-codex/gpt-5.6-sol",
+  "telemetry": {"timing": "unavailable", "tokens": "unavailable"},
+  "results": {
+    "old_skill": {
+      "passed": 3,
+      "total": 9,
+      "score": 0.3333,
+      "evals": {"8": {"passed": 2, "total": 4}, "9": {"passed": 1, "total": 5}}
+    },
+    "new_skill": {
+      "passed": 9,
+      "total": 9,
+      "score": 1.0,
+      "evals": {"8": {"passed": 4, "total": 4}, "9": {"passed": 5, "total": 5}}
+    }
+  },
+  "improvement_percentage_points": 66.67,
+  "evidence": {
+    "validator": "25 self-checks passed; current and legacy fixtures passed",
+    "browser": "Current fixtures and focused outputs rendered with Mermaid/ELK, Chart.js, adaptive themes, download reopening, share fallback, desktop and 390x844 overflow checks",
+    "review": "Independent full-range closure review and focused recheck reported no remaining blocker/high/medium findings"
+  }
+}

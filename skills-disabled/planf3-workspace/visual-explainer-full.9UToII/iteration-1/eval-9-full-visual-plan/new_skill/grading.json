@@ -1,0 +1,13 @@
+{
+  "eval_id": 9,
+  "configuration": "new_skill",
+  "passed": 5,
+  "total": 5,
+  "assertions": [
+    {"index": 1, "passed": true, "evidence": "Declares visual-explainer-v1 slide view, adaptive teal-blueprint theme, seven presets, and runtime dependencies."},
+    {"index": 2, "passed": true, "evidence": "Browser evidence showed one ELK Mermaid SVG with retained source, controls-ready state, and all five diagram actions."},
+    {"index": 3, "passed": true, "evidence": "Semantic tables, Chart.js, reduced-motion-aware runtime, motion hooks, and documented surf fallback are present."},
+    {"index": 4, "passed": true, "evidence": "Eighteen-slide deck has previous/next, 18 dots, counter, keyboard/touch runtime, print/download/share, and no desktop or 390x844 overflow warnings."},
+    {"index": 5, "passed": true, "evidence": "All metadata/status hooks validate; the plan passed the revised validator and browser checks rendered Mermaid and Chart.js."}
+  ]
+}

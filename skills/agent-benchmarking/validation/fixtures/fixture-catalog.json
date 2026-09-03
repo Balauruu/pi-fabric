@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "case_id": "known-good-workflow-request",
+      "family": "known-good",
+      "path": "known-good/workflow-request.json",
+      "validator": "workflow-request-schema",
+      "expected": "accepted",
+      "diagnostic_contains": "accepted by production validator"
+    },
+    {
+      "case_id": "known-good-paired-analysis",
+      "family": "known-good",
+      "path": "known-good/paired-analysis.json",
+      "validator": "paired-analysis",
+      "expected": "accepted",
+      "diagnostic_contains": "accepted by production validator"
+    },
+    {
+      "case_id": "known-good-confirmatory-analysis",
+      "family": "known-good",
+      "path": "known-good/confirmatory-paired-analysis.json",
+      "validator": "paired-analysis",
+      "expected": "accepted",
+      "diagnostic_contains": "accepted by production validator"
+    },
+    {
+      "case_id": "known-bad-workflow-extra-property",
+      "family": "known-bad",
+      "path": "known-bad/workflow-request-extra-property.json",
+      "validator": "workflow-request-schema",
+      "expected": "rejected",
+      "diagnostic_contains": "additional property is forbidden"
+    },
+    {
+      "case_id": "known-bad-unequal-analysis-cells",
+      "family": "known-bad",
+      "path": "known-bad/unequal-cells.json",
+      "validator": "paired-analysis",
+      "expected": "rejected",
+      "diagnostic_contains": "unequal repetition cells"
+    },
+    {
+      "case_id": "known-bad-analysis-option",
+      "family": "known-bad",
+      "path": "known-bad/analysis-unknown-option.json",
+      "validator": "paired-analysis",
+      "expected": "rejected",
+      "diagnostic_contains": "unknown analysis options"
+    },
+    {
+      "case_id": "isolated-grader-condition-leakage",
+      "family": "isolated-defect",
+      "path": "isolated-defect/grader-condition-leakage.json",
+      "validator": "public-grader-map",
+      "expected": "rejected",
+      "diagnostic_contains": "leaks condition identity"
+    },
+    {
+      "case_id": "isolated-stale-seal",
+      "family": "isolated-defect",
+      "path": "isolated-defect/stale-seal.json",
+      "validator": "stale-seal-record",
+      "expected": "rejected",
+      "diagnostic_contains": "sealed source digest mismatch"
+    },
+    {
+      "case_id": "boundary-schedule",
+      "family": "boundary",
+      "path": "boundary/schedule-boundaries.json",
+      "validator": "schedule-boundaries",
+      "expected": "accepted",
+      "diagnostic_contains": "accepted by production validator"
+    },
+    {
+      "case_id": "boundary-single-task-analysis",
+      "family": "boundary",
+      "path": "boundary/single-task-paired-analysis.json",
+      "validator": "paired-analysis",
+      "expected": "accepted",
+      "diagnostic_contains": "accepted by production validator"
+    },
+    {
+      "case_id": "malformed-duplicate-key",
+      "family": "malformed",
+      "path": "malformed/duplicate-key.json",
+      "validator": "strict-json",
+      "expected": "rejected",
+      "diagnostic_contains": "duplicate JSON object key"
+    },
+    {
+      "case_id": "malformed-json",
+      "family": "malformed",
+      "path": "malformed/invalid.json",
+      "validator": "strict-json",
+      "expected": "rejected",
+      "diagnostic_contains": "malformed JSON"
+    },
+    {
+      "case_id": "malformed-utf8",
+      "family": "malformed",
+      "path": "malformed/invalid-utf8.json",
+      "validator": "strict-json",
+      "expected": "rejected",
+      "diagnostic_contains": "malformed UTF-8"
+    },
+    {
+      "case_id": "malformed-jsonl-blank",
+      "family": "malformed",
+      "path": "malformed/blank-line.jsonl",
+      "validator": "strict-jsonl",
+      "expected": "rejected",
+      "diagnostic_contains": "blank JSONL line"
+    },
+    {
+      "case_id": "malformed-jsonl-crlf",
+      "family": "malformed",
+      "path": "malformed/crlf.jsonl",
+      "validator": "strict-jsonl",
+      "expected": "rejected",
+      "diagnostic_contains": "must use LF line endings"
+    }
+  ]
+}

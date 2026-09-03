@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"case_id": "one-worker-two-conditions", "conditions": ["a", "b"], "tasks": ["t"], "repetitions": 1, "workers": 1},
+    {"case_id": "max-workers-three-conditions", "conditions": ["a", "b", "c"], "tasks": ["t1", "t2"], "repetitions": 1, "workers": 6}
+  ]
+}

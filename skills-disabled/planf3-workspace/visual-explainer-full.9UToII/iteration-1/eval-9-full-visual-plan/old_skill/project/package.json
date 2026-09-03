@@ -1,0 +1,5 @@
+{
+  "name": "planf3-sqlite-fixture",
+  "private": true,
+  "scripts": { "test": "node --test" }
+}

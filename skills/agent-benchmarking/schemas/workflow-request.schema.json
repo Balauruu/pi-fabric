@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/workflow-request.schema.json",
+  "title": "Agent benchmarking stage request",
+  "type": "object",
+  "$defs": {
+    "artifact_binding": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "format": "safe-relative-path"},
+        "sha256": {"type": "string", "format": "sha256"}
+      },
+      "additionalProperties": false
+    },
+    "seal_reference": {
+      "type": "object",
+      "required": ["seal_type", "revision", "manifest_path", "manifest_sha256"],
+      "properties": {
+        "seal_type": {"enum": ["design", "execution", "raw-freeze", "postscore", "analysis"]},
+        "revision": {"type": "string", "pattern": "^(design|execution|raw|postscore|analysis)-v[1-9][0-9]*$"},
+        "manifest_path": {"type": "string", "format": "safe-relative-path"},
+        "manifest_sha256": {"type": "string", "format": "sha256"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "benchmark_id",
+    "route",
+    "stage",
+    "packet_path",
+    "design_revision",
+    "execution_revision",
+    "wave_id",
+    "requested_runtime",
+    "requested_model",
+    "runtime_capability_binding",
+    "call_plan_binding",
+    "delta_seal_references",
+    "dry_run",
+    "max_agents",
+    "max_concurrency"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "request_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "route": {"enum": ["Design", "Execute", "Audit", "Analyze"]},
+    "stage": {"enum": ["design", "execute", "judge", "adjudicate", "finalize", "audit"]},
+    "packet_path": {
+      "type": "string",
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*//)(?!.*/$)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)\\.(?:/|$))[A-Za-z0-9._/-]+$",
+      "format": "safe-relative-path"
+    },
+    "design_revision": {"type": ["string", "null"], "pattern": "^design-v[1-9][0-9]*$"},
+    "execution_revision": {"type": ["string", "null"], "pattern": "^execution-v[1-9][0-9]*$"},
+    "wave_id": {"type": ["string", "null"], "pattern": "^[1-9][0-9]*$"},
+    "requested_runtime": {"enum": ["pi", "claude", "veda", null]},
+    "requested_model": {"type": ["string", "null"], "minLength": 1},
+    "runtime_capability_binding": {
+      "oneOf": [
+        {"$ref": "#/$defs/artifact_binding"},
+        {"type": "null"}
+      ]
+    },
+    "call_plan_binding": {
+      "oneOf": [
+        {"$ref": "#/$defs/artifact_binding"},
+        {"type": "null"}
+      ]
+    },
+    "delta_seal_references": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/seal_reference"}
+    },
+    "dry_run": {"type": "boolean"},
+    "max_agents": {"type": "integer", "minimum": 1, "maximum": 100},
+    "max_concurrency": {"type": "integer", "minimum": 1, "maximum": 32}
+  },
+  "additionalProperties": false
+}

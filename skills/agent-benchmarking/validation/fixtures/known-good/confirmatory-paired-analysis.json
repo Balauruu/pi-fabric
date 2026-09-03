@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "control": "control",
+  "candidate": "candidate",
+  "direction": "higher",
+  "practical_threshold": 0.1,
+  "seed": 23,
+  "bootstrap_draws": 500,
+  "confidence_level": 0.95,
+  "alternative": "greater",
+  "alpha": 0.05,
+  "inferential_gate_frozen": true,
+  "sample_scope": "probability-sample",
+  "multiplicity": {
+    "family_id": "primary-quality",
+    "family_size": 1,
+    "hypothesis_index": 1,
+    "method": "none",
+    "prespecified": true
+  },
+  "records": [
+    {"task_id":"t1","condition_id":"control","repetition":1,"outcome":0.0},
+    {"task_id":"t1","condition_id":"candidate","repetition":1,"outcome":0.3},
+    {"task_id":"t2","condition_id":"control","repetition":1,"outcome":0.0},
+    {"task_id":"t2","condition_id":"candidate","repetition":1,"outcome":0.35},
+    {"task_id":"t3","condition_id":"control","repetition":1,"outcome":0.0},
+    {"task_id":"t3","condition_id":"candidate","repetition":1,"outcome":0.4},
+    {"task_id":"t4","condition_id":"control","repetition":1,"outcome":0.0},
+    {"task_id":"t4","condition_id":"candidate","repetition":1,"outcome":0.45},
+    {"task_id":"t5","condition_id":"control","repetition":1,"outcome":0.0},
+    {"task_id":"t5","condition_id":"candidate","repetition":1,"outcome":0.5}
+  ]
+}

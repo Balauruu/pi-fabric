@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/condition.schema.json",
+  "title": "Frozen benchmark condition",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "benchmark_id",
+    "condition_id",
+    "revision",
+    "intervention_type",
+    "intervention_description",
+    "invocation",
+    "runtime",
+    "mechanism",
+    "isolation",
+    "budget",
+    "provider_native"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "condition_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "revision": {"type": "string", "pattern": "^v[1-9][0-9]*$"},
+    "intervention_type": {"enum": ["single", "bundle", "factorial-cell", "control"]},
+    "intervention_description": {"type": "string", "minLength": 1},
+    "invocation": {
+      "type": "object",
+      "required": ["surface", "mode", "skill_name", "instruction_path", "expansion_proof_path"],
+      "properties": {
+        "surface": {"enum": ["fabric-agents-run", "pi-prompt", "pi-rpc", "other"]},
+        "mode": {"enum": ["plain", "skill-command", "inline-instruction-bundle"]},
+        "skill_name": {"type": ["string", "null"], "minLength": 1},
+        "instruction_path": {"type": ["string", "null"], "format": "safe-relative-path"},
+        "expansion_proof_path": {"type": ["string", "null"], "format": "safe-relative-path"}
+      },
+      "additionalProperties": false
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["requested_selector", "requested_model", "resolved_runner", "resolved_model", "observed_model"],
+      "properties": {
+        "requested_selector": {"type": ["string", "null"], "minLength": 1},
+        "requested_model": {"type": ["string", "null"], "minLength": 1},
+        "resolved_runner": {"type": ["string", "null"], "minLength": 1},
+        "resolved_model": {"type": ["string", "null"], "minLength": 1},
+        "observed_model": {"type": ["string", "null"], "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "mechanism": {
+      "type": "object",
+      "required": ["owner", "predicate", "exposure", "minimum_canary_exposures"],
+      "properties": {
+        "owner": {"type": "string", "minLength": 1},
+        "predicate": {"type": "string", "minLength": 1},
+        "exposure": {"enum": ["forced", "optional", "not-applicable"]},
+        "minimum_canary_exposures": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "isolation": {
+      "type": "object",
+      "required": ["fresh_process", "fresh_session", "fresh_workspace", "fresh_fixture", "fresh_mutable_tool_state"],
+      "properties": {
+        "fresh_process": {"type": "boolean"},
+        "fresh_session": {"type": "boolean"},
+        "fresh_workspace": {"type": "boolean"},
+        "fresh_fixture": {"type": "boolean"},
+        "fresh_mutable_tool_state": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "budget": {
+      "type": "object",
+      "required": ["timeout_seconds", "max_turns", "provider_token_limit", "provider_cost_limit_usd"],
+      "properties": {
+        "timeout_seconds": {"type": "integer", "minimum": 1},
+        "max_turns": {"type": ["integer", "null"], "minimum": 1},
+        "provider_token_limit": {"type": ["integer", "null"], "minimum": 1},
+        "provider_cost_limit_usd": {"type": ["number", "null"], "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "provider_native": {"type": "object", "additionalProperties": true}
+  },
+  "additionalProperties": false
+}

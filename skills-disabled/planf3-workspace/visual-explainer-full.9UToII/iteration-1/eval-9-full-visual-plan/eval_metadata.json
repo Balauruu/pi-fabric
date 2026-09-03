@@ -1,0 +1,12 @@
+{
+  "eval_id": 9,
+  "eval_name": "full-visual-plan",
+  "prompt": "Create a PlanF3 HTML implementation plan for a three-stage SQLite migration: add nullable columns, backfill in batches, then enforce constraints. Use the full Visual Explainer technique set where useful: adaptive theme selection, a Mermaid migration/rollback diagram with canonical zoom-pan-fit-expand controls, semantic file/contract/test tables, a Chart.js risk or progress view, responsive scroll-spy navigation, deliberate motion with reduced-motion support, and a slide-deck presentation mode with complete source coverage and accessible controls. If surf image generation is available, add useful generated imagery; otherwise use the documented fallback. Include practical download/print/share controls. Preserve PlanF3 lifecycle/status hooks and validate the result in a browser.",
+  "assertions": [
+    "The plan uses a versioned Visual Explainer runtime with adaptive themes and required script/dependency bootstrapping rather than the old fixed green shell.",
+    "A valid Mermaid diagram uses the canonical interactive shell with fit, zoom, pan, reset or 1:1, and expand behavior coordinated with theme changes.",
+    "Tables, Chart.js, motion, responsive scroll-spy navigation, reduced-motion handling, and image-generation fallback are present and appropriate.",
+    "Slide mode covers all plan sections without overflow and has accessible previous/next, dots, counter, keyboard/touch, and print/download/share behavior.",
+    "All PlanF3 metadata/status hooks remain valid and browser/runtime validation succeeds."
+  ]
+}

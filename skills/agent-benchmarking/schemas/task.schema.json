@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/task.schema.json",
+  "title": "Frozen benchmark task",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "benchmark_id",
+    "task_id",
+    "revision",
+    "stratum",
+    "prompt_path",
+    "fixture_path",
+    "grader_ids",
+    "timeout_seconds",
+    "network_access",
+    "mutable_state_paths",
+    "required_artifact_paths",
+    "forbidden_path_prefixes"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "revision": {"type": "string", "pattern": "^v[1-9][0-9]*$"},
+    "stratum": {"type": "string", "minLength": 1},
+    "prompt_path": {"type": "string", "format": "safe-relative-path"},
+    "fixture_path": {"type": ["string", "null"], "format": "safe-relative-path"},
+    "grader_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"}
+    },
+    "timeout_seconds": {"type": "integer", "minimum": 1},
+    "network_access": {"enum": ["denied", "allowed", "frozen"]},
+    "mutable_state_paths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "format": "safe-relative-path"}
+    },
+    "required_artifact_paths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "format": "safe-relative-path"}
+    },
+    "forbidden_path_prefixes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "format": "safe-relative-path"}
+    }
+  },
+  "additionalProperties": false
+}

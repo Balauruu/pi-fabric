@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "control": "control",
+  "candidate": "candidate",
+  "records": [
+    {"task_id": "t1", "condition_id": "control", "repetition": 1, "outcome": 0.5},
+    {"task_id": "t1", "condition_id": "candidate", "repetition": 1, "outcome": 0.6},
+    {"task_id": "t1", "condition_id": "control", "repetition": 2, "outcome": 0.5}
+  ]
+}

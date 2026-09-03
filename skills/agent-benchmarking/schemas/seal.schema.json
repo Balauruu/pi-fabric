@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/seal.schema.json",
+  "title": "Benchmark seal manifest",
+  "$defs": {
+    "file": {
+      "type": "object",
+      "required": ["path", "sha256", "bytes"],
+      "properties": {
+        "path": {"type": "string", "format": "safe-relative-path"},
+        "sha256": {"type": "string", "format": "sha256"},
+        "bytes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "owned_paths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "format": "safe-relative-path"}
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "benchmark_id",
+        "seal_type",
+        "revision",
+        "previous_revision",
+        "created_at",
+        "owned_paths",
+        "files"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+        "seal_type": {"enum": ["design", "execution", "raw-freeze"]},
+        "revision": {"type": "string", "pattern": "^(design|execution|raw)-v1$"},
+        "previous_revision": {"const": null},
+        "created_at": {"type": "string", "format": "date-time"},
+        "owned_paths": {"$ref": "#/$defs/owned_paths"},
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/file"}
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "benchmark_id",
+        "seal_type",
+        "revision",
+        "previous_revision",
+        "previous_manifest_path",
+        "previous_manifest_sha256",
+        "created_at",
+        "owned_paths",
+        "deleted_paths",
+        "files"
+      ],
+      "properties": {
+        "schema_version": {"const": 2},
+        "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+        "seal_type": {"enum": ["design", "execution", "raw-freeze"]},
+        "revision": {"type": "string", "pattern": "^(design|execution|raw)-v(?:[2-9]|[1-9][0-9]+)$"},
+        "previous_revision": {"type": "string", "pattern": "^(design|execution|raw)-v[1-9][0-9]*$"},
+        "previous_manifest_path": {"type": "string", "format": "safe-relative-path"},
+        "previous_manifest_sha256": {"type": "string", "format": "sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "owned_paths": {"$ref": "#/$defs/owned_paths"},
+        "deleted_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "format": "safe-relative-path"}
+        },
+        "files": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/file"}
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

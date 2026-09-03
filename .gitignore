@@ -1,0 +1,20 @@
+# Authentication and private conversation history
+auth.json
+sessions/
+run-history.jsonl
+
+# Generated runtime state and caches
+.pi/
+fabric/
+web-search-cache/
+
+# Reinstallable dependencies and virtual environments
+npm/node_modules/
+**/.venv/
+**/__pycache__/
+*.py[cod]
+**/.pi-subagents/
+
+# Local operating-system noise
+.DS_Store
+*.log

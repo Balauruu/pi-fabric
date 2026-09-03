@@ -1,0 +1,12 @@
+{
+  "eval_id": 8,
+  "configuration": "old_skill",
+  "passed": 2,
+  "total": 4,
+  "assertions": [
+    {"index": 1, "passed": false, "evidence": "No visual-explainer-v1 marker; the old --plan-canvas/Hermes presentation remains."},
+    {"index": 2, "passed": false, "evidence": "No theme controls, alternate preset registry, scripts, or coordinated runtime theming."},
+    {"index": 3, "passed": true, "evidence": "The simple compatibility plan does not force a Mermaid diagram."},
+    {"index": 4, "passed": true, "evidence": "Responsive navigation, reduced-motion CSS, lifecycle hooks, and snapshot validator success are present."}
+  ]
+}

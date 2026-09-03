@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "fixture_family": "isolated-defect",
+  "defect_id": "grader-condition-leakage",
+  "public_grader_fields": ["blind_id", "task_id", "condition_id"],
+  "expected": "reject-condition-private-map"
+}

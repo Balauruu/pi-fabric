@@ -1,0 +1,13 @@
+{
+  "eval_id": 9,
+  "configuration": "old_skill",
+  "passed": 1,
+  "total": 5,
+  "assertions": [
+    {"index": 1, "passed": false, "evidence": "No visual-explainer-v1 marker, adaptive controls, or runtime scripts; old fixed PlanF3 tokens remain."},
+    {"index": 2, "passed": false, "evidence": "No Mermaid source, ELK, or canonical zoom/pan/fit/expand runtime."},
+    {"index": 3, "passed": false, "evidence": "No Chart.js, scroll-spy runtime, full motion tier, or image-generation path."},
+    {"index": 4, "passed": false, "evidence": "No slide deck engine, slide controls, dots, counter, touch navigation, or share/download runtime."},
+    {"index": 5, "passed": true, "evidence": "PlanF3 metadata/status hooks remained valid and the old validator plus static browser render passed."}
+  ]
+}

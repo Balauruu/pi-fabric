@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/protected-state.schema.json",
+  "title": "Protected-state launch compatibility receipt",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "capability_id",
+    "project_root",
+    "protected_absolute_roots",
+    "actor_state_root",
+    "conflicts",
+    "required_request_cwd"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "status": {"enum": ["compatible", "incompatible"]},
+    "capability_id": {"type": "string", "minLength": 1},
+    "project_root": {"type": "string", "pattern": "^/"},
+    "protected_absolute_roots": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^/"}
+    },
+    "actor_state_root": {"type": ["string", "null"], "pattern": "^/"},
+    "conflicts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "required_request_cwd": {"type": ["string", "null"], "minLength": 1}
+  },
+  "additionalProperties": false
+}

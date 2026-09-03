@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/adjudication-assignment.schema.json",
+  "title": "Immutable adjudication assignment artifact",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "benchmark_id",
+    "plan_revision",
+    "attempt_id",
+    "task_id",
+    "blind_id",
+    "grader_id",
+    "grader_revision",
+    "stage",
+    "assigned_at",
+    "request_path",
+    "runtime_capability_binding",
+    "call_plan_binding",
+    "traffic_class",
+    "delta_seal_references"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "plan_revision": {"type": "string", "pattern": "^v[1-9][0-9]*$"},
+    "attempt_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "blind_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "grader_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "grader_revision": {"type": "string", "pattern": "^v[1-9][0-9]*$"},
+    "stage": {"const": "adjudicate"},
+    "assigned_at": {"type": "string", "format": "date-time"},
+    "request_path": {"type": "string", "format": "safe-relative-path"},
+    "runtime_capability_binding": {
+      "type": ["object", "null"],
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "format": "safe-relative-path"},
+        "sha256": {"type": "string", "format": "sha256"}
+      },
+      "additionalProperties": false
+    },
+    "call_plan_binding": {
+      "type": ["object", "null"],
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "format": "safe-relative-path"},
+        "sha256": {"type": "string", "format": "sha256"}
+      },
+      "additionalProperties": false
+    },
+    "traffic_class": {"const": "adjudication"},
+    "delta_seal_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["seal_type", "revision"],
+        "properties": {
+          "seal_type": {"type": "string", "minLength": 1},
+          "revision": {"type": "string", "pattern": "^v[1-9][0-9]*$"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

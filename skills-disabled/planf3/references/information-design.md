@@ -1,0 +1,25 @@
+# PlanF3 information design
+
+PlanF3 is one traceable page, not a card dashboard. Heading outline and stable anchors are primary hierarchy. Semantic records are divided editorial ledgers with visible type symbols, two-digit ordinals, type labels, and permalinks. Never apply card/grid presentation to `REQ`, `DEC`, `EVD`, `PHS`, `UNT`, `CHK`, or `VAL` records.
+
+## Phase owner/detail ledger
+
+Use a full-width ordered `.phase-rail`. Each `.phase-rail-item` directly owns exactly one `.phase-owner` and one `.phase-unit-lane`. The owner column contains every phase-owned heading and field: status, outcome, dependency/order, gates, evidence, and handoff. Its adjacent lane contains every directly owned `.execution-ledger-item` unit and no unit sits outside it. Phase-colored rails and unit-colored lane dividers make ownership unmistakable without boxed records. At narrow widths the owner and lane collapse to one column.
+
+Color is semantic and does not replace text: accent rails identify phases, the secondary accent identifies owned unit lanes, warning marks sequential work, info marks parallel-permitted work, negative/positive mark File Impact before/after, and info/positive tones distinguish metric labels and targets. Lifecycle text stays unchanged.
+
+The page shell uses the full available viewport with a very small responsive gutter up to `120rem`. Structural children including `#phases > ol`, definition ledgers, tables, figures, and metric ledgers have no generic `72ch` ceiling. Prose paragraphs and block quotes may retain readable width.
+
+## Ordering projection
+
+Place one `.execution-order-map.diagram-shell[data-planf3-execution-order]` first in `#phases`. Render its deterministic top-down Mermaid source into an SVG branching diagram: normalize ID aliases with `_` while keeping every authority alias unique, label each phase/unit exactly as `ID · Wave NN · mode`, and after exact `flowchart TD` use only one simple `-->` edge per nonempty line with optional quoted endpoint declarations. Split from phases to first-wave units, converge cross-phase dependencies at the dependent phase, connect same-phase unit dependencies directly, then branch every terminal unit to Key metrics and Validation. Declare no unrelated nodes or edges. The existing Mermaid runtime is the only renderer; add no dependency. Keep one labelled, keyboard-focusable SVG viewport and one source-visible grouped HTML fallback with every linked node ID, wave, sequential/parallel text, and labelled unit-wave band. The SVG is derived presentation; the fallback and semantic dependencies preserve meaning when rendering is unavailable.
+
+## File Impact, code snippets, and metrics
+
+Render every unit-local authority as `.file-impact-delta`: one direct monospace path header over a direct `.file-impact-sides` pair, collapsing to one column on small screens. The pair directly owns Before and After sides with exact labels and separate body hooks. Negative and positive tones distinguish the sides while labels preserve meaning.
+
+Render source evidence and illustrative design code as a terminal audit tape with the same `.code-snippet` figure: dark monospace body, compact provenance header, semantic source/illustrative accent, and comment-style audit caption. Keep the header and caption outside the scroll region and preserve code whitespace in one bounded, labelled, keyboard-focusable `.code-snippet-body`. Source code has a visible per-line gutter generated from exact authored `data-planf3-code-line` spans; illustrative code has no line-number gutter because it is not source evidence. Use visible Source/Proposed/Pseudocode/Command text rather than color alone. Source headers show exact path and line range. Illustrative captions say the code is not current source or separate authority. Do not fake line numbers with static CSS content. On print, keep source line numbers and wrap long lines within the page instead of clipping them.
+
+The global `.key-metrics-overview` sits immediately after the hero and before Goal and Scope. The component is location-independent and may be reused wherever a compact overview fits, but the plan has one semantic authority. One direct `.key-metrics-ledger` contains 3-6 surface scorecards, followed by one direct housekeeping row. Each scorecard shows a text-labelled semantic tone, label, `was ...` baseline trend, target, observed result, and evidence. Target is visually primary while planned; observed is primary after execution. Evidence and housekeeping remain subordinate. Hero observability remains a compact inventory of record counts and lifecycle dimensions.
+
+The File impact index remains a source-complete semantic table with exact authority paths, owner links, filter, and canonical export restoration. Static HTML remains complete without JavaScript. Captions, scoped headers, skip navigation, focus styles, deep links, and reduced motion remain required. Print composition avoids splitting phase owners, unit ledgers, Before/After pairs, and individual Key metrics, and resets the File impact table's screen-only minimum widths and no-wrap rules so portrait output wraps inside the page.

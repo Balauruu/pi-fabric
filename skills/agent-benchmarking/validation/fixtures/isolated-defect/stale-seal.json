@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "fixture_family": "isolated-defect",
+  "defect_id": "stale-seal",
+  "sealed_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "current_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "expected": "reject-stale-seal"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "control": "control",
+  "candidate": "candidate",
+  "seed": 0,
+  "bootstrap_draws": 1,
+  "confidence_level": 0.5,
+  "records": [
+    {"task_id": "only-task", "condition_id": "control", "repetition": 1, "outcome": 0},
+    {"task_id": "only-task", "condition_id": "candidate", "repetition": 1, "outcome": 0}
+  ]
+}

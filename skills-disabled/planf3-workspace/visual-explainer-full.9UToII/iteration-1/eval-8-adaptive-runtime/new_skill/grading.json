@@ -1,0 +1,12 @@
+{
+  "eval_id": 8,
+  "configuration": "new_skill",
+  "passed": 4,
+  "total": 4,
+  "assertions": [
+    {"index": 1, "passed": true, "evidence": "Declares visual-explainer-v1, selects cranberry-audit, and contains no old --plan-canvas/Hermes token."},
+    {"index": 2, "passed": true, "evidence": "Seven presets and system/light/dark controls are wired to the embedded runtime."},
+    {"index": 3, "passed": true, "evidence": "DOM inspection found zero Mermaid shells and zero chart canvases; semantic cards/tables/code carry the simple plan."},
+    {"index": 4, "passed": true, "evidence": "Validator passed; desktop and 390x844 browser checks showed responsive horizontal nav, no page overflow, reduced-motion CSS, and intact lifecycle hooks."}
+  ]
+}

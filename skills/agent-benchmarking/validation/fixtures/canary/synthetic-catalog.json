@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "non_scoring": true,
+  "cases": [
+    {
+      "canary_id": "false-complete-refusal",
+      "expected": "rejected",
+      "input": {"scheduled": 2, "terminals": 1, "graders": 1}
+    },
+    {
+      "canary_id": "interrupted-wave-resume-policy",
+      "expected": "rejected",
+      "input": {
+        "terminal": ["a1"],
+        "assigned_without_terminal": ["a2"],
+        "never_assigned": ["a3"],
+        "selected": ["a2"]
+      }
+    },
+    {
+      "canary_id": "grader-condition-leakage",
+      "expected": "rejected",
+      "input": {"grader_fields": ["blind_id", "condition_id"], "reference_visible_to_condition": false}
+    },
+    {
+      "canary_id": "mutable-state-reuse",
+      "expected": "rejected",
+      "input": {
+        "attempts": [
+          {"workspace_id": "w1", "cache_id": "shared", "browser_id": "b1", "service_state_id": "svc1", "session_id": "s1"},
+          {"workspace_id": "w2", "cache_id": "shared", "browser_id": "b2", "service_state_id": "svc2", "session_id": "s2"}
+        ]
+      }
+    },
+    {
+      "canary_id": "unequal-budgets",
+      "expected": "rejected",
+      "input": {"condition_budgets": {"control": {"timeout": 60}, "candidate": {"timeout": 120}}}
+    },
+    {
+      "canary_id": "fixed-order",
+      "expected": "rejected",
+      "input": {"condition_sequences": [["control", "candidate"], ["control", "candidate"], ["control", "candidate"]]}
+    },
+    {
+      "canary_id": "silent-exclusions",
+      "expected": "rejected",
+      "input": {"scheduled_ids": ["a1", "a2"], "reported_ids": ["a1"]}
+    },
+    {
+      "canary_id": "retry-contamination",
+      "expected": "rejected",
+      "input": {
+        "attempts": [
+          {"attempt_id": "a1", "retry_of": null, "reported_pass_at_1": false},
+          {"attempt_id": "a1", "retry_of": "a1", "reported_pass_at_1": true}
+        ]
+      }
+    },
+    {
+      "canary_id": "unsupported-causal-claims",
+      "expected": "rejected",
+      "input": {"claim": {"basis": "exposed-subset", "exposure_randomized": false, "exposure_forced": false}}
+    },
+    {
+      "canary_id": "stale-seals",
+      "expected": "rejected",
+      "input": {"sealed_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "current_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "unmatched_paths": []}
+    },
+    {
+      "canary_id": "orphan-children",
+      "expected": "rejected",
+      "input": {"child_ids": ["child-1", "child-2"], "owned_child_ids": ["child-1"]}
+    },
+    {
+      "canary_id": "efficiency-accounting",
+      "expected": "rejected",
+      "input": {"failures_included": false, "inclusive_parent_plus_children": true, "continuous_metrics_reported": false}
+    },
+    {
+      "canary_id": "static-before-agent-ordering",
+      "expected": "rejected-before-agent",
+      "input": {"static_status": "failed", "agents_run_calls": 0}
+    }
+  ]
+}
