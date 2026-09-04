@@ -1,0 +1,5 @@
+{"version":1,"event":"pi.agent_start","occurredAt":1788509006268}
+{"version":1,"event":"tokens.usage","occurredAt":1788509010418,"data":{"runId":"2f6171cb89cb485eba2fa1b309cca7bb","name":"canary-blind-map-isolation-parent-1","runner":"pi","depth":1,"cumulativeTokens":1119,"input":1054,"output":65,"cacheRead":0,"cacheWrite":0,"cost":0.007220000000000001}}
+{"version":1,"event":"pi.turn_end","occurredAt":1788509010419,"data":{}}
+{"version":1,"event":"pi.agent_end","occurredAt":1788509010419,"data":{"willRetry":false}}
+{"version":1,"event":"pi.agent_settled","occurredAt":1788509010419}

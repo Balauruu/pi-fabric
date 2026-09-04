@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "non_scoring": true,
+  "canary_id": "fabric-audit-dry-run",
+  "workflow_path": "workflows/benchmark.ts",
+  "workflow_sha256": "c7b6f6074e78d4c086d475b41320e4d24bff91c15f63b009a6dad039e8923410",
+  "request_path": "validation/fixtures/canary/workflow-request.json",
+  "request_sha256": "2d874377d3ee913d9c9af0b13d55c036f48a9eabe3915e9836a40b4716cafb0f",
+  "fabric_version": "0.77.0",
+  "typecheck": "passed",
+  "executor": "installed-QuickJsRuntime",
+  "termination_reason": "completed",
+  "agents_run_calls": 0,
+  "host_calls": [
+    "fabric.$configure",
+    "pi.bash",
+    "pi.write",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "fabric.$phase",
+    "pi.bash",
+    "fabric.$phase",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "pi.bash",
+    "fabric.$phase",
+    "fabric.$phase",
+    "fabric.$phase",
+    "pi.bash"
+  ],
+  "audit_receipt": {
+    "schema_version": 1,
+    "status": "blocked",
+    "qualifiers": [
+      "reconciliation-incomplete"
+    ],
+    "route": "Audit",
+    "stage": "audit",
+    "request_id": "audit-1212914",
+    "benchmark_id": "development-canary",
+    "dry_run": true,
+    "agent_calls": 0,
+    "evidence": [
+      {
+        "path": "schedule.jsonl",
+        "state": "missing"
+      },
+      {
+        "path": "events.jsonl",
+        "state": "missing"
+      },
+      {
+        "path": "ledger.jsonl",
+        "state": "missing"
+      },
+      {
+        "path": "grades.jsonl",
+        "state": "missing"
+      }
+    ],
+    "seals": [],
+    "reconciliation": null,
+    "semantic_review": null,
+    "complete": false,
+    "failure": null,
+    "blockers": [
+      "schedule.jsonl is missing"
+    ],
+    "minimum_repair": "preserve existing bytes and create only the missing deterministic or revisioned evidence",
+    "measured_agent_calls": 0,
+    "grader_agent_calls": 0,
+    "support_agent_calls": 0,
+    "owned_temporary_paths": [
+      "/tmp/pi-agent-benchmark-audit-1212914.ujdDVX"
+    ],
+    "cleaned_temporary_paths": [
+      "/tmp/pi-agent-benchmark-audit-1212914.ujdDVX"
+    ]
+  },
+  "limitations": [
+    "The canary executes the exact saved bytes in the installed Fabric QuickJS engine with controlled Pi host-call adapters.",
+    "It proves the agent-free Audit dry-run path, not measured Execute/Analyze behavior or provider correctness."
+  ]
+}

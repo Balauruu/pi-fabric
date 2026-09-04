@@ -1,0 +1,36 @@
+{
+  "id": "500b20fdb7644f27a9f7ac47319b26bb",
+  "name": "canary-false-complete-refusal-parent-1",
+  "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/false-complete-refusal.request.json at SHA-256 c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12. Return schema-valid JSON with request_id=false-complete-refusal, nonce=false-complete-refusal-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-production-20260904T093000Z/runtime-canaries/runtime-raw/false-complete-refusal/workspaces/parent-1",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788513774723,
+  "updatedAt": 1788513785912,
+  "turns": 2,
+  "toolCalls": 2,
+  "text": "{\"request_id\":\"false-complete-refusal\",\"nonce\":\"false-complete-refusal-fabric-probe-1\",\"payload\":{\"request_sha256\":\"c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12\",\"nonce_echo\":\"false-complete-refusal-fabric-probe-1\",\"size_bytes\":533}}",
+  "usage": {
+    "input": 5954,
+    "output": 336,
+    "cacheRead": 2560,
+    "cacheWrite": 0,
+    "cost": 0.04113
+  },
+  "logFile": "/tmp/pi-fabric-runs-uwkxBf/500b20fdb7644f27a9f7ac47319b26bb/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788513785912,
+  "value": {
+    "request_id": "false-complete-refusal",
+    "nonce": "false-complete-refusal-fabric-probe-1",
+    "payload": {
+      "request_sha256": "c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12",
+      "nonce_echo": "false-complete-refusal-fabric-probe-1",
+      "size_bytes": 533
+    }
+  }
+}

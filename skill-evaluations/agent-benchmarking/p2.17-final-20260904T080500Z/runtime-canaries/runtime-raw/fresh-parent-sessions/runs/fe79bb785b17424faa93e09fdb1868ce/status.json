@@ -1,0 +1,34 @@
+{
+  "id": "fe79bb785b17424faa93e09fdb1868ce",
+  "name": "canary-fresh-parent-sessions-parent-1",
+  "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/fresh-parent-sessions.request.json at SHA-256 9734116d7730aeb5005db439cdbe53e789402a7debfd57dea33b71cc508e560f. Return schema-valid JSON with request_id=fresh-parent-sessions, nonce=fresh-parent-sessions-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use exactly one bash call in /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-1 to write fresh-parent-sessions-fabric-probe-1 to parent-1.sentinel.txt, then read that file. In payload return only file_value.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-1",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788509042374,
+  "updatedAt": 1788509055774,
+  "turns": 3,
+  "toolCalls": 2,
+  "text": "{\"request_id\":\"fresh-parent-sessions\",\"nonce\":\"fresh-parent-sessions-fabric-probe-1\",\"payload\":{\"file_value\":\"fresh-parent-sessions-fabric-probe-1\"}}",
+  "usage": {
+    "input": 3345,
+    "output": 194,
+    "cacheRead": 5504,
+    "cacheWrite": 0,
+    "cost": 0.025297
+  },
+  "logFile": "/tmp/pi-fabric-runs-IRR23G/fe79bb785b17424faa93e09fdb1868ce/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788509055774,
+  "value": {
+    "request_id": "fresh-parent-sessions",
+    "nonce": "fresh-parent-sessions-fabric-probe-1",
+    "payload": {
+      "file_value": "fresh-parent-sessions-fabric-probe-1"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "id": "4684c5c78c82476ba06881916af14c87",
+  "name": "canary-token-cost-attribution-parent-1",
+  "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json at SHA-256 b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196. Return schema-valid JSON with request_id=token-cost-attribution, nonce=token-cost-attribution-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \"Return exactly child-token-1\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\"-used\", and the complete child_result object returned by Fabric.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788514472616,
+  "updatedAt": 1788514496633,
+  "turns": 2,
+  "toolCalls": 1,
+  "text": "{\"request_id\":\"token-cost-attribution\",\"nonce\":\"token-cost-attribution-fabric-probe-1\",\"payload\":{\"child_id\":\"c7706ec38b24408e951567a813c2c026\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"c7706ec38b24408e951567a813c2c026\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788514484689,\"updatedAt\":1788514488378,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788514488378,\"logFile\":\"/tmp/pi-fabric-runs-uwkxBf/4684c5c78c82476ba06881916af14c87/nested/c7706ec38b24408e951567a813c2c026/events.jsonl\",\"sessionId\":\"1037091\"}}}",
+  "usage": {
+    "input": 10316,
+    "output": 791,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0.07531
+  },
+  "logFile": "/tmp/pi-fabric-runs-uwkxBf/4684c5c78c82476ba06881916af14c87/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788514496633,
+  "value": {
+    "request_id": "token-cost-attribution",
+    "nonce": "token-cost-attribution-fabric-probe-1",
+    "payload": {
+      "child_id": "c7706ec38b24408e951567a813c2c026",
+      "child_token": "child-token-1",
+      "parent_consumed_value": "child-token-1-used",
+      "parent_transform_suffix": "-used",
+      "child_result": {
+        "id": "c7706ec38b24408e951567a813c2c026",
+        "name": "Return exactly child-token-1",
+        "task": "Return exactly child-token-1",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788514484689,
+        "updatedAt": 1788514488378,
+        "turns": 1,
+        "toolCalls": 0,
+        "text": "child-token-1",
+        "usage": {
+          "input": 1592,
+          "output": 8,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "cost": 0.0082
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788514488378,
+        "logFile": "/tmp/pi-fabric-runs-uwkxBf/4684c5c78c82476ba06881916af14c87/nested/c7706ec38b24408e951567a813c2c026/events.jsonl",
+        "sessionId": "1037091"
+      }
+    }
+  }
+}

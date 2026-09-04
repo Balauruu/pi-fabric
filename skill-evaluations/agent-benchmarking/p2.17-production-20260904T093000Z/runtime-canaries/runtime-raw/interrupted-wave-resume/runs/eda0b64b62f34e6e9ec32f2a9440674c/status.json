@@ -1,0 +1,35 @@
+{
+  "id": "eda0b64b62f34e6e9ec32f2a9440674c",
+  "name": "canary-interrupted-wave-resume-parent-1",
+  "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/interrupted-wave-resume.request.json at SHA-256 e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa. Return schema-valid JSON with request_id=interrupted-wave-resume, nonce=interrupted-wave-resume-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-production-20260904T093000Z/runtime-canaries/runtime-raw/interrupted-wave-resume/workspaces/parent-1",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788513817321,
+  "updatedAt": 1788513829740,
+  "turns": 2,
+  "toolCalls": 3,
+  "text": "{\"request_id\":\"interrupted-wave-resume\",\"nonce\":\"interrupted-wave-resume-fabric-probe-1\",\"payload\":{\"request_sha256\":\"e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa\",\"nonce_echo\":\"interrupted-wave-resume-fabric-probe-1\"}}",
+  "usage": {
+    "input": 6108,
+    "output": 299,
+    "cacheRead": 2560,
+    "cacheWrite": 0,
+    "cost": 0.04079000000000001
+  },
+  "logFile": "/tmp/pi-fabric-runs-uwkxBf/eda0b64b62f34e6e9ec32f2a9440674c/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788513829740,
+  "value": {
+    "request_id": "interrupted-wave-resume",
+    "nonce": "interrupted-wave-resume-fabric-probe-1",
+    "payload": {
+      "request_sha256": "e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa",
+      "nonce_echo": "interrupted-wave-resume-fabric-probe-1"
+    }
+  }
+}

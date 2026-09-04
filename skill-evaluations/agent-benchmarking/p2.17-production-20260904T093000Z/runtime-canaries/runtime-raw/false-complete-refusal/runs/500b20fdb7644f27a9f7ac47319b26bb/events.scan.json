@@ -1,0 +1,1 @@
+{"child_ids":[],"counts":{"actor_cleanup":0,"actor_create":0,"actor_terminal":0},"event_count":127,"flags":{"actor_cleanup":false,"actor_create":false,"actor_terminal":false},"forbidden_paths":[],"scanner_version":"deep-stage-v1","schema_version":1,"source_bytes":119152,"source_sha256":"9d989dc0fe1a6a9c42c2025d7008aafb1c205204f3963e789e95c3c61d211843"}

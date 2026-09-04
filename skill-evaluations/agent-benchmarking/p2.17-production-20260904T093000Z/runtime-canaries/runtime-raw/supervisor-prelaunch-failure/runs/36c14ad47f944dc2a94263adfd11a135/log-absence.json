@@ -1,0 +1,1 @@
+{"schema_version":1,"status":"confirmed-absent","agent_id":"36c14ad47f944dc2a94263adfd11a135","returned_log_file":"/tmp/pi-fabric-runs-uwkxBf/36c14ad47f944dc2a94263adfd11a135/events.jsonl","result_status":"failed","error":"spawn veda ENOENT"}

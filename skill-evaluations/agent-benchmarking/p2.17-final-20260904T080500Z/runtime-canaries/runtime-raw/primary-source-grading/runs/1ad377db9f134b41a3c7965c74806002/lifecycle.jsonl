@@ -1,0 +1,7 @@
+{"version":1,"event":"pi.agent_start","occurredAt":1788509107363}
+{"version":1,"event":"tokens.usage","occurredAt":1788509112739,"data":{"runId":"1ad377db9f134b41a3c7965c74806002","name":"canary-primary-source-grading-parent-1","runner":"pi","depth":1,"cumulativeTokens":2896,"input":2707,"output":189,"cacheRead":0,"cacheWrite":0,"cost":0.019205000000000003}}
+{"version":1,"event":"pi.turn_end","occurredAt":1788509112742,"data":{}}
+{"version":1,"event":"tokens.usage","occurredAt":1788509118776,"data":{"runId":"1ad377db9f134b41a3c7965c74806002","name":"canary-primary-source-grading-parent-1","runner":"pi","depth":1,"cumulativeTokens":18016,"input":12402,"output":158,"cacheRead":2560,"cacheWrite":0,"cost":0.06803000000000001}}
+{"version":1,"event":"pi.turn_end","occurredAt":1788509118776,"data":{}}
+{"version":1,"event":"pi.agent_end","occurredAt":1788509118777,"data":{"willRetry":false}}
+{"version":1,"event":"pi.agent_settled","occurredAt":1788509118777}

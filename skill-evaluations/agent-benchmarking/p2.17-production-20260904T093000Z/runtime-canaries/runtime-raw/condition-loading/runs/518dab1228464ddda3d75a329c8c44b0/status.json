@@ -1,0 +1,37 @@
+{
+  "id": "518dab1228464ddda3d75a329c8c44b0",
+  "name": "canary-condition-loading-parent-1",
+  "task": "/skill:agent-benchmarking This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/condition-loading.request.json at SHA-256 41cb0462ae8a783177a351d9162e3bbb8f57f5df654ccca0f360ad5acb90b5f3. Return schema-valid JSON with request_id=condition-loading, nonce=condition-loading-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return received_as_literal (whether this slash invocation remained literal), instruction_mode, condition_sha256 from /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/SKILL.md, and nonce_echo.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-production-20260904T093000Z/runtime-canaries/runtime-raw/condition-loading/workspaces/parent-1",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788513762135,
+  "updatedAt": 1788513773342,
+  "turns": 2,
+  "toolCalls": 2,
+  "text": "{\"request_id\":\"condition-loading\",\"nonce\":\"condition-loading-fabric-probe-1\",\"payload\":{\"received_as_literal\":false,\"instruction_mode\":\"expanded_skill\",\"condition_sha256\":\"143baf0ea268479f562e99721a209c058fefa98890d47d250b1714bbab4dbc93\",\"nonce_echo\":\"condition-loading-fabric-probe-1\"}}",
+  "usage": {
+    "input": 5975,
+    "output": 335,
+    "cacheRead": 5248,
+    "cacheWrite": 0,
+    "cost": 0.042549000000000003
+  },
+  "logFile": "/tmp/pi-fabric-runs-uwkxBf/518dab1228464ddda3d75a329c8c44b0/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788513773342,
+  "value": {
+    "request_id": "condition-loading",
+    "nonce": "condition-loading-fabric-probe-1",
+    "payload": {
+      "received_as_literal": false,
+      "instruction_mode": "expanded_skill",
+      "condition_sha256": "143baf0ea268479f562e99721a209c058fefa98890d47d250b1714bbab4dbc93",
+      "nonce_echo": "condition-loading-fabric-probe-1"
+    }
+  }
+}

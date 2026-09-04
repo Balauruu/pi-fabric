@@ -1,0 +1,40 @@
+{
+  "id": "71dc3e5f96084357bdef2be3c290c5fe",
+  "name": "canary-randomized-schedule-parent-1",
+  "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/randomized-schedule.request.json at SHA-256 9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e. Return schema-valid JSON with request_id=randomized-schedule, nonce=randomized-schedule-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-production-20260904T094000Z/runtime-canaries/runtime-raw/randomized-schedule/workspaces/parent-1",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788514424367,
+  "updatedAt": 1788514436667,
+  "turns": 2,
+  "toolCalls": 3,
+  "text": "{\"request_id\":\"randomized-schedule\",\"nonce\":\"randomized-schedule-fabric-probe-1\",\"payload\":{\"request_sha256\":\"9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e\",\"nonce_echo\":\"randomized-schedule-fabric-probe-1\",\"size_bytes\":533,\"route\":\"Execute\",\"stage\":\"execute\",\"max_agents\":2,\"max_concurrency\":2}}",
+  "usage": {
+    "input": 6114,
+    "output": 383,
+    "cacheRead": 2560,
+    "cacheWrite": 0,
+    "cost": 0.043340000000000004
+  },
+  "logFile": "/tmp/pi-fabric-runs-uwkxBf/71dc3e5f96084357bdef2be3c290c5fe/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788514436667,
+  "value": {
+    "request_id": "randomized-schedule",
+    "nonce": "randomized-schedule-fabric-probe-1",
+    "payload": {
+      "request_sha256": "9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e",
+      "nonce_echo": "randomized-schedule-fabric-probe-1",
+      "size_bytes": 533,
+      "route": "Execute",
+      "stage": "execute",
+      "max_agents": 2,
+      "max_concurrency": 2
+    }
+  }
+}

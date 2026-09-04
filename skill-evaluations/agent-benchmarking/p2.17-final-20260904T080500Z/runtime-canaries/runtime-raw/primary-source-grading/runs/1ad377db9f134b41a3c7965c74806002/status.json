@@ -1,0 +1,35 @@
+{
+  "id": "1ad377db9f134b41a3c7965c74806002",
+  "name": "canary-primary-source-grading-parent-1",
+  "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/primary-source-grading.request.json at SHA-256 554f8264d004d913ecb7bf042f20f0ee0e78f0b8b059f1ca459aef4ce49ab706. Return schema-valid JSON with request_id=primary-source-grading, nonce=primary-source-grading-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Read /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/primary-source-grading/workspaces/primary-source.html, select one exact nonempty text fragment from that captured NIST page, and grade only whether that fragment is entailed by the captured page. In payload return decision=\"entailed\" only if it is literally present, plus quote. Do not claim a source you did not read.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/primary-source-grading/workspaces",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788509107162,
+  "updatedAt": 1788509118783,
+  "turns": 2,
+  "toolCalls": 2,
+  "text": "{\"request_id\":\"primary-source-grading\",\"nonce\":\"primary-source-grading-fabric-probe-1\",\"payload\":{\"decision\":\"entailed\",\"quote\":\"This standard specifies hash algorithms that can be used to generate digests of messages.\"}}",
+  "usage": {
+    "input": 15109,
+    "output": 347,
+    "cacheRead": 2560,
+    "cacheWrite": 0,
+    "cost": 0.08723500000000001
+  },
+  "logFile": "/tmp/pi-fabric-runs-IRR23G/1ad377db9f134b41a3c7965c74806002/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788509118783,
+  "value": {
+    "request_id": "primary-source-grading",
+    "nonce": "primary-source-grading-fabric-probe-1",
+    "payload": {
+      "decision": "entailed",
+      "quote": "This standard specifies hash algorithms that can be used to generate digests of messages."
+    }
+  }
+}

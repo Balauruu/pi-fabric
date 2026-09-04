@@ -1,0 +1,1 @@
+Grade the blinded item using the supplied schema only.

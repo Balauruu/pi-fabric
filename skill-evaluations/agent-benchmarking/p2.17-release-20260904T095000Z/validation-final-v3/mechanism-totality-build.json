@@ -1,0 +1,1 @@
+{"benchmark_id":"p2.17-release-replay","branches":["candidate-actor","candidate-no-actor","control-no-actor","missing-mechanism","failed-attempt"],"packet_path":".agent-benchmark-release-probes-TAolFQ/mechanism-totality","request_path":"replay/requests/execute.json","scenario":"mechanism-totality","schema_version":1}

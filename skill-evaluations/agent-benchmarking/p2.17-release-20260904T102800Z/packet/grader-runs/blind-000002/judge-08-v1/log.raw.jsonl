@@ -1,0 +1,2 @@
+{"type":"agent_start","agentId":"00000000000000000000000000000009","model":"fake-model","timestamp":1788505200090}
+{"type":"agent_end","agentId":"00000000000000000000000000000009","status":"completed","usage":{"input":10,"output":5,"cacheRead":0,"cacheWrite":0},"timestamp":1788505200095}

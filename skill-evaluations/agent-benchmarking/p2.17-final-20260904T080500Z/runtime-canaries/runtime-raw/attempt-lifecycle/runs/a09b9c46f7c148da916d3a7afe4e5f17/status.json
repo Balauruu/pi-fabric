@@ -1,0 +1,40 @@
+{
+  "id": "a09b9c46f7c148da916d3a7afe4e5f17",
+  "name": "canary-attempt-lifecycle-parent-1",
+  "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/attempt-lifecycle.request.json at SHA-256 b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a. Return schema-valid JSON with request_id=attempt-lifecycle, nonce=attempt-lifecycle-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/attempt-lifecycle/workspaces/parent-1",
+  "model": "openai-codex/gpt-5.6-sol",
+  "thinking": "high",
+  "startedAt": 1788508992968,
+  "updatedAt": 1788509005800,
+  "turns": 2,
+  "toolCalls": 3,
+  "text": "{\"request_id\":\"attempt-lifecycle\",\"nonce\":\"attempt-lifecycle-fabric-probe-1\",\"payload\":{\"request_sha256\":\"b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a\",\"nonce_echo\":\"attempt-lifecycle-fabric-probe-1\",\"route\":\"Execute\",\"stage\":\"execute\",\"wave_id\":\"1\",\"max_agents\":2,\"max_concurrency\":2}}",
+  "usage": {
+    "input": 7233,
+    "output": 352,
+    "cacheRead": 2560,
+    "cacheWrite": 0,
+    "cost": 0.048005000000000006
+  },
+  "logFile": "/tmp/pi-fabric-runs-IRR23G/a09b9c46f7c148da916d3a7afe4e5f17/events.jsonl",
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788509005800,
+  "value": {
+    "request_id": "attempt-lifecycle",
+    "nonce": "attempt-lifecycle-fabric-probe-1",
+    "payload": {
+      "request_sha256": "b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a",
+      "nonce_echo": "attempt-lifecycle-fabric-probe-1",
+      "route": "Execute",
+      "stage": "execute",
+      "wave_id": "1",
+      "max_agents": 2,
+      "max_concurrency": 2
+    }
+  }
+}

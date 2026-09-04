@@ -1,0 +1,9 @@
+{"version":1,"event":"pi.agent_start","occurredAt":1788509042579}
+{"version":1,"event":"tokens.usage","occurredAt":1788509047044,"data":{"runId":"fe79bb785b17424faa93e09fdb1868ce","name":"canary-fresh-parent-sessions-parent-1","runner":"pi","depth":1,"cumulativeTokens":2935,"input":2857,"output":78,"cacheRead":0,"cacheWrite":0,"cost":0.016625}}
+{"version":1,"event":"pi.turn_end","occurredAt":1788509047050,"data":{}}
+{"version":1,"event":"tokens.usage","occurredAt":1788509051673,"data":{"runId":"fe79bb785b17424faa93e09fdb1868ce","name":"canary-fresh-parent-sessions-parent-1","runner":"pi","depth":1,"cumulativeTokens":5958,"input":261,"output":74,"cacheRead":2688,"cacheWrite":0,"cost":0.004869}}
+{"version":1,"event":"pi.turn_end","occurredAt":1788509051675,"data":{}}
+{"version":1,"event":"tokens.usage","occurredAt":1788509055765,"data":{"runId":"fe79bb785b17424faa93e09fdb1868ce","name":"canary-fresh-parent-sessions-parent-1","runner":"pi","depth":1,"cumulativeTokens":9043,"input":227,"output":42,"cacheRead":2816,"cacheWrite":0,"cost":0.0038030000000000004}}
+{"version":1,"event":"pi.turn_end","occurredAt":1788509055765,"data":{}}
+{"version":1,"event":"pi.agent_end","occurredAt":1788509055765,"data":{"willRetry":false}}
+{"version":1,"event":"pi.agent_settled","occurredAt":1788509055765}

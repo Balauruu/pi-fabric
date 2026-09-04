@@ -1,0 +1,1499 @@
+{
+  "schema_version": 1,
+  "resume": true,
+  "initial_host_receipt": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/host-receipt.json",
+  "initial_host_sha256": "046adf9769707c49a3d3dfad6710b8fed9399dccea07f44bc9f0dff27d575d60",
+  "capture_agent_audits": [
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-attempt-lifecycle-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/attempt-lifecycle.request.json at SHA-256 b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a. Return schema-valid JSON with request_id=attempt-lifecycle, nonce=attempt-lifecycle-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "attempt-lifecycle"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/attempt-lifecycle/workspaces/parent-1"
+      },
+      "result": {
+        "id": "a09b9c46f7c148da916d3a7afe4e5f17",
+        "name": "canary-attempt-lifecycle-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/attempt-lifecycle.request.json at SHA-256 b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a. Return schema-valid JSON with request_id=attempt-lifecycle, nonce=attempt-lifecycle-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/attempt-lifecycle/workspaces/parent-1",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788508992968,
+        "updatedAt": 1788509005800,
+        "turns": 2,
+        "toolCalls": 3,
+        "text": "{\"request_id\":\"attempt-lifecycle\",\"nonce\":\"attempt-lifecycle-fabric-probe-1\",\"payload\":{\"request_sha256\":\"b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a\",\"nonce_echo\":\"attempt-lifecycle-fabric-probe-1\",\"route\":\"Execute\",\"stage\":\"execute\",\"wave_id\":\"1\",\"max_agents\":2,\"max_concurrency\":2}}",
+        "usage": {
+          "input": 7233,
+          "output": 352,
+          "cacheRead": 2560,
+          "cacheWrite": 0,
+          "cost": 0.048005000000000006
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509005800,
+        "value": {
+          "request_id": "attempt-lifecycle",
+          "nonce": "attempt-lifecycle-fabric-probe-1",
+          "payload": {
+            "request_sha256": "b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a",
+            "nonce_echo": "attempt-lifecycle-fabric-probe-1",
+            "route": "Execute",
+            "stage": "execute",
+            "wave_id": "1",
+            "max_agents": 2,
+            "max_concurrency": 2
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/a09b9c46f7c148da916d3a7afe4e5f17/events.jsonl",
+        "sessionId": "727586"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "a09b9c46f7c148da916d3a7afe4e5f17",
+        "name": "canary-attempt-lifecycle-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"attempt-lifecycle\",\"nonce\":\"attempt-lifecycle-fabric-probe-1\",\"payload\":{\"request_sha256\":\"b778d749170414219246571cfd39a180be8cc7927f54a7b150192df56738973a\",\"nonce_echo\":\"attempt-lifecycle-fabric-probe-1\",\"route\":\"Execute\",\"stage\":\"execute\",\"wave_id\":\"1\",\"max_agents\":2,\"max_concurrency\":2}}",
+        "tools": []
+      },
+      "startedAt": 1788508992873,
+      "endedAt": 1788509005823
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-blind-map-isolation-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/blind-map-isolation.request.json at SHA-256 a9829cead606b623bccbd2b343497b18043749e3cfe6502b72b572e15fc76902. Return schema-valid JSON with request_id=blind-map-isolation, nonce=blind-map-isolation-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Grade only this public row {\"blind_id\":\"b1\",\"task_id\":\"t1\",\"item_path\":\"blinded/b1.json\"}. Use no tools. In payload return only nonce_echo.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "blind-map-isolation"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "nonce_echo"
+              ],
+              "properties": {
+                "nonce_echo": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "result": {
+        "id": "2f6171cb89cb485eba2fa1b309cca7bb",
+        "name": "canary-blind-map-isolation-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/blind-map-isolation.request.json at SHA-256 a9829cead606b623bccbd2b343497b18043749e3cfe6502b72b572e15fc76902. Return schema-valid JSON with request_id=blind-map-isolation, nonce=blind-map-isolation-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Grade only this public row {\"blind_id\":\"b1\",\"task_id\":\"t1\",\"item_path\":\"blinded/b1.json\"}. Use no tools. In payload return only nonce_echo.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509006067,
+        "updatedAt": 1788509010425,
+        "turns": 1,
+        "toolCalls": 0,
+        "text": "{\"request_id\":\"blind-map-isolation\",\"nonce\":\"blind-map-isolation-fabric-probe-1\",\"payload\":{\"nonce_echo\":\"blind-map-isolation-fabric-probe-1\"}}",
+        "usage": {
+          "input": 1054,
+          "output": 65,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "cost": 0.007220000000000001
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509010425,
+        "value": {
+          "request_id": "blind-map-isolation",
+          "nonce": "blind-map-isolation-fabric-probe-1",
+          "payload": {
+            "nonce_echo": "blind-map-isolation-fabric-probe-1"
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/2f6171cb89cb485eba2fa1b309cca7bb/events.jsonl",
+        "sessionId": "727752"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "2f6171cb89cb485eba2fa1b309cca7bb",
+        "name": "canary-blind-map-isolation-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"blind-map-isolation\",\"nonce\":\"blind-map-isolation-fabric-probe-1\",\"payload\":{\"nonce_echo\":\"blind-map-isolation-fabric-probe-1\"}}",
+        "tools": []
+      },
+      "startedAt": 1788509005977,
+      "endedAt": 1788509010496
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-condition-loading-parent-1",
+        "task": "/skill:agent-benchmarking This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/condition-loading.request.json at SHA-256 41cb0462ae8a783177a351d9162e3bbb8f57f5df654ccca0f360ad5acb90b5f3. Return schema-valid JSON with request_id=condition-loading, nonce=condition-loading-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return received_as_literal (whether this slash invocation remained literal), instruction_mode, condition_sha256 from /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/SKILL.md, and nonce_echo.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "condition-loading"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/condition-loading/workspaces/parent-1"
+      },
+      "result": {
+        "id": "edd0b82d59894c18a9d49f9ea4725aa7",
+        "name": "canary-condition-loading-parent-1",
+        "task": "/skill:agent-benchmarking This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/condition-loading.request.json at SHA-256 41cb0462ae8a783177a351d9162e3bbb8f57f5df654ccca0f360ad5acb90b5f3. Return schema-valid JSON with request_id=condition-loading, nonce=condition-loading-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return received_as_literal (whether this slash invocation remained literal), instruction_mode, condition_sha256 from /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/SKILL.md, and nonce_echo.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/condition-loading/workspaces/parent-1",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509010747,
+        "updatedAt": 1788509030172,
+        "turns": 4,
+        "toolCalls": 3,
+        "text": "{\"request_id\":\"condition-loading\",\"nonce\":\"condition-loading-fabric-probe-1\",\"payload\":{\"received_as_literal\":false,\"instruction_mode\":\"inline-bundle\",\"condition_sha256\":\"a721ca6d7d39041dcc843b67bc98823943d1ba151af57f7cd5ee3a8fb090a3d6\",\"nonce_echo\":\"condition-loading-fabric-probe-1\"}}",
+        "usage": {
+          "input": 7844,
+          "output": 394,
+          "cacheRead": 17152,
+          "cacheWrite": 0,
+          "cost": 0.059616
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509030172,
+        "value": {
+          "request_id": "condition-loading",
+          "nonce": "condition-loading-fabric-probe-1",
+          "payload": {
+            "received_as_literal": false,
+            "instruction_mode": "inline-bundle",
+            "condition_sha256": "a721ca6d7d39041dcc843b67bc98823943d1ba151af57f7cd5ee3a8fb090a3d6",
+            "nonce_echo": "condition-loading-fabric-probe-1"
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/edd0b82d59894c18a9d49f9ea4725aa7/events.jsonl",
+        "sessionId": "727839"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "edd0b82d59894c18a9d49f9ea4725aa7",
+        "name": "canary-condition-loading-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"condition-loading\",\"nonce\":\"condition-loading-fabric-probe-1\",\"payload\":{\"received_as_literal\":false,\"instruction_mode\":\"inline-bundle\",\"condition_sha256\":\"a721ca6d7d39041dcc843b67bc98823943d1ba151af57f7cd5ee3a8fb090a3d6\",\"nonce_echo\":\"condition-loading-fabric-probe-1\"}}",
+        "tools": []
+      },
+      "startedAt": 1788509010653,
+      "endedAt": 1788509030430
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-false-complete-refusal-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/false-complete-refusal.request.json at SHA-256 c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12. Return schema-valid JSON with request_id=false-complete-refusal, nonce=false-complete-refusal-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "false-complete-refusal"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/false-complete-refusal/workspaces/parent-1"
+      },
+      "result": {
+        "id": "e642a01d9aa8425d924155169962de78",
+        "name": "canary-false-complete-refusal-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/false-complete-refusal.request.json at SHA-256 c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12. Return schema-valid JSON with request_id=false-complete-refusal, nonce=false-complete-refusal-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/false-complete-refusal/workspaces/parent-1",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509030679,
+        "updatedAt": 1788509041878,
+        "turns": 2,
+        "toolCalls": 2,
+        "text": "{\"request_id\":\"false-complete-refusal\",\"nonce\":\"false-complete-refusal-fabric-probe-1\",\"payload\":{\"request_sha256\":\"c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12\",\"nonce_echo\":\"false-complete-refusal-fabric-probe-1\"}}",
+        "usage": {
+          "input": 3326,
+          "output": 299,
+          "cacheRead": 2560,
+          "cacheWrite": 0,
+          "cost": 0.02688
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509041878,
+        "value": {
+          "request_id": "false-complete-refusal",
+          "nonce": "false-complete-refusal-fabric-probe-1",
+          "payload": {
+            "request_sha256": "c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12",
+            "nonce_echo": "false-complete-refusal-fabric-probe-1"
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/e642a01d9aa8425d924155169962de78/events.jsonl",
+        "sessionId": "728102"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "e642a01d9aa8425d924155169962de78",
+        "name": "canary-false-complete-refusal-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"false-complete-refusal\",\"nonce\":\"false-complete-refusal-fabric-probe-1\",\"payload\":{\"request_sha256\":\"c52826bc0c641bef898bb7304be824d15ff17e9bdb7d9947d5d195e169905a12\",\"nonce_echo\":\"false-complete-refusal-fabric-probe-1\"}}",
+        "tools": []
+      },
+      "startedAt": 1788509030588,
+      "endedAt": 1788509042132
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-fresh-parent-sessions-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/fresh-parent-sessions.request.json at SHA-256 9734116d7730aeb5005db439cdbe53e789402a7debfd57dea33b71cc508e560f. Return schema-valid JSON with request_id=fresh-parent-sessions, nonce=fresh-parent-sessions-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use exactly one bash call in /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-1 to write fresh-parent-sessions-fabric-probe-1 to parent-1.sentinel.txt, then read that file. In payload return only file_value.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "fresh-parent-sessions"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "file_value"
+              ],
+              "properties": {
+                "file_value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-1"
+      },
+      "result": {
+        "id": "fe79bb785b17424faa93e09fdb1868ce",
+        "name": "canary-fresh-parent-sessions-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/fresh-parent-sessions.request.json at SHA-256 9734116d7730aeb5005db439cdbe53e789402a7debfd57dea33b71cc508e560f. Return schema-valid JSON with request_id=fresh-parent-sessions, nonce=fresh-parent-sessions-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use exactly one bash call in /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-1 to write fresh-parent-sessions-fabric-probe-1 to parent-1.sentinel.txt, then read that file. In payload return only file_value.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-1",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509042374,
+        "updatedAt": 1788509055774,
+        "turns": 3,
+        "toolCalls": 2,
+        "text": "{\"request_id\":\"fresh-parent-sessions\",\"nonce\":\"fresh-parent-sessions-fabric-probe-1\",\"payload\":{\"file_value\":\"fresh-parent-sessions-fabric-probe-1\"}}",
+        "usage": {
+          "input": 3345,
+          "output": 194,
+          "cacheRead": 5504,
+          "cacheWrite": 0,
+          "cost": 0.025297
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509055774,
+        "value": {
+          "request_id": "fresh-parent-sessions",
+          "nonce": "fresh-parent-sessions-fabric-probe-1",
+          "payload": {
+            "file_value": "fresh-parent-sessions-fabric-probe-1"
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/fe79bb785b17424faa93e09fdb1868ce/events.jsonl",
+        "sessionId": "728266"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "fe79bb785b17424faa93e09fdb1868ce",
+        "name": "canary-fresh-parent-sessions-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"fresh-parent-sessions\",\"nonce\":\"fresh-parent-sessions-fabric-probe-1\",\"payload\":{\"file_value\":\"fresh-parent-sessions-fabric-probe-1\"}}",
+        "tools": []
+      },
+      "startedAt": 1788509042282,
+      "endedAt": 1788509055832
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-fresh-parent-sessions-parent-2",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/fresh-parent-sessions.request.json at SHA-256 9734116d7730aeb5005db439cdbe53e789402a7debfd57dea33b71cc508e560f. Return schema-valid JSON with request_id=fresh-parent-sessions, nonce=fresh-parent-sessions-fabric-probe-2, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use exactly one bash call in /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-2 to write fresh-parent-sessions-fabric-probe-2 to parent-2.sentinel.txt, then read that file. In payload return only file_value.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "fresh-parent-sessions"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "file_value"
+              ],
+              "properties": {
+                "file_value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-2"
+      },
+      "result": {
+        "id": "78eb5a29d98b4476af27099eeaf46251",
+        "name": "canary-fresh-parent-sessions-parent-2",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/fresh-parent-sessions.request.json at SHA-256 9734116d7730aeb5005db439cdbe53e789402a7debfd57dea33b71cc508e560f. Return schema-valid JSON with request_id=fresh-parent-sessions, nonce=fresh-parent-sessions-fabric-probe-2, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use exactly one bash call in /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-2 to write fresh-parent-sessions-fabric-probe-2 to parent-2.sentinel.txt, then read that file. In payload return only file_value.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/fresh-parent-sessions/workspaces/parent-2",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509056061,
+        "updatedAt": 1788509069291,
+        "turns": 3,
+        "toolCalls": 2,
+        "text": "{\"request_id\":\"fresh-parent-sessions\",\"nonce\":\"fresh-parent-sessions-fabric-probe-2\",\"payload\":{\"file_value\":\"fresh-parent-sessions-fabric-probe-2\"}}",
+        "usage": {
+          "input": 3361,
+          "output": 202,
+          "cacheRead": 5504,
+          "cacheWrite": 0,
+          "cost": 0.025617
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509069291,
+        "value": {
+          "request_id": "fresh-parent-sessions",
+          "nonce": "fresh-parent-sessions-fabric-probe-2",
+          "payload": {
+            "file_value": "fresh-parent-sessions-fabric-probe-2"
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/78eb5a29d98b4476af27099eeaf46251/events.jsonl",
+        "sessionId": "728445"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "78eb5a29d98b4476af27099eeaf46251",
+        "name": "canary-fresh-parent-sessions-parent-2",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"fresh-parent-sessions\",\"nonce\":\"fresh-parent-sessions-fabric-probe-2\",\"payload\":{\"file_value\":\"fresh-parent-sessions-fabric-probe-2\"}}",
+        "tools": []
+      },
+      "startedAt": 1788509055971,
+      "endedAt": 1788509069507
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-interrupted-wave-resume-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/interrupted-wave-resume.request.json at SHA-256 e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa. Return schema-valid JSON with request_id=interrupted-wave-resume, nonce=interrupted-wave-resume-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "interrupted-wave-resume"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/interrupted-wave-resume/workspaces/parent-1"
+      },
+      "result": {
+        "id": "51cec12fda4e4ed894256dc5b36cbdff",
+        "name": "canary-interrupted-wave-resume-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/interrupted-wave-resume.request.json at SHA-256 e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa. Return schema-valid JSON with request_id=interrupted-wave-resume, nonce=interrupted-wave-resume-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/interrupted-wave-resume/workspaces/parent-1",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509069745,
+        "updatedAt": 1788509081640,
+        "turns": 2,
+        "toolCalls": 3,
+        "text": "{\"request_id\":\"interrupted-wave-resume\",\"nonce\":\"interrupted-wave-resume-fabric-probe-1\",\"payload\":{\"request_sha256\":\"e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa\",\"nonce_echo\":\"interrupted-wave-resume-fabric-probe-1\"}}",
+        "usage": {
+          "input": 7275,
+          "output": 332,
+          "cacheRead": 2560,
+          "cacheWrite": 0,
+          "cost": 0.047615000000000005
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509081640,
+        "value": {
+          "request_id": "interrupted-wave-resume",
+          "nonce": "interrupted-wave-resume-fabric-probe-1",
+          "payload": {
+            "request_sha256": "e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa",
+            "nonce_echo": "interrupted-wave-resume-fabric-probe-1"
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/51cec12fda4e4ed894256dc5b36cbdff/events.jsonl",
+        "sessionId": "728621"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "51cec12fda4e4ed894256dc5b36cbdff",
+        "name": "canary-interrupted-wave-resume-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"interrupted-wave-resume\",\"nonce\":\"interrupted-wave-resume-fabric-probe-1\",\"payload\":{\"request_sha256\":\"e839dc1c008819c6933ea19015f878e94051a2b03dc88e598c9daa87bf92a9fa\",\"nonce_echo\":\"interrupted-wave-resume-fabric-probe-1\"}}",
+        "tools": []
+      },
+      "startedAt": 1788509069654,
+      "endedAt": 1788509081706
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-mechanism-nested-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/mechanism-nested.request.json at SHA-256 8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4. Return schema-valid JSON with request_id=mechanism-nested, nonce=mechanism-nested-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \"Return exactly child-token-1\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\"-used\", and the complete child_result object returned by Fabric.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read"
+        ],
+        "extensions": true,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "mechanism-nested"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "recursive": true
+      },
+      "result": {
+        "id": "7e80c5df9558481297565bc52405af57",
+        "name": "canary-mechanism-nested-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/mechanism-nested.request.json at SHA-256 8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4. Return schema-valid JSON with request_id=mechanism-nested, nonce=mechanism-nested-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \"Return exactly child-token-1\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\"-used\", and the complete child_result object returned by Fabric.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509081950,
+        "updatedAt": 1788509105935,
+        "turns": 2,
+        "toolCalls": 1,
+        "text": "{\"request_id\":\"mechanism-nested\",\"nonce\":\"mechanism-nested-fabric-probe-1\",\"payload\":{\"child_id\":\"a14117a26b8247f591587bd085ad0f46\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"a14117a26b8247f591587bd085ad0f46\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509093443,\"updatedAt\":1788509097194,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509097194,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\",\"sessionId\":\"728957\"}}}",
+        "usage": {
+          "input": 8507,
+          "output": 814,
+          "cacheRead": 4608,
+          "cacheWrite": 0,
+          "cost": 0.069259
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509105935,
+        "value": {
+          "request_id": "mechanism-nested",
+          "nonce": "mechanism-nested-fabric-probe-1",
+          "payload": {
+            "child_id": "a14117a26b8247f591587bd085ad0f46",
+            "child_token": "child-token-1",
+            "parent_consumed_value": "child-token-1-used",
+            "parent_transform_suffix": "-used",
+            "child_result": {
+              "id": "a14117a26b8247f591587bd085ad0f46",
+              "name": "Return exactly child-token-1",
+              "task": "Return exactly child-token-1",
+              "status": "completed",
+              "runner": "pi",
+              "transport": "process",
+              "cwd": "/home/balauru/.pi-profiles/fabric",
+              "model": "openai-codex/gpt-5.6-sol",
+              "thinking": "high",
+              "startedAt": 1788509093443,
+              "updatedAt": 1788509097194,
+              "turns": 1,
+              "toolCalls": 0,
+              "text": "child-token-1",
+              "usage": {
+                "input": 1592,
+                "output": 8,
+                "cacheRead": 0,
+                "cacheWrite": 0,
+                "cost": 0.0082
+              },
+              "exitCode": 0,
+              "stderr": "",
+              "finishedAt": 1788509097194,
+              "logFile": "/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl",
+              "sessionId": "728957"
+            }
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/events.jsonl",
+        "nestedAgents": [
+          {
+            "id": "a14117a26b8247f591587bd085ad0f46",
+            "name": "Return exactly child-token-1",
+            "status": "completed",
+            "runner": "pi",
+            "transport": "process",
+            "cwd": "/home/balauru/.pi-profiles/fabric",
+            "model": "openai-codex/gpt-5.6-sol",
+            "thinking": "high",
+            "startedAt": 1788509093443,
+            "updatedAt": 1788509097194,
+            "turns": 1,
+            "toolCalls": 0,
+            "usage": {
+              "input": 1592,
+              "output": 8,
+              "cacheRead": 0,
+              "cacheWrite": 0,
+              "cost": 0.0082
+            },
+            "exitCode": 0,
+            "stderr": "",
+            "finishedAt": 1788509097194,
+            "logFile": "/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl",
+            "task": "Return exactly child-token-1",
+            "text": "child-token-1"
+          }
+        ],
+        "recursive": true,
+        "sessionId": "728794"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "7e80c5df9558481297565bc52405af57",
+        "name": "canary-mechanism-nested-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"mechanism-nested\",\"nonce\":\"mechanism-nested-fabric-probe-1\",\"payload\":{\"child_id\":\"a14117a26b8247f591587bd085ad0f46\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"a14117a26b8247f591587bd085ad0f46\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509093443,\"updatedAt\":1788509097194,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509097194,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\",\"sessionId\":\"728957\"}}}",
+        "tools": [],
+        "agents": [
+          {
+            "id": "a14117a26b8247f591587bd085ad0f46",
+            "name": "Return exactly child-token-1",
+            "status": "completed",
+            "runner": "pi",
+            "owner": "agent",
+            "text": "child-token-1",
+            "tools": []
+          }
+        ]
+      },
+      "startedAt": 1788509081861,
+      "endedAt": 1788509106171
+    },
+    {
+      "ref": "pi.write",
+      "tool": "write",
+      "provider": "pi",
+      "success": true,
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/mechanism-nested/capture.json",
+        "content": "{\"schema_version\":1,\"adapter\":\"pi-fabric-production\",\"canary_id\":\"mechanism-nested\",\"request_fixture\":\"mechanism-nested.request.json\",\"request_sha256\":\"8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4\",\"captured_at\":\"2026-09-04T08:05:06.314Z\",\"runs\":[{\"purpose\":\"parent-1\",\"assignment_sequence\":22,\"call_sequence\":23,\"terminal_sequence\":24,\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/mechanism-nested.request.json at SHA-256 8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4. Return schema-valid JSON with request_id=mechanism-nested, nonce=mechanism-nested-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"result\":{\"id\":\"7e80c5df9558481297565bc52405af57\",\"name\":\"canary-mechanism-nested-parent-1\",\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/mechanism-nested.request.json at SHA-256 8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4. Return schema-valid JSON with request_id=mechanism-nested, nonce=mechanism-nested-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509081950,\"updatedAt\":1788509105935,\"turns\":2,\"toolCalls\":1,\"text\":\"{\\\"request_id\\\":\\\"mechanism-nested\\\",\\\"nonce\\\":\\\"mechanism-nested-fabric-probe-1\\\",\\\"payload\\\":{\\\"child_id\\\":\\\"a14117a26b8247f591587bd085ad0f46\\\",\\\"child_token\\\":\\\"child-token-1\\\",\\\"parent_consumed_value\\\":\\\"child-token-1-used\\\",\\\"parent_transform_suffix\\\":\\\"-used\\\",\\\"child_result\\\":{\\\"id\\\":\\\"a14117a26b8247f591587bd085ad0f46\\\",\\\"name\\\":\\\"Return exactly child-token-1\\\",\\\"task\\\":\\\"Return exactly child-token-1\\\",\\\"status\\\":\\\"completed\\\",\\\"runner\\\":\\\"pi\\\",\\\"transport\\\":\\\"process\\\",\\\"cwd\\\":\\\"/home/balauru/.pi-profiles/fabric\\\",\\\"model\\\":\\\"openai-codex/gpt-5.6-sol\\\",\\\"thinking\\\":\\\"high\\\",\\\"startedAt\\\":1788509093443,\\\"updatedAt\\\":1788509097194,\\\"turns\\\":1,\\\"toolCalls\\\":0,\\\"text\\\":\\\"child-token-1\\\",\\\"usage\\\":{\\\"input\\\":1592,\\\"output\\\":8,\\\"cacheRead\\\":0,\\\"cacheWrite\\\":0,\\\"cost\\\":0.0082},\\\"exitCode\\\":0,\\\"stderr\\\":\\\"\\\",\\\"finishedAt\\\":1788509097194,\\\"logFile\\\":\\\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\\\",\\\"sessionId\\\":\\\"728957\\\"}}}\",\"usage\":{\"input\":8507,\"output\":814,\"cacheRead\":4608,\"cacheWrite\":0,\"cost\":0.069259},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509105935,\"value\":{\"request_id\":\"mechanism-nested\",\"nonce\":\"mechanism-nested-fabric-probe-1\",\"payload\":{\"child_id\":\"a14117a26b8247f591587bd085ad0f46\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"a14117a26b8247f591587bd085ad0f46\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509093443,\"updatedAt\":1788509097194,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509097194,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\",\"sessionId\":\"728957\"}}},\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/events.jsonl\",\"nestedAgents\":[{\"id\":\"a14117a26b8247f591587bd085ad0f46\",\"name\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509093443,\"updatedAt\":1788509097194,\"turns\":1,\"toolCalls\":0,\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509097194,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\",\"task\":\"Return exactly child-token-1\",\"text\":\"child-token-1\"}],\"recursive\":true,\"sessionId\":\"728794\"},\"log_archive\":{\"bytes\":515375,\"mode\":384,\"path\":\"runtime-raw/mechanism-nested/runs/7e80c5df9558481297565bc52405af57/events.jsonl\",\"sha256\":\"21ec3292ad55a926df2a7ff3af018e5e3a1c9db1431ae0fcdfae3113f5f0cf3a\",\"source_kind\":\"pi-fabric-events-jsonl\"},\"log_scan\":{\"child_ids\":[],\"counts\":{\"actor_cleanup\":0,\"actor_create\":0,\"actor_terminal\":0},\"event_count\":539,\"flags\":{\"actor_cleanup\":false,\"actor_create\":false,\"actor_terminal\":false},\"forbidden_paths\":[],\"scanner_version\":\"deep-stage-v1\",\"schema_version\":1,\"source_bytes\":515375,\"source_sha256\":\"21ec3292ad55a926df2a7ff3af018e5e3a1c9db1431ae0fcdfae3113f5f0cf3a\"},\"archived_paths\":[\"runs/7e80c5df9558481297565bc52405af57/events.jsonl\",\"runs/7e80c5df9558481297565bc52405af57/lifecycle.jsonl\",\"runs/7e80c5df9558481297565bc52405af57/status.json\",\"runs/7e80c5df9558481297565bc52405af57/task.txt\"]}]}"
+      },
+      "result": {
+        "ok": true,
+        "output": "Successfully wrote 5992 bytes to /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/mechanism-nested/capture.json",
+        "details": null
+      },
+      "resultTruncated": false,
+      "preview": {
+        "result": {
+          "ok": true,
+          "output": "Successfully wrote 5992 bytes to /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/mechanism-nested/capture.json",
+          "details": null
+        },
+        "writeContent": "{\"schema_version\":1,\"adapter\":\"pi-fabric-production\",\"canary_id\":\"mechanism-nested\",\"request_fixture\":\"mechanism-nested.request.json\",\"request_sha256\":\"8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4\",\"captured_at\":\"2026-09-04T08:05:06.314Z\",\"runs\":[{\"purpose\":\"parent-1\",\"assignment_sequence\":22,\"call_sequence\":23,\"terminal_sequence\":24,\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/mechanism-nested.request.json at SHA-256 8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4. Return schema-valid JSON with request_id=mechanism-nested, nonce=mechanism-nested-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"result\":{\"id\":\"7e80c5df9558481297565bc52405af57\",\"name\":\"canary-mechanism-nested-parent-1\",\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/mechanism-nested.request.json at SHA-256 8fc8f5f1b48f5c7a08d3e02fe80d2ef8e44871a398a13ce491ed88c730f178d4. Return schema-valid JSON with request_id=mechanism-nested, nonce=mechanism-nested-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509081950,\"updatedAt\":1788509105935,\"turns\":2,\"toolCalls\":1,\"text\":\"{\\\"request_id\\\":\\\"mechanism-nested\\\",\\\"nonce\\\":\\\"mechanism-nested-fabric-probe-1\\\",\\\"payload\\\":{\\\"child_id\\\":\\\"a14117a26b8247f591587bd085ad0f46\\\",\\\"child_token\\\":\\\"child-token-1\\\",\\\"parent_consumed_value\\\":\\\"child-token-1-used\\\",\\\"parent_transform_suffix\\\":\\\"-used\\\",\\\"child_result\\\":{\\\"id\\\":\\\"a14117a26b8247f591587bd085ad0f46\\\",\\\"name\\\":\\\"Return exactly child-token-1\\\",\\\"task\\\":\\\"Return exactly child-token-1\\\",\\\"status\\\":\\\"completed\\\",\\\"runner\\\":\\\"pi\\\",\\\"transport\\\":\\\"process\\\",\\\"cwd\\\":\\\"/home/balauru/.pi-profiles/fabric\\\",\\\"model\\\":\\\"openai-codex/gpt-5.6-sol\\\",\\\"thinking\\\":\\\"high\\\",\\\"startedAt\\\":1788509093443,\\\"updatedAt\\\":1788509097194,\\\"turns\\\":1,\\\"toolCalls\\\":0,\\\"text\\\":\\\"child-token-1\\\",\\\"usage\\\":{\\\"input\\\":1592,\\\"output\\\":8,\\\"cacheRead\\\":0,\\\"cacheWrite\\\":0,\\\"cost\\\":0.0082},\\\"exitCode\\\":0,\\\"stderr\\\":\\\"\\\",\\\"finishedAt\\\":1788509097194,\\\"logFile\\\":\\\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\\\",\\\"sessionId\\\":\\\"728957\\\"}}}\",\"usage\":{\"input\":8507,\"output\":814,\"cacheRead\":4608,\"cacheWrite\":0,\"cost\":0.069259},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509105935,\"value\":{\"request_id\":\"mechanism-nested\",\"nonce\":\"mechanism-nested-fabric-probe-1\",\"payload\":{\"child_id\":\"a14117a26b8247f591587bd085ad0f46\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"a14117a26b8247f591587bd085ad0f46\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509093443,\"updatedAt\":1788509097194,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509097194,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\",\"sessionId\":\"728957\"}}},\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/events.jsonl\",\"nestedAgents\":[{\"id\":\"a14117a26b8247f591587bd085ad0f46\",\"name\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509093443,\"updatedAt\":1788509097194,\"turns\":1,\"toolCalls\":0,\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509097194,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/7e80c5df9558481297565bc52405af57/nested/a14117a26b8247f591587bd085ad0f46/events.jsonl\",\"task\":\"Return exactly child-token-1\",\"text\":\"child-token-1\"}],\"recursive\":true,\"sessionId\":\"728794\"},\"log_archive\":{\"bytes\":515375,\"mode\":384,\"path\":\"runtime-raw/mechanism-nested/runs/7e80c5df9558481297565bc52405af57/events.jsonl\",\"sha256\":\"21ec3292ad55a926df2a7ff3af018e5e3a1c9db1431ae0fcdfae3113f5f0cf3a\",\"source_kind\":\"pi-fabric-events-jsonl\"},\"log_scan\":{\"child_ids\":[],\"counts\":{\"actor_cleanup\":0,\"actor_create\":0,\"actor_terminal\":0},\"event_count\":539,\"flags\":{\"actor_cleanup\":false,\"actor_create\":false,\"actor_terminal\":false},\"forbidden_paths\":[],\"scanner_version\":\"deep-stage-v1\",\"schema_version\":1,\"source_bytes\":515375,\"source_sha256\":\"21ec3292ad55a926df2a7ff3af018e5e3a1c9db1431ae0fcdfae3113f5f0cf3a\"},\"archived_paths\":[\"runs/7e80c5df9558481297565bc52405af57/events.jsonl\",\"runs/7e80c5df9558481297565bc52405af57/lifecycle.jsonl\",\"runs/7e80c5df9558481297565bc52405af57/status.json\",\"runs/7e80c5df9558481297565bc52405af57/task.txt\"]}]}",
+        "writeByteLength": 5992,
+        "writeLineCount": 1,
+        "details": {},
+        "writeBeforeCaptured": true
+      },
+      "startedAt": 1788509106315,
+      "endedAt": 1788509106315
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-primary-source-grading-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/primary-source-grading.request.json at SHA-256 554f8264d004d913ecb7bf042f20f0ee0e78f0b8b059f1ca459aef4ce49ab706. Return schema-valid JSON with request_id=primary-source-grading, nonce=primary-source-grading-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Read /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/primary-source-grading/workspaces/primary-source.html, select one exact nonempty text fragment from that captured NIST page, and grade only whether that fragment is entailed by the captured page. In payload return decision=\"entailed\" only if it is literally present, plus quote. Do not claim a source you did not read.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "primary-source-grading"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/primary-source-grading/workspaces"
+      },
+      "result": {
+        "id": "1ad377db9f134b41a3c7965c74806002",
+        "name": "canary-primary-source-grading-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/primary-source-grading.request.json at SHA-256 554f8264d004d913ecb7bf042f20f0ee0e78f0b8b059f1ca459aef4ce49ab706. Return schema-valid JSON with request_id=primary-source-grading, nonce=primary-source-grading-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Read /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/primary-source-grading/workspaces/primary-source.html, select one exact nonempty text fragment from that captured NIST page, and grade only whether that fragment is entailed by the captured page. In payload return decision=\"entailed\" only if it is literally present, plus quote. Do not claim a source you did not read.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/primary-source-grading/workspaces",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509107162,
+        "updatedAt": 1788509118783,
+        "turns": 2,
+        "toolCalls": 2,
+        "text": "{\"request_id\":\"primary-source-grading\",\"nonce\":\"primary-source-grading-fabric-probe-1\",\"payload\":{\"decision\":\"entailed\",\"quote\":\"This standard specifies hash algorithms that can be used to generate digests of messages.\"}}",
+        "usage": {
+          "input": 15109,
+          "output": 347,
+          "cacheRead": 2560,
+          "cacheWrite": 0,
+          "cost": 0.08723500000000001
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509118783,
+        "value": {
+          "request_id": "primary-source-grading",
+          "nonce": "primary-source-grading-fabric-probe-1",
+          "payload": {
+            "decision": "entailed",
+            "quote": "This standard specifies hash algorithms that can be used to generate digests of messages."
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/1ad377db9f134b41a3c7965c74806002/events.jsonl",
+        "sessionId": "729211"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "1ad377db9f134b41a3c7965c74806002",
+        "name": "canary-primary-source-grading-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"primary-source-grading\",\"nonce\":\"primary-source-grading-fabric-probe-1\",\"payload\":{\"decision\":\"entailed\",\"quote\":\"This standard specifies hash algorithms that can be used to generate digests of messages.\"}}",
+        "tools": []
+      },
+      "startedAt": 1788509107073,
+      "endedAt": 1788509118884
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-randomized-schedule-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/randomized-schedule.request.json at SHA-256 9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e. Return schema-valid JSON with request_id=randomized-schedule, nonce=randomized-schedule-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "randomized-schedule"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/randomized-schedule/workspaces/parent-1"
+      },
+      "result": {
+        "id": "6dab16756e6f4590af8e59d37c091ed6",
+        "name": "canary-randomized-schedule-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/randomized-schedule.request.json at SHA-256 9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e. Return schema-valid JSON with request_id=randomized-schedule, nonce=randomized-schedule-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/randomized-schedule/workspaces/parent-1",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509119127,
+        "updatedAt": 1788509131669,
+        "turns": 2,
+        "toolCalls": 3,
+        "text": "{\"request_id\":\"randomized-schedule\",\"nonce\":\"randomized-schedule-fabric-probe-1\",\"payload\":{\"request_sha256\":\"9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e\",\"nonce_echo\":\"randomized-schedule-fabric-probe-1\",\"size_bytes\":533}}",
+        "usage": {
+          "input": 8668,
+          "output": 385,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "cost": 0.05489000000000001
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509131669,
+        "value": {
+          "request_id": "randomized-schedule",
+          "nonce": "randomized-schedule-fabric-probe-1",
+          "payload": {
+            "request_sha256": "9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e",
+            "nonce_echo": "randomized-schedule-fabric-probe-1",
+            "size_bytes": 533
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/6dab16756e6f4590af8e59d37c091ed6/events.jsonl",
+        "sessionId": "729351"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "6dab16756e6f4590af8e59d37c091ed6",
+        "name": "canary-randomized-schedule-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"randomized-schedule\",\"nonce\":\"randomized-schedule-fabric-probe-1\",\"payload\":{\"request_sha256\":\"9944e70a531cdebeba64bd1fdf17ea774ee6a1d493bd4bce58d6c9f223910d2e\",\"nonce_echo\":\"randomized-schedule-fabric-probe-1\",\"size_bytes\":533}}",
+        "tools": []
+      },
+      "startedAt": 1788509119038,
+      "endedAt": 1788509131835
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-runtime-model-identity-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/runtime-model-identity.request.json at SHA-256 2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222. Return schema-valid JSON with request_id=runtime-model-identity, nonce=runtime-model-identity-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \"Return exactly child-token-1\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\"-used\", and the complete child_result object returned by Fabric.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read"
+        ],
+        "extensions": true,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "runtime-model-identity"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "recursive": true
+      },
+      "result": {
+        "id": "78020000198d43488006100d9c8c7136",
+        "name": "canary-runtime-model-identity-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/runtime-model-identity.request.json at SHA-256 2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222. Return schema-valid JSON with request_id=runtime-model-identity, nonce=runtime-model-identity-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \"Return exactly child-token-1\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\"-used\", and the complete child_result object returned by Fabric.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509132091,
+        "updatedAt": 1788509156929,
+        "turns": 2,
+        "toolCalls": 1,
+        "text": "{\"request_id\":\"runtime-model-identity\",\"nonce\":\"runtime-model-identity-fabric-probe-1\",\"payload\":{\"child_id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509142792,\"updatedAt\":1788509146474,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509146474,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\",\"sessionId\":\"729698\"}}}",
+        "usage": {
+          "input": 5675,
+          "output": 783,
+          "cacheRead": 4608,
+          "cacheWrite": 0,
+          "cost": 0.054169
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509156929,
+        "value": {
+          "request_id": "runtime-model-identity",
+          "nonce": "runtime-model-identity-fabric-probe-1",
+          "payload": {
+            "child_id": "dcf4b13c70f44c9ebfd3aba311c5cd7d",
+            "child_token": "child-token-1",
+            "parent_consumed_value": "child-token-1-used",
+            "parent_transform_suffix": "-used",
+            "child_result": {
+              "id": "dcf4b13c70f44c9ebfd3aba311c5cd7d",
+              "name": "Return exactly child-token-1",
+              "task": "Return exactly child-token-1",
+              "status": "completed",
+              "runner": "pi",
+              "transport": "process",
+              "cwd": "/home/balauru/.pi-profiles/fabric",
+              "model": "openai-codex/gpt-5.6-sol",
+              "thinking": "high",
+              "startedAt": 1788509142792,
+              "updatedAt": 1788509146474,
+              "turns": 1,
+              "toolCalls": 0,
+              "text": "child-token-1",
+              "usage": {
+                "input": 1592,
+                "output": 8,
+                "cacheRead": 0,
+                "cacheWrite": 0,
+                "cost": 0.0082
+              },
+              "exitCode": 0,
+              "stderr": "",
+              "finishedAt": 1788509146474,
+              "logFile": "/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl",
+              "sessionId": "729698"
+            }
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/events.jsonl",
+        "nestedAgents": [
+          {
+            "id": "dcf4b13c70f44c9ebfd3aba311c5cd7d",
+            "name": "Return exactly child-token-1",
+            "status": "completed",
+            "runner": "pi",
+            "transport": "process",
+            "cwd": "/home/balauru/.pi-profiles/fabric",
+            "model": "openai-codex/gpt-5.6-sol",
+            "thinking": "high",
+            "startedAt": 1788509142792,
+            "updatedAt": 1788509146474,
+            "turns": 1,
+            "toolCalls": 0,
+            "usage": {
+              "input": 1592,
+              "output": 8,
+              "cacheRead": 0,
+              "cacheWrite": 0,
+              "cost": 0.0082
+            },
+            "exitCode": 0,
+            "stderr": "",
+            "finishedAt": 1788509146474,
+            "logFile": "/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl",
+            "task": "Return exactly child-token-1",
+            "text": "child-token-1"
+          }
+        ],
+        "recursive": true,
+        "sessionId": "729530"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "78020000198d43488006100d9c8c7136",
+        "name": "canary-runtime-model-identity-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\"request_id\":\"runtime-model-identity\",\"nonce\":\"runtime-model-identity-fabric-probe-1\",\"payload\":{\"child_id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509142792,\"updatedAt\":1788509146474,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509146474,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\",\"sessionId\":\"729698\"}}}",
+        "tools": [],
+        "agents": [
+          {
+            "id": "dcf4b13c70f44c9ebfd3aba311c5cd7d",
+            "name": "Return exactly child-token-1",
+            "status": "completed",
+            "runner": "pi",
+            "owner": "agent",
+            "text": "child-token-1",
+            "tools": []
+          }
+        ]
+      },
+      "startedAt": 1788509131998,
+      "endedAt": 1788509157062
+    },
+    {
+      "ref": "pi.write",
+      "tool": "write",
+      "provider": "pi",
+      "success": true,
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/runtime-model-identity/capture.json",
+        "content": "{\"schema_version\":1,\"adapter\":\"pi-fabric-production\",\"canary_id\":\"runtime-model-identity\",\"request_fixture\":\"runtime-model-identity.request.json\",\"request_sha256\":\"2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222\",\"captured_at\":\"2026-09-04T08:05:57.201Z\",\"runs\":[{\"purpose\":\"parent-1\",\"assignment_sequence\":31,\"call_sequence\":32,\"terminal_sequence\":33,\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/runtime-model-identity.request.json at SHA-256 2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222. Return schema-valid JSON with request_id=runtime-model-identity, nonce=runtime-model-identity-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"result\":{\"id\":\"78020000198d43488006100d9c8c7136\",\"name\":\"canary-runtime-model-identity-parent-1\",\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/runtime-model-identity.request.json at SHA-256 2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222. Return schema-valid JSON with request_id=runtime-model-identity, nonce=runtime-model-identity-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509132091,\"updatedAt\":1788509156929,\"turns\":2,\"toolCalls\":1,\"text\":\"{\\\"request_id\\\":\\\"runtime-model-identity\\\",\\\"nonce\\\":\\\"runtime-model-identity-fabric-probe-1\\\",\\\"payload\\\":{\\\"child_id\\\":\\\"dcf4b13c70f44c9ebfd3aba311c5cd7d\\\",\\\"child_token\\\":\\\"child-token-1\\\",\\\"parent_consumed_value\\\":\\\"child-token-1-used\\\",\\\"parent_transform_suffix\\\":\\\"-used\\\",\\\"child_result\\\":{\\\"id\\\":\\\"dcf4b13c70f44c9ebfd3aba311c5cd7d\\\",\\\"name\\\":\\\"Return exactly child-token-1\\\",\\\"task\\\":\\\"Return exactly child-token-1\\\",\\\"status\\\":\\\"completed\\\",\\\"runner\\\":\\\"pi\\\",\\\"transport\\\":\\\"process\\\",\\\"cwd\\\":\\\"/home/balauru/.pi-profiles/fabric\\\",\\\"model\\\":\\\"openai-codex/gpt-5.6-sol\\\",\\\"thinking\\\":\\\"high\\\",\\\"startedAt\\\":1788509142792,\\\"updatedAt\\\":1788509146474,\\\"turns\\\":1,\\\"toolCalls\\\":0,\\\"text\\\":\\\"child-token-1\\\",\\\"usage\\\":{\\\"input\\\":1592,\\\"output\\\":8,\\\"cacheRead\\\":0,\\\"cacheWrite\\\":0,\\\"cost\\\":0.0082},\\\"exitCode\\\":0,\\\"stderr\\\":\\\"\\\",\\\"finishedAt\\\":1788509146474,\\\"logFile\\\":\\\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\\\",\\\"sessionId\\\":\\\"729698\\\"}}}\",\"usage\":{\"input\":5675,\"output\":783,\"cacheRead\":4608,\"cacheWrite\":0,\"cost\":0.054169},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509156929,\"value\":{\"request_id\":\"runtime-model-identity\",\"nonce\":\"runtime-model-identity-fabric-probe-1\",\"payload\":{\"child_id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509142792,\"updatedAt\":1788509146474,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509146474,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\",\"sessionId\":\"729698\"}}},\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/events.jsonl\",\"nestedAgents\":[{\"id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"name\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509142792,\"updatedAt\":1788509146474,\"turns\":1,\"toolCalls\":0,\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509146474,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\",\"task\":\"Return exactly child-token-1\",\"text\":\"child-token-1\"}],\"recursive\":true,\"sessionId\":\"729530\"},\"log_archive\":{\"bytes\":186920,\"mode\":384,\"path\":\"runtime-raw/runtime-model-identity/runs/78020000198d43488006100d9c8c7136/events.jsonl\",\"sha256\":\"646ae600ff9d01f398ed6f8034c4db6d6ec10d5b657d3aea3bb95966a3de22ee\",\"source_kind\":\"pi-fabric-events-jsonl\"},\"log_scan\":{\"child_ids\":[],\"counts\":{\"actor_cleanup\":0,\"actor_create\":0,\"actor_terminal\":0},\"event_count\":496,\"flags\":{\"actor_cleanup\":false,\"actor_create\":false,\"actor_terminal\":false},\"forbidden_paths\":[],\"scanner_version\":\"deep-stage-v1\",\"schema_version\":1,\"source_bytes\":186920,\"source_sha256\":\"646ae600ff9d01f398ed6f8034c4db6d6ec10d5b657d3aea3bb95966a3de22ee\"},\"archived_paths\":[\"runs/78020000198d43488006100d9c8c7136/events.jsonl\",\"runs/78020000198d43488006100d9c8c7136/lifecycle.jsonl\",\"runs/78020000198d43488006100d9c8c7136/status.json\",\"runs/78020000198d43488006100d9c8c7136/task.txt\"]}]}"
+      },
+      "result": {
+        "ok": true,
+        "output": "Successfully wrote 6076 bytes to /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/runtime-model-identity/capture.json",
+        "details": null
+      },
+      "resultTruncated": false,
+      "preview": {
+        "result": {
+          "ok": true,
+          "output": "Successfully wrote 6076 bytes to /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/runtime-model-identity/capture.json",
+          "details": null
+        },
+        "writeContent": "{\"schema_version\":1,\"adapter\":\"pi-fabric-production\",\"canary_id\":\"runtime-model-identity\",\"request_fixture\":\"runtime-model-identity.request.json\",\"request_sha256\":\"2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222\",\"captured_at\":\"2026-09-04T08:05:57.201Z\",\"runs\":[{\"purpose\":\"parent-1\",\"assignment_sequence\":31,\"call_sequence\":32,\"terminal_sequence\":33,\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/runtime-model-identity.request.json at SHA-256 2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222. Return schema-valid JSON with request_id=runtime-model-identity, nonce=runtime-model-identity-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"result\":{\"id\":\"78020000198d43488006100d9c8c7136\",\"name\":\"canary-runtime-model-identity-parent-1\",\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/runtime-model-identity.request.json at SHA-256 2a96ff2881b9493a56cc903a5803ccf2a682a58a0e38402c77152796cd226222. Return schema-valid JSON with request_id=runtime-model-identity, nonce=runtime-model-identity-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509132091,\"updatedAt\":1788509156929,\"turns\":2,\"toolCalls\":1,\"text\":\"{\\\"request_id\\\":\\\"runtime-model-identity\\\",\\\"nonce\\\":\\\"runtime-model-identity-fabric-probe-1\\\",\\\"payload\\\":{\\\"child_id\\\":\\\"dcf4b13c70f44c9ebfd3aba311c5cd7d\\\",\\\"child_token\\\":\\\"child-token-1\\\",\\\"parent_consumed_value\\\":\\\"child-token-1-used\\\",\\\"parent_transform_suffix\\\":\\\"-used\\\",\\\"child_result\\\":{\\\"id\\\":\\\"dcf4b13c70f44c9ebfd3aba311c5cd7d\\\",\\\"name\\\":\\\"Return exactly child-token-1\\\",\\\"task\\\":\\\"Return exactly child-token-1\\\",\\\"status\\\":\\\"completed\\\",\\\"runner\\\":\\\"pi\\\",\\\"transport\\\":\\\"process\\\",\\\"cwd\\\":\\\"/home/balauru/.pi-profiles/fabric\\\",\\\"model\\\":\\\"openai-codex/gpt-5.6-sol\\\",\\\"thinking\\\":\\\"high\\\",\\\"startedAt\\\":1788509142792,\\\"updatedAt\\\":1788509146474,\\\"turns\\\":1,\\\"toolCalls\\\":0,\\\"text\\\":\\\"child-token-1\\\",\\\"usage\\\":{\\\"input\\\":1592,\\\"output\\\":8,\\\"cacheRead\\\":0,\\\"cacheWrite\\\":0,\\\"cost\\\":0.0082},\\\"exitCode\\\":0,\\\"stderr\\\":\\\"\\\",\\\"finishedAt\\\":1788509146474,\\\"logFile\\\":\\\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\\\",\\\"sessionId\\\":\\\"729698\\\"}}}\",\"usage\":{\"input\":5675,\"output\":783,\"cacheRead\":4608,\"cacheWrite\":0,\"cost\":0.054169},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509156929,\"value\":{\"request_id\":\"runtime-model-identity\",\"nonce\":\"runtime-model-identity-fabric-probe-1\",\"payload\":{\"child_id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509142792,\"updatedAt\":1788509146474,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509146474,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\",\"sessionId\":\"729698\"}}},\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/events.jsonl\",\"nestedAgents\":[{\"id\":\"dcf4b13c70f44c9ebfd3aba311c5cd7d\",\"name\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509142792,\"updatedAt\":1788509146474,\"turns\":1,\"toolCalls\":0,\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509146474,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/78020000198d43488006100d9c8c7136/nested/dcf4b13c70f44c9ebfd3aba311c5cd7d/events.jsonl\",\"task\":\"Return exactly child-token-1\",\"text\":\"child-token-1\"}],\"recursive\":true,\"sessionId\":\"729530\"},\"log_archive\":{\"bytes\":186920,\"mode\":384,\"path\":\"runtime-raw/runtime-model-identity/runs/78020000198d43488006100d9c8c7136/events.jsonl\",\"sha256\":\"646ae600ff9d01f398ed6f8034c4db6d6ec10d5b657d3aea3bb95966a3de22ee\",\"source_kind\":\"pi-fabric-events-jsonl\"},\"log_scan\":{\"child_ids\":[],\"counts\":{\"actor_cleanup\":0,\"actor_create\":0,\"actor_terminal\":0},\"event_count\":496,\"flags\":{\"actor_cleanup\":false,\"actor_create\":false,\"actor_terminal\":false},\"forbidden_paths\":[],\"scanner_version\":\"deep-stage-v1\",\"schema_version\":1,\"source_bytes\":186920,\"source_sha256\":\"646ae600ff9d01f398ed6f8034c4db6d6ec10d5b657d3aea3bb95966a3de22ee\"},\"archived_paths\":[\"runs/78020000198d43488006100d9c8c7136/events.jsonl\",\"runs/78020000198d43488006100d9c8c7136/lifecycle.jsonl\",\"runs/78020000198d43488006100d9c8c7136/status.json\",\"runs/78020000198d43488006100d9c8c7136/task.txt\"]}]}",
+        "writeByteLength": 6076,
+        "writeLineCount": 1,
+        "details": {},
+        "writeBeforeCaptured": true
+      },
+      "startedAt": 1788509157201,
+      "endedAt": 1788509157201
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": false,
+      "error": "spawn veda ENOENT",
+      "args": {
+        "name": "canary-supervisor-prelaunch-failure-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/supervisor-prelaunch-failure.request.json at SHA-256 d1aed3c58217dfd92e98aae5ce945d462282b268926b3a3524c03717572e38af. Return schema-valid JSON with request_id=supervisor-prelaunch-failure, nonce=supervisor-prelaunch-failure-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "runner": "veda",
+        "transport": "process",
+        "tools": [],
+        "extensions": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "supervisor-prelaunch-failure"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "result": {
+        "id": "62488293d58546d099d48b2c128c001e",
+        "name": "canary-supervisor-prelaunch-failure-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/supervisor-prelaunch-failure.request.json at SHA-256 d1aed3c58217dfd92e98aae5ce945d462282b268926b3a3524c03717572e38af. Return schema-valid JSON with request_id=supervisor-prelaunch-failure, nonce=supervisor-prelaunch-failure-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. In payload return request_sha256 and nonce_echo. Do not mutate the skill package.",
+        "status": "failed",
+        "runner": "veda",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "thinking": "high",
+        "startedAt": 1788509157309,
+        "updatedAt": 1788509157313,
+        "turns": 0,
+        "toolCalls": 0,
+        "text": "",
+        "usage": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "cost": 0
+        },
+        "exitCode": null,
+        "stderr": "",
+        "finishedAt": 1788509157313,
+        "error": "spawn veda ENOENT",
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/62488293d58546d099d48b2c128c001e/events.jsonl",
+        "sessionId": "729914"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "62488293d58546d099d48b2c128c001e",
+        "name": "canary-supervisor-prelaunch-failure-parent-1",
+        "status": "failed",
+        "runner": "veda",
+        "owner": "agent",
+        "tools": []
+      },
+      "startedAt": 1788509157218,
+      "endedAt": 1788509157476
+    },
+    {
+      "ref": "agents.run",
+      "tool": "run",
+      "provider": "agents",
+      "success": true,
+      "args": {
+        "name": "canary-token-cost-attribution-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json at SHA-256 b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196. Return schema-valid JSON with request_id=token-cost-attribution, nonce=token-cost-attribution-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \"Return exactly child-token-1\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\"-used\", and the complete child_result object returned by Fabric.",
+        "runner": "pi",
+        "transport": "process",
+        "tools": [
+          "read"
+        ],
+        "extensions": true,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_id",
+            "nonce",
+            "payload"
+          ],
+          "properties": {
+            "request_id": {
+              "const": "token-cost-attribution"
+            },
+            "nonce": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 200
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        },
+        "recursive": true
+      },
+      "result": {
+        "id": "115bab584b2f46d685f9f22dfb9a1ae9",
+        "name": "canary-token-cost-attribution-parent-1",
+        "task": "This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json at SHA-256 b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196. Return schema-valid JSON with request_id=token-cost-attribution, nonce=token-cost-attribution-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \"Return exactly child-token-1\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\"-used\", and the complete child_result object returned by Fabric.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "startedAt": 1788509157603,
+        "updatedAt": 1788509192357,
+        "turns": 3,
+        "toolCalls": 2,
+        "text": "{\n  \"request_id\": \"token-cost-attribution\",\n  \"nonce\": \"token-cost-attribution-fabric-probe-1\",\n  \"payload\": {\n    \"child_id\": \"2752f20bb054488283d52fb12cdb928d\",\n    \"child_token\": \"child-token-1\",\n    \"parent_consumed_value\": \"child-token-1-used\",\n    \"parent_transform_suffix\": \"-used\",\n    \"child_result\": {\n      \"id\": \"2752f20bb054488283d52fb12cdb928d\",\n      \"name\": \"Return exactly child-token-1\",\n      \"task\": \"Return exactly child-token-1\",\n      \"status\": \"completed\",\n      \"runner\": \"pi\",\n      \"transport\": \"process\",\n      \"cwd\": \"/home/balauru/.pi-profiles/fabric\",\n      \"model\": \"openai-codex/gpt-5.6-sol\",\n      \"thinking\": \"high\",\n      \"startedAt\": 1788509176264,\n      \"updatedAt\": 1788509181387,\n      \"turns\": 1,\n      \"toolCalls\": 0,\n      \"text\": \"child-token-1\",\n      \"usage\": {\n        \"input\": 1592,\n        \"output\": 8,\n        \"cacheRead\": 0,\n        \"cacheWrite\": 0,\n        \"cost\": 0.0082\n      },\n      \"exitCode\": 0,\n      \"stderr\": \"\",\n      \"finishedAt\": 1788509181387,\n      \"logFile\": \"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\",\n      \"sessionId\": \"730168\"\n    }\n  }\n}",
+        "usage": {
+          "input": 8815,
+          "output": 1137,
+          "cacheRead": 12544,
+          "cacheWrite": 0,
+          "cost": 0.084457
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788509192357,
+        "value": {
+          "request_id": "token-cost-attribution",
+          "nonce": "token-cost-attribution-fabric-probe-1",
+          "payload": {
+            "child_id": "2752f20bb054488283d52fb12cdb928d",
+            "child_token": "child-token-1",
+            "parent_consumed_value": "child-token-1-used",
+            "parent_transform_suffix": "-used",
+            "child_result": {
+              "id": "2752f20bb054488283d52fb12cdb928d",
+              "name": "Return exactly child-token-1",
+              "task": "Return exactly child-token-1",
+              "status": "completed",
+              "runner": "pi",
+              "transport": "process",
+              "cwd": "/home/balauru/.pi-profiles/fabric",
+              "model": "openai-codex/gpt-5.6-sol",
+              "thinking": "high",
+              "startedAt": 1788509176264,
+              "updatedAt": 1788509181387,
+              "turns": 1,
+              "toolCalls": 0,
+              "text": "child-token-1",
+              "usage": {
+                "input": 1592,
+                "output": 8,
+                "cacheRead": 0,
+                "cacheWrite": 0,
+                "cost": 0.0082
+              },
+              "exitCode": 0,
+              "stderr": "",
+              "finishedAt": 1788509181387,
+              "logFile": "/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl",
+              "sessionId": "730168"
+            }
+          }
+        },
+        "logFile": "/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/events.jsonl",
+        "nestedAgents": [
+          {
+            "id": "2752f20bb054488283d52fb12cdb928d",
+            "name": "Return exactly child-token-1",
+            "status": "completed",
+            "runner": "pi",
+            "transport": "process",
+            "cwd": "/home/balauru/.pi-profiles/fabric",
+            "model": "openai-codex/gpt-5.6-sol",
+            "thinking": "high",
+            "startedAt": 1788509176264,
+            "updatedAt": 1788509181387,
+            "turns": 1,
+            "toolCalls": 0,
+            "usage": {
+              "input": 1592,
+              "output": 8,
+              "cacheRead": 0,
+              "cacheWrite": 0,
+              "cost": 0.0082
+            },
+            "exitCode": 0,
+            "stderr": "",
+            "finishedAt": 1788509181387,
+            "logFile": "/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl",
+            "task": "Return exactly child-token-1",
+            "text": "child-token-1"
+          }
+        ],
+        "recursive": true,
+        "sessionId": "729931"
+      },
+      "resultTruncated": false,
+      "preview": {
+        "kind": "fabric-agent-tools",
+        "id": "115bab584b2f46d685f9f22dfb9a1ae9",
+        "name": "canary-token-cost-attribution-parent-1",
+        "status": "completed",
+        "runner": "pi",
+        "owner": "agent",
+        "text": "{\n  \"request_id\": \"token-cost-attribution\",\n  \"nonce\": \"token-cost-attribution-fabric-probe-1\",\n  \"payload\": {\n    \"child_id\": \"2752f20bb054488283d52fb12cdb928d\",\n    \"child_token\": \"child-token-1\",\n    \"parent_consumed_value\": \"child-token-1-used\",\n    \"parent_transform_suffix\": \"-used\",\n    \"child_result\": {\n      \"id\": \"2752f20bb054488283d52fb12cdb928d\",\n      \"name\": \"Return exactly child-token-1\",\n      \"task\": \"Return exactly child-token-1\",\n      \"status\": \"completed\",\n      \"runner\": \"pi\",\n      \"transport\": \"process\",\n      \"cwd\": \"/home/balauru/.pi-profiles/fabric\",\n      \"model\": \"openai-codex/gpt-5.6-sol\",\n      \"thinking\": \"high\",\n      \"startedAt\": 1788509176264,\n      \"updatedAt\": 1788509181387,\n      \"turns\": 1,\n      \"toolCalls\": 0,\n      \"text\": \"child-token-1\",\n      \"usage\": {\n        \"input\": 1592,\n        \"output\": 8,\n        \"cacheRead\": 0,\n        \"cacheWrite\": 0,\n        \"cost\": 0.0082\n      },\n      \"exitCode\": 0,\n      \"stderr\": \"\",\n      \"finishedAt\": 1788509181387,\n      \"logFile\": \"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\",\n      \"sessionId\": \"730168\"\n    }\n  }\n}",
+        "tools": [],
+        "agents": [
+          {
+            "id": "2752f20bb054488283d52fb12cdb928d",
+            "name": "Return exactly child-token-1",
+            "status": "completed",
+            "runner": "pi",
+            "owner": "agent",
+            "text": "child-token-1",
+            "tools": []
+          }
+        ]
+      },
+      "startedAt": 1788509157513,
+      "endedAt": 1788509192385
+    },
+    {
+      "ref": "pi.write",
+      "tool": "write",
+      "provider": "pi",
+      "success": true,
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/token-cost-attribution/capture.json",
+        "content": "{\"schema_version\":1,\"adapter\":\"pi-fabric-production\",\"canary_id\":\"token-cost-attribution\",\"request_fixture\":\"token-cost-attribution.request.json\",\"request_sha256\":\"b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196\",\"captured_at\":\"2026-09-04T08:06:32.523Z\",\"runs\":[{\"purpose\":\"parent-1\",\"assignment_sequence\":37,\"call_sequence\":38,\"terminal_sequence\":39,\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json at SHA-256 b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196. Return schema-valid JSON with request_id=token-cost-attribution, nonce=token-cost-attribution-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"result\":{\"id\":\"115bab584b2f46d685f9f22dfb9a1ae9\",\"name\":\"canary-token-cost-attribution-parent-1\",\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json at SHA-256 b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196. Return schema-valid JSON with request_id=token-cost-attribution, nonce=token-cost-attribution-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509157603,\"updatedAt\":1788509192357,\"turns\":3,\"toolCalls\":2,\"text\":\"{\\n  \\\"request_id\\\": \\\"token-cost-attribution\\\",\\n  \\\"nonce\\\": \\\"token-cost-attribution-fabric-probe-1\\\",\\n  \\\"payload\\\": {\\n    \\\"child_id\\\": \\\"2752f20bb054488283d52fb12cdb928d\\\",\\n    \\\"child_token\\\": \\\"child-token-1\\\",\\n    \\\"parent_consumed_value\\\": \\\"child-token-1-used\\\",\\n    \\\"parent_transform_suffix\\\": \\\"-used\\\",\\n    \\\"child_result\\\": {\\n      \\\"id\\\": \\\"2752f20bb054488283d52fb12cdb928d\\\",\\n      \\\"name\\\": \\\"Return exactly child-token-1\\\",\\n      \\\"task\\\": \\\"Return exactly child-token-1\\\",\\n      \\\"status\\\": \\\"completed\\\",\\n      \\\"runner\\\": \\\"pi\\\",\\n      \\\"transport\\\": \\\"process\\\",\\n      \\\"cwd\\\": \\\"/home/balauru/.pi-profiles/fabric\\\",\\n      \\\"model\\\": \\\"openai-codex/gpt-5.6-sol\\\",\\n      \\\"thinking\\\": \\\"high\\\",\\n      \\\"startedAt\\\": 1788509176264,\\n      \\\"updatedAt\\\": 1788509181387,\\n      \\\"turns\\\": 1,\\n      \\\"toolCalls\\\": 0,\\n      \\\"text\\\": \\\"child-token-1\\\",\\n      \\\"usage\\\": {\\n        \\\"input\\\": 1592,\\n        \\\"output\\\": 8,\\n        \\\"cacheRead\\\": 0,\\n        \\\"cacheWrite\\\": 0,\\n        \\\"cost\\\": 0.0082\\n      },\\n      \\\"exitCode\\\": 0,\\n      \\\"stderr\\\": \\\"\\\",\\n      \\\"finishedAt\\\": 1788509181387,\\n      \\\"logFile\\\": \\\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\\\",\\n      \\\"sessionId\\\": \\\"730168\\\"\\n    }\\n  }\\n}\",\"usage\":{\"input\":8815,\"output\":1137,\"cacheRead\":12544,\"cacheWrite\":0,\"cost\":0.084457},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509192357,\"value\":{\"request_id\":\"token-cost-attribution\",\"nonce\":\"token-cost-attribution-fabric-probe-1\",\"payload\":{\"child_id\":\"2752f20bb054488283d52fb12cdb928d\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"2752f20bb054488283d52fb12cdb928d\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509176264,\"updatedAt\":1788509181387,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509181387,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\",\"sessionId\":\"730168\"}}},\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/events.jsonl\",\"nestedAgents\":[{\"id\":\"2752f20bb054488283d52fb12cdb928d\",\"name\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509176264,\"updatedAt\":1788509181387,\"turns\":1,\"toolCalls\":0,\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509181387,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\",\"task\":\"Return exactly child-token-1\",\"text\":\"child-token-1\"}],\"recursive\":true,\"sessionId\":\"729931\"},\"log_archive\":{\"bytes\":480316,\"mode\":384,\"path\":\"runtime-raw/token-cost-attribution/runs/115bab584b2f46d685f9f22dfb9a1ae9/events.jsonl\",\"sha256\":\"d9f7cac225dcd0e12813718948b919ef8c77091c02aaf579104db98f47e812ff\",\"source_kind\":\"pi-fabric-events-jsonl\"},\"log_scan\":{\"child_ids\":[],\"counts\":{\"actor_cleanup\":0,\"actor_create\":0,\"actor_terminal\":0},\"event_count\":678,\"flags\":{\"actor_cleanup\":false,\"actor_create\":false,\"actor_terminal\":false},\"forbidden_paths\":[],\"scanner_version\":\"deep-stage-v1\",\"schema_version\":1,\"source_bytes\":480316,\"source_sha256\":\"d9f7cac225dcd0e12813718948b919ef8c77091c02aaf579104db98f47e812ff\"},\"archived_paths\":[\"runs/115bab584b2f46d685f9f22dfb9a1ae9/events.jsonl\",\"runs/115bab584b2f46d685f9f22dfb9a1ae9/lifecycle.jsonl\",\"runs/115bab584b2f46d685f9f22dfb9a1ae9/status.json\",\"runs/115bab584b2f46d685f9f22dfb9a1ae9/task.txt\"]}]}"
+      },
+      "result": {
+        "ok": true,
+        "output": "Successfully wrote 6383 bytes to /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/token-cost-attribution/capture.json",
+        "details": null
+      },
+      "resultTruncated": false,
+      "preview": {
+        "result": {
+          "ok": true,
+          "output": "Successfully wrote 6383 bytes to /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/runtime-raw/token-cost-attribution/capture.json",
+          "details": null
+        },
+        "writeContent": "{\"schema_version\":1,\"adapter\":\"pi-fabric-production\",\"canary_id\":\"token-cost-attribution\",\"request_fixture\":\"token-cost-attribution.request.json\",\"request_sha256\":\"b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196\",\"captured_at\":\"2026-09-04T08:06:32.523Z\",\"runs\":[{\"purpose\":\"parent-1\",\"assignment_sequence\":37,\"call_sequence\":38,\"terminal_sequence\":39,\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json at SHA-256 b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196. Return schema-valid JSON with request_id=token-cost-attribution, nonce=token-cost-attribution-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"result\":{\"id\":\"115bab584b2f46d685f9f22dfb9a1ae9\",\"name\":\"canary-token-cost-attribution-parent-1\",\"task\":\"This is an isolated, non-scoring Pi Fabric runtime probe. The fixed adapter bound request fixture /home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json at SHA-256 b6e39b3de3dbe53d3184ca2c85b01ace30331f0966487ecc1605bf772f4fb196. Return schema-valid JSON with request_id=token-cost-attribution, nonce=token-cost-attribution-fabric-probe-1, and a payload containing concrete values you actually observed. Never return pass/fail attestations. Use one recursive fabric_exec agents.run call with runner pi, transport process, no cwd, tools [], and task \\\"Return exactly child-token-1\\\". In payload return child_id, child_token, parent_consumed_value formed by appending -used, parent_transform_suffix=\\\"-used\\\", and the complete child_result object returned by Fabric.\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509157603,\"updatedAt\":1788509192357,\"turns\":3,\"toolCalls\":2,\"text\":\"{\\n  \\\"request_id\\\": \\\"token-cost-attribution\\\",\\n  \\\"nonce\\\": \\\"token-cost-attribution-fabric-probe-1\\\",\\n  \\\"payload\\\": {\\n    \\\"child_id\\\": \\\"2752f20bb054488283d52fb12cdb928d\\\",\\n    \\\"child_token\\\": \\\"child-token-1\\\",\\n    \\\"parent_consumed_value\\\": \\\"child-token-1-used\\\",\\n    \\\"parent_transform_suffix\\\": \\\"-used\\\",\\n    \\\"child_result\\\": {\\n      \\\"id\\\": \\\"2752f20bb054488283d52fb12cdb928d\\\",\\n      \\\"name\\\": \\\"Return exactly child-token-1\\\",\\n      \\\"task\\\": \\\"Return exactly child-token-1\\\",\\n      \\\"status\\\": \\\"completed\\\",\\n      \\\"runner\\\": \\\"pi\\\",\\n      \\\"transport\\\": \\\"process\\\",\\n      \\\"cwd\\\": \\\"/home/balauru/.pi-profiles/fabric\\\",\\n      \\\"model\\\": \\\"openai-codex/gpt-5.6-sol\\\",\\n      \\\"thinking\\\": \\\"high\\\",\\n      \\\"startedAt\\\": 1788509176264,\\n      \\\"updatedAt\\\": 1788509181387,\\n      \\\"turns\\\": 1,\\n      \\\"toolCalls\\\": 0,\\n      \\\"text\\\": \\\"child-token-1\\\",\\n      \\\"usage\\\": {\\n        \\\"input\\\": 1592,\\n        \\\"output\\\": 8,\\n        \\\"cacheRead\\\": 0,\\n        \\\"cacheWrite\\\": 0,\\n        \\\"cost\\\": 0.0082\\n      },\\n      \\\"exitCode\\\": 0,\\n      \\\"stderr\\\": \\\"\\\",\\n      \\\"finishedAt\\\": 1788509181387,\\n      \\\"logFile\\\": \\\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\\\",\\n      \\\"sessionId\\\": \\\"730168\\\"\\n    }\\n  }\\n}\",\"usage\":{\"input\":8815,\"output\":1137,\"cacheRead\":12544,\"cacheWrite\":0,\"cost\":0.084457},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509192357,\"value\":{\"request_id\":\"token-cost-attribution\",\"nonce\":\"token-cost-attribution-fabric-probe-1\",\"payload\":{\"child_id\":\"2752f20bb054488283d52fb12cdb928d\",\"child_token\":\"child-token-1\",\"parent_consumed_value\":\"child-token-1-used\",\"parent_transform_suffix\":\"-used\",\"child_result\":{\"id\":\"2752f20bb054488283d52fb12cdb928d\",\"name\":\"Return exactly child-token-1\",\"task\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509176264,\"updatedAt\":1788509181387,\"turns\":1,\"toolCalls\":0,\"text\":\"child-token-1\",\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509181387,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\",\"sessionId\":\"730168\"}}},\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/events.jsonl\",\"nestedAgents\":[{\"id\":\"2752f20bb054488283d52fb12cdb928d\",\"name\":\"Return exactly child-token-1\",\"status\":\"completed\",\"runner\":\"pi\",\"transport\":\"process\",\"cwd\":\"/home/balauru/.pi-profiles/fabric\",\"model\":\"openai-codex/gpt-5.6-sol\",\"thinking\":\"high\",\"startedAt\":1788509176264,\"updatedAt\":1788509181387,\"turns\":1,\"toolCalls\":0,\"usage\":{\"input\":1592,\"output\":8,\"cacheRead\":0,\"cacheWrite\":0,\"cost\":0.0082},\"exitCode\":0,\"stderr\":\"\",\"finishedAt\":1788509181387,\"logFile\":\"/tmp/pi-fabric-runs-IRR23G/115bab584b2f46d685f9f22dfb9a1ae9/nested/2752f20bb054488283d52fb12cdb928d/events.jsonl\",\"task\":\"Return exactly child-token-1\",\"text\":\"child-token-1\"}],\"recursive\":true,\"sessionId\":\"729931\"},\"log_archive\":{\"bytes\":480316,\"mode\":384,\"path\":\"runtime-raw/token-cost-attribution/runs/115bab584b2f46d685f9f22dfb9a1ae9/events.jsonl\",\"sha256\":\"d9f7cac225dcd0e12813718948b919ef8c77091c02aaf579104db98f47e812ff\",\"source_kind\":\"pi-fabric-events-jsonl\"},\"log_scan\":{\"child_ids\":[],\"counts\":{\"actor_cleanup\":0,\"actor_create\":0,\"actor_terminal\":0},\"event_count\":678,\"flags\":{\"actor_cleanup\":false,\"actor_create\":false,\"actor_terminal\":false},\"forbidden_paths\":[],\"scanner_version\":\"deep-stage-v1\",\"schema_version\":1,\"source_bytes\":480316,\"source_sha256\":\"d9f7cac225dcd0e12813718948b919ef8c77091c02aaf579104db98f47e812ff\"},\"archived_paths\":[\"runs/115bab584b2f46d685f9f22dfb9a1ae9/events.jsonl\",\"runs/115bab584b2f46d685f9f22dfb9a1ae9/lifecycle.jsonl\",\"runs/115bab584b2f46d685f9f22dfb9a1ae9/status.json\",\"runs/115bab584b2f46d685f9f22dfb9a1ae9/task.txt\"]}]}",
+        "writeByteLength": 6383,
+        "writeLineCount": 1,
+        "details": {},
+        "writeBeforeCaptured": true
+      },
+      "startedAt": 1788509192523,
+      "endedAt": 1788509192524
+    }
+  ],
+  "status": "failed",
+  "non_scoring": true,
+  "workflow_path": "/home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/workflows/runtime_canaries.ts",
+  "workflow_bytes": 17815,
+  "workflow_sha256": "89f60865d0624e2a6eaeb73882d3cf397d413e400198723f8df4ee4d84298cf3",
+  "request": {
+    "schema_version": 1,
+    "run_root": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z",
+    "resume": true
+  },
+  "request_sha256": "3d2dcc2f7f351b62da6ffdaf35d186b93225b7c652a36865e382329ff5870ade",
+  "agent_budget": 32,
+  "fabric_success": false,
+  "fabric_error": "{\"message\":\"error: token-cost-attribution: production capture cannot prove: nested_direct, no_double_counting, parent_direct, unique_subtree\\n\\n\\nCommand exited with code 1\",\"__fabricBashExit\":{\"exitCode\":1,\"output\":\"error: token-cost-attribution: production capture cannot prove: nested_direct, no_double_counting, parent_direct, unique_subtree\\n\"},\"name\":\"Error\",\"stack\":\"    at __call (pi-fabric-setup.js:22:37)\\n\"}",
+  "receipt": null,
+  "details_path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/p2.17-final-20260904T080500Z/runtime-canaries/host-resume-details.json",
+  "details_sha256": "c0f31feb8e4459842e665561e46ed184435f1d19ad1cec2307eac26dc432d642",
+  "audit_count": 39,
+  "agent_audits": []
+}

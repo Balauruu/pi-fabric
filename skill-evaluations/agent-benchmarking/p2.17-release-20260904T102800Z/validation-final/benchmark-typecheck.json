@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "workflow_sha256": "66c5a4811b6dd544a0732876c7bc79d8ec9499e1e0d59b00a8ca3f3c4020a513",
+  "fabric_version": "0.77.0",
+  "declaration_source": "installed-generated-guest-types"
+}

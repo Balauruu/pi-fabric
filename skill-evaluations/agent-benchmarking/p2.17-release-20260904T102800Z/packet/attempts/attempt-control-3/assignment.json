@@ -1,0 +1,1 @@
+{"assigned_at":"2026-09-04T06:00:15Z","attempt_id":"attempt-control-3","benchmark_id":"p2.17-release-replay","block":3,"condition_id":"control","order_position":5,"repetition":3,"request_id":"frozen-execution","retry_of":null,"schedule_mode":"comparative","schedule_revision":"v1","schema_version":1,"stage":"execute","task_id":"task-1","wave":1,"worker_slot":5}
