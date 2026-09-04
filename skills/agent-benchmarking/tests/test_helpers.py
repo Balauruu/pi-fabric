@@ -20,7 +20,9 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
+TESTS = ROOT / "tests"
 sys.path.insert(0, str(SCRIPTS))
+sys.path.insert(0, str(TESTS))
 
 import aggregate_telemetry
 import analyze_paired
@@ -28,11 +30,13 @@ import benchmark_lib as lib
 import deep_stage
 import final_integrity
 import generate_blind_map
+import generate_canary_receipts
 import generate_schedule
 import reconcile_lifecycle
 import run_canaries
 import validate_contracts
 import verify_seal
+from fake_canary_adapter import FakeCanaryAdapter
 
 
 class TemporaryDirectoryTest(unittest.TestCase):
@@ -114,6 +118,30 @@ class ContractTests(TemporaryDirectoryTest):
             with self.subTest(schema=name):
                 schema = lib.load_json(ROOT / f"schemas/{name}.schema.json")
                 self.assertEqual(lib.check_schema(schema, machine_contract=True), [])
+
+    def test_mechanism_contract_enforces_total_cross_field_state(self) -> None:
+        schema = lib.load_json(ROOT / "schemas/mechanism.schema.json")
+        valid = {
+            "schema_version": 1, "benchmark_id": "bench", "attempt_id": "a1",
+            "valid": True, "reason": "mechanism-observed", "detail": None,
+            "evidence": ["attempts/a1/mechanism.source"], "status": "valid",
+            "qualifiers": ["non-actor-mechanism"], "condition_role": "candidate",
+            "actor_expected": False, "actor_observed": False,
+            "actor_lifecycle": {"create": False, "terminal": False, "cleanup": False},
+            "attempt_status": "succeeded", "predicate": "source exists", "exposure": "forced",
+            "source_state": "file", "source_path": "attempts/a1/mechanism.source",
+            "source_sha256": "a" * 64, "log_scan_path": "attempts/a1/log.scan.json",
+        }
+        lib.validate_or_raise(valid, schema, contract_name="mechanism")
+        contradictory = dict(valid, valid=False)
+        issues = [*lib.validate_json_schema(contradictory, schema),
+                  *lib.validate_contract_semantics("mechanism", contradictory)]
+        self.assertTrue(any("status" in issue for issue in issues))
+        failed = dict(valid, attempt_status="failed")
+        self.assertTrue(any(
+            "cannot have valid" in issue
+            for issue in lib.validate_contract_semantics("mechanism", failed)
+        ))
 
     def test_ref_helper_and_schema_agree_on_nested_required_fields(self) -> None:
         schema = {
@@ -318,61 +346,304 @@ class BlindMapTests(TemporaryDirectoryTest):
 
 
 class WorkflowTemplateTests(TemporaryDirectoryTest):
-    def test_analyze_blind_map_cli_commits_before_packet_publication(self) -> None:
+    def test_fixed_bundle_exposes_one_deep_stage_interface(self) -> None:
         source = (ROOT / "workflows/benchmark.ts").read_text(encoding="utf-8")
-        start = source.index("async function createOrVerifyBlindMaps")
-        end = source.index("async function createBlindEvidenceAliases", start)
-        block = source[start:end]
+        self.assertIn("async function runBenchmarkStage(rawRequest: string)", source)
+        self.assertEqual(source.count("return await runBenchmarkStage(π.request);"), 1)
+        self.assertNotIn("parseRequest(π.request)", source)
+        self.assertIn("artifactStore.publish(", source)
+        self.assertIn("artifactStore.copyReturnedLog(", source)
+        self.assertIn("artifactStore.scanArchivedLog(", source)
+        self.assertNotIn("const copier =", source)
+        self.assertNotIn("agents.log(", source)
 
-        self.assertIn("const receiptScratch =", block)
-        self.assertIn("--receipt-output ${shell(receiptScratch)}", block)
-        self.assertIn("await readJson(receiptScratch)", block)
-        self.assertLess(
-            block.index("await readJson(receiptScratch)"),
-            block.index('await createOrVerifySame(root, "blind-map.private.json"'),
-        )
-        item_publication = (
-            'await createOrVerifySame(root, `blinded/${blind.blind_id}/item.json`, '
-            'item, "json");'
-        )
-        self.assertIn(item_publication, source)
-        self.assertLess(
-            source.index("await readJson(receiptScratch)", start),
-            source.index(item_publication, end),
-        )
-
-        rows = generate_schedule.generate_schedule(
-            benchmark_id="bench", schedule_revision="v1", conditions=["a", "b"],
-            tasks=["t1"], repetitions=1, seed=2, workers=1,
-        )
-        schedule = self.write_jsonl("schedule.jsonl", rows)
-        private_path = self.temp / "private.json"
-        public_path = self.temp / "public.json"
-        receipt_path = self.temp / "commit.json"
-        command = [
-            sys.executable, "-B", str(SCRIPTS / "generate_blind_map.py"),
-            "--schedule", str(schedule), "--seed", "9",
-            "--private-output", str(private_path),
-            "--public-output", str(public_path),
-            "--receipt-output", str(receipt_path),
-        ]
+    def test_prebuilt_bundle_matches_modular_sources(self) -> None:
+        module = (ROOT / "workflows/artifact_store.ts").read_text(encoding="utf-8")
+        for operation in ("publish", "copyReturnedLog", "scanArchivedLog"):
+            self.assertIn(f"const {operation} = async", module)
         completed = subprocess.run(
-            command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            [sys.executable, "-B", str(SCRIPTS / "build_benchmark_bundle.py"), "--check"],
+            check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         )
-        self.assertEqual(completed.returncode, lib.EXIT_OK, completed.stderr.decode())
-        receipt = lib.load_json(receipt_path)
-        public = lib.load_json(public_path)
-        self.assertEqual(receipt["status"], "committed")
-        self.assertEqual(receipt["tool"], "generate_blind_map")
-        self.assertEqual(
-            {entry["sha256"] for entry in receipt["outputs"]},
-            {lib.sha256_file(private_path), lib.sha256_file(public_path)},
-        )
-        self.assertTrue(all(
-            row["item_path"] == f"blinded/{row['blind_id']}/item.json"
-            for row in public["rows"]
-        ))
+        self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+        receipt = json.loads(completed.stdout)
+        self.assertEqual(receipt["status"], "passed")
+        self.assertEqual(receipt["bundle_sha256"], lib.sha256_file(ROOT / "workflows/benchmark.ts"))
 
+    def test_execute_publishes_total_mechanisms_for_every_branch(self) -> None:
+        profile = ROOT.parent.parent
+        with tempfile.TemporaryDirectory(prefix=".agent-benchmark-mechanism-probe-", dir=profile) as temporary:
+            packet = Path(temporary) / "packet"
+            built = subprocess.run(
+                [sys.executable, "-B", str(SCRIPTS / "build_p217_replay.py"),
+                 "--root", str(packet), "--execute-mechanism-fixture"],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(built.returncode, 0, built.stderr.decode())
+            completed = subprocess.run(
+                ["node", str(SCRIPTS / "probe_deep_runner.mjs"),
+                 "--workflow", str(ROOT / "workflows/benchmark.ts"),
+                 "--request", str(packet / "replay/requests/execute.json"),
+                 "--fabric-root", str(profile / "npm/node_modules/pi-fabric"),
+                 "--scenario", "mechanism-totality"],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+            receipt = json.loads(completed.stdout)
+            self.assertEqual(receipt["status"], "passed")
+            self.assertEqual(receipt["runner_status"], "complete")
+            self.assertEqual(receipt["agent_calls"], 5)
+            self.assertEqual(
+                {row["attempt_id"]: (row["valid"], row["reason"], row["terminal_status"])
+                 for row in receipt["branches"]},
+                {
+                    "candidate-actor": (True, "actor-mechanism-observed", "succeeded"),
+                    "candidate-no-actor": (True, "mechanism-observed", "succeeded"),
+                    "control-no-actor": (True, "mechanism-not-applicable", "succeeded"),
+                    "missing-mechanism": (False, "mechanism-source-missing", "invalid"),
+                    "failed-attempt": (False, "attempt-not-successful", "failed"),
+                },
+            )
+            missing_receipt = packet / "attempts/missing-mechanism/mechanism.json"
+            missing_receipt.unlink()
+            reconciliation = reconcile_lifecycle.reconcile(
+                reconcile_lifecycle._parser().parse_args(["--root", str(packet)])
+            )
+            self.assertFalse(reconciliation["complete"])
+            self.assertTrue(any(
+                "lacks a regular total mechanism receipt" in blocker
+                for blocker in reconciliation["completion_blockers"]
+            ))
+
+    def test_public_resume_and_finalize_modes_use_zero_model_calls(self) -> None:
+        profile = ROOT.parent.parent
+        with tempfile.TemporaryDirectory(prefix=".agent-benchmark-resume-finalize-", dir=profile) as temporary:
+            packet = Path(temporary) / "packet"
+            built = subprocess.run(
+                [sys.executable, "-B", str(SCRIPTS / "build_p217_replay.py"),
+                 "--root", str(packet), "--execute-resume-fixture"],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(built.returncode, 0, built.stderr.decode())
+            completed = subprocess.run(
+                ["node", str(SCRIPTS / "probe_deep_runner.mjs"),
+                 "--workflow", str(ROOT / "workflows/benchmark.ts"),
+                 "--request", str(packet / "replay/requests/execute.json"),
+                 "--fabric-root", str(profile / "npm/node_modules/pi-fabric"),
+                 "--scenario", "resume-finalize-modes"],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=600,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+            receipt = json.loads(completed.stdout)
+            self.assertEqual(receipt["status"], "passed")
+            self.assertEqual(receipt["resume_agent_calls"], 0)
+            self.assertEqual(receipt["finalize_agent_calls"], 0)
+            self.assertEqual(
+                set(receipt["action_set"]),
+                {"skip", "run", "refuse-replay", "deterministic-repair-only"},
+            )
+            self.assertEqual(receipt["deterministic_repair_only"], ["candidate-no-actor"])
+            self.assertIn("control-no-actor", receipt["ambiguous"])
+            self.assertIn("missing-mechanism", receipt["never_assigned"])
+            self.assertIn("failed-attempt", receipt["refused_replay"])
+            self.assertEqual(receipt["finalize_status"], "complete")
+            self.assertTrue(receipt["strict_reconciliation_complete"])
+
+    def test_release_replay_uses_exact_96_judges_plus_18_adjudicators(self) -> None:
+        profile = ROOT.parent.parent
+        with tempfile.TemporaryDirectory(prefix=".agent-benchmark-release-shape-", dir=profile) as temporary:
+            packet = Path(temporary) / "packet"
+            completed = subprocess.run(
+                [sys.executable, "-B", str(SCRIPTS / "build_p217_replay.py"), "--root", str(packet)],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+            metadata = json.loads(completed.stdout)
+            self.assertEqual(metadata["judge_model_call_count"], 96)
+            self.assertEqual(metadata["adjudication_model_call_count"], 18)
+            self.assertEqual(metadata["total_model_call_count"], 114)
+            self.assertEqual(metadata["judge_wave_counts"], [96])
+            self.assertEqual(metadata["request_order"], ["prepare", "judge-1", "adjudicate", "finalize"])
+            large = metadata["large_log_evidence"]
+            self.assertGreater(large["bytes"], 2 * 1024 * 1024)
+            self.assertEqual(lib.sha256_file(packet / large["path"]), large["sha256"])
+            scan = lib.load_json(packet / large["scan_path"])
+            self.assertEqual(scan["source_sha256"], large["sha256"])
+            terminals = [lib.load_json(path) for path in packet.glob("attempts/*/terminal.json")]
+            self.assertEqual([row["log_path"] for row in terminals].count(large["path"]), 1)
+
+    def test_runtime_canary_harness_uses_only_the_public_production_adapter(self) -> None:
+        source = (ROOT / "workflows/runtime_canaries.ts").read_text(encoding="utf-8")
+        for canary_id in run_canaries.RUNTIME_ASSERTIONS:
+            self.assertIn(f'"{canary_id}"', source)
+        self.assertIn("class ProductionFabricAdapter", source)
+        self.assertIn("await agents.run(", source)
+        self.assertIn("await agents.status(", source)
+        self.assertNotIn("agents.log(", source)
+        self.assertIn("deep_stage.py", source)
+        self.assertIn(" archive --source ", source)
+        self.assertIn(" scan --input ", source)
+        self.assertIn("result.logFile", source)
+        self.assertNotIn("condition_identity_seen", source)
+        self.assertNotIn("other_sentinel_seen", source)
+        self.assertIn("parent-${ordinal}.sentinel.txt", source)
+        self.assertIn('required: ["nonce_echo"]', source)
+        self.assertIn("scored_attempt_ids: []", source)
+        self.assertNotIn("FakeCanaryAdapter", source)
+        self.assertNotIn("runBenchmarkStage(", source)
+        self.assertEqual(source.count("return await runHarness(π.request);"), 1)
+
+    def test_runtime_canary_harness_typechecks_against_installed_guest_declarations(self) -> None:
+        completed = subprocess.run([
+            "node", str(SCRIPTS / "typecheck_fabric_guest.mjs"),
+            "--workflow", str(ROOT / "workflows/runtime_canaries.ts"),
+            "--fabric-root", "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric",
+        ], check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+        result = json.loads(completed.stdout)
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["declaration_source"], "installed-generated-guest-types")
+
+    def test_blind_map_publication_failpoint_is_transactional_through_deep_runner(self) -> None:
+        profile = ROOT.parent.parent
+        with tempfile.TemporaryDirectory(prefix=".agent-benchmark-deep-probe-", dir=profile) as temporary:
+            packet = Path(temporary) / "packet"
+            built = subprocess.run(
+                [
+                    sys.executable, "-B", str(SCRIPTS / "build_p217_replay.py"),
+                    "--root", str(packet), "--compact-interruption-fixture",
+                ],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(built.returncode, 0, built.stderr.decode())
+            completed = subprocess.run(
+                [
+                    "node", str(SCRIPTS / "probe_deep_runner.mjs"),
+                    "--workflow", str(ROOT / "workflows/benchmark.ts"),
+                    "--request", str(packet / "replay/requests/prepare.json"),
+                    "--fabric-root", str(profile / "npm/node_modules/pi-fabric"),
+                    "--scenario", "blind-map-publication-failpoint",
+                ],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+            receipt = json.loads(completed.stdout)
+            self.assertEqual(receipt["status"], "passed")
+            self.assertEqual(receipt["helper_commit_status"], "committed")
+            self.assertTrue(receipt["failpoint_triggered"])
+            self.assertEqual(receipt["agent_calls"], 0)
+            self.assertEqual(receipt["private_map_state_after_interruption"], "missing")
+            self.assertEqual(receipt["public_map_state_after_interruption"], "missing")
+            self.assertEqual(receipt["commit_state_after_interruption"], "missing")
+            self.assertEqual(receipt["private_map_state"], "present")
+            self.assertEqual(receipt["public_map_state"], "present")
+            self.assertEqual(receipt["packet_commit_status"], "committed")
+            self.assertEqual(receipt["packet_commit_paths"], ["blind-map.private.json", "blind-map.public.json"])
+            self.assertEqual(receipt["runner_receipt"]["status"], "failed")
+            self.assertEqual(receipt["repair_receipt"]["status"], "checkpoint")
+            self.assertIn("qualifiers", receipt["runner_receipt"])
+
+    def test_protected_pi_conflict_is_blocked_through_deep_runner(self) -> None:
+        profile = ROOT.parent.parent
+        with tempfile.TemporaryDirectory(prefix=".agent-benchmark-protected-probe-", dir=profile) as temporary:
+            packet = Path(temporary) / "packet"
+            built = subprocess.run(
+                [sys.executable, "-B", str(SCRIPTS / "build_p217_replay.py"),
+                 "--root", str(packet), "--compact-interruption-fixture"],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(built.returncode, 0, built.stderr.decode())
+            completed = subprocess.run(
+                ["node", str(SCRIPTS / "probe_deep_runner.mjs"),
+                 "--workflow", str(ROOT / "workflows/benchmark.ts"),
+                 "--request", str(packet / "replay/requests/prepare.json"),
+                 "--fabric-root", str(profile / "npm/node_modules/pi-fabric"),
+                 "--scenario", "protected-state-conflict"],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+            receipt = json.loads(completed.stdout)
+            self.assertEqual(receipt["status"], "passed")
+            self.assertEqual(receipt["protected_status"], "incompatible")
+            self.assertGreater(receipt["conflict_count"], 0)
+            self.assertEqual(
+                receipt["safe_next_action"],
+                "establish non-overlapping protected-state isolation, regenerate and bind its compatibility receipt, then rerun prelaunch gates; do not launch scored work",
+            )
+            self.assertEqual(receipt["agent_calls"], 0)
+
+    def test_bound_runtime_capability_tampering_refuses_before_agent_calls(self) -> None:
+        profile = ROOT.parent.parent
+        with tempfile.TemporaryDirectory(prefix=".agent-benchmark-capability-tamper-", dir=profile) as temporary:
+            packet = Path(temporary) / "packet"
+            built = subprocess.run(
+                [
+                    sys.executable, "-B", str(SCRIPTS / "build_p217_replay.py"),
+                    "--root", str(packet), "--compact-interruption-fixture",
+                ],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(built.returncode, 0, built.stderr.decode())
+            completed = subprocess.run(
+                [
+                    "node", str(SCRIPTS / "probe_deep_runner.mjs"),
+                    "--workflow", str(ROOT / "workflows/benchmark.ts"),
+                    "--request", str(packet / "replay/requests/prepare.json"),
+                    "--fabric-root", str(profile / "npm/node_modules/pi-fabric"),
+                    "--scenario", "runtime-capability-tamper",
+                ],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=240,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+            receipt = json.loads(completed.stdout)
+            self.assertEqual(receipt["status"], "passed")
+            self.assertTrue(receipt["non_scoring"])
+            self.assertEqual(receipt["agent_calls"], 0)
+            self.assertEqual(
+                [row["field"] for row in receipt["tamper_cases"]],
+                ["output_bounds", "event_log_bounds", "supported_agent_request_fields", "supported_agent_result_fields"],
+            )
+            self.assertTrue(all(row["refused"] for row in receipt["tamper_cases"]))
+
+    def test_analyze_publication_interruption_matrix_repairs_without_model_calls(self) -> None:
+        profile = ROOT.parent.parent
+        with tempfile.TemporaryDirectory(prefix=".agent-benchmark-analysis-matrix-", dir=profile) as temporary:
+            packet = Path(temporary) / "packet"
+            built = subprocess.run(
+                [
+                    sys.executable, "-B", str(SCRIPTS / "build_p217_replay.py"),
+                    "--root", str(packet), "--compact-interruption-fixture", "--pre-finalize-fixture",
+                ],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            self.assertEqual(built.returncode, 0, built.stderr.decode())
+            completed = subprocess.run(
+                [
+                    "node", str(SCRIPTS / "probe_deep_runner.mjs"),
+                    "--workflow", str(ROOT / "workflows/benchmark.ts"),
+                    "--request", str(packet / "replay/requests/prepare.json"),
+                    "--fabric-root", str(profile / "npm/node_modules/pi-fabric"),
+                    "--scenario", "analysis-interruption-matrix",
+                ],
+                check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                timeout=600,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+            receipt = json.loads(completed.stdout)
+            self.assertEqual(receipt["status"], "passed")
+            self.assertEqual(receipt["adapter"], "deterministic-fake-non-scoring")
+            self.assertEqual(receipt["setup_agent_calls"], 0)
+            self.assertEqual(receipt["setup_agent_calls"], receipt["planned_setup_agent_calls"])
+            self.assertEqual(receipt["prefinalize_terminal_count"], 4)
+            self.assertEqual(receipt["finalize_agent_calls"], 0)
+            self.assertEqual(receipt["publication_step_count"], 13)
+            self.assertEqual(len(receipt["steps"]), 13)
+            self.assertTrue(all(row["canonical_outputs_after_interruption"] == 0 for row in receipt["steps"]))
+            self.assertTrue(all(row["commit_after_interruption"] is False for row in receipt["steps"]))
+            self.assertTrue(all(row["repair_agent_calls"] == 0 for row in receipt["steps"]))
+            self.assertTrue(all(row["strict_reconciliation_complete"] is True for row in receipt["steps"]))
+            self.assertTrue(all(row["unique_owned_scratch_cleaned"] is True for row in receipt["steps"]))
+            self.assertNotIn("status" + "_qualifiers", completed.stdout.decode())
 
 class TelemetryTests(TemporaryDirectoryTest):
     @staticmethod
@@ -577,208 +848,124 @@ class LifecycleTests(TemporaryDirectoryTest):
 
 
 class CanaryTests(TemporaryDirectoryTest):
-    @staticmethod
-    def _telemetry_record() -> dict[str, object]:
-        def usage(input_tokens: int, output_tokens: int) -> dict[str, object]:
-            return {
-                "input_tokens": input_tokens, "output_tokens": output_tokens,
-                "cache_read_tokens": 1, "cache_write_tokens": 0, "cost_usd": None,
-                "provider_native": {"cache_read_input_tokens": 1},
-            }
-        return {
-            "schema_version": 1, "benchmark_id": "canary", "attempt_id": "a1",
-            "estimate_version": None,
-            "parent": {
-                "agent_id": "parent", "parent_agent_id": None, "session_id": "s1",
-                "requested_model": "m", "resolved_model": "m", "observed_model": "m",
-                "direct_usage": usage(10, 2), "tool_calls": [], "latency_ms": 10,
-                "provider_native": {},
-            },
-            "children": [{
-                "agent_id": "child", "parent_agent_id": "parent", "session_id": "s2",
-                "requested_model": "m", "resolved_model": "m", "observed_model": "m",
-                "direct_usage": usage(5, 1), "tool_calls": [], "latency_ms": 5,
-                "provider_native": {},
-            }],
-            "child_ownership": [{
-                "child_agent_id": "child", "owner_agent_id": "parent",
-                "settlement_artifact_path": "children/child/settled.json",
-            }],
-            "subtree_usage": {
-                "input_tokens": 15, "output_tokens": 3, "cache_read_tokens": 2,
-                "cache_write_tokens": 0, "cost_usd": None, "provider_native": {},
-            },
-        }
-
-    def _observations(self, canary_id: str, request_sha256: str) -> dict[str, object]:
-        if canary_id == "condition-loading":
-            return {
-                "invocation_path": "agents.run:pi:process", "request_sha256": request_sha256,
-                "requested_condition_sha256": "a" * 64, "loaded_condition_sha256": "a" * 64,
-                "submitted_prompt": "/skill:agent-benchmarking canary",
-                "observed_prompt": '<skill name="agent-benchmarking">expanded</skill>',
-                "child_result": {"received_as_literal": False},
-                "inline_control": {"instruction_mode": "inline-bundle", "nonce": "control"},
-            }
-        if canary_id == "mechanism-nested":
-            return {
-                "events": [
-                    {"event_type": "child-dispatched", "sequence": 1, "child_id": "c1"},
-                    {"event_type": "child-result", "sequence": 2, "child_id": "c1"},
-                    {"event_type": "child-consumed", "sequence": 3, "child_id": "c1"},
-                ],
-                "ownership": [{"child_id": "c1", "artifact": "children/c1.json"}],
-                "child_token": "token", "parent_transform_suffix": "-used",
-                "parent_consumed_value": "token-used",
-            }
-        if canary_id == "fresh-parent-sessions":
-            def parent(agent: str, process: str, workspace: str, sentinel: str) -> dict[str, object]:
-                return {
-                    "fabric_agent_id": agent, "process_handle": process,
-                    "persisted_runner_session_id": None, "workspace_id": workspace,
-                    "status": "completed", "tool_calls": 1, "own_sentinel": sentinel,
-                    "file_value": sentinel, "other_sentinel_seen": False,
-                }
-            return {
-                "parents": [parent("a1", "p1", "w1", "one"), parent("a2", "p2", "w2", "two")],
-                "declared_mutable_surfaces": ["workspace"],
-                "limitations": ["persisted runner session identity is unavailable"],
-            }
-        if canary_id == "randomized-schedule":
-            design = {"conditions": ["a", "b"], "tasks": ["t1", "t2", "t3", "t4"], "repetitions": 1, "workers": 8}
-            rows = None
-            seed = None
-            for candidate_seed in range(1, 20):
-                candidate = generate_schedule.generate_schedule(
-                    benchmark_id="canary", schedule_revision="v1", seed=candidate_seed, **design
-                )
-                sequences: dict[object, list[object]] = {}
-                for row in candidate:
-                    sequences.setdefault(row["block"], []).append(row["condition_id"])
-                if len({tuple(value) for value in sequences.values()}) > 1:
-                    rows, seed = candidate, candidate_seed
-                    break
-            self.assertIsNotNone(rows)
-            digest = lib.sha256_bytes(lib.canonical_jsonl_bytes(rows))
-            return {
-                "design": design, "rows": rows, "sealed_schedule_sha256": digest,
-                "execution_schedule_sha256": digest, "seed": seed,
-                "randomizer": lib.DETERMINISTIC_SHUFFLE_ALGORITHM,
-            }
-        if canary_id == "attempt-lifecycle":
-            return {
-                "events": [
-                    {"event_type": "assigned", "sequence": 1},
-                    {"event_type": "agents-run-call", "sequence": 2},
-                    {"event_type": "started", "sequence": 3},
-                    {"event_type": "terminal", "sequence": 4},
-                ],
-                "runtime_start_artifact_sha256": "b" * 64,
-                "scheduled_ids": ["a1"], "assigned_ids": ["a1"],
-                "terminal_ids": ["a1"], "ledger_ids": ["a1"],
-                "artifacts": [{"path": "attempts/a1/result.json", "sha256": "c" * 64}],
-            }
-        if canary_id == "blind-map-isolation":
-            public = [{"blind_id": "b1", "task_id": "t1", "item_path": "blinded/b1.json"}]
-            return {
-                "public_rows": public,
-                "private_rows": [{"blind_id": "b1", "task_id": "t1", "attempt_id": "a1", "condition_id": "c1"}],
-                "public_map_sha256": lib.sha256_bytes(lib.canonical_json_bytes({"schema_version": 1, "rows": public})),
-                "raw_frozen_at": "2026-09-02T00:00:00Z", "grading_started_at": "2026-09-02T00:00:01Z",
-                "reverse_map_available_to_grader": False, "grader_tool_calls": 0,
-                "grader_result": {"condition_identity_seen": False, "keys_seen": ["blind_id", "item_path", "task_id"]},
-            }
-        if canary_id == "primary-source-grading":
-            captured = "A primary statement is retained."
-            return {
-                "claim": {
-                    "quote": "primary statement", "captured_text": captured,
-                    "source_type": "primary", "source_url": "https://www.itl.nist.gov/source",
-                    "claim_date": "2026-09-01", "captured_at": "2026-09-02T00:00:00Z",
-                    "capture_sha256": hashlib.sha256(captured.encode()).hexdigest(), "decision": "entailed",
-                },
-                "temporal_negative_control": {"claim_date": "2026-09-03", "decision": "rejected"},
-            }
-        if canary_id == "runtime-model-identity":
-            return {
-                "parent": {"requested": "m", "resolved": "m", "observed": "m", "observed_source": "provider-log"},
-                "nested": {"requested": "n", "resolved": "n", "observed": None, "observed_source": "unavailable"},
-                "unknown_fields": ["nested.observed"],
-            }
-        if canary_id == "token-cost-attribution":
-            return {
-                "telemetry_records": [self._telemetry_record()],
-                "attempt_traffic_id": "attempt-traffic", "grader_traffic_id": "grader-traffic",
-                "inclusive_duplicate_control": {"status": "rejected", "diagnostic": "subtree_usage differs from unique-direct sum"},
-            }
-        if canary_id == "interrupted-wave-resume":
-            return {
-                "terminal_ids": ["a1"], "assigned_without_terminal_ids": ["a2"],
-                "never_assigned_ids": ["a3"], "selected_ids": ["a3"],
-                "ambiguous_replay_decision": "refused",
-                "frozen_retry_ids": ["r1"], "selected_retry_ids": [],
-                "terminal_before_sha256": "d" * 64, "terminal_after_sha256": "d" * 64,
-            }
-        if canary_id == "false-complete-refusal":
-            return {
-                "missing_records_result": {
-                    "complete": False, "ambiguous_attempt_ids": ["a2"],
-                    "completion_blockers": ["assigned without terminal: a2"],
-                },
-                "field_mismatch_result": {
-                    "complete": False, "issues": ["condition_id differs from scheduled condition_id"],
-                },
-            }
-        if canary_id == "supervisor-prelaunch-failure":
-            error = "spawn veda ENOENT"
-            return {
-                "events": [
-                    {"event_type": "assigned", "sequence": 1},
-                    {"event_type": "agents-run-call", "sequence": 2},
-                    {"event_type": "terminal", "sequence": 3, "status": "prelaunch-failed", "exception": error},
-                ],
-                "runtime_agent_start_observed": False, "settlement_ms": 25, "timeout_ms": 100,
-                "request_validated": True,
-                "fabric_result": {"id": "a1", "runner": "veda", "status": "failed", "turns": 0, "error": error},
-                "limitations": ["controlled startup failure does not establish crash recovery"],
-            }
-        self.fail(f"missing observations for {canary_id}")
-
     def _runtime_receipts(self) -> Path:
-        receipt_root = self.temp / "receipts"
-        (receipt_root / "evidence").mkdir(parents=True)
-        source_path = self.write_json("runtime-raw/source.json", {"kind": "unit-test-source"})
-        source_data = source_path.read_bytes()
-        source_entry = {
-            "path": "runtime-raw/source.json",
-            "sha256": hashlib.sha256(source_data).hexdigest(), "bytes": len(source_data),
-            "role": "isolated unit-test source",
-        }
-        fixture_root = ROOT / "validation/fixtures/canary"
-        for canary_id in run_canaries.RUNTIME_ASSERTIONS:
-            request_path = fixture_root / f"{canary_id}.request.json"
-            request_sha256 = lib.sha256_file(request_path)
-            evidence_document = {
-                "schema_version": 1, "canary_id": canary_id,
-                "request_sha256": request_sha256,
-                "observations": {"_sources": [source_entry], **self._observations(canary_id, request_sha256)},
-            }
-            evidence_path = self.write_json(f"receipts/evidence/{canary_id}.json", evidence_document)
-            data = evidence_path.read_bytes()
-            self.write_json(
-                f"receipts/{canary_id}.json",
-                {
-                    "schema_version": 1, "canary_id": canary_id,
-                    "non_scoring": True, "status": "passed", "scored_attempt_ids": [],
-                    "request_fixture": f"{canary_id}.request.json",
-                    "request_sha256": request_sha256,
-                    "evidence": [{
-                        "path": f"evidence/{canary_id}.json",
-                        "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data),
-                    }],
-                },
-            )
+        adapter = FakeCanaryAdapter(self.temp, ROOT / "validation/fixtures/canary")
+        receipt_root = adapter.evidence_root / "receipts"
+        generate_canary_receipts.generate(
+            fixture_root=ROOT / "validation/fixtures/canary",
+            receipt_root=receipt_root,
+            adapter=adapter,
+            allow_fake=True,
+        )
         return receipt_root
+
+    def test_fake_adapter_is_explicitly_test_only_and_receipts_remain_non_scoring(self) -> None:
+        adapter = FakeCanaryAdapter(self.temp / "deny-case", ROOT / "validation/fixtures/canary")
+        with self.assertRaisesRegex(lib.InputError, "fake capture adapter"):
+            generate_canary_receipts.generate(
+                fixture_root=ROOT / "validation/fixtures/canary",
+                receipt_root=self.temp / "forbidden-receipts",
+                adapter=adapter,
+            )
+        receipt_root = self._runtime_receipts()
+        for canary_id in run_canaries.RUNTIME_ASSERTIONS:
+            receipt = lib.load_json(receipt_root / f"{canary_id}.json")
+            self.assertEqual(receipt["scored_attempt_ids"], [])
+            self.assertTrue(receipt["non_scoring"])
+
+    def test_capture_lifecycle_failpoint_cannot_fabricate_a_pass(self) -> None:
+        adapter = FakeCanaryAdapter(self.temp, ROOT / "validation/fixtures/canary")
+        capture = adapter.capture("attempt-lifecycle")
+        capture["runs"][0]["log"]["events"] = []
+        with self.assertRaisesRegex(lib.ContractError, "Fabric log contains no events"):
+            generate_canary_receipts.generate(
+                fixture_root=ROOT / "validation/fixtures/canary",
+                receipt_root=self.temp / "failed-receipts",
+                adapter=adapter,
+                allow_fake=True,
+            )
+
+    def test_fabric_split_cache_usage_is_inclusively_normalized(self) -> None:
+        adapter = FakeCanaryAdapter(self.temp, ROOT / "validation/fixtures/canary")
+        capture = adapter.capture("token-cost-attribution")
+        observations = generate_canary_receipts._observations(
+            "token-cost-attribution", capture, ROOT / "validation/fixtures/canary",
+            adapter.source_paths("token-cost-attribution"),
+        )
+        record = observations["telemetry_records"][0]
+        parent = record["parent"]
+        self.assertEqual(parent["session_id"], "fake-session-token-cost-attribution-1")
+        self.assertEqual(parent["direct_usage"]["input_tokens"], 11)
+        self.assertEqual(parent["direct_usage"]["provider_native"]["fabric_usage"], {
+            "input": 10, "output": 2, "cacheRead": 1, "cacheWrite": 0, "cost": 0.01,
+        })
+        facts = run_canaries._derive_runtime_facts(
+            "token-cost-attribution", observations, capture["request_sha256"],
+        )
+        self.assertTrue(all(facts.values()), facts)
+
+    def test_token_cost_projection_preserves_canonical_decimal_sum(self) -> None:
+        adapter = FakeCanaryAdapter(self.temp, ROOT / "validation/fixtures/canary")
+        capture = adapter.capture("token-cost-attribution")
+        parent_result = capture["runs"][0]["result"]
+        child_result = parent_result["value"]["payload"]["child_result"]
+        parent_result["usage"]["cost"] = 0.06553500000000001
+        child_result["usage"]["cost"] = 0.0082
+        observations = generate_canary_receipts._observations(
+            "token-cost-attribution", capture, ROOT / "validation/fixtures/canary",
+            adapter.source_paths("token-cost-attribution"),
+        )
+        record = observations["telemetry_records"][0]
+        self.assertEqual(record["subtree_usage"]["cost_usd"], 0.07373500000000001)
+        facts = run_canaries._derive_runtime_facts(
+            "token-cost-attribution", observations, capture["request_sha256"],
+        )
+        self.assertTrue(all(facts.values()), facts)
+
+    def test_blind_and_fresh_decisions_ignore_model_self_reports(self) -> None:
+        adapter = FakeCanaryAdapter(self.temp, ROOT / "validation/fixtures/canary")
+        for canary_id, injected in (
+            ("blind-map-isolation", {"condition_identity_seen": True, "keys_seen": ["condition_id"]}),
+            ("fresh-parent-sessions", {"other_sentinel_seen": True}),
+        ):
+            capture = adapter.capture(canary_id)
+            for run in capture["runs"]:
+                run["result"]["value"]["payload"].update(injected)
+                status = adapter.root / canary_id / "runs" / run["result"]["id"] / "status.json"
+                status.write_bytes(lib.canonical_json_bytes(run["result"]))
+            (adapter.root / canary_id / "capture.json").write_bytes(lib.canonical_json_bytes(capture))
+        receipt_root = adapter.evidence_root / "receipts"
+        result = generate_canary_receipts.generate(
+            fixture_root=ROOT / "validation/fixtures/canary", receipt_root=receipt_root,
+            adapter=adapter, allow_fake=True,
+        )
+        self.assertEqual(result["status"], "passed")
+
+    def test_host_observed_blind_or_sibling_tampering_fails_closed(self) -> None:
+        fresh = FakeCanaryAdapter(self.temp / "fresh", ROOT / "validation/fixtures/canary")
+        leaked = fresh.root / "fresh-parent-sessions/workspaces/parent-1/parent-2.sentinel.txt"
+        leaked.write_text("leaked", encoding="utf-8")
+        with self.assertRaisesRegex(lib.ContractError, "mutable_state_reset"):
+            generate_canary_receipts.generate(
+                fixture_root=ROOT / "validation/fixtures/canary", receipt_root=fresh.evidence_root / "receipts",
+                adapter=fresh, allow_fake=True,
+            )
+
+        blind = FakeCanaryAdapter(self.temp / "blind", ROOT / "validation/fixtures/canary")
+        capture = blind.capture("blind-map-isolation")
+        run = capture["runs"][0]
+        leaked_task = run["task"] + " condition_id=private-c1"
+        run["task"] = leaked_task
+        run["result"]["task"] = leaked_task
+        run_root = blind.root / "blind-map-isolation/runs" / run["result"]["id"]
+        (run_root / "task.txt").write_text(leaked_task, encoding="utf-8")
+        (run_root / "status.json").write_bytes(lib.canonical_json_bytes(run["result"]))
+        (blind.root / "blind-map-isolation/capture.json").write_bytes(lib.canonical_json_bytes(capture))
+        with self.assertRaisesRegex(lib.ContractError, "grader_isolated"):
+            generate_canary_receipts.generate(
+                fixture_root=ROOT / "validation/fixtures/canary", receipt_root=blind.evidence_root / "receipts",
+                adapter=blind, allow_fake=True,
+            )
 
     def test_every_required_adversary_is_evaluated(self) -> None:
         results = run_canaries.validate_synthetic_catalog(ROOT / "validation/fixtures/canary/synthetic-catalog.json")
@@ -930,7 +1117,7 @@ class DeepStageTests(TemporaryDirectoryTest):
                 child.unlink()
             source_dir.rmdir()
 
-    def test_compact_log_scanner_handles_multi_megabyte_input_and_total_mechanisms(self) -> None:
+    def test_compact_log_scanner_handles_multi_megabyte_input(self) -> None:
         allowed = self.temp / "workspace"
         allowed.mkdir()
         log = self.temp / "large.jsonl"
@@ -946,13 +1133,6 @@ class DeepStageTests(TemporaryDirectoryTest):
         self.assertEqual(compact["child_ids"], ["child-1"])
         self.assertTrue(all(compact["flags"].values()))
         self.assertEqual(compact["forbidden_paths"], [])
-        self.assertTrue(deep_stage.total_mechanism_evidence(compact, actor_expected=True)["valid"])
-        missing = deep_stage.total_mechanism_evidence(None, actor_expected=False)
-        self.assertEqual(missing, {
-            "valid": False, "missing": True, "actor_expected": False,
-            "actor_create": False, "actor_terminal": False,
-            "actor_cleanup": False, "forbidden_access": None,
-        })
 
     def test_versioned_telemetry_projection_preserves_native_cache_and_cost(self) -> None:
         result = {
@@ -984,15 +1164,36 @@ class DeepStageTests(TemporaryDirectoryTest):
         self.assertEqual(plan["prior_manifests"][0]["manifest_sha256"], "a" * 64)
 
     def test_resume_and_transaction_planners_block_ambiguity_and_partial_finalize(self) -> None:
-        resume = deep_stage.plan_resume([
+        rows = [
             {"attempt_id": "done", "assignment": True, "terminal": "valid"},
+            {"attempt_id": "repair", "assignment": True, "terminal": "malformed"},
             {"attempt_id": "ambiguous", "assignment": True, "terminal": None},
             {"attempt_id": "new", "assignment": False, "terminal": None},
-        ])
+            {"attempt_id": "contradiction", "assignment": False, "terminal": "valid"},
+        ]
+        resume_input = self.write_json("resume.json", {"rows": rows})
+        completed = subprocess.run(
+            [sys.executable, "-B", str(SCRIPTS / "deep_stage.py"), "resume", "--input", str(resume_input)],
+            check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr.decode())
+        resume = json.loads(completed.stdout)
         self.assertEqual(resume["status"], "blocked")
         self.assertEqual(
             {row["attempt_id"]: row["action"] for row in resume["actions"]},
-            {"done": "skip", "ambiguous": "refuse-replay", "new": "run"},
+            {
+                "done": "skip",
+                "repair": "deterministic-repair-only",
+                "ambiguous": "refuse-replay",
+                "new": "run",
+                "contradiction": "refuse-replay",
+            },
+        )
+        self.assertEqual(resume["deterministic_repair_only_attempt_ids"], ["repair"])
+        self.assertEqual(resume["blocked_attempt_ids"], ["ambiguous", "contradiction"])
+        self.assertEqual(
+            deep_stage.plan_resume([{"attempt_id": "repair", "assignment": True, "terminal": "repairable"}])["status"],
+            "ready",
         )
         interrupted = deep_stage.plan_transaction({
             "attempt": "complete", "judge": "complete",
@@ -1004,7 +1205,6 @@ class DeepStageTests(TemporaryDirectoryTest):
             "adjudicate": "complete", "finalize": "ready",
         })
         self.assertTrue(complete["can_finalize"])
-
     def test_protected_pi_conflict_and_global_run_cost_ledger(self) -> None:
         project = self.temp / "project"
         (project / ".pi/fabric/mesh").mkdir(parents=True)

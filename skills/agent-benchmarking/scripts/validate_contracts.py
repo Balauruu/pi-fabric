@@ -26,10 +26,18 @@ CONTRACT_NAMES = (
     "condition",
     "schedule-row",
     "attempt",
+    "mechanism",
     "grader",
     "result",
     "seal",
     "telemetry",
+    "runtime-capability",
+    "protected-state",
+    "budget-ledger",
+    "call-plan",
+    "adjudication-plan",
+    "adjudication-assignment",
+    "adjudication-terminal",
 )
 DEFAULT_SCHEMA_DIR = Path(__file__).resolve().parent.parent / "schemas"
 

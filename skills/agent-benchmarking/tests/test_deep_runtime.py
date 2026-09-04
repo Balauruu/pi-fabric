@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 from pathlib import Path
 import re
 import sys
@@ -50,6 +51,25 @@ class DeepRuntimeTests(unittest.TestCase):
         self.assertEqual(document["actor_mesh_root_env"], "PI_FABRIC_MESH_ROOT")
         self.assertTrue(any("actor-mesh-default" in item for item in document["evidence"]))
         self.assertTrue(any("actor-mesh-env" in item for item in document["evidence"]))
+        self.assertEqual(document["output_bounds"], {
+            "max_output_chars": 50000,
+            "max_nested_result_chars": 2000000,
+            "max_failure_model_output_chars": 20000,
+            "execution_details_max_bytes": 524288,
+            "execution_trace_max_bytes": 524288,
+        })
+        self.assertEqual(document["event_log_bounds"], {
+            "max_event_line_chars": 4194304, "max_stderr_chars": 20000,
+        })
+        self.assertTrue({"task", "model", "timeoutMs", "recursive", "cwd", "schema"}.issubset(
+            document["supported_agent_request_fields"]
+        ))
+        self.assertTrue({"status", "text", "usage", "logFile", "startedAt", "finishedAt"}.issubset(
+            document["supported_agent_result_fields"]
+        ))
+        self.assertTrue(any("max_output_chars" in item for item in document["evidence"]))
+        self.assertTrue(any("FabricAgentRequest" in item for item in document["evidence"]))
+        self.assertTrue(any("FabricAgentResult" in item for item in document["evidence"]))
 
     def test_101_calls_partition_and_descendants_consume_each_cap(self) -> None:
         plans = deep_stage.partition_call_ids(
@@ -124,6 +144,22 @@ class DeepRuntimeTests(unittest.TestCase):
             schema = lib.load_json(ROOT / "schemas" / f"{name}.schema.json")
             self.assertEqual(lib.check_schema(schema, machine_contract=True), [], name)
             self.assertEqual(lib.validate_json_schema(document, schema), [], name)
+
+        capability_schema = lib.load_json(ROOT / "schemas/runtime-capability.schema.json")
+        original = documents["runtime-capability"]
+        tampered_documents = []
+        for field in ("output_bounds", "event_log_bounds", "supported_agent_request_fields", "supported_agent_result_fields"):
+            tampered = json.loads(json.dumps(original))
+            del tampered[field]
+            tampered_documents.append(tampered)
+        tampered = json.loads(json.dumps(original))
+        tampered["output_bounds"]["unowned_limit"] = 1
+        tampered_documents.append(tampered)
+        tampered = json.loads(json.dumps(original))
+        tampered["supported_agent_result_fields"].append(tampered["supported_agent_result_fields"][0])
+        tampered_documents.append(tampered)
+        for tampered in tampered_documents:
+            self.assertTrue(lib.validate_json_schema(tampered, capability_schema))
 
     def test_all_subcommands_accept_create_only_output(self) -> None:
         project = self.temp / "project"

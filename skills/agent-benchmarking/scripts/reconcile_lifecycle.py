@@ -484,6 +484,7 @@ def reconcile(args: argparse.Namespace) -> dict[str, Any]:
 
     schedule_schema = lib.load_json(args.schedule_schema)
     attempt_schema = lib.load_json(args.attempt_schema)
+    mechanism_schema = lib.load_json(args.mechanism_schema)
     result_schema = lib.load_json(args.result_schema)
     grader_schema = lib.load_json(args.grader_schema)
     task_schema = lib.load_json(args.task_schema)
@@ -637,11 +638,43 @@ def reconcile(args: argparse.Namespace) -> dict[str, Any]:
         raise lib.ContractError(tuple(sorted(set(issues[terminal_issue_count:]))))
     fabric_agent_owners: dict[str, str] = {}
     fabric_session_owners: dict[str, str] = {}
+    mechanism_receipts: dict[str, dict[str, Any]] = {}
     for attempt_id, terminal in terminals.items():
         if attempt_id not in schedule:
             issues.append(f"attempt terminal {attempt_id!r}: not in schedule")
             continue
         _compare_schedule(terminal, schedule[attempt_id], f"attempt terminal {attempt_id}", issues)
+        mechanism_relative = terminal.get("mechanism_evidence_path")
+        expected_mechanism = f"attempts/{attempt_id}/mechanism.json"
+        if mechanism_relative != expected_mechanism:
+            issues.append(f"attempt terminal {attempt_id}: mechanism_evidence_path is not canonical")
+        else:
+            try:
+                mechanism_path = lib.safe_join(root, mechanism_relative)
+                if not mechanism_path.is_file() or _has_symlink(root, mechanism_relative):
+                    incomplete.append(f"attempt {attempt_id!r} lacks a regular total mechanism receipt")
+                else:
+                    mechanism = lib.load_json(mechanism_path)
+                    mechanism_issues = lib.validate_json_schema(mechanism, mechanism_schema)
+                    mechanism_issues.extend(lib.validate_contract_semantics("mechanism", mechanism))
+                    issues.extend(f"mechanism {attempt_id}: {issue}" for issue in mechanism_issues)
+                    if isinstance(mechanism, dict):
+                        mechanism_receipts[attempt_id] = mechanism
+                        if mechanism.get("benchmark_id") != terminal.get("benchmark_id") or mechanism.get("attempt_id") != attempt_id:
+                            issues.append(f"mechanism {attempt_id}: identity disagrees with terminal")
+                        if terminal.get("status") == "succeeded" and mechanism.get("valid") is not True:
+                            issues.append(f"mechanism {attempt_id}: succeeded terminal has invalid mechanism evidence")
+                        if terminal.get("status") != "succeeded" and mechanism.get("valid") is True:
+                            issues.append(f"mechanism {attempt_id}: non-succeeded terminal has valid mechanism evidence")
+                        for evidence_relative in mechanism.get("evidence", []):
+                            try:
+                                evidence_path = lib.safe_join(root, lib.safe_relative_path(evidence_relative, f"mechanism {attempt_id}.evidence"))
+                                if not evidence_path.is_file() or _has_symlink(root, evidence_relative):
+                                    issues.append(f"mechanism {attempt_id}: unresolved or symlinked evidence {evidence_relative!r}")
+                            except lib.BenchmarkError as exc:
+                                issues.append(f"mechanism {attempt_id}: {exc}")
+            except lib.BenchmarkError as exc:
+                issues.append(f"mechanism {attempt_id}: {exc}")
         event = terminal_events.get(attempt_id)
         if event is None:
             issues.append(f"attempt terminal {attempt_id!r}: missing terminal event")
@@ -832,6 +865,32 @@ def reconcile(args: argparse.Namespace) -> dict[str, Any]:
         if isinstance(values, list):
             task_grader_ids.update(value for value in values if isinstance(value, str))
     required_grader_ids.update(task_grader_ids)
+    analysis_plan_path = lib.safe_join(root, "analysis-plan.json")
+    frozen_adjudicator_ids: set[str] = set()
+    if analysis_plan_path.is_file() and not analysis_plan_path.is_symlink():
+        analysis_plan = lib.load_json(analysis_plan_path)
+        values = analysis_plan.get("adjudicator_ids") if isinstance(analysis_plan, dict) else None
+        if not isinstance(values, list):
+            issues.append(f"{analysis_plan_path}: adjudicator_ids must be an array")
+        else:
+            for position, value in enumerate(values):
+                if not isinstance(value, str) or CONTRACT_ID.fullmatch(value) is None:
+                    issues.append(f"{analysis_plan_path}.adjudicator_ids[{position}]: invalid contract ID")
+                elif value in frozen_adjudicator_ids:
+                    issues.append(f"{analysis_plan_path}.adjudicator_ids: duplicate identity {value!r}")
+                else:
+                    frozen_adjudicator_ids.add(value)
+    elif adjudication_plan_rows:
+        issues.append("adjudication plan requires a real frozen analysis-plan.json adjudicator roster")
+
+    overlap = sorted(task_grader_ids & frozen_adjudicator_ids)
+    if overlap:
+        issues.append("judge and adjudicator identities must be distinct: " + ", ".join(overlap))
+    planned_adjudicator_ids = {identity[1] for identity in adjudication_plan_rows}
+    unregistered_adjudicators = sorted(planned_adjudicator_ids - frozen_adjudicator_ids)
+    if unregistered_adjudicators:
+        issues.append("adjudication plan names identities absent from frozen analysis plan: " + ", ".join(unregistered_adjudicators))
+    required_grader_ids.update(frozen_adjudicator_ids)
     required_grader_ids.update(
         value.get("grader_id") for value in grade_values
         if isinstance(value, dict) and isinstance(value.get("grader_id"), str)
@@ -860,13 +919,13 @@ def reconcile(args: argparse.Namespace) -> dict[str, Any]:
         _criterion_contract(grader, grader_path.as_posix(), issues)
         frozen_graders[grader_id] = grader
 
-    frozen_task_identities = {
+    frozen_design_identities = {
         (grader_id, str(frozen_graders[grader_id].get("revision")))
-        for grader_id in task_grader_ids if grader_id in frozen_graders
+        for grader_id in task_grader_ids | frozen_adjudicator_ids if grader_id in frozen_graders
     }
-    if expected_option and expected_option != frozen_task_identities:
-        missing_assertions = sorted(frozen_task_identities - expected_option)
-        stale_assertions = sorted(expected_option - frozen_task_identities)
+    if expected_option and expected_option != frozen_design_identities:
+        missing_assertions = sorted(frozen_design_identities - expected_option)
+        stale_assertions = sorted(expected_option - frozen_design_identities)
         if missing_assertions:
             issues.append("--expected-grader omits frozen identities: " + ", ".join(f"{item[0]}@{item[1]}" for item in missing_assertions))
         if stale_assertions:
@@ -1008,7 +1067,7 @@ def reconcile(args: argparse.Namespace) -> dict[str, Any]:
                     for field in ("benchmark_id", "blind_id", "grader_id", "grader_revision", "stage"):
                         if assignment.get(field) != grade.get(field):
                             issues.append(f"{source}: grader assignment {field} disagrees with grade")
-                    expected_request = f"{base}/result.raw.json"
+                    expected_request = f"{base}/request.json"
                     if assignment.get("request_path") != expected_request:
                         issues.append(f"{source}: grader assignment request_path is not canonical")
                     _claim_artifacts(
@@ -1429,6 +1488,8 @@ def reconcile(args: argparse.Namespace) -> dict[str, Any]:
         "counts": {
             "scheduled": len(schedule), "assigned": len(assignments), "started": len(starts),
             "terminal_events": len(terminal_events), "terminal_artifacts": len(terminals),
+            "mechanism_receipts": len(mechanism_receipts),
+            "valid_mechanism_receipts": sum(1 for value in mechanism_receipts.values() if value.get("valid") is True),
             "ledger": len(ledger), "grades": len(grade_values),
             "telemetry_records": len(telemetry_values),
             "telemetry_aggregated_records": 0 if telemetry_aggregate is None else telemetry_aggregate["record_count"],
@@ -1478,6 +1539,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", type=Path, help="create-only JSON receipt (default: stdout)")
     parser.add_argument("--schedule-schema", type=Path, default=base / "schemas" / "schedule-row.schema.json")
     parser.add_argument("--attempt-schema", type=Path, default=base / "schemas" / "attempt.schema.json")
+    parser.add_argument("--mechanism-schema", type=Path, default=base / "schemas" / "mechanism.schema.json")
     parser.add_argument("--result-schema", type=Path, default=base / "schemas" / "result.schema.json")
     parser.add_argument("--grader-schema", type=Path, default=base / "schemas" / "grader.schema.json")
     parser.add_argument("--task-schema", type=Path, default=base / "schemas" / "task.schema.json")

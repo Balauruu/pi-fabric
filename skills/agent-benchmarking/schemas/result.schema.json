@@ -13,7 +13,7 @@
     "grader_run_id",
     "stage",
     "status",
-    "status_qualifiers",
+    "qualifiers",
     "failure",
     "score",
     "criterion_results",
@@ -31,7 +31,7 @@
     "grader_run_id": {"type": ["string", "null"], "minLength": 1},
     "stage": {"enum": ["judge", "adjudicate"]},
     "status": {"enum": ["passed", "failed", "abstained", "grader-error", "invalid"]},
-    "status_qualifiers": {
+    "qualifiers": {
       "type": "array",
       "uniqueItems": true,
       "items": {"enum": ["model-terminal", "schema-invalid", "runtime-error", "evidence-incomplete", "adjudication-required", "analysis-limited"]}

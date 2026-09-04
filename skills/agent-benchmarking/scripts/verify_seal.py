@@ -344,22 +344,28 @@ def _collect_manifest_chain(
             )
 
         schema_version = manifest.get("schema_version")
-        if schema_version == 1:
+        if schema_version != 1:
+            issues.append(
+                f"{manifest_relative}.schema_version: unsupported value {schema_version}"
+            )
+            return chain, issues
+        manifest_version = manifest.get("manifest_version")
+        if manifest_version == 1:
             if revision_parts[1] != 1:
-                issues.append(f"{manifest_relative}: schema v1 requires revision v1")
+                issues.append(f"{manifest_relative}: manifest v1 requires revision v1")
             if manifest.get("previous_revision") is not None:
                 issues.append(
                     f"{manifest_relative}.previous_revision: "
                     "v1 manifest cannot define previous revision"
                 )
             return chain, issues
-        if schema_version != 2:
+        if manifest_version != 2:
             issues.append(
-                f"{manifest_relative}.schema_version: unsupported value {schema_version}"
+                f"{manifest_relative}.manifest_version: unsupported value {manifest_version}"
             )
             return chain, issues
         if revision_parts[1] < 2:
-            issues.append(f"{manifest_relative}: schema v2 requires revision v2 or later")
+            issues.append(f"{manifest_relative}: manifest v2 requires revision v2 or later")
 
         previous_revision = manifest.get("previous_revision")
         previous_parts = _revision_parts(previous_revision)
@@ -430,12 +436,12 @@ def _collect_manifest_chain(
 def _extract_manifest_components(
     manifest: Mapping[str, Any],
     manifest_relative: str,
-    schema_version: int,
+    manifest_version: int,
     errors: dict[str, list[str]],
 ) -> tuple[list[str], dict[str, Mapping[str, Any]], list[str]]:
     owned_values = manifest.get("owned_paths") if isinstance(manifest.get("owned_paths"), list) else []
     file_values = manifest.get("files") if isinstance(manifest.get("files"), list) else []
-    deleted_values = manifest.get("deleted_paths") if schema_version == 2 and isinstance(manifest.get("deleted_paths"), list) else []
+    deleted_values = manifest.get("deleted_paths") if manifest_version == 2 and isinstance(manifest.get("deleted_paths"), list) else []
 
     owned: list[str] = []
     for index, value in enumerate(owned_values):
@@ -455,7 +461,7 @@ def _extract_manifest_components(
             file_paths.append(path)
 
     deleted: list[str] = []
-    if schema_version == 2:
+    if manifest_version == 2:
         for index, value in enumerate(deleted_values):
             safe = _manifest_path(value, f"{manifest_relative}.deleted_paths[{index}]", errors["unsafe_paths"])
             if safe is not None:
@@ -493,13 +499,13 @@ def _build_effective_state(
 
     for node in reversed(nodes):
         relative = node["relative"]
-        schema_version = node["schema_version"]
+        manifest_version = node["manifest_version"]
         owned_set = set(node["owned"])
         file_map: Mapping[str, Mapping[str, Any]] = node["files"]
         file_keys = set(file_map)
         deleted = set(node["deleted"])
 
-        if schema_version == 1:
+        if manifest_version == 1:
             if seen_root:
                 errors["contract"].append(f"{relative}: v1 manifest must be chain root")
             next_state: dict[str, tuple[str, int]] = {}
@@ -583,15 +589,18 @@ def _normalize_chain_nodes(
 ) -> list[dict[str, Any]]:
     nodes: list[dict[str, Any]] = []
     for manifest_relative, manifest in chain:
-        version = manifest.get("schema_version")
+        if manifest.get("schema_version") != 1:
+            errors["contract"].append(f"{manifest_relative}.schema_version: expected 1")
+            continue
+        version = manifest.get("manifest_version")
         if not isinstance(version, int):
-            errors["contract"].append(f"{manifest_relative}.schema_version: expected integer")
+            errors["contract"].append(f"{manifest_relative}.manifest_version: expected integer")
             continue
         owned, file_map, deleted = _extract_manifest_components(manifest, manifest_relative, version, errors)
         nodes.append({
             "relative": manifest_relative,
             "manifest": manifest,
-            "schema_version": version,
+            "manifest_version": version,
             "owned": owned,
             "files": file_map,
             "deleted": deleted,
@@ -605,7 +614,7 @@ def _verify_no_prior_seal_growth(
 ) -> None:
     """Reject any delta whose source closure contains an older seal tree."""
     for index, node in enumerate(nodes):
-        if node["schema_version"] != 2:
+        if node["manifest_version"] != 2:
             continue
         prior_directories = {
             PurePosixPath(prior["relative"]).parent.as_posix()
@@ -627,7 +636,7 @@ def _verify_manifest_chain_digests(
 ) -> None:
     """Recheck every link against the loaded next node and its current bytes."""
     for index, node in enumerate(nodes):
-        if node["schema_version"] != 2:
+        if node["manifest_version"] != 2:
             continue
         manifest = node["manifest"]
         relative = node["relative"]
@@ -757,6 +766,7 @@ def create_seal(
 
         manifest: dict[str, Any] = {
             "schema_version": 1,
+            "manifest_version": 1,
             "benchmark_id": benchmark_id,
             "seal_type": seal_type,
             "revision": revision,
@@ -866,7 +876,8 @@ def create_seal(
     ]
 
     manifest: dict[str, Any] = {
-        "schema_version": 2,
+        "schema_version": 1,
+        "manifest_version": 2,
         "benchmark_id": benchmark_id,
         "seal_type": seal_type,
         "revision": revision,
@@ -965,7 +976,7 @@ def verify_seal(
     if not chain:
         errors["contract"].append("manifest: chain is missing")
         return {
-            "schema_version": manifest.get("schema_version"),
+            "schema_version": 1,
             "seal": seal_relative,
             "revision": manifest_revision,
             "status": "failed",
@@ -1019,7 +1030,7 @@ def verify_seal(
     matched = len(set(chain_state)) - len(set(errors["changed_sources"]) | set(errors["missing_sources"]))
 
     return {
-        "schema_version": manifest.get("schema_version"),
+        "schema_version": 1,
         "seal": seal_relative,
         "revision": manifest_revision,
         "status": "failed" if failed else "passed",

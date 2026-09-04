@@ -4,7 +4,7 @@ Use this reference for scored attempts, bounded Analyze stages, model graders, r
 
 ## Current Fabric attempt contract
 
-For Pi Fabric 0.75.0, execute a measured attempt with direct `agents.run` inside one type-checked `fabric_exec` program. `agents.run(request)` blocks until the one-shot child is terminal and returns a `FabricAgentResult`. Preserve the complete returned object, including:
+For Pi Fabric 0.77.0, execute a measured attempt with direct `agents.run` inside one type-checked `fabric_exec` program. `agents.run(request)` blocks until the one-shot child is terminal and returns a `FabricAgentResult`. Preserve the complete returned object, including:
 
 - `id`, `name`, `runner`, `transport`, `cwd`, `model`, `thinking`, and optional `runnerSessionId`;
 - `status`, `text`, optional `value` and `error`;
@@ -70,7 +70,7 @@ Before the first assignment in an execution revision:
 7. Prove frozen concurrency and the lower requested/configured/observed call ceiling against the actual runner and service regime.
 8. Create fresh per-attempt process/session state and isolate all task-relevant mutable workspace, home/config, memory, browser/account, cache, credential, and tool-server state.
 
-Any static, seal, schedule, or canary defect fails before assignment. Once assignment exists, the row remains in attempt accounting even if startup fails.
+Any static, seal, schedule, or canary defect fails before assignment. A structured failure checkpoint must name a safe action for its actual failure boundary: a protected-state conflict directs non-overlapping isolation plus regeneration and rebinding of the compatibility receipt before launch, never terminal finalize/repair. Once assignment exists, the row remains in attempt accounting even if startup fails.
 
 ## Checkpointed waves
 
@@ -93,12 +93,13 @@ Classify each sealed row from immutable artifacts:
 | Valid terminal exists | Skip. Never call the model again for this ID. |
 | No assignment exists | The row may run if its sealed wave is selected. |
 | Assignment exists, no terminal exists | Ambiguous in flight. Refuse replay under this ID. |
-| Terminal exists but is malformed or ownership fails | Refuse replay and audit the packet. |
+| Terminal projection is malformed, but decisive semantic output and source evidence remain immutable | `deterministic-repair-only`; never replay the model or add evidence. |
+| Terminal/assignment identity or artifact ownership is contradictory, or repair sources are absent | Refuse replay and audit the packet. |
 | Invalid attempt has a sealed retry row with a new ID | Run only that never-assigned retry row under the frozen policy. |
 
 Do not infer completion by polling session files, UI widgets, process lists, or terminal prose. Do not launch a replacement merely because no child is currently visible. An assigned-without-terminal row may have incurred a provider call or produced an uncollected result.
 
-A serialization-only repair may close a record under the same ID only when all semantic output and decisive evidence already exist as immutable bytes from the original invocation. It may parse, normalize, hash, or publish a missing projection without any model call, tool call, new evidence, changed prompt, or workspace mutation. Record the parser/version, source and output digests, repair time, and added local cost. If those conditions are not provable, preserve the ambiguity and use a new retry ID already present in a new or previously frozen schedule revision.
+The public resume planner and Execute checkpoint use the exact actions `skip`, `run`, `refuse-replay`, and `deterministic-repair-only`. A serialization-only repair may close a record under the same ID only when all semantic output and decisive evidence already exist as immutable bytes from the original invocation. It may parse, normalize, hash, or publish a missing projection without any model call, tool call, new evidence, changed prompt, or workspace mutation. Record the parser/version, source and output digests, repair time, and added local cost. If those conditions are not provable, preserve the ambiguity and use a new retry ID already present in a new or previously frozen schedule revision.
 
 Every model/tool retry after terminal state uses a new ID linked to its predecessor. Never overwrite failure, silently exclude it, retry until success, or count a repaired/retried success as first-attempt success.
 
@@ -106,7 +107,7 @@ Every model/tool retry after terminal state uses a new ID linked to its predeces
 
 Freeze the zero-call preparation closure, exact `judge` batch call plans, exact `adjudicate` batch call plans, and zero-call `finalize` before grading. Every stage commits inputs and assignments first, publishes one typed terminal per planned call, reconciles exact IDs and global reservations, then publishes its checkpoint last. Missing/null call results keep the stage at `checkpoint` or `failed`; they never count as complete. Recursive descendants consume the same coordinator-owned reservation even if Fabric managers enforce only local counters.
 
-Resume a stage by immutable state: skip valid terminals, block assigned-without-terminal IDs, and run only never-assigned planned IDs. Finalize verifies all stage checkpoints, active revision/delta seals, telemetry versions, and grading closure, performs no model call, and deterministically publishes analysis and report outputs. If the fixed runner/schema cannot select these stages, return `unsupported`; do not create bespoke TypeScript.
+Resume a stage by immutable state: skip valid terminals, block assigned-without-terminal IDs, classify malformed projections with immutable source evidence as deterministic-repair-only, and run only never-assigned planned IDs. Finalize verifies all stage checkpoints, active revision/delta seals, telemetry versions, and grading closure, performs no model call, and deterministically publishes analysis and report outputs. If the fixed runner/schema cannot select these stages, return `unsupported`; do not create bespoke TypeScript.
 
 ## Raw freeze and grading handoff
 

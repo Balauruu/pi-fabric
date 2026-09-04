@@ -34,10 +34,13 @@
     "packet_path",
     "design_revision",
     "execution_revision",
+    "analysis_revision",
     "wave_id",
     "requested_runtime",
     "requested_model",
     "runtime_capability_binding",
+    "protected_state_binding",
+    "budget_ledger_binding",
     "call_plan_binding",
     "delta_seal_references",
     "dry_run",
@@ -49,7 +52,7 @@
     "request_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
     "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
     "route": {"enum": ["Design", "Execute", "Audit", "Analyze"]},
-    "stage": {"enum": ["design", "execute", "judge", "adjudicate", "finalize", "audit"]},
+    "stage": {"enum": ["design", "execute", "prepare", "judge", "adjudicate", "finalize", "audit"]},
     "packet_path": {
       "type": "string",
       "maxLength": 512,
@@ -58,10 +61,23 @@
     },
     "design_revision": {"type": ["string", "null"], "pattern": "^design-v[1-9][0-9]*$"},
     "execution_revision": {"type": ["string", "null"], "pattern": "^execution-v[1-9][0-9]*$"},
+    "analysis_revision": {"type": ["string", "null"], "pattern": "^analysis-v[1-9][0-9]*$"},
     "wave_id": {"type": ["string", "null"], "pattern": "^[1-9][0-9]*$"},
     "requested_runtime": {"enum": ["pi", "claude", "veda", null]},
     "requested_model": {"type": ["string", "null"], "minLength": 1},
     "runtime_capability_binding": {
+      "oneOf": [
+        {"$ref": "#/$defs/artifact_binding"},
+        {"type": "null"}
+      ]
+    },
+    "protected_state_binding": {
+      "oneOf": [
+        {"$ref": "#/$defs/artifact_binding"},
+        {"type": "null"}
+      ]
+    },
+    "budget_ledger_binding": {
       "oneOf": [
         {"$ref": "#/$defs/artifact_binding"},
         {"type": "null"}

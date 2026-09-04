@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/mechanism.schema.json",
+  "title": "Total per-attempt mechanism projection",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "benchmark_id",
+    "attempt_id",
+    "valid",
+    "reason",
+    "detail",
+    "evidence",
+    "status",
+    "qualifiers",
+    "condition_role",
+    "actor_expected",
+    "actor_observed",
+    "actor_lifecycle",
+    "attempt_status",
+    "predicate",
+    "exposure",
+    "source_state",
+    "source_path",
+    "source_sha256",
+    "log_scan_path"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "attempt_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "valid": {"type": "boolean"},
+    "reason": {
+      "enum": [
+        "actor-mechanism-observed",
+        "mechanism-observed",
+        "mechanism-not-applicable",
+        "attempt-not-successful",
+        "log-evidence-missing",
+        "forbidden-access-observed",
+        "actor-evidence-missing",
+        "unexpected-actor-observed",
+        "mechanism-source-missing",
+        "mechanism-source-invalid"
+      ]
+    },
+    "detail": {"type": ["string", "null"]},
+    "evidence": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "format": "safe-relative-path"}
+    },
+    "status": {"enum": ["valid", "invalid", "not-applicable"]},
+    "qualifiers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "actor-expected",
+          "actor-observed",
+          "non-actor-mechanism",
+          "control",
+          "attempt-failed",
+          "source-missing",
+          "source-invalid",
+          "observation-missing",
+          "forbidden-access"
+        ]
+      }
+    },
+    "condition_role": {"enum": ["candidate", "control"]},
+    "actor_expected": {"type": "boolean"},
+    "actor_observed": {"type": "boolean"},
+    "actor_lifecycle": {
+      "type": "object",
+      "required": ["create", "terminal", "cleanup"],
+      "properties": {
+        "create": {"type": ["boolean", "null"]},
+        "terminal": {"type": ["boolean", "null"]},
+        "cleanup": {"type": ["boolean", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "attempt_status": {"enum": ["succeeded", "failed", "cancelled", "timed-out", "prelaunch-failed", "invalid"]},
+    "predicate": {"type": "string", "minLength": 1},
+    "exposure": {"enum": ["forced", "optional", "not-applicable"]},
+    "source_state": {"enum": ["file", "missing", "invalid", "not-applicable"]},
+    "source_path": {"type": ["string", "null"], "format": "safe-relative-path"},
+    "source_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "log_scan_path": {"type": ["string", "null"], "format": "safe-relative-path"}
+  },
+  "additionalProperties": false
+}

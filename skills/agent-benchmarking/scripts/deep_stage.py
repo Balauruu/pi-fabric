@@ -44,6 +44,98 @@ _MESH_ROOT_DEFAULT_PATTERN = re.compile(r'(?:path\d+\.)?join\(projectRoot,\s*[\"
 _MESH_ROOT_OVERRIDE_PATTERN = re.compile(r"PI_FABRIC_MESH_ROOT")
 
 
+_NUMERIC_BOUND_PATTERNS = {
+    "max_output_chars": re.compile(r"\bmaxOutputChars:\s*([0-9eE+* .-]+)\s*,"),
+    "max_nested_result_chars": re.compile(r"\bmaxNestedResultChars:\s*([0-9eE+* .-]+)\s*,"),
+    "max_failure_model_output_chars": re.compile(r"\bMAX_FAILURE_MODEL_OUTPUT_CHARS\s*=\s*([0-9eE+* .-]+)\s*;"),
+    "execution_details_max_bytes": re.compile(r"\bFABRIC_EXECUTION_DETAILS_MAX_BYTES\s*=\s*([0-9eE+* .-]+)\s*;"),
+    "execution_trace_max_bytes": re.compile(r"\bFABRIC_EXECUTION_TRACE_MAX_BYTES\s*=\s*([0-9eE+* .-]+)\s*;"),
+    "max_event_line_chars": re.compile(r"\bMAX_EVENT_LINE_CHARS\s*=\s*([0-9eE+* .-]+)\s*;"),
+    "max_stderr_chars": re.compile(r"\bMAX_STDERR_CHARS\s*=\s*([0-9eE+* .-]+)\s*;"),
+}
+
+
+def _parse_js_integer(expression: str, label: str) -> int:
+    factors = [part.strip() for part in expression.strip().split("*")]
+    if not factors or any(not re.fullmatch(r"[0-9]+(?:[eE][+]?[0-9]+)?", part) for part in factors):
+        raise lib.InputError(f"unable to parse installed numeric bound {label}")
+    value = 1
+    for factor in factors:
+        decimal = Decimal(factor)
+        if decimal != decimal.to_integral_value():
+            raise lib.InputError(f"installed numeric bound {label} is not an integer")
+        value *= int(decimal)
+    if value < 1:
+        raise lib.InputError(f"installed numeric bound {label} is not positive")
+    return value
+
+
+def _discover_runtime_bounds(root: Path) -> tuple[dict[str, int], dict[str, int], tuple[str, ...]]:
+    discovered: dict[str, set[int]] = {name: set() for name in _NUMERIC_BOUND_PATTERNS}
+    evidence: list[str] = []
+    for path in _iter_js(root):
+        text = _load_js_text(path)
+        relative = path.relative_to(root).as_posix()
+        for name, pattern in _NUMERIC_BOUND_PATTERNS.items():
+            matches = tuple(pattern.finditer(text))
+            for match in matches:
+                discovered[name].add(_parse_js_integer(match.group(1), name))
+            if matches:
+                evidence.append(f"pi-fabric/{relative}:{name}")
+    invalid = {name: sorted(values) for name, values in discovered.items() if len(values) != 1}
+    if invalid:
+        raise lib.InputError(f"unable to derive unique installed runtime bounds: {invalid}")
+    values = {name: next(iter(found)) for name, found in discovered.items()}
+    output = {name: values[name] for name in (
+        "max_output_chars", "max_nested_result_chars", "max_failure_model_output_chars",
+        "execution_details_max_bytes", "execution_trace_max_bytes",
+    )}
+    event_log = {name: values[name] for name in ("max_event_line_chars", "max_stderr_chars")}
+    return output, event_log, tuple(sorted(set(evidence)))
+
+
+def _interface_fields(declarations: str, name: str) -> tuple[tuple[str, ...], str | None]:
+    match = re.search(rf"interface {re.escape(name)}(?: extends ([A-Za-z_$][A-Za-z0-9_$]*))?\s*\{{(.*?)\n\}}", declarations, re.DOTALL)
+    if match is None:
+        raise lib.InputError(f"installed guest declarations omit {name}")
+    fields = tuple(re.findall(r"^\s*([A-Za-z_$][A-Za-z0-9_$]*)\??:\s*", match.group(2), re.MULTILINE))
+    if not fields or len(fields) != len(set(fields)):
+        raise lib.InputError(f"installed guest declaration {name} has invalid fields")
+    return fields, match.group(1)
+
+
+def _discover_agent_fields(root: Path) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    declaration_path = root / "dist/runtime/guest-types.d.ts"
+    if not declaration_path.is_file() or declaration_path.is_symlink():
+        raise lib.InputError("installed generated guest declarations are unavailable")
+    try:
+        text = declaration_path.read_text(encoding="utf-8")
+        prefix = "export declare const GUEST_TYPE_DECLARATIONS = "
+        start = text.index(prefix) + len(prefix)
+        end = text.index(";\nexport interface FabricGuestDeclarationOptions", start)
+        declarations = json.loads(text[start:end])
+    except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
+        raise lib.InputError(f"cannot parse installed guest declarations: {exc}") from None
+    if not isinstance(declarations, str):
+        raise lib.InputError("installed guest declarations are not a string")
+    request_fields, request_parent = _interface_fields(declarations, "FabricAgentRequest")
+    handle_fields, handle_parent = _interface_fields(declarations, "FabricAgentHandle")
+    result_fields, result_parent = _interface_fields(declarations, "FabricAgentResult")
+    if request_parent is not None or handle_parent is not None or result_parent != "FabricAgentHandle":
+        raise lib.InputError("installed agents.run inheritance surface is unsupported")
+    flattened_result = tuple(dict.fromkeys((*handle_fields, *result_fields)))
+    required_request = {"task", "runner", "model", "tools", "timeoutMs", "extensions", "recursive", "cwd", "schema"}
+    required_result = {"id", "name", "status", "runner", "transport", "cwd", "startedAt", "finishedAt", "turns", "toolCalls", "text", "value", "error", "usage", "logFile"}
+    if not required_request.issubset(request_fields) or not required_result.issubset(flattened_result):
+        raise lib.ContractError(("installed agents.run request/result surface omits required fields",))
+    evidence = (
+        "pi-fabric/dist/runtime/guest-types.d.ts:FabricAgentRequest",
+        "pi-fabric/dist/runtime/guest-types.d.ts:FabricAgentHandle",
+        "pi-fabric/dist/runtime/guest-types.d.ts:FabricAgentResult",
+    )
+    return request_fields, flattened_result, evidence
+
+
 class StageStatus(str, Enum):
     BLOCKED = "blocked"
     READY = "ready"
@@ -57,7 +149,7 @@ class ResumeAction(str, Enum):
     RUN = "run"
     SKIP = "skip"
     REFUSE_REPLAY = "refuse-replay"
-    AUDIT = "audit"
+    DETERMINISTIC_REPAIR_ONLY = "deterministic-repair-only"
 
 
 @dataclass(frozen=True)
@@ -69,6 +161,10 @@ class RuntimeCapabilities:
     temporary_log_pattern: str
     actor_mesh_default_root: str
     actor_mesh_root_env: str
+    output_bounds: tuple[tuple[str, int], ...]
+    event_log_bounds: tuple[tuple[str, int], ...]
+    supported_agent_request_fields: tuple[str, ...]
+    supported_agent_result_fields: tuple[str, ...]
     evidence: tuple[str, ...]
 
     def document(self, *, max_concurrency: int = 32) -> dict[str, Any]:
@@ -85,6 +181,11 @@ class RuntimeCapabilities:
             "telemetry_projection_version": TELEMETRY_PROJECTOR_VERSION,
             "actor_mesh_default_root": self.actor_mesh_default_root,
             "actor_mesh_root_env": self.actor_mesh_root_env,
+            "temporary_log_pattern": self.temporary_log_pattern,
+            "output_bounds": dict(self.output_bounds),
+            "event_log_bounds": dict(self.event_log_bounds),
+            "supported_agent_request_fields": list(self.supported_agent_request_fields),
+            "supported_agent_result_fields": list(self.supported_agent_result_fields),
         }
         capability_id = "runtime-" + lib.sha256_bytes(lib.canonical_json_bytes(facts))[:24]
         return {
@@ -93,7 +194,6 @@ class RuntimeCapabilities:
             "status": "passed",
             "capability_id": capability_id,
             **facts,
-            "temporary_log_pattern": self.temporary_log_pattern,
             "evidence": list(self.evidence),
         }
 
@@ -185,7 +285,9 @@ def doctor_runtime(
     fabric_version = _package_version(fabric_root, "pi-fabric")
     pi_version = _package_version(pi_root, "@earendil-works/pi-coding-agent")
     defaults, recursive_cwd_guard, temporary_log_pattern, actor_root_default, mesh_env = _discover_runtime_fabric_contract(fabric_root)
-    evidence: list[str] = ["pi-fabric/package.json:version", "pi-coding-agent/package.json:version"]
+    output_bounds, event_log_bounds, bound_evidence = _discover_runtime_bounds(fabric_root)
+    request_fields, result_fields, field_evidence = _discover_agent_fields(fabric_root)
+    evidence: list[str] = ["pi-fabric/package.json:version", "pi-coding-agent/package.json:version", *bound_evidence, *field_evidence]
     if not defaults:
         raise lib.InputError("unable to discover a positive maxPerExecution from installed bytes")
     installed_default = min(defaults)
@@ -226,6 +328,10 @@ def doctor_runtime(
         temporary_log_pattern=temporary_log_pattern,
         actor_mesh_default_root=actor_root_default,
         actor_mesh_root_env=mesh_env,
+        output_bounds=tuple(output_bounds.items()),
+        event_log_bounds=tuple(event_log_bounds.items()),
+        supported_agent_request_fields=request_fields,
+        supported_agent_result_fields=result_fields,
         evidence=tuple(sorted(set(evidence))),
     )
 
@@ -659,30 +765,6 @@ def scan_event_log(
     }
 
 
-def total_mechanism_evidence(scan: Mapping[str, Any] | None, *, actor_expected: bool) -> dict[str, Any]:
-    """Return total evidence even when an invalid attempt has no mechanism file."""
-    if scan is None:
-        return {
-            "valid": False, "missing": True, "actor_expected": actor_expected,
-            "actor_create": False, "actor_terminal": False, "actor_cleanup": False,
-            "forbidden_access": None,
-        }
-    flags = scan.get("flags")
-    forbidden = scan.get("forbidden_paths")
-    if not isinstance(flags, Mapping) or not isinstance(forbidden, list):
-        raise lib.InputError("mechanism scan has an invalid compact contract")
-    required = all(flags.get(name) is True for name in ("actor_create", "actor_terminal", "actor_cleanup")) if actor_expected else flags.get("actor_create") is False
-    return {
-        "valid": required and not forbidden,
-        "missing": False,
-        "actor_expected": actor_expected,
-        "actor_create": flags.get("actor_create") is True,
-        "actor_terminal": flags.get("actor_terminal") is True,
-        "actor_cleanup": flags.get("actor_cleanup") is True,
-        "forbidden_access": bool(forbidden),
-    }
-
-
 def project_fabric_telemetry(result: Mapping[str, Any], *, version: str = TELEMETRY_PROJECTOR_VERSION) -> dict[str, Any]:
     """Project Fabric usage while retaining exact native values and cache semantics."""
     if version not in {"fabric-usage-v1", TELEMETRY_PROJECTOR_VERSION}:
@@ -775,26 +857,35 @@ def plan_resume(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         terminal = row.get("terminal")
         if not isinstance(assignment, bool):
             raise lib.InputError(f"rows[{index}].assignment: expected boolean")
-        if terminal not in {None, "valid", "malformed"}:
+        if terminal not in {None, "valid", "malformed", "repairable"}:
             raise lib.InputError(f"rows[{index}].terminal: invalid state")
-        assigned = assignment
-        if terminal == "valid" and assigned:
-            action, reason = ResumeAction.SKIP, "valid immutable terminal"
+        if terminal is not None and not assignment:
+            action, reason = ResumeAction.REFUSE_REPLAY, "terminal without assignment is a lifecycle contradiction"
         elif terminal == "valid":
-            action, reason = ResumeAction.AUDIT, "terminal exists without assignment"
-        elif terminal == "malformed":
-            action, reason = ResumeAction.AUDIT, "terminal exists but is malformed"
-        elif assigned:
+            action, reason = ResumeAction.SKIP, "valid immutable terminal"
+        elif terminal in {"malformed", "repairable"}:
+            action, reason = (
+                ResumeAction.DETERMINISTIC_REPAIR_ONLY,
+                "terminal projection requires deterministic repair from immutable evidence; model replay forbidden",
+            )
+        elif assignment:
             action, reason = ResumeAction.REFUSE_REPLAY, "assigned without terminal is ambiguous"
         else:
             action, reason = ResumeAction.RUN, "never assigned"
         actions.append({"attempt_id": attempt_id, "action": action.value, "reason": reason})
-    blocked = [item["attempt_id"] for item in actions if item["action"] in {ResumeAction.REFUSE_REPLAY.value, ResumeAction.AUDIT.value}]
+    blocked = [item["attempt_id"] for item in actions if item["action"] == ResumeAction.REFUSE_REPLAY.value]
+    repairs = [
+        item["attempt_id"] for item in actions
+        if item["action"] == ResumeAction.DETERMINISTIC_REPAIR_ONLY.value
+    ]
     return {
         "schema_version": 1,
         "planner_version": MECHANICS_VERSION,
         "status": StageStatus.BLOCKED.value if blocked else StageStatus.READY.value,
         "actions": actions,
+        "runnable_attempt_ids": [item["attempt_id"] for item in actions if item["action"] == ResumeAction.RUN.value],
+        "skipped_attempt_ids": [item["attempt_id"] for item in actions if item["action"] == ResumeAction.SKIP.value],
+        "deterministic_repair_only_attempt_ids": repairs,
         "blocked_attempt_ids": blocked,
     }
 

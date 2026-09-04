@@ -71,7 +71,8 @@ class DeltaSealTests(unittest.TestCase):
     def test_v2_copies_only_exact_added_and_changed_delta(self) -> None:
         self.assertEqual(self.make_v2()["status"], "passed")
         manifest = self.manifest(2)
-        self.assertEqual(manifest["schema_version"], 2)
+        self.assertEqual(manifest["schema_version"], 1)
+        self.assertEqual(manifest["manifest_version"], 2)
         self.assertEqual(manifest["previous_revision"], "design-v1")
         self.assertEqual(
             manifest["previous_manifest_path"],

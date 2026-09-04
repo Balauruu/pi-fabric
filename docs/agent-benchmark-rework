@@ -1,0 +1,217 @@
+/skill:fabric-spec Heavily refactor the /agent-benchmark skill to implement
+ all P0-P2 mutations and satisfy every release acceptance criterion provided
+ in this request.
+
+#Agent Benchmark skill 
+
+Diagnosis
+
+ The skill is methodologically strong but operationally shallow. It exposes too much orchestration complexity to the calling agent, which then created bespoke
+ /tmp/*-vN.ts workflows and repeatedly reimplemented logging, sealing, status handling, and continuation logic.
+
+ Evidence from this session:
+
+ ┌─────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ Revisions   │ Failure cluster                                                                                                                                 │
+ ├─────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ v2-v3       │ Recursive agents rejected custom cwd; missing full-log access scanner                                                                           │
+ ├─────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ v4-v8       │ Absolute Fabric log paths rejected, multi-megabyte logs truncated, destination parents absent, status mismatch, stale non-actor variable        │
+ ├─────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ v9-v12      │ Missing mechanism files crashed Analyze, telemetry semantics mismatched reconciliation, analysis directory absent, blind-map receipt and rooted │
+ │             │ schema path omitted                                                                                                                             │
+ ├─────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ v13         │ 96 judges plus 18 adjudicators exceeded the hidden 100-call limit; null adjudications were incorrectly treated as complete                      │
+ ├─────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ v14         │ Required raw seal receipt was omitted before reconciliation                                                                                     │
+ ├─────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ Final Audit │ Fabric actor runtime mutated project .pi/fabric/mesh, contradicting the protected-state requirement                                             │
+ └─────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ There are also defects in the current skill itself:
+
+ - workflows/benchmark.ts permits max_agents = 128, despite the observed 100-call ceiling.
+ - The template explicitly rejects recursive measured agents, so it cannot directly benchmark the actor workflow used here.
+ - Its bounded log reader cannot safely ingest the multi-megabyte Fabric logs observed here.
+ - The skill validator currently fails:
+     - Four referenced references/evidence/*.md files are missing.
+     - Directory links are invalid under the validator.
+     - Numerous generated receipts and fixtures are orphaned.
+ - The final seal expanded to 9,725 files because seals recursively copied prior seal trees.
+
+ Proposed mutations
+
+ ### P0: Required before another benchmark
+
+ 1. Replace bespoke workflow authoring with one deep runner module
+     - Expose a small interface such as runBenchmarkStage(request) -> receipt.
+     - Keep Fabric calls, safe I/O, state transitions, reconciliation, and recovery inside the module.
+     - The caller should never generate custom Execute/Analyze TypeScript.
+     - Replace workflows/benchmark.ts with modular sources plus one prebuilt, validated Fabric bundle.
+
+ 2. Add a runtime capability doctor
+     - Detect and record:
+         - Pi and Fabric versions
+         - effective direct-agent call ceiling
+         - recursive-agent cwd behavior
+         - output and event-log bounds
+         - supported request/result fields
+         - actor mesh state location
+     - Refuse execution when the installed runtime differs from the validated adapter.
+     - Replace HARD_MAX_AGENTS = 128 with the verified effective limit.
+
+ 3. Change Analyze from one invocation to planned stages
+     - Add explicit stages such as prepare, judge, adjudicate, and finalize.
+     - Generate a call plan before launching anything.
+     - Partition stages so each Fabric invocation remains below the runtime ceiling.
+     - The 96-judge plus 18-adjudicator workload should have been planned as at least two invocations.
+
+ 4. Add a proper recursive-agent adapter
+     - Support actor-bearing measured attempts instead of rejecting recursive: true.
+     - Encode the verified rule that recursive agents cannot receive custom cwd.
+     - Pass absolute package/workspace paths while launching from the supported root.
+     - Provide a production Fabric adapter and deterministic fake adapter for tests.
+
+ 5. Make protected-state compatibility a prelaunch gate
+     - Compare requested protected paths with known runtime side effects.
+     - If actor creation necessarily writes .pi/fabric/mesh, either:
+         - use a verified isolated mesh/profile root, or
+         - block before scored work.
+     - Never discover this incompatibility only during final Audit.
+
+ 6. Create one artifact-store module
+     - Hide parent creation, safe path validation, O_EXCL, fsync, hashing, and create-only publication behind:
+         - publish()
+         - copyReturnedLog()
+         - scanArchivedLog()
+     - Stream returned Fabric logs directly from verified /tmp/pi-fabric-runs-* paths.
+     - Never transport full multi-megabyte logs through a bounded Fabric result.
+     - Emit compact scanner evidence while retaining raw JSONL.
+
+ 7. Make mechanism evidence total
+     - Every terminal path must publish a mechanism receipt, including failures:
+       ```json
+         {"valid": false, "reason": "...", "evidence": []}
+       ```
+     - Analyze must not crash because mechanism.json is absent.
+     - Test candidate-actor, candidate-no-actor, control-no-actor, and failure branches independently.
+     - Remove branch-local variables that can become stale in another condition.
+
+ 8. Make Analyze transactional
+     - Write derived outputs under analysis/<revision>/staging/.
+     - Require all judges and required adjudicators to have valid terminals.
+     - Run strict reconciliation before publication.
+     - Publish a commit manifest last.
+     - Never publish preliminary grades or analysis with null adjudications.
+     - Generate required seal receipts from the governing seal bindings, not handwritten arrays.
+
+ ### P1: Reliability and recovery
+
+ 9. Replace status-string conventions with typed status plus qualifiers
+     - Eliminate values such as passed-with-frozen-wave1-invalid.
+     - Use:
+       ```json
+         {"status": "passed", "qualifiers": ["frozen-wave1-invalid"]}
+       ```
+     - Share one parser across Design, Execute, Analyze, and Audit.
+
+ 10. Add a versioned Fabric telemetry projector
+     - Encode cache-as-subset semantics once.
+     - Preserve Fabric-native input, output, cache, and cost fields unchanged.
+     - Keep source-qualified provider cost separate from local estimates.
+     - Produce reconciliation-compatible normalized telemetry during capture, not through a post-raw amendment.
+
+ 11. Introduce a revision and seal planner
+     - Derive revision names and paths through one helper.
+     - Reject basename/revision mismatches before writing.
+     - Precompute all required design, execution, raw, grading, and audit receipts.
+     - Replace recursive seal copies with delta manifests referencing the previous seal digest. Seal growth should be linear, not exponential.
+
+ 12. Add deterministic resume and finalize modes
+     - A resume planner should classify every work item as:
+         - terminal, skip
+         - never assigned, runnable
+         - assigned without terminal, ambiguous
+         - deterministic repair only
+     - Provide a zero-model-call finalize stage for omitted receipts or reports.
+     - Recovery must not require authoring another workflow revision.
+
+ 13. Return structured failure checkpoints instead of outer exceptions
+     - Every stage should catch errors and publish a create-only failure receipt containing:
+         - completed work IDs
+         - unstarted IDs
+         - ambiguous IDs
+         - model calls consumed
+         - safe next action
+     - Failed reconciliation should not hide hundreds of already completed calls behind a generic tool error.
+
+ 14. Add one global budget ledger
+     - Include preflight, measured parents, nested actors, judges, adjudicators, and auditors.
+     - Deduplicate by run ID and account for parent/subtree semantics.
+     - Reserve the planned remaining calls and cost before each stage.
+     - Fail before launch if the plan cannot remain under the budget.
+
+ 15. Make adjudication first-class
+     - Add schemas and terminals for adjudication assignments and results.
+     - Define ambiguity, completion, disagreement, and retry rules explicitly.
+     - null or missing adjudications must never count as complete.
+
+ ### P2: Validation and package maintenance
+
+ 16. Replace lightweight canaries with production-shaped route tests
+     Add regression fixtures for every failure observed here:
+
+     - recursive agent with unsupported cwd
+     - absolute temporary event-log path
+     - event log larger than 2 MB
+     - publication into an absent parent directory
+     - status with qualifiers
+     - non-actor mechanism branch
+     - missing mechanism on invalid terminal
+     - Fabric cache and cost normalization
+     - blind-map commit receipt
+     - 101-call plan rejected before any launch
+     - 96 judges plus 18 adjudicators partitioned correctly
+     - omitted seal receipt
+     - seal basename mismatch
+     - interruption after every Analyze publication step
+     - forbidden .pi mutation detected before scoring
+
+ 17. Test through the deep runner interface
+     - Use the production Fabric adapter for runtime canaries.
+     - Use the fake adapter for failpoint and lifecycle tests.
+     - Stop testing internal helper sequencing once the deep interface has equivalent coverage.
+
+ 18. Repair and slim the skill package
+     - Restore or remove the four missing evidence references.
+     - Replace links to directories with links to real catalog files.
+     - Move generated validation receipts and large runtime captures outside the distributable skill.
+     - Keep only compact fixtures and current digest summaries.
+     - Add verified compatibility frontmatter.
+     - Require ultra-skill-creator/scripts/validate_skill.py to pass before release.
+
+ 19. Add this session as a concise regression ledger
+     - Create the currently missing references/evidence/session-failure-to-fix.md.
+     - Map v2-v14 failures to tests and permanent owners.
+     - Keep it concise and durable, not a transcript dump.
+
+ 20. Change the SKILL.md rule about invocation granularity
+     - Replace “one complete Analyze invocation” with “one bounded, preplanned stage per Fabric invocation.”
+     - Add: if the fixed runner cannot express the intervention, Design returns unsupported; it must not silently fork workflow source.
+
+ Release acceptance criterion
+
+ The revised skill should replay a synthetic benchmark with this session’s exact shape and demonstrate:
+
+ - zero post-start workflow-source amendments;
+ - no measured or judge retries;
+ - planned grading/adjudication partitioning under the call cap;
+ - successful multi-megabyte log archival;
+ - strict reconciliation before report publication;
+ - no missing mechanism crashes;
+ - protected .pi conflicts blocked before scoring;
+ - linear seal growth;
+ - passing skill validation with no broken links or orphaned generated artifacts.
+
+ The main correction is not more prose. It is moving fragile orchestration behind a deep, config-driven runner interface so one fix applies to every future
+ benchmark.

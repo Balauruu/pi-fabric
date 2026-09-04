@@ -85,7 +85,7 @@ class AdjudicationTests(unittest.TestCase):
             "grader_run_id": f"run-{grader_id}",
             "stage": stage,
             "status": status,
-            "status_qualifiers": ["model-terminal"],
+            "qualifiers": ["model-terminal"],
             "failure": None,
             "score": score,
             "criterion_results": [{
@@ -120,7 +120,18 @@ class AdjudicationTests(unittest.TestCase):
             "retry_of": None,
         }
         self.write_jsonl("schedule.jsonl", [row])
-        self.write_json("attempts/a1/mechanism.json", {"valid": True})
+        mechanism_source = self.write_json("attempts/a1/mechanism.source", {"observed": True})
+        self.write_json("attempts/a1/mechanism.json", {
+            "schema_version": 1, "benchmark_id": "bench", "attempt_id": "a1",
+            "valid": True, "reason": "mechanism-observed", "detail": None,
+            "evidence": ["attempts/a1/mechanism.source"], "status": "valid",
+            "qualifiers": ["non-actor-mechanism"], "condition_role": "candidate",
+            "actor_expected": False, "actor_observed": False,
+            "actor_lifecycle": {"create": False, "terminal": False, "cleanup": False},
+            "attempt_status": "succeeded", "predicate": "fixture source exists", "exposure": "forced",
+            "source_state": "file", "source_path": "attempts/a1/mechanism.source",
+            "source_sha256": lib.sha256_file(mechanism_source), "log_scan_path": None,
+        })
         terminal = {
             "schema_version": 1,
             "benchmark_id": "bench",
@@ -134,7 +145,7 @@ class AdjudicationTests(unittest.TestCase):
             "retry_of": None,
             "stage": "execute",
             "status": "succeeded",
-            "status_qualifiers": [],
+            "qualifiers": [],
             "failure": None,
             "startup_state": "started",
             "assigned_at": NOW,
@@ -170,7 +181,7 @@ class AdjudicationTests(unittest.TestCase):
             "session_path": None,
             "process_evidence_path": None,
             "mechanism_evidence_path": "attempts/a1/mechanism.json",
-            "artifact_paths": ["attempts/a1/mechanism.json"],
+            "artifact_paths": ["attempts/a1/mechanism.source", "attempts/a1/mechanism.json"],
         }
         self.write_json("attempts/a1/terminal.json", terminal)
         assigned = dict(row, event_type="assigned", sequence=1, assigned_at=NOW)
@@ -200,6 +211,7 @@ class AdjudicationTests(unittest.TestCase):
                 "forbidden_path_prefixes": [],
             },
         )
+        self.write_json("analysis-plan.json", {"adjudicator_ids": ["adjudicator-1"]})
         for grader_id in ("judge-1", "judge-2", "adjudicator-1"):
             self.write_json(f"graders/{grader_id}.json", self.grader(grader_id))
 
@@ -315,12 +327,15 @@ class AdjudicationTests(unittest.TestCase):
             "terminal": adjudication_terminal,
         }
 
-    def reconcile(self) -> dict[str, object]:
-        args = reconcile_lifecycle._parser().parse_args([
+    def reconcile(self, expected_graders: tuple[str, ...] = ()) -> dict[str, object]:
+        argv = [
             "--root", str(self.root),
             "--adjudication-plan", "adjudication-plan.json",
             "--strict-completion",
-        ])
+        ]
+        for identity in expected_graders:
+            argv.extend(("--expected-grader", identity))
+        args = reconcile_lifecycle._parser().parse_args(argv)
         return reconcile_lifecycle.reconcile(args)
 
     def test_schemas_are_strict_and_legacy_task_grader_contracts_remain_valid(self) -> None:
@@ -349,10 +364,19 @@ class AdjudicationTests(unittest.TestCase):
 
     def test_strict_plan_reconciles_exact_disagreement_lifecycle(self) -> None:
         self.build_packet()
-        result = self.reconcile()
+        result = self.reconcile(("judge-1@v1", "judge-2@v1", "adjudicator-1@v1"))
         self.assertEqual(result["issues"], [])
         self.assertEqual(result["completion_blockers"], [])
         self.assertTrue(result["complete"])
+
+    def test_adjudicator_must_be_in_frozen_design_roster(self) -> None:
+        self.build_packet()
+        self.write_json("analysis-plan.json", {"adjudicator_ids": []})
+        result = self.reconcile(("judge-1@v1", "judge-2@v1", "adjudicator-1@v1"))
+        joined = "\n".join(result["issues"])
+        self.assertIn("absent from frozen analysis plan", joined)
+        self.assertIn("non-frozen identities: adjudicator-1@v1", joined)
+        self.assertFalse(result["complete"])
 
     def test_plan_does_not_replace_required_normal_judges(self) -> None:
         packet = self.build_packet()

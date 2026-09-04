@@ -44,6 +44,13 @@ CANONICAL_SCRIPTS = (
     "analyze_paired.py",
     "final_integrity.py",
     "run_canaries.py",
+    "generate_canary_receipts.py",
+    "build_benchmark_bundle.py",
+    "build_p217_replay.py",
+    "run_p217_replay.mjs",
+    "typecheck_fabric_guest.mjs",
+    "validate_workflow.mjs",
+    "probe_deep_runner.mjs",
 )
 SCHEMAS = validate_contracts.CONTRACT_NAMES
 LEGACY_PATHS = (
@@ -66,7 +73,11 @@ def _package_checks(root: Path) -> list[dict[str, Any]]:
     required = [
         "SKILL.md",
         "workflows/benchmark.ts",
+        "workflows/benchmark.source.ts",
+        "workflows/artifact_store.ts",
+        "workflows/runtime_canaries.ts",
         "tests/test_helpers.py",
+        "tests/fake_canary_adapter.py",
         *(f"references/{name}" for name in CANONICAL_REFERENCES),
         "references/evidence/session-failure-to-fix.md",
         "references/evidence/external-research.md",
@@ -97,7 +108,7 @@ def _package_checks(root: Path) -> list[dict[str, Any]]:
     _check(not schema_issues, "machine-contracts", "; ".join(schema_issues) if schema_issues else f"{len(SCHEMAS)} schemas parse and use the supported fail-closed subset", checks)
 
     static_issues: list[str] = []
-    for relative in [*(f"scripts/{name}" for name in CANONICAL_SCRIPTS), "tests/test_helpers.py"]:
+    for relative in [*(f"scripts/{name}" for name in CANONICAL_SCRIPTS if name.endswith(".py")), "tests/test_helpers.py"]:
         path = root / relative
         if not path.is_file():
             continue
@@ -105,6 +116,13 @@ def _package_checks(root: Path) -> list[dict[str, Any]]:
             compile(path.read_bytes(), relative, "exec")
         except (SyntaxError, ValueError) as exc:
             static_issues.append(f"{relative}: {exc}")
+    for name in (item for item in CANONICAL_SCRIPTS if item.endswith(".mjs")):
+        path = root / "scripts" / name
+        if not path.is_file():
+            continue
+        checked = subprocess.run(["node", "--check", str(path)], text=True, capture_output=True)
+        if checked.returncode != 0:
+            static_issues.append(f"scripts/{name}: {checked.stderr.strip()}")
     _check(not static_issues, "python-static-before-agent", "; ".join(static_issues) if static_issues else "all Python entry points compile in memory before any runtime call", checks)
 
     executable_issues = [f"scripts/{name}" for name in CANONICAL_SCRIPTS if (root / "scripts" / name).is_file() and not os.access(root / "scripts" / name, os.X_OK)]
@@ -472,20 +490,95 @@ def _packet_checks(packet_root: Path, *, require_graders: bool, expected_graders
         seal_results[seal_type] = verify_seal.verify_seal(root=packet_root, seal=relative)
     seal_ok = not missing and all(result["status"] == "passed" for result in seal_results.values())
 
+    publication_issues: list[str] = []
+    committed: tuple[Path, Mapping[str, Any]] | None = None
+    commits = sorted(packet_root.glob("analysis/analysis-v*/commit.json"), key=lambda item: item.as_posix())
+    for commit_path in commits:
+        value = lib.load_json(commit_path)
+        if not isinstance(value, Mapping) or value.get("status") != "committed":
+            publication_issues.append(f"{commit_path}: invalid analysis commit")
+            continue
+        match = re.fullmatch(r"analysis-v([1-9][0-9]*)", str(value.get("analysis_revision")))
+        if match is None or commit_path.parent.name != value.get("analysis_revision"):
+            publication_issues.append(f"{commit_path}: revision/path mismatch")
+            continue
+        if committed is None:
+            committed = (commit_path, value)
+        else:
+            prior = re.fullmatch(r"analysis-v([1-9][0-9]*)", str(committed[1]["analysis_revision"]))
+            if prior is not None and int(match.group(1)) > int(prior.group(1)):
+                committed = (commit_path, value)
+
+    output_paths: dict[str, str] = {}
+    if committed is not None:
+        commit_path, commit = committed
+        if commit.get("strict_reconciliation_complete") is not True:
+            publication_issues.append(f"{commit_path}: strict reconciliation is not committed")
+        outputs = commit.get("outputs")
+        if not isinstance(outputs, list):
+            publication_issues.append(f"{commit_path}: outputs must be an array")
+        else:
+            seen: set[str] = set()
+            for index, descriptor in enumerate(outputs):
+                source = f"{commit_path}.outputs[{index}]"
+                if not isinstance(descriptor, Mapping):
+                    publication_issues.append(f"{source}: expected object")
+                    continue
+                try:
+                    relative = lib.safe_relative_path(descriptor.get("path"), f"{source}.path")
+                    path = lib.safe_join(packet_root, relative)
+                except lib.BenchmarkError as exc:
+                    publication_issues.append(str(exc))
+                    continue
+                if relative in seen:
+                    publication_issues.append(f"{source}: duplicate output path {relative}")
+                    continue
+                seen.add(relative)
+                if not path.is_file() or path.is_symlink():
+                    publication_issues.append(f"{source}: output is missing or symlinked")
+                    continue
+                if descriptor.get("sha256") != lib.sha256_file(path):
+                    publication_issues.append(f"{source}: digest mismatch")
+                if descriptor.get("bytes") != path.stat().st_size:
+                    publication_issues.append(f"{source}: byte count mismatch")
+                output_paths[path.name] = relative
+        required_outputs = {
+            "events.jsonl", "ledger.jsonl", "grades.jsonl", "telemetry.jsonl",
+            "telemetry-aggregate.json", "analysis-input.json", "analysis.json",
+            "telemetry-coverage.json", "reconciliation.json", "decision-report.json",
+        }
+        absent_outputs = sorted(required_outputs - output_paths.keys())
+        if absent_outputs:
+            publication_issues.append("analysis commit omits outputs: " + ", ".join(absent_outputs))
+
     with tempfile.TemporaryDirectory(prefix="agent-benchmark-integrity-") as temporary:
         receipt_paths: list[Path] = []
         for seal_type, (relative, manifest) in sorted(active.items()):
+            published = packet_root / "seal-receipts" / f"{seal_type}-{manifest['revision']}.json"
+            if published.is_file() and not published.is_symlink():
+                receipt_paths.append(published)
+                continue
             receipt = {
                 "schema_version": 1,
-                "seal": relative,
+                "ok": True,
+                "seal_type": seal_type,
                 "revision": manifest["revision"],
-                "status": "passed",
-                "owned": len(set(manifest.get("owned_paths", []))),
+                "manifest_path": f"{relative}/manifest.json",
+                "manifest_sha256": lib.sha256_file(packet_root / relative / "manifest.json"),
+                "verified_at": "1970-01-01T00:00:00Z",
             }
             receipt_path = Path(temporary) / f"{seal_type}.json"
             receipt_path.write_bytes(lib.canonical_json_bytes(receipt))
             receipt_paths.append(receipt_path)
         argv = ["--root", str(packet_root), "--strict-completion"]
+        if committed is not None and not publication_issues:
+            argv.extend(("--events", output_paths["events.jsonl"]))
+            argv.extend(("--ledger", output_paths["ledger.jsonl"]))
+            argv.extend(("--grades", output_paths["grades.jsonl"]))
+            argv.extend(("--telemetry", output_paths["telemetry.jsonl"]))
+            adjudication_plan = committed[0].parent / "adjudication-plan.json"
+            if adjudication_plan.is_file() and not adjudication_plan.is_symlink():
+                argv.extend(("--adjudication-plan", adjudication_plan.relative_to(packet_root).as_posix()))
         for receipt_path in receipt_paths:
             argv.extend(("--seal-receipt", str(receipt_path)))
         if require_graders:
@@ -494,13 +587,18 @@ def _packet_checks(packet_root: Path, *, require_graders: bool, expected_graders
             argv.extend(("--expected-grader", grader))
         reconcile_args = reconcile_lifecycle._parser().parse_args(argv)
         reconciliation = reconcile_lifecycle.reconcile(reconcile_args)
+    publication_ok = committed is not None and not publication_issues
     return {
-        "status": "passed" if seal_ok and reconciliation["complete"] else "failed",
+        "status": "passed" if seal_ok and publication_ok and reconciliation["complete"] else "failed",
         "seals": {"status": "passed" if seal_ok else "failed", "missing": missing, "results": seal_results},
+        "analysis_publication": {
+            "status": "passed" if publication_ok else "failed",
+            "commit_path": None if committed is None else committed[0].relative_to(packet_root).as_posix(),
+            "issues": publication_issues,
+        },
         "contracts": {"status": "passed" if not reconciliation["issues"] else "failed", "issues": reconciliation["issues"]},
         "reconciliation": reconciliation,
     }
-
 
 def run(
     *,
@@ -545,7 +643,7 @@ def run(
         "remaining_limitations": [
             "Mechanical checks prove only the encoded package, baseline, and optional packet contracts.",
             "The canonical globally position-balanced schedule is not supported by the helper's task-vector exact sign flip; confirmatory exact-randomization inference remains analysis-limited.",
-            "One-shot runtime evidence distinguishes Fabric agent IDs, process handles, and workspaces, but does not prove persisted runner-session identity, OS process IDs, or nested and non-workspace state reset.",
+            "One-shot runtime evidence distinguishes Fabric-returned agent and session IDs, log handles, and workspaces, but does not prove OS process IDs or nested and non-workspace state reset.",
             "No provider determinism, population representativeness, hard token/spend limit, universal cost semantics, or catastrophic coordinator-loss claim follows from this receipt.",
         ],
         "smallest_follow_up": (

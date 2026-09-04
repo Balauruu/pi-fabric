@@ -715,13 +715,47 @@ def check_schema(schema: Any, *, machine_contract: bool = False) -> list[str]:
 
 def validate_contract_semantics(contract_name: str, instance: Any) -> list[str]:
     """Validate deterministic relations that the supported schema subset cannot express."""
+    if contract_name == "mechanism" and isinstance(instance, dict):
+        issues: list[str] = []
+        valid = instance.get("valid")
+        status = instance.get("status")
+        exposure = instance.get("exposure")
+        source_state = instance.get("source_state")
+        source_path = instance.get("source_path")
+        source_sha256 = instance.get("source_sha256")
+        evidence = instance.get("evidence")
+        actor_expected = instance.get("actor_expected")
+        actor_observed = instance.get("actor_observed")
+        lifecycle = instance.get("actor_lifecycle")
+        if valid is True and status not in {"valid", "not-applicable"}:
+            issues.append("$.status: a valid mechanism must be valid or not-applicable")
+        if valid is False and status != "invalid":
+            issues.append("$.status: an invalid mechanism must use status invalid")
+        if status == "not-applicable" and exposure != "not-applicable":
+            issues.append("$.exposure: not-applicable status requires not-applicable exposure")
+        if source_state == "file":
+            if not isinstance(source_path, str) or not isinstance(source_sha256, str):
+                issues.append("$.source_state: file requires source_path and source_sha256")
+        elif source_path is not None or source_sha256 is not None:
+            issues.append("$.source_state: non-file source requires null path and digest")
+        if valid is True and (not isinstance(evidence, list) or not evidence):
+            issues.append("$.evidence: a valid projection requires structured evidence")
+        if instance.get("attempt_status") != "succeeded" and valid is not False:
+            issues.append("$.valid: a non-succeeded attempt cannot have valid mechanism evidence")
+        if valid is True and actor_expected is True:
+            if not isinstance(lifecycle, dict) or any(lifecycle.get(key) is not True for key in ("create", "terminal", "cleanup")):
+                issues.append("$.actor_lifecycle: an actor-bearing valid projection requires create, terminal, and cleanup")
+        if valid is True and actor_expected is False and actor_observed is not False:
+            issues.append("$.actor_observed: a valid non-actor projection must observe no actor")
+        return issues
+
     if contract_name != "workflow-request" or not isinstance(instance, dict):
         return []
     issues: list[str] = []
     max_agents = instance.get("max_agents")
     max_concurrency = instance.get("max_concurrency")
-    if isinstance(max_agents, int) and not isinstance(max_agents, bool) and max_agents > 128:
-        issues.append("$.max_agents: greater than hard maximum 128")
+    if isinstance(max_agents, int) and not isinstance(max_agents, bool) and max_agents > 100:
+        issues.append("$.max_agents: greater than hard maximum 100")
     if (
         isinstance(max_concurrency, int)
         and not isinstance(max_concurrency, bool)

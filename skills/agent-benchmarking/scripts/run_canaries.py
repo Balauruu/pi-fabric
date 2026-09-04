@@ -10,6 +10,7 @@ from pathlib import Path
 import stat
 import sys
 from typing import Any, Mapping, Sequence
+from urllib.parse import urlsplit
 
 import aggregate_telemetry
 import analyze_paired
@@ -19,14 +20,14 @@ import generate_schedule
 RUNTIME_ASSERTIONS: dict[str, tuple[str, ...]] = {
     "condition-loading": ("exact_invocation_path", "loading_proven", "literal_slash_not_accepted", "objective_effect"),
     "mechanism-nested": ("child_dispatched", "child_result_returned", "parent_consumed", "handoff_owned", "result_dependent_consumption"),
-    "fresh-parent-sessions": ("distinct_fabric_ids", "distinct_process_handles", "distinct_workspaces", "mutable_state_reset", "declared_surface_reset", "unsupported_session_claim_limited"),
+    "fresh-parent-sessions": ("distinct_fabric_ids", "distinct_fabric_sessions", "distinct_process_handles", "distinct_workspaces", "mutable_state_reset", "declared_surface_reset"),
     "randomized-schedule": ("sealed_bytes_used", "randomized", "block_complete", "condition_balanced", "position_balanced", "randomizer_frozen", "maximum_workers_reserved"),
     "attempt-lifecycle": ("assignment_before_call", "start_evidence_backed", "terminal_last", "exact_reconciliation", "resolving_artifacts"),
     "blind-map-isolation": ("public_map_condition_private", "reverse_map_private", "grading_after_freeze", "grader_isolated"),
     "primary-source-grading": ("claim_entailment", "source_authority", "historical_cutoff", "contemporaneous_capture", "temporal_failure_rejected"),
     "runtime-model-identity": ("parent_identity_layers", "nested_identity_layers", "unknowns_explicit", "independent_parent_observation"),
     "token-cost-attribution": ("parent_direct", "nested_direct", "unique_subtree", "cache_native", "traffic_separated", "no_double_counting", "inclusive_duplicate_rejected"),
-    "interrupted-wave-resume": ("terminals_skipped", "never_assigned_only", "ambiguous_refused", "retry_ids_frozen", "terminal_immutable"),
+    "interrupted-wave-resume": ("terminals_skipped", "never_assigned_only", "ambiguous_refused", "deterministic_repair_only", "retry_ids_frozen", "terminal_immutable"),
     "false-complete-refusal": ("incomplete_packet_injected", "completion_refused", "diagnostic_emitted", "field_mismatch_refused"),
     "supervisor-prelaunch-failure": ("assignment_retained", "no_start", "one_terminal", "exception_preserved", "bounded_settlement", "runner_startup_failure"),
 }
@@ -289,24 +290,21 @@ def _derive_runtime_facts(canary_id: str, observations: Mapping[str, Any], reque
         reset = bool(rows) and all(
             isinstance(row, Mapping)
             and row.get("status") == "completed"
-            and row.get("tool_calls") == 1
-            and isinstance(row.get("own_sentinel"), str)
-            and row.get("file_value") == row.get("own_sentinel")
-            and row.get("other_sentinel_seen") is False
+            and row.get("observed_mutable_surfaces") == ["workspace"]
+            and row.get("sentinel_source_bound") is True
+            and isinstance(row.get("sentinel_sha256"), str) and len(row.get("sentinel_sha256")) == 64
+            and row.get("file_value") == row.get("expected_file_value")
+            and row.get("sibling_sentinel_absent") is True
             for row in rows
         )
         limitations = observations.get("limitations")
         return {
             "distinct_fabric_ids": distinct("fabric_agent_id"),
+            "distinct_fabric_sessions": distinct("fabric_session_id"),
             "distinct_process_handles": distinct("process_handle"),
             "distinct_workspaces": distinct("workspace_id"),
             "mutable_state_reset": reset,
             "declared_surface_reset": observations.get("declared_mutable_surfaces") == ["workspace"] and reset,
-            "unsupported_session_claim_limited": (
-                isinstance(limitations, list)
-                and any(isinstance(item, str) and "persisted runner session" in item for item in limitations)
-                and all(isinstance(row, Mapping) and row.get("persisted_runner_session_id") is None for row in rows)
-            ),
         }
     if canary_id == "randomized-schedule":
         rows = observations.get("rows")
@@ -368,7 +366,7 @@ def _derive_runtime_facts(canary_id: str, observations: Mapping[str, Any], reque
         private_attempts = {row.get("attempt_id") for row in private_rows if isinstance(row, Mapping)}
         frozen = _time(observations.get("raw_frozen_at"))
         graded = _time(observations.get("grading_started_at"))
-        grader = observations.get("grader_result")
+        grader = observations.get("grader_request")
         public_digest = lib.sha256_bytes(lib.canonical_json_bytes({"schema_version": 1, "rows": public_rows})) if public_rows else None
         return {
             "public_map_condition_private": public_safe and public_digest == observations.get("public_map_sha256"),
@@ -380,8 +378,12 @@ def _derive_runtime_facts(canary_id: str, observations: Mapping[str, Any], reque
             "grader_isolated": (
                 observations.get("reverse_map_available_to_grader") is False
                 and observations.get("grader_tool_calls") == 0
-                and isinstance(grader, Mapping) and grader.get("condition_identity_seen") is False
-                and grader.get("keys_seen") == ["blind_id", "item_path", "task_id"]
+                and isinstance(grader, Mapping) and grader.get("exact_archive_match") is True
+                and grader.get("public_row_exact") is True
+                and grader.get("public_keys") == ["blind_id", "item_path", "task_id"]
+                and grader.get("private_fields_absent") is True
+                and grader.get("private_values_absent") is True
+                and grader.get("observed_tool_operations") == []
             ),
         }
     if canary_id == "primary-source-grading":
@@ -395,7 +397,11 @@ def _derive_runtime_facts(canary_id: str, observations: Mapping[str, Any], reque
         expected_digest = hashlib.sha256(captured.encode("utf-8")).hexdigest() if isinstance(captured, str) else None
         return {
             "claim_entailment": isinstance(quote, str) and isinstance(captured, str) and quote in captured and row.get("decision") == "entailed",
-            "source_authority": row.get("source_type") == "primary" and str(row.get("source_url", "")).startswith("https://www.itl.nist.gov/"),
+            "source_authority": (
+                row.get("source_type") == "primary"
+                and urlsplit(str(row.get("source_url", ""))).scheme == "https"
+                and (urlsplit(str(row.get("source_url", ""))).hostname or "").endswith(".nist.gov")
+            ),
             "historical_cutoff": isinstance(cutoff, str) and isinstance(capture, str) and cutoff <= capture[:10],
             "contemporaneous_capture": expected_digest == row.get("capture_sha256") and re_full_sha256(row.get("capture_sha256")) and _time(capture) is not None,
             "temporal_failure_rejected": isinstance(temporal, Mapping) and temporal.get("decision") == "rejected" and isinstance(temporal.get("claim_date"), str) and isinstance(capture, str) and temporal.get("claim_date") > capture[:10],
@@ -406,11 +412,14 @@ def _derive_runtime_facts(canary_id: str, observations: Mapping[str, Any], reque
         def layers(row: Any) -> bool:
             return isinstance(row, Mapping) and set(("requested", "resolved", "observed", "observed_source")) <= set(row) and any(row.get(key) is not None for key in ("requested", "resolved", "observed"))
         unknowns = observations.get("unknown_fields")
-        nested_unknown = isinstance(nested, Mapping) and nested.get("observed") is None and "nested.observed" in (unknowns or [])
+        expected_unknowns = [
+            name for name, row in (("parent.observed", parent), ("nested.observed", nested))
+            if isinstance(row, Mapping) and row.get("observed") is None
+        ]
         return {
             "parent_identity_layers": layers(parent),
             "nested_identity_layers": layers(nested),
-            "unknowns_explicit": isinstance(unknowns, list) and nested_unknown,
+            "unknowns_explicit": isinstance(unknowns, list) and unknowns == expected_unknowns,
             "independent_parent_observation": isinstance(parent, Mapping) and parent.get("observed_source") == "provider-log" and isinstance(parent.get("observed"), str) and bool(parent.get("observed")),
         }
     if canary_id == "token-cost-attribution":
@@ -450,11 +459,14 @@ def _derive_runtime_facts(canary_id: str, observations: Mapping[str, Any], reque
         ambiguous = set(observations.get("assigned_without_terminal_ids", []))
         never = set(observations.get("never_assigned_ids", []))
         selected = set(observations.get("selected_ids", []))
+        repairable = set(observations.get("repairable_terminal_ids", []))
+        repair_only = set(observations.get("deterministic_repair_only_ids", []))
         retry_ids = set(observations.get("frozen_retry_ids", []))
         return {
             "terminals_skipped": bool(terminal) and not (selected & terminal),
             "never_assigned_only": bool(selected) and selected <= never,
             "ambiguous_refused": bool(ambiguous) and not (selected & ambiguous) and observations.get("ambiguous_replay_decision") == "refused",
+            "deterministic_repair_only": bool(repairable) and repair_only == repairable and not (selected & repairable),
             "retry_ids_frozen": set(observations.get("selected_retry_ids", [])) <= retry_ids,
             "terminal_immutable": re_full_sha256(observations.get("terminal_before_sha256")) and observations.get("terminal_before_sha256") == observations.get("terminal_after_sha256"),
         }

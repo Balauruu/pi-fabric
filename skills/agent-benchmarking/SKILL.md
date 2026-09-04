@@ -1,7 +1,7 @@
 ---
 name: agent-benchmarking
 description: Design, execute, audit, or analyze controlled benchmarks of agents, prompts, skills, models, tools, and workflows with sealed conditions, certified graders, resumable Fabric-native execution, exact telemetry, and task-paired inference.
-compatibility: Verified for Pi 0.84.4 and Pi Fabric 0.75.0. Requires a runtime-capability receipt proving the effective 100-or-lower call ceiling, staged runner bindings, and recursive requests with custom cwd omitted. Other versions or missing capabilities return unsupported before mutation.
+compatibility: Verified for Pi 0.84.4 and Pi Fabric 0.77.0. Requires a runtime-capability receipt proving the effective 100-or-lower call ceiling, staged runner bindings, and recursive requests with custom cwd omitted. Other versions or missing capabilities return unsupported before mutation.
 ---
 
 # Agent Benchmarking
@@ -33,12 +33,12 @@ For recursive measured parents, omit the `cwd` field so Fabric starts from its s
 
 Design and Audit are bounded invocations. Execute advances sealed waves. Analyze is not one all-or-nothing invocation: freeze this stage plan before grading:
 
-1. Before the first `judge` stage, verify design/execution/raw seals, reconcile attempts, create versioned telemetry projections, and commit the blind map; these preparation steps add zero model calls.
+1. `prepare` - verify design/execution/raw seals, reconcile attempts, freeze the revision-scoped staging inputs, and commit the blind map; this dedicated invocation adds zero model calls.
 2. `judge` batch N - run only the call-plan's named, never-terminal judge IDs within the reserved call budget; checkpoint last.
 3. `adjudicate` batch N - run only the call-plan's predeclared disagreements with new IDs; null/missing terminals are incomplete, never successful.
 4. `finalize` - verify all stage checkpoints and revision-qualified seals, aggregate, analyze, reconcile, and report; zero model calls.
 
-Every stage has frozen input digests, exact planned IDs, call reservations including descendants, create-only outputs, and a checkpoint published only after exact reconciliation. Resume skips valid terminals, blocks assigned-without-terminal IDs, and runs only never-assigned planned IDs. If the installed fixed runner/schema cannot select and bound these stages, stop `unsupported` before grading rather than attempting one complete Analyze call.
+Every stage has frozen input digests, exact planned IDs, call reservations including descendants, create-only outputs, and a checkpoint published only after exact reconciliation. Resume skips valid terminals, blocks assigned-without-terminal IDs, and runs only never-assigned planned IDs. Each Fabric invocation runs exactly one bounded preplanned stage. If the installed fixed runner/schema cannot select and bound `prepare`, `judge`, `adjudicate`, or `finalize`, stop `unsupported` before grading rather than forking workflow source.
 
 ## Launch gates and typed outcomes
 
@@ -73,9 +73,9 @@ Generated receipts never live in this skill. Follow [validation](references/vali
 
 Every distributable support file is linked directly here. Catalog links replace directory links.
 
-**Schemas:** [attempt](schemas/attempt.schema.json), [condition](schemas/condition.schema.json), [grader](schemas/grader.schema.json), [result](schemas/result.schema.json), [schedule row](schemas/schedule-row.schema.json), [seal](schemas/seal.schema.json), [task](schemas/task.schema.json), [telemetry](schemas/telemetry.schema.json).
+**Schemas:** [adjudication assignment](schemas/adjudication-assignment.schema.json), [adjudication plan](schemas/adjudication-plan.schema.json), [adjudication terminal](schemas/adjudication-terminal.schema.json), [attempt](schemas/attempt.schema.json), [budget ledger](schemas/budget-ledger.schema.json), [call plan](schemas/call-plan.schema.json), [condition](schemas/condition.schema.json), [mechanism projection](schemas/mechanism.schema.json), [grader](schemas/grader.schema.json), [protected state](schemas/protected-state.schema.json), [result](schemas/result.schema.json), [runtime capability](schemas/runtime-capability.schema.json), [schedule row](schemas/schedule-row.schema.json), [seal](schemas/seal.schema.json), [task](schemas/task.schema.json), [telemetry](schemas/telemetry.schema.json), [workflow request](schemas/workflow-request.schema.json).
 
-**Helpers and tests:** [deep stage mechanics](scripts/deep_stage.py), [aggregate telemetry](scripts/aggregate_telemetry.py), [paired analysis](scripts/analyze_paired.py), [strict primitives](scripts/benchmark_lib.py), [final integrity](scripts/final_integrity.py), [blind map](scripts/generate_blind_map.py), [schedule](scripts/generate_schedule.py), [lifecycle reconciliation](scripts/reconcile_lifecycle.py), [runtime canaries](scripts/run_canaries.py), [contract validation](scripts/validate_contracts.py), [workflow validation](scripts/validate_workflow.mjs), [seal verification](scripts/verify_seal.py), [write once](scripts/write_once.py), [regression suite](tests/test_helpers.py).
+**Workflows, helpers, and tests:** [prebuilt fixed benchmark bundle](workflows/benchmark.ts), [benchmark source template](workflows/benchmark.source.ts), [artifact store module](workflows/artifact_store.ts), [bundle builder](scripts/build_benchmark_bundle.py), [deep-runner failpoint probe](scripts/probe_deep_runner.mjs), [fixed production runtime-canary harness](workflows/runtime_canaries.ts), [runtime-canary receipt generator](scripts/generate_canary_receipts.py), [P2.17 replay packet builder](scripts/build_p217_replay.py), [P2.17 native guest replay](scripts/run_p217_replay.mjs), [installed guest typecheck](scripts/typecheck_fabric_guest.mjs), [deep stage mechanics](scripts/deep_stage.py), [aggregate telemetry](scripts/aggregate_telemetry.py), [paired analysis](scripts/analyze_paired.py), [strict primitives](scripts/benchmark_lib.py), [final integrity](scripts/final_integrity.py), [blind map](scripts/generate_blind_map.py), [schedule](scripts/generate_schedule.py), [lifecycle reconciliation](scripts/reconcile_lifecycle.py), [runtime canaries](scripts/run_canaries.py), [contract validation](scripts/validate_contracts.py), [workflow validation](scripts/validate_workflow.mjs), [seal verification](scripts/verify_seal.py), [write once](scripts/write_once.py), [core regression suite](tests/test_helpers.py), [test-only fake canary adapter](tests/fake_canary_adapter.py), [adjudication tests](tests/test_adjudication.py), [deep-runtime tests](tests/test_deep_runtime.py), [delta-seal tests](tests/test_delta_seals.py).
 
 **Fixture catalogs and baselines:** [fixture catalog](validation/fixtures/fixture-catalog.json), [synthetic canary catalog](validation/fixtures/canary/synthetic-catalog.json), [development fixture note](validation/fixtures/canary/development/README.txt), [project baseline](validation/fixtures/baselines/project-status.txt), [protected packet baseline](validation/fixtures/baselines/protected-packet.json).
 

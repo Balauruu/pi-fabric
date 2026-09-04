@@ -14,6 +14,10 @@ function fail(message) {
 }
 
 function args(argv) {
+  if (argv.some((value) => value === "--help" || value === "-h")) {
+    console.log("usage: validate_workflow.mjs --workflow PATH --request PATH --fabric-root PATH");
+    process.exit(0);
+  }
   const out = {};
   for (let i = 0; i < argv.length; i += 2) {
     const key = argv[i];

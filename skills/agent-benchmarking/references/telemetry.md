@@ -26,7 +26,7 @@ For each provider-bearing event or result:
 4. retain fields that have no cross-provider equivalent instead of dropping them;
 5. mark absent, redacted, unsupported, and unobserved values distinctly when the schema permits.
 
-Pi Fabric 0.75.0 exposes normalized result usage as `input`, `output`, `cacheRead`, `cacheWrite`, and `cost` (installed contract evidence PF2 and PF7 in [architecture](architecture.md#installed-contract-evidence)). Preserve those exact values with source `FabricAgentResult.usage`. They are not a universal provider schema. Also retain provider-native input, output, reasoning, cache read/hit, cache creation/write and duration/tier fields when available. Do not infer reasoning tokens, cache categories, or billing semantics from names alone.
+Pi Fabric 0.77.0 exposes normalized result usage as `input`, `output`, `cacheRead`, `cacheWrite`, and `cost` (installed contract evidence PF2 and PF7 in [architecture](architecture.md#installed-contract-evidence)). Preserve those exact values with source `FabricAgentResult.usage`. They are not a universal provider schema. Also retain provider-native input, output, reasoning, cache read/hit, cache creation/write and duration/tier fields when available. Do not infer reasoning tokens, cache categories, or billing semantics from names alone.
 
 A local cost estimate must be separate from provider-reported cost and include currency, rate-card source/version/date, rounding rule, and the native quantities used. Never replace a provider total with an estimate or combine currencies silently. A universal normalized cost/token formula is not required.
 

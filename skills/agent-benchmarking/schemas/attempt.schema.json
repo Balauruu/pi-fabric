@@ -16,7 +16,7 @@
     "retry_of",
     "stage",
     "status",
-    "status_qualifiers",
+    "qualifiers",
     "failure",
     "startup_state",
     "assigned_at",
@@ -47,7 +47,7 @@
     "retry_of": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
     "stage": {"const": "execute"},
     "status": {"enum": ["succeeded", "failed", "cancelled", "timed-out", "prelaunch-failed", "invalid"]},
-    "status_qualifiers": {
+    "qualifiers": {
       "type": "array",
       "uniqueItems": true,
       "items": {"enum": ["mechanism-unverified", "nested-agents-present", "nested-telemetry-incomplete", "finalization-error", "runtime-unobserved", "budget-exhausted", "protected-state-conflict", "confounded", "analysis-limited"]}
