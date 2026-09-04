@@ -1,0 +1,1641 @@
+{
+  "version": 1,
+  "startedAt": "2026-09-03T18:06:25.289Z",
+  "executedAt": "2026-09-03T18:06:29.162Z",
+  "passed": true,
+  "origin": "http://127.0.0.1:46877",
+  "assetManifestDigest": "1050ef3348dcf36701ccb09ad4d9b77f53ff89fa90bf7349d1572422b65142a9",
+  "routes": [
+    {
+      "viewport": "desktop",
+      "label": "Overview",
+      "url": "http://127.0.0.1:46877/runs/run_fixture",
+      "apiPath": "/api/v1/runs/run_fixture",
+      "heading": "Guided fixture run",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Tree",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/tree",
+      "apiPath": "/api/v1/runs/run_fixture/tree",
+      "heading": "Tree",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Attempts",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/attempts",
+      "apiPath": "/api/v1/runs/run_fixture/attempts",
+      "heading": "Attempts",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Attempt detail",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/attempts/attempt_00000o",
+      "apiPath": "/api/v1/runs/run_fixture/attempts/attempt_00000o",
+      "heading": "Attempt detail",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Comparisons",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/compare",
+      "apiPath": "/api/v1/runs/run_fixture/comparisons",
+      "heading": "Comparisons",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Metrics",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/metrics",
+      "apiPath": "/api/v1/runs/run_fixture/metrics",
+      "heading": "Metrics",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Events",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/timeline",
+      "apiPath": "/api/v1/runs/run_fixture/events",
+      "heading": "Events",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Resources",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/resources",
+      "apiPath": "/api/v1/runs/run_fixture/resources",
+      "heading": "Resources",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Promotion",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/promotion",
+      "apiPath": "/api/v1/runs/run_fixture/promotions",
+      "heading": "Promotion",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Report",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/report",
+      "apiPath": "/api/v1/runs/run_fixture/report",
+      "heading": "Report",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "Contract",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/contract",
+      "apiPath": "/api/v1/runs/run_fixture/contract",
+      "heading": "Contract",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Overview",
+      "url": "http://127.0.0.1:46877/runs/run_fixture",
+      "apiPath": "/api/v1/runs/run_fixture",
+      "heading": "Guided fixture run",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Tree",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/tree",
+      "apiPath": "/api/v1/runs/run_fixture/tree",
+      "heading": "Tree",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Attempts",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/attempts",
+      "apiPath": "/api/v1/runs/run_fixture/attempts",
+      "heading": "Attempts",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Attempt detail",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/attempts/attempt_00000o",
+      "apiPath": "/api/v1/runs/run_fixture/attempts/attempt_00000o",
+      "heading": "Attempt detail",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Comparisons",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/compare",
+      "apiPath": "/api/v1/runs/run_fixture/comparisons",
+      "heading": "Comparisons",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Metrics",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/metrics",
+      "apiPath": "/api/v1/runs/run_fixture/metrics",
+      "heading": "Metrics",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Events",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/timeline",
+      "apiPath": "/api/v1/runs/run_fixture/events",
+      "heading": "Events",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Resources",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/resources",
+      "apiPath": "/api/v1/runs/run_fixture/resources",
+      "heading": "Resources",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Promotion",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/promotion",
+      "apiPath": "/api/v1/runs/run_fixture/promotions",
+      "heading": "Promotion",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Report",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/report",
+      "apiPath": "/api/v1/runs/run_fixture/report",
+      "heading": "Report",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "tablet",
+      "label": "Contract",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/contract",
+      "apiPath": "/api/v1/runs/run_fixture/contract",
+      "heading": "Contract",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Overview",
+      "url": "http://127.0.0.1:46877/runs/run_fixture",
+      "apiPath": "/api/v1/runs/run_fixture",
+      "heading": "Guided fixture run",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Tree",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/tree",
+      "apiPath": "/api/v1/runs/run_fixture/tree",
+      "heading": "Tree",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Attempts",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/attempts",
+      "apiPath": "/api/v1/runs/run_fixture/attempts",
+      "heading": "Attempts",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Attempt detail",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/attempts/attempt_00000o",
+      "apiPath": "/api/v1/runs/run_fixture/attempts/attempt_00000o",
+      "heading": "Attempt detail",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Comparisons",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/compare",
+      "apiPath": "/api/v1/runs/run_fixture/comparisons",
+      "heading": "Comparisons",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Metrics",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/metrics",
+      "apiPath": "/api/v1/runs/run_fixture/metrics",
+      "heading": "Metrics",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Events",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/timeline",
+      "apiPath": "/api/v1/runs/run_fixture/events",
+      "heading": "Events",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Resources",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/resources",
+      "apiPath": "/api/v1/runs/run_fixture/resources",
+      "heading": "Resources",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Promotion",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/promotion",
+      "apiPath": "/api/v1/runs/run_fixture/promotions",
+      "heading": "Promotion",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Report",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/report",
+      "apiPath": "/api/v1/runs/run_fixture/report",
+      "heading": "Report",
+      "viaOrdinaryControl": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "Contract",
+      "url": "http://127.0.0.1:46877/runs/run_fixture/contract",
+      "apiPath": "/api/v1/runs/run_fixture/contract",
+      "heading": "Contract",
+      "viaOrdinaryControl": true
+    }
+  ],
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "mobile": false
+    },
+    {
+      "name": "tablet",
+      "width": 900,
+      "height": 1100,
+      "mobile": false
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "mobile": true
+    }
+  ],
+  "assertions": [
+    {
+      "message": "bootstrap fragment is removed before asynchronous exchange",
+      "passed": true,
+      "evidence": "http://127.0.0.1:46877/runs/run_fixture"
+    },
+    {
+      "message": "bootstrap token is absent from rendered DOM",
+      "passed": true
+    },
+    {
+      "message": "overview UI exactly matches authoritative API summary",
+      "passed": true,
+      "evidence": {
+        "summary": {
+          "Run ID": "run_fixture",
+          "State": "COMPLETED",
+          "Outcome": "NO_PROMOTION",
+          "Revision": "23",
+          "Sequence": "31",
+          "Trust": "fixture-or-uncertified"
+        },
+        "expectedSummary": {
+          "Run ID": "run_fixture",
+          "State": "COMPLETED",
+          "Outcome": "NO_PROMOTION",
+          "Revision": "23",
+          "Sequence": "31",
+          "Trust": "fixture-or-uncertified"
+        }
+      }
+    },
+    {
+      "message": "desktop Overview has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Overview renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Tree has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Tree renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Attempts has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Attempts renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop attempt rows use stable attempt identity as semantic row headers",
+      "passed": true,
+      "evidence": "attempt_00000o"
+    },
+    {
+      "message": "desktop attempt-detail route is reached through its row link",
+      "passed": true
+    },
+    {
+      "message": "desktop Comparisons has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Comparisons renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Metrics has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Metrics renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Events has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Events renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Resources has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Resources renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Promotion has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Promotion renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Report has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Report renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop Contract has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "desktop Contract renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "desktop has no page-level horizontal overflow",
+      "passed": true,
+      "evidence": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "tableOverflows": [
+          {
+            "client": 1039,
+            "scroll": 1039
+          }
+        ],
+        "containers": [
+          {
+            "selector": "html",
+            "client": 1440,
+            "scroll": 1440,
+            "left": 0,
+            "right": 1440,
+            "width": 1440,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "body",
+            "client": 1440,
+            "scroll": 1440,
+            "left": 0,
+            "right": 1440,
+            "width": 1440,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": ".shell",
+            "client": 1440,
+            "scroll": 1440,
+            "left": 0,
+            "right": 1440,
+            "width": 1440,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "#main",
+            "client": 1152,
+            "scroll": 1152,
+            "left": 288,
+            "right": 1440,
+            "width": 1152,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "#detail-content",
+            "client": 1056,
+            "scroll": 1056,
+            "left": 336,
+            "right": 1392,
+            "width": 1056,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": ".table-wrap",
+            "client": 1039,
+            "scroll": 1039,
+            "left": 336,
+            "right": 1392,
+            "width": 1056,
+            "overflowX": "auto",
+            "minWidth": "0px",
+            "maxWidth": "100%"
+          }
+        ],
+        "overflowingElements": []
+      }
+    },
+    {
+      "message": "tablet Overview has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Overview renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Tree has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Tree renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Attempts has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Attempts renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet attempt rows use stable attempt identity as semantic row headers",
+      "passed": true,
+      "evidence": "attempt_00000o"
+    },
+    {
+      "message": "tablet attempt-detail route is reached through its row link",
+      "passed": true
+    },
+    {
+      "message": "tablet Comparisons has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Comparisons renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Metrics has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Metrics renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Events has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Events renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Resources has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Resources renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Promotion has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Promotion renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Report has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Report renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet Contract has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "tablet Contract renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "tablet has no page-level horizontal overflow",
+      "passed": true,
+      "evidence": {
+        "viewport": 900,
+        "scrollWidth": 900,
+        "tableOverflows": [
+          {
+            "client": 523,
+            "scroll": 835
+          }
+        ],
+        "containers": [
+          {
+            "selector": "html",
+            "client": 900,
+            "scroll": 900,
+            "left": 0,
+            "right": 900,
+            "width": 900,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "body",
+            "client": 900,
+            "scroll": 900,
+            "left": 0,
+            "right": 900,
+            "width": 900,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": ".shell",
+            "client": 900,
+            "scroll": 900,
+            "left": 0,
+            "right": 900,
+            "width": 900,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "#main",
+            "client": 612,
+            "scroll": 612,
+            "left": 288,
+            "right": 900,
+            "width": 612,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "#detail-content",
+            "client": 540,
+            "scroll": 540,
+            "left": 324,
+            "right": 864,
+            "width": 540,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": ".table-wrap",
+            "client": 523,
+            "scroll": 835,
+            "left": 324,
+            "right": 864,
+            "width": 540,
+            "overflowX": "auto",
+            "minWidth": "0px",
+            "maxWidth": "100%"
+          }
+        ],
+        "overflowingElements": [
+          {
+            "tag": "TABLE",
+            "id": "",
+            "className": "",
+            "left": 325,
+            "right": 1160.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "CAPTION",
+            "id": "",
+            "className": "",
+            "left": 325,
+            "right": 1160.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "THEAD",
+            "id": "",
+            "className": "",
+            "left": 325,
+            "right": 1160.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TR",
+            "id": "",
+            "className": "",
+            "left": 325,
+            "right": 1160.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TH",
+            "id": "",
+            "className": "",
+            "left": 595.453125,
+            "right": 1160.15625,
+            "width": 564.703125
+          },
+          {
+            "tag": "TBODY",
+            "id": "",
+            "className": "",
+            "left": 325,
+            "right": 1160.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TR",
+            "id": "",
+            "className": "",
+            "left": 325,
+            "right": 1160.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TD",
+            "id": "",
+            "className": "",
+            "left": 595.453125,
+            "right": 1160.15625,
+            "width": 564.703125
+          },
+          {
+            "tag": "PRE",
+            "id": "",
+            "className": "code-value",
+            "left": 607.453125,
+            "right": 1148.15625,
+            "width": 540.703125
+          }
+        ]
+      }
+    },
+    {
+      "message": "mobile Overview has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Overview renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Tree has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Tree renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Attempts has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Attempts renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile attempt rows use stable attempt identity as semantic row headers",
+      "passed": true,
+      "evidence": "attempt_00000o"
+    },
+    {
+      "message": "mobile attempt-detail route is reached through its row link",
+      "passed": true
+    },
+    {
+      "message": "mobile Comparisons has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Comparisons renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Metrics has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Metrics renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Events has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Events renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Resources has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Resources renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Promotion has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Promotion renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Report has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Report renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile Contract has a visible page heading",
+      "passed": true
+    },
+    {
+      "message": "mobile Contract renders without an alert",
+      "passed": true
+    },
+    {
+      "message": "mobile has no page-level horizontal overflow",
+      "passed": true,
+      "evidence": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "tableOverflows": [
+          {
+            "client": 341,
+            "scroll": 835
+          }
+        ],
+        "containers": [
+          {
+            "selector": "html",
+            "client": 390,
+            "scroll": 390,
+            "left": 0,
+            "right": 390,
+            "width": 390,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "body",
+            "client": 390,
+            "scroll": 390,
+            "left": 0,
+            "right": 390,
+            "width": 390,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": ".shell",
+            "client": 390,
+            "scroll": 390,
+            "left": 0,
+            "right": 390,
+            "width": 390,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "#main",
+            "client": 390,
+            "scroll": 390,
+            "left": 0,
+            "right": 390,
+            "width": 390,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": "#detail-content",
+            "client": 358,
+            "scroll": 358,
+            "left": 16,
+            "right": 374,
+            "width": 358,
+            "overflowX": "visible",
+            "minWidth": "0px",
+            "maxWidth": "none"
+          },
+          {
+            "selector": ".table-wrap",
+            "client": 341,
+            "scroll": 835,
+            "left": 16,
+            "right": 374,
+            "width": 358,
+            "overflowX": "auto",
+            "minWidth": "0px",
+            "maxWidth": "100%"
+          }
+        ],
+        "overflowingElements": [
+          {
+            "tag": "ASIDE",
+            "id": "sidebar",
+            "className": "",
+            "left": -386.1000061035156,
+            "right": -35.100006103515625,
+            "width": 351
+          },
+          {
+            "tag": "H2",
+            "id": "navigation-heading",
+            "className": "visually-hidden",
+            "left": -371.1000061035156,
+            "right": -370.1000061035156,
+            "width": 1
+          },
+          {
+            "tag": "BUTTON",
+            "id": "drawer-close",
+            "className": "drawer-close",
+            "left": -370.1000061035156,
+            "right": -206.80313110351562,
+            "width": 163.296875
+          },
+          {
+            "tag": "A",
+            "id": "all-runs",
+            "className": "all-runs",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "NAV",
+            "id": "run-navigation",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "className": "",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "className": "safety-note",
+            "left": -370.1000061035156,
+            "right": -52.100006103515625,
+            "width": 318
+          },
+          {
+            "tag": "TABLE",
+            "id": "",
+            "className": "",
+            "left": 17,
+            "right": 852.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "CAPTION",
+            "id": "",
+            "className": "",
+            "left": 17,
+            "right": 852.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "THEAD",
+            "id": "",
+            "className": "",
+            "left": 17,
+            "right": 852.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TR",
+            "id": "",
+            "className": "",
+            "left": 17,
+            "right": 852.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TH",
+            "id": "",
+            "className": "",
+            "left": 287.453125,
+            "right": 852.15625,
+            "width": 564.703125
+          },
+          {
+            "tag": "TBODY",
+            "id": "",
+            "className": "",
+            "left": 17,
+            "right": 852.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TR",
+            "id": "",
+            "className": "",
+            "left": 17,
+            "right": 852.15625,
+            "width": 835.15625
+          },
+          {
+            "tag": "TD",
+            "id": "",
+            "className": "",
+            "left": 287.453125,
+            "right": 852.15625,
+            "width": 564.703125
+          },
+          {
+            "tag": "PRE",
+            "id": "",
+            "className": "code-value",
+            "left": 299.453125,
+            "right": 840.15625,
+            "width": 540.703125
+          }
+        ]
+      }
+    },
+    {
+      "message": "browser Back restores the preceding Arbor route",
+      "passed": true,
+      "evidence": "http://127.0.0.1:46877/runs/run_fixture"
+    },
+    {
+      "message": "browser refresh restores authoritative route state",
+      "passed": true
+    },
+    {
+      "message": "keyboard focus reaches the visible mobile navigation trigger",
+      "passed": true
+    },
+    {
+      "message": "mobile drawer exposes modal dialog semantics",
+      "passed": true
+    },
+    {
+      "message": "opening the drawer moves focus inside it",
+      "passed": true,
+      "evidence": {
+        "inside": true,
+        "activeTag": "BUTTON",
+        "activeId": "drawer-close"
+      }
+    },
+    {
+      "message": "Escape closes the drawer and restores trigger focus",
+      "passed": true
+    },
+    {
+      "message": "mobile overlay closes the navigation drawer",
+      "passed": true
+    },
+    {
+      "message": "keyboard traversal returns to the navigation trigger",
+      "passed": true
+    },
+    {
+      "message": "keyboard focus indicator is visibly styled",
+      "passed": true,
+      "evidence": {
+        "focusVisible": true,
+        "focusVariable": "#005fcc",
+        "outlineStyle": "solid",
+        "outlineWidth": "3px",
+        "outlineColor": "rgb(0, 95, 204)",
+        "boxShadow": "rgb(255, 255, 255) 0px 0px 0px 3px, rgb(0, 95, 204) 0px 0px 0px 6px",
+        "matchedFocusRules": [
+          ":focus-visible { outline-style: solid; outline-width: 3px; outline-color: var(--focus); outline-offset: 3px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--focus); }"
+        ]
+      }
+    },
+    {
+      "message": "content reflows without two-dimensional page scrolling at 400% equivalent zoom",
+      "passed": true,
+      "evidence": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "headerHeight": 185.921875
+      }
+    },
+    {
+      "message": "loading state sets aria-busy",
+      "passed": true
+    },
+    {
+      "message": "loading disables refresh",
+      "passed": true
+    },
+    {
+      "message": "loading control provides a disabled reason",
+      "passed": true
+    },
+    {
+      "message": "empty list reports an exact zero count",
+      "passed": true
+    },
+    {
+      "message": "error state preserves manual retry",
+      "passed": true
+    },
+    {
+      "message": "empty lineage does not expose an unlabeled visualization",
+      "passed": true
+    },
+    {
+      "message": "disconnected stale state disables intent submission",
+      "passed": true
+    },
+    {
+      "message": "stale intent control explains why it is disabled",
+      "passed": true
+    },
+    {
+      "message": "manual retry restores authoritative intent availability",
+      "passed": true
+    },
+    {
+      "message": "fixture authority exposes a genuine compacted cursor reset",
+      "passed": true,
+      "evidence": {
+        "kind": "reset",
+        "reason": "compacted"
+      }
+    },
+    {
+      "message": "SSE reset rerender preserves the focused control",
+      "passed": true
+    },
+    {
+      "message": "SSE updates are announced politely",
+      "passed": true
+    },
+    {
+      "message": "keyboard-only form submission returns a durable PENDING intent identity",
+      "passed": true,
+      "evidence": "intent_e8cfa9961822166a2e8e9cb72dd4ca59"
+    },
+    {
+      "message": "UI receipt exactly matches the backend PENDING intent state",
+      "passed": true,
+      "evidence": {
+        "intentId": "intent_e8cfa9961822166a2e8e9cb72dd4ca59",
+        "revision": 24,
+        "runId": "run_fixture",
+        "state": "PENDING",
+        "version": 1
+      }
+    },
+    {
+      "message": "external fixture mutation advances authority revision before stale submit",
+      "passed": true,
+      "evidence": {
+        "status": 202,
+        "body": {
+          "intentId": "intent_99945933aafa0ea95cd0f68390a65fb9",
+          "revision": 25,
+          "runId": "run_fixture",
+          "state": "PENDING",
+          "version": 1
+        },
+        "oldRevision": 24
+      }
+    },
+    {
+      "message": "stale-intent recovery refreshes to exact authoritative revision",
+      "passed": true,
+      "evidence": {
+        "staleRevision": 24,
+        "uiRevision": "26",
+        "authorityRevision": 26
+      }
+    },
+    {
+      "message": "accessibility check: landmarks",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: skipLink",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: oneH1",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: headingsOrdered",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: labels",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: namedControls",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: semanticTables",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: containedTables",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: contrast",
+      "passed": true,
+      "evidence": [
+        {
+          "selector": "body",
+          "foreground": "rgb(23, 32, 25)",
+          "background": "rgb(244, 247, 244)",
+          "ratio": 15.478212213260221
+        },
+        {
+          "selector": ".eyebrow",
+          "foreground": "rgb(184, 215, 196)",
+          "background": "rgb(16, 44, 29)",
+          "ratio": 9.682071940753884
+        },
+        {
+          "selector": "a",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(0, 0, 0)",
+          "ratio": 21
+        },
+        {
+          "selector": ".status-pill",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(30, 74, 49)",
+          "ratio": 10.100690378335154
+        }
+      ]
+    },
+    {
+      "message": "accessibility check: politeLiveRegion",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "accessibility check: reducedMotion",
+      "passed": true,
+      "evidence": true
+    },
+    {
+      "message": "browser client contains no HTML string injection primitive",
+      "passed": true
+    },
+    {
+      "message": "DOM, console, network records, and screenshot bytes contain no secret or private-path leakage",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "message": "browser made no external network request",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "message": "browser observed no unexpected HTTP error",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "message": "browser observed no unexpected console, page, or request error",
+      "passed": true,
+      "evidence": []
+    }
+  ],
+  "accessibility": {
+    "landmarks": true,
+    "skipLink": true,
+    "oneH1": true,
+    "headingsOrdered": true,
+    "labels": true,
+    "namedControls": true,
+    "semanticTables": true,
+    "containedTables": true,
+    "contrastSamples": [
+      {
+        "selector": "body",
+        "foreground": "rgb(23, 32, 25)",
+        "background": "rgb(244, 247, 244)",
+        "ratio": 15.478212213260221
+      },
+      {
+        "selector": ".eyebrow",
+        "foreground": "rgb(184, 215, 196)",
+        "background": "rgb(16, 44, 29)",
+        "ratio": 9.682071940753884
+      },
+      {
+        "selector": "a",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(0, 0, 0)",
+        "ratio": 21
+      },
+      {
+        "selector": ".status-pill",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(30, 74, 49)",
+        "ratio": 10.100690378335154
+      }
+    ],
+    "contrast": true,
+    "politeLiveRegion": true,
+    "reducedMotion": true,
+    "controls": [
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Skip to run content"
+      },
+      {
+        "tag": "A",
+        "id": "all-runs",
+        "name": "All runs"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Overview"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Tree"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Attempts"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Comparisons"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Metrics"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Events"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Resources"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Promotion"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Report"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Contract"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "Runs"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "run_fixture"
+      },
+      {
+        "tag": "BUTTON",
+        "id": "refresh",
+        "name": "Refresh authoritative data"
+      },
+      {
+        "tag": "SELECT",
+        "id": "intent-kind",
+        "name": "PauseResumeAnswer gateCancelPin hypothesisPrune hypothesisRetry attemptRequest promotionRequest rollbackRequest reportRequest cleanup"
+      },
+      {
+        "tag": "INPUT",
+        "id": "intent-target",
+        "name": "Target ID when required"
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "intent-reason",
+        "name": "Reason when required"
+      },
+      {
+        "tag": "BUTTON",
+        "id": "submit-intent",
+        "name": "Submit intent"
+      },
+      {
+        "tag": "A",
+        "id": "",
+        "name": "attempt_00000o"
+      }
+    ]
+  },
+  "automatedAccessibilityOnly": true,
+  "representativeUserStudyRun": false,
+  "representativeUserJourneys": [
+    {
+      "name": "responsive-route-and-attempt-review",
+      "completed": true,
+      "durationMs": 2742,
+      "ordinaryControls": true
+    },
+    {
+      "name": "keyboard-intent-and-recovery",
+      "completed": true,
+      "durationMs": 837,
+      "ordinaryControls": true
+    }
+  ],
+  "usability": {
+    "journeysCompleted": 2,
+    "taskSuccessBasisPoints": 10000,
+    "medianJourneyMs": 1790
+  },
+  "accessibleMetricTable": true,
+  "durableIntentOnly": true,
+  "stateCoverage": {
+    "loading": true,
+    "empty": true,
+    "error": true,
+    "stale": true,
+    "manualRetry": true,
+    "staleIntent": true,
+    "compactedReset": true,
+    "focusPreservedOnReset": true,
+    "keyboardOnlyIntent": true,
+    "back": true,
+    "refresh": true,
+    "mobileDrawer": true,
+    "mobileOverlay": true,
+    "reflow400PercentEquivalent": true
+  },
+  "leakage": {
+    "forbiddenMatches": [],
+    "externalRequests": [],
+    "inspectedDomConsoleNetworkAndScreenshotBytes": true,
+    "screenshotVisibleTextBoundToInspectedDom": true
+  },
+  "consoleRecords": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "expectedFailures": [
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_ABORTED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=31 net::ERR_FAILED",
+    "console: Failed to load resource: net::ERR_FAILED",
+    "http://127.0.0.1:46877/api/v1/stream?runId=run_fixture&cursor=0 net::ERR_ABORTED"
+  ],
+  "errors": [],
+  "screenshots": [
+    {
+      "name": "desktop.png",
+      "bytes": 376334,
+      "digest": "a8eb47af06871b44ff8115255c91e8f34aab7692f4915837b79162557c1e16e9"
+    },
+    {
+      "name": "tablet.png",
+      "bytes": 371287,
+      "digest": "4aceeef4a4a71487b006434de33804479afa0ca9831c449f351a4b4285089036"
+    },
+    {
+      "name": "mobile.png",
+      "bytes": 319873,
+      "digest": "1d63be22b764b72591f6ef2b9fda1b1bff2c2f572c2280b5da0ddcd7b2aee18c"
+    }
+  ]
+}

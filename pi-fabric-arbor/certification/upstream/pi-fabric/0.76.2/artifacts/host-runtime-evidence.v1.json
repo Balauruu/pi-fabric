@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "certificationId": "fabric_host_runtime_pi_fabric_0_76_2",
+  "createdAt": "2026-09-03T09:08:00.122Z",
+  "piFabricVersion": "0.76.2",
+  "runner": "pi",
+  "actions": {
+    "run": {
+      "passed": true,
+      "observation": {
+        "id": "3538f27ad440445e8954cff96410e095",
+        "status": "completed",
+        "runner": "pi",
+        "turns": 1,
+        "toolCalls": 0,
+        "exitCode": 0,
+        "hasUsage": true,
+        "finishedAt": 1788426472577
+      }
+    },
+    "spawn": {
+      "passed": true,
+      "observation": {
+        "id": "2e8bc5a18ed74707b3c3b8338200b056"
+      }
+    },
+    "status": {
+      "passed": true,
+      "observation": {
+        "id": "2e8bc5a18ed74707b3c3b8338200b056",
+        "status": "running",
+        "runner": "pi",
+        "exitCode": null,
+        "hasUsage": false,
+        "finishedAt": null
+      }
+    },
+    "wait": {
+      "passed": true,
+      "observation": {
+        "id": "2e8bc5a18ed74707b3c3b8338200b056",
+        "status": "completed",
+        "runner": "pi",
+        "turns": 1,
+        "toolCalls": 0,
+        "exitCode": 0,
+        "hasUsage": true,
+        "finishedAt": 1788426475731
+      }
+    },
+    "cleanup": {
+      "passed": true,
+      "observation": {
+        "cleaned": true
+      }
+    },
+    "stop": {
+      "passed": true,
+      "observation": {
+        "id": "249f4aa0be15435fbecb5ddd97904047",
+        "status": "stopped",
+        "runner": "pi",
+        "turns": 0,
+        "toolCalls": 1,
+        "exitCode": 143,
+        "hasUsage": true,
+        "finishedAt": 1788426479799
+      }
+    }
+  },
+  "cancellation": {
+    "markerObserved": true,
+    "before": {
+      "id": "249f4aa0be15435fbecb5ddd97904047",
+      "status": "running",
+      "runner": "pi",
+      "turns": 0,
+      "toolCalls": 1,
+      "exitCode": null,
+      "hasUsage": true,
+      "finishedAt": null
+    },
+    "stop": {
+      "id": "249f4aa0be15435fbecb5ddd97904047",
+      "status": "stopped",
+      "runner": "pi",
+      "turns": 0,
+      "toolCalls": 1,
+      "exitCode": 143,
+      "hasUsage": true,
+      "finishedAt": 1788426479799
+    },
+    "after": {
+      "id": "249f4aa0be15435fbecb5ddd97904047",
+      "status": "stopped",
+      "runner": "pi",
+      "turns": 0,
+      "toolCalls": 1,
+      "exitCode": 143,
+      "hasUsage": true,
+      "finishedAt": 1788426479799
+    },
+    "passed": true
+  },
+  "outputValidation": {
+    "runSentinel": true,
+    "waitSentinel": true
+  },
+  "passed": true
+}

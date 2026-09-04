@@ -1,0 +1,175 @@
+{
+  "name": "pi-fabric-arbor",
+  "version": "0.1.0",
+  "description": "Deterministic, journaled research orchestration foundation for pi-fabric",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./extension": {
+      "types": "./dist/src/extension.d.ts",
+      "import": "./dist/src/extension.js"
+    },
+    "./schemas": {
+      "types": "./dist/src/schemas/index.d.ts",
+      "import": "./dist/src/schemas/index.js"
+    },
+    "./recovery": {
+      "types": "./dist/src/recovery/index.d.ts",
+      "import": "./dist/src/recovery/index.js"
+    },
+    "./web": {
+      "types": "./dist/src/web/index.d.ts",
+      "import": "./dist/src/web/index.js"
+    },
+    "./cleanup": {
+      "types": "./dist/src/cleanup/index.d.ts",
+      "import": "./dist/src/cleanup/index.js"
+    },
+    "./retention": {
+      "types": "./dist/src/retention/index.d.ts",
+      "import": "./dist/src/retention/index.js"
+    },
+    "./authorization": {
+      "types": "./dist/src/authorization/index.d.ts",
+      "import": "./dist/src/authorization/index.js"
+    },
+    "./certification": {
+      "types": "./dist/src/certification/index.d.ts",
+      "import": "./dist/src/certification/index.js"
+    },
+    "./evaluation": {
+      "types": "./dist/src/evaluation/index.d.ts",
+      "import": "./dist/src/evaluation/index.js"
+    },
+    "./phase7": {
+      "types": "./dist/src/phase7/index.d.ts",
+      "import": "./dist/src/phase7/index.js"
+    },
+    "./git": {
+      "types": "./dist/src/git/index.d.ts",
+      "import": "./dist/src/git/index.js"
+    }
+  },
+  "bin": {
+    "pi-fabric-arbor": "./dist/bin/pi-fabric-arbor.js",
+    "pi-fabric-arbor-authorize": "./dist/bin/pi-fabric-arbor-authorize.js",
+    "pi-fabric-arbor-certify": "./dist/bin/pi-fabric-arbor-certify.js",
+    "pi-fabric-arbor-containment-certify": "./dist/bin/pi-fabric-arbor-containment-certify.js",
+    "pi-fabric-arbor-fingerprint-certify": "./dist/bin/pi-fabric-arbor-fingerprint-certify.js",
+    "pi-fabric-arbor-recovery-certify": "./dist/bin/pi-fabric-arbor-recovery-certify.js",
+    "pi-fabric-arbor-authorization-certify": "./dist/bin/pi-fabric-arbor-authorization-certify.js",
+    "pi-fabric-arbor-held-out-certify": "./dist/bin/pi-fabric-arbor-held-out-certify.js",
+    "pi-fabric-arbor-promotion-certify": "./dist/bin/pi-fabric-arbor-promotion-certify.js",
+    "pi-fabric-arbor-web-certify": "./dist/bin/pi-fabric-arbor-web-certify.js",
+    "pi-fabric-arbor-distribution-certify": "./dist/bin/pi-fabric-arbor-distribution-certify.js",
+    "pi-fabric-arbor-approval-runtime-certify": "./dist/bin/pi-fabric-arbor-approval-runtime-certify.js",
+    "pi-fabric-arbor-license-certify": "./dist/bin/pi-fabric-arbor-license-certify.js",
+    "pi-fabric-arbor-retention-certify": "./dist/bin/pi-fabric-arbor-retention-certify.js",
+    "pi-fabric-arbor-host-integration-certify": "./dist/bin/pi-fabric-arbor-host-integration-certify.js",
+    "pi-fabric-arbor-phase7-certify": "./dist/bin/pi-fabric-arbor-phase7-certify.js"
+  },
+  "files": [
+    "dist/",
+    "certification/",
+    "skills/",
+    "docs/",
+    "scripts/phase7-reviewer.mjs",
+    "scripts/atomic-cleanup.py",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md",
+    "acceptance-ledger.md"
+  ],
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true});require('node:fs').rmSync('.test-dist',{recursive:true,force:true})\"",
+    "build": "tsc -p tsconfig.build.json && node scripts/build-web.mjs",
+    "build:test": "npm run build && node -e \"require('node:fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc -p tsconfig.test.json",
+    "test": "npm run build:test && node --test '.test-dist/tests/**/*.test.js'",
+    "test:phase4": "npm run build:test && node --test '.test-dist/tests/recovery/**/*.test.js' '.test-dist/tests/web/**/*.test.js' '.test-dist/tests/persistence/**/*.test.js' '.test-dist/tests/compatibility/phase4-surface.test.js' '.test-dist/tests/certification/schemas.test.js'",
+    "test:phase5": "npm run build:test && node --test '.test-dist/tests/promotion/**/*.test.js' '.test-dist/tests/authorization/**/*.test.js' '.test-dist/tests/evaluation/held-out*.test.js' '.test-dist/tests/git/promotion*.test.js' '.test-dist/tests/compatibility/phase5-surface.test.js' '.test-dist/tests/certification/phase5-artifacts.test.js'",
+    "test:phase6": "npm run build:test && node --test '.test-dist/tests/web/**/*.test.js' '.test-dist/tests/reports/**/*.test.js' '.test-dist/tests/retention/**/*.test.js' '.test-dist/tests/cleanup/**/*.test.js' '.test-dist/tests/e2e/phase6*.test.js' '.test-dist/tests/certification/phase6*.test.js'",
+    "test:phase7": "npm run build:test && node --test '.test-dist/tests/phase7/**/*.test.js' '.test-dist/tests/e2e/phase7*.test.js' '.test-dist/tests/certification/phase7*.test.js'",
+    "test:browser": "node browser-tests/run-playwright.mjs certification/phase6/browser",
+    "test:browser:phase7": "node browser-tests/run-playwright.mjs certification/phase7/browser",
+    "test:integration:real-fabric": "npm run build:test && npm run test:integration:real-fabric:0.76.2 && npm run test:integration:real-fabric:0.77.0",
+    "test:integration:real-fabric:0.76.2": "PI_FABRIC_CERT_PACKAGE_ROOT=node_modules/pi-fabric node --test '.test-dist/tests/integration/real-fabric.test.js'",
+    "test:integration:real-fabric:0.77.0": "PI_FABRIC_CERT_PACKAGE_ROOT=../npm/node_modules/pi-fabric node --test '.test-dist/tests/integration/real-fabric.test.js'",
+    "test:b1": "npm run build:test && node --test '.test-dist/tests/compatibility/**/*.test.js' '.test-dist/tests/certification/upstream.test.js' '.test-dist/tests/certification/runtime-evidence.test.js' '.test-dist/tests/certification/schemas.test.js'",
+    "demo:web": "npm run build && node scripts/serve-guided-fixture.mjs",
+    "lint:package-boundary": "npm run build && node --input-type=module -e \"import {lintPiFabricPackageBoundary} from './dist/src/index.js';const r=lintPiFabricPackageBoundary('./src');console.log(JSON.stringify(r));if(!r.passed)process.exitCode=1\"",
+    "certify:host-integration-runtime": "npm run build:test && npm run certify:host-integration-runtime:0.76.2 && npm run certify:host-integration-runtime:0.77.0",
+    "certify:host-integration-runtime:0.76.2": "node dist/bin/pi-fabric-arbor-host-integration-certify.js generate --package-root node_modules/pi-fabric --host-package-root node_modules/pi-fabric --created-at 2026-09-03T18:49:00.000Z",
+    "certify:host-integration-runtime:0.77.0": "node dist/bin/pi-fabric-arbor-host-integration-certify.js generate --package-root ../npm/node_modules/pi-fabric --host-package-root ../npm/node_modules/pi-fabric --created-at 2026-09-03T18:46:00.000Z",
+    "certify:upstream": "npm run build:test && npm run certify:upstream:0.76.2 && npm run certify:upstream:0.77.0",
+    "certify:upstream:0.76.2": "node dist/bin/pi-fabric-arbor-approval-runtime-certify.js generate --package-root node_modules/pi-fabric --artifact certification/upstream/pi-fabric/0.76.2/artifacts/approval-runtime-evidence.v1.json --created-at 2026-09-03T18:48:00.000Z && npm run certify:host-integration-runtime:0.76.2 && node dist/bin/pi-fabric-arbor-certify.js upstream --package-root node_modules/pi-fabric --host-package-root node_modules/pi-fabric --package-lock package-lock.json --artifact-root certification/upstream/pi-fabric/0.76.2 --created-at 2026-09-03T18:50:00.000Z",
+    "certify:upstream:0.77.0": "node dist/bin/pi-fabric-arbor-approval-runtime-certify.js generate --package-root ../npm/node_modules/pi-fabric --artifact certification/upstream/pi-fabric/0.77.0/artifacts/approval-runtime-evidence.v1.json --created-at 2026-09-03T18:45:00.000Z && npm run certify:host-integration-runtime:0.77.0 && node dist/bin/pi-fabric-arbor-certify.js upstream --package-root ../npm/node_modules/pi-fabric --host-package-root ../npm/node_modules/pi-fabric --package-lock ../npm/package-lock.json --artifact-root certification/upstream/pi-fabric/0.77.0 --created-at 2026-09-03T18:47:00.000Z",
+    "verify:host-integration-runtime": "npm run build:test && npm run verify:host-integration-runtime:0.76.2 && npm run verify:host-integration-runtime:0.77.0",
+    "verify:host-integration-runtime:0.76.2": "node dist/bin/pi-fabric-arbor-host-integration-certify.js verify --package-root node_modules/pi-fabric --host-package-root node_modules/pi-fabric",
+    "verify:host-integration-runtime:0.77.0": "node dist/bin/pi-fabric-arbor-host-integration-certify.js verify --package-root ../npm/node_modules/pi-fabric --host-package-root ../npm/node_modules/pi-fabric",
+    "verify:upstream": "npm run build:test && npm run verify:upstream:0.76.2 && npm run verify:upstream:0.77.0",
+    "verify:upstream:0.76.2": "node dist/bin/pi-fabric-arbor-certify.js verify --package-root node_modules/pi-fabric --host-package-root node_modules/pi-fabric --package-lock package-lock.json --artifact-root certification/upstream/pi-fabric/0.76.2",
+    "verify:upstream:0.77.0": "node dist/bin/pi-fabric-arbor-certify.js verify --package-root ../npm/node_modules/pi-fabric --host-package-root ../npm/node_modules/pi-fabric --package-lock ../npm/package-lock.json --artifact-root certification/upstream/pi-fabric/0.77.0",
+    "certify:containment": "npm run build && node dist/bin/pi-fabric-arbor-containment-certify.js generate --created-at 2026-09-01T00:00:00.000Z",
+    "certify:fingerprint": "npm run build && node dist/bin/pi-fabric-arbor-fingerprint-certify.js generate --created-at 2026-09-01T00:00:00.000Z",
+    "certify:recovery": "npm run build && node dist/bin/pi-fabric-arbor-recovery-certify.js generate --created-at 2026-09-03T05:00:00.000Z",
+    "verify:recovery": "npm run build && node dist/bin/pi-fabric-arbor-recovery-certify.js verify",
+    "certify:authorization": "npm run build && node dist/bin/pi-fabric-arbor-authorization-certify.js generate --created-at 2026-09-03T05:00:00.000Z",
+    "certify:held-out": "npm run build && node dist/bin/pi-fabric-arbor-held-out-certify.js generate --created-at 2026-09-03T05:00:00.000Z",
+    "certify:promotion": "npm run build && node dist/bin/pi-fabric-arbor-promotion-certify.js generate --created-at 2026-09-03T05:00:00.000Z",
+    "certify:web": "npm run build && node dist/bin/pi-fabric-arbor-web-certify.js generate --created-at 2026-09-04T05:00:00.000Z",
+    "certify:distribution": "npm run build && node dist/bin/pi-fabric-arbor-distribution-certify.js generate --created-at 2026-09-04T06:00:00.000Z",
+    "certify:approval-runtime": "npm run build && node dist/bin/pi-fabric-arbor-approval-runtime-certify.js generate --package-root ../npm/node_modules/pi-fabric --artifact certification/phase6/approval-runtime-b9.v1.json --created-at 2026-09-04T07:00:00.000Z",
+    "certify:licensing": "npm run build && node dist/bin/pi-fabric-arbor-license-certify.js generate --package-root ../npm/node_modules/pi-fabric --package-lock ../npm/package-lock.json --upstream certification/upstream/pi-fabric/0.77.0/manifest.v1.json --artifact certification/phase6/licensing-b10.v1.json --notice THIRD_PARTY_NOTICES.md --created-at 2026-09-04T08:00:00.000Z",
+    "certify:retention": "npm run build && node dist/bin/pi-fabric-arbor-retention-certify.js generate --created-at 2026-09-04T09:00:00.000Z",
+    "certify:phase7:seal": "npm run build && node dist/bin/pi-fabric-arbor-phase7-certify.js seal",
+    "certify:phase7": "npm run build && node dist/bin/pi-fabric-arbor-phase7-certify.js run",
+    "verify:phase7:seal": "npm run build && node dist/bin/pi-fabric-arbor-phase7-certify.js verify-seal",
+    "verify:phase7": "npm run build && node dist/bin/pi-fabric-arbor-phase7-certify.js verify",
+    "verify:authorization": "npm run build && node dist/bin/pi-fabric-arbor-authorization-certify.js verify",
+    "verify:held-out": "npm run build && node dist/bin/pi-fabric-arbor-held-out-certify.js verify",
+    "verify:promotion": "npm run build && node dist/bin/pi-fabric-arbor-promotion-certify.js verify",
+    "verify:phase5": "npm run verify:authorization && npm run verify:held-out && npm run verify:promotion",
+    "verify:web": "npm run build && node dist/bin/pi-fabric-arbor-web-certify.js verify",
+    "verify:distribution": "npm run build && node dist/bin/pi-fabric-arbor-distribution-certify.js verify",
+    "verify:approval-runtime": "npm run build && node dist/bin/pi-fabric-arbor-approval-runtime-certify.js verify --package-root ../npm/node_modules/pi-fabric --artifact certification/phase6/approval-runtime-b9.v1.json",
+    "verify:licensing": "npm run build && node dist/bin/pi-fabric-arbor-license-certify.js verify --package-root ../npm/node_modules/pi-fabric --package-lock ../npm/package-lock.json --upstream certification/upstream/pi-fabric/0.77.0/manifest.v1.json --artifact certification/phase6/licensing-b10.v1.json --notice THIRD_PARTY_NOTICES.md",
+    "verify:retention": "npm run build && node dist/bin/pi-fabric-arbor-retention-certify.js verify",
+    "verify:phase6": "npm run verify:web && npm run verify:approval-runtime && npm run verify:licensing && npm run verify:retention && npm run verify:distribution",
+    "verify:certificates": "npm run verify:upstream && npm run verify:host-integration-runtime && node dist/bin/pi-fabric-arbor-containment-certify.js verify && node dist/bin/pi-fabric-arbor-fingerprint-certify.js verify && node dist/bin/pi-fabric-arbor-recovery-certify.js verify && node dist/bin/pi-fabric-arbor-authorization-certify.js verify && node dist/bin/pi-fabric-arbor-held-out-certify.js verify && node dist/bin/pi-fabric-arbor-promotion-certify.js verify && node dist/bin/pi-fabric-arbor-web-certify.js verify && npm run verify:approval-runtime && npm run verify:licensing && node dist/bin/pi-fabric-arbor-retention-certify.js verify && node dist/bin/pi-fabric-arbor-phase7-certify.js verify && node dist/bin/pi-fabric-arbor-distribution-certify.js verify",
+    "check": "npm run build && npm test && npm run lint:package-boundary && npm run verify:certificates",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-fabric",
+    "research-orchestration",
+    "sqlite"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "pi": {
+    "extensions": [
+      "./dist/src/extension.js"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
+  "peerDependencies": {
+    "pi-fabric": "0.76.2 || 0.77.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.0.0",
+    "pi-fabric": "0.76.2",
+    "playwright": "^1.55.1",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Arbor run monitor</title>
+  <link rel="stylesheet" href="{{APP_CSS}}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to run content</a>
+  <header class="product-header site-header">
+    <div>
+      <p class="eyebrow brand-mark">pi-fabric-arbor</p>
+      <p class="product-name">Research evidence monitor</p>
+    </div>
+    <div class="header-controls">
+      <button id="menu-toggle" class="menu-toggle" type="button" aria-controls="sidebar" aria-expanded="false">Open navigation menu</button>
+      <p id="driver-status" class="status-pill" role="status" aria-live="polite">No active Fabric driver</p>
+    </div>
+  </header>
+  <button id="drawer-overlay" class="drawer-overlay nav-overlay" type="button" aria-label="Close run navigation" hidden></button>
+  <div class="shell">
+    <aside id="sidebar" aria-label="Run navigation">
+      <h2 id="navigation-heading" class="visually-hidden">Run navigation</h2>
+      <button id="drawer-close" class="drawer-close" type="button">Close navigation</button>
+      <a id="all-runs" class="all-runs" href="/runs">All runs</a>
+      <nav id="run-navigation" aria-label="Run views" hidden></nav>
+      <p class="safety-note">This Web UI reads durable evidence and appends inbox intents only. It cannot execute agents, evaluators, Git, authorization, cleanup, leases, reports, or promotion.</p>
+    </aside>
+    <main id="main" tabindex="-1" aria-busy="true">
+      <nav id="breadcrumbs" aria-label="Breadcrumb"></nav>
+      <div class="title-row">
+        <div>
+          <p id="page-kicker" class="eyebrow">Durable projection</p>
+          <h1 id="page-title">Runs</h1>
+        </div>
+        <button id="refresh" type="button" aria-describedby="refresh-help">Refresh authoritative data</button>
+      </div>
+      <p id="refresh-help" class="visually-hidden">Refresh the current view from authoritative durable storage.</p>
+      <div id="loading-status" class="notice loading" role="status" aria-live="polite">Loading authoritative data…</div>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <p id="announcer" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+      <section id="summary" aria-labelledby="summary-heading">
+        <h2 id="summary-heading">Summary</h2>
+        <dl id="summary-cards" class="cards summary-grid"></dl>
+      </section>
+      <section id="actions" aria-labelledby="actions-heading" hidden>
+        <h2 id="actions-heading">Request an action</h2>
+        <p id="intent-help">Requests enter the durable inbox. An admitted Fabric driver must independently validate and process them.</p>
+        <form id="intent-form">
+          <label for="intent-kind">Intent</label>
+          <select id="intent-kind" name="kind"></select>
+          <label for="intent-target">Target ID <span class="optional">when required</span></label>
+          <input id="intent-target" name="target" maxlength="64" autocomplete="off">
+          <label for="intent-reason">Reason <span class="optional">when required</span></label>
+          <textarea id="intent-reason" name="reason" maxlength="4000" rows="3"></textarea>
+          <fieldset id="gate-answer" hidden>
+            <legend>Gate answer</legend>
+            <label for="gate-answer-kind">Answer type</label>
+            <select id="gate-answer-kind" name="answerKind">
+              <option value="confirm">Confirm</option>
+              <option value="singleChoice">Single choice</option>
+              <option value="multiChoice">Multiple choices</option>
+              <option value="boundedText">Bounded text</option>
+            </select>
+            <label for="gate-answer-value">Answer value</label>
+            <input id="gate-answer-value" name="answerValue" maxlength="2000" autocomplete="off" aria-describedby="gate-answer-help">
+            <p id="gate-answer-help" class="field-help">Use true or false for confirmation, one option ID for single choice, comma-separated option IDs for multiple choice, or bounded text.</p>
+          </fieldset>
+          <button id="submit-intent" type="submit" aria-describedby="intent-help">Submit intent</button>
+          <p id="intent-disabled-reason" class="disabled-reason" role="status" hidden></p>
+        </form>
+      </section>
+      <section id="visualization" aria-labelledby="visualization-heading" hidden>
+        <h2 id="visualization-heading">Metric chart</h2>
+        <figure id="metric-figure" aria-labelledby="visualization-heading metric-caption">
+          <div id="metric-bars" class="metric-bars" aria-hidden="true" aria-label="Decorative metric bars"></div>
+          <figcaption id="metric-caption">Canonical evaluator aggregates. The accessible table below contains the same values.</figcaption>
+        </figure>
+        <p id="visualization-empty" class="empty" role="status" hidden></p>
+      </section>
+      <section id="details" aria-labelledby="details-heading">
+        <h2 id="details-heading">Run details</h2>
+        <div id="detail-content" tabindex="-1"></div>
+      </section>
+      <section id="connection" aria-labelledby="connection-heading" hidden>
+        <h2 id="connection-heading">Live durable events</h2>
+        <p id="connection-status" role="status" aria-live="polite" aria-atomic="true">Not connected</p>
+        <button id="retry-connection" type="button" hidden>Retry connection and refresh data</button>
+      </section>
+    </main>
+  </div>
+  <footer class="site-footer"><p>Durable local evidence only. Browser state is never authoritative.</p></footer>
+  <noscript><p class="noscript">JavaScript is required to exchange the one-time fragment bootstrap and render durable projections. The read API remains available to authenticated local clients.</p></noscript>
+  <script src="{{APP_JS}}" defer></script>
+</body>
+</html>

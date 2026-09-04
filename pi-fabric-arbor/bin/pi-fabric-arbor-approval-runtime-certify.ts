@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+import { resolve } from "node:path";
+import { generateApprovalRuntimeCertificate, verifyApprovalRuntimeCertificate, writeApprovalRuntimeCertificate } from "../src/certification/approval-runtime.js";
+
+function options(argv: string[]): Map<string, string> { const parsed = new Map<string, string>(); for (let index = 0; index < argv.length; index += 2) { const key = argv[index]; const value = argv[index + 1]; if (!key?.startsWith("--") || value === undefined) throw new Error(`Expected --name value, got ${key ?? "<end>"}`); parsed.set(key.slice(2), value); } return parsed; }
+const [command, ...rest] = process.argv.slice(2); const values = options(rest); const packageRoot = resolve(values.get("package-root") ?? "node_modules/pi-fabric"); const artifact = resolve(values.get("artifact") ?? "certification/phase6/approval-runtime-b9.v1.json");
+if (command === "generate") { const createdAt = values.get("created-at"); if (!createdAt) throw new Error("--created-at is required"); const certificate = await generateApprovalRuntimeCertificate({ packageRoot, artifact, createdAt, signerId: values.get("signer-id") ?? "local_ci", projectRoot: process.cwd() }); writeApprovalRuntimeCertificate(artifact, certificate); process.stdout.write(`${JSON.stringify({ certificationId: certificate.certificationId, certificateDigest: certificate.certificateDigest, passed: certificate.passed })}\n`); }
+else if (command === "verify") { const result = await verifyApprovalRuntimeCertificate({ packageRoot, artifact }); process.stdout.write(`${JSON.stringify({ certificationId: result.certificate?.certificationId, certificateDigest: result.certificate?.certificateDigest, valid: result.valid, errors: result.errors })}\n`); if (!result.valid) process.exitCode = 1; }
+else { process.stderr.write("Usage: pi-fabric-arbor-approval-runtime-certify generate|verify [--package-root PATH --artifact PATH --created-at ISO --signer-id ID]\n"); process.exitCode = 2; }
