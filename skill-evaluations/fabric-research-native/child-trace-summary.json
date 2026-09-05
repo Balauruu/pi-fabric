@@ -1,0 +1,70 @@
+[
+  {
+    "id": "2fd290b6f7fd4e4da0c63f9e5ed4bce9",
+    "logPagingExhausted": true,
+    "earliestReturnedOffset": 0,
+    "callCount": 1,
+    "browserCalls": 0,
+    "toolErrors": 0,
+    "callNames": [
+      "fetch_content"
+    ],
+    "completeTerminalMessages": true
+  },
+  {
+    "id": "254ad50ac5144924a61a20c8c66ce6e3",
+    "logPagingExhausted": true,
+    "earliestReturnedOffset": 1628124,
+    "callCount": 25,
+    "browserCalls": 0,
+    "toolErrors": 0,
+    "callNames": [
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "web_search",
+      "bash",
+      "bash",
+      "read",
+      "write",
+      "write",
+      "bash",
+      "read",
+      "read",
+      "bash",
+      "web_search",
+      "fetch_content",
+      "read",
+      "read",
+      "read",
+      "write",
+      "bash",
+      "write"
+    ],
+    "completeTerminalMessages": true
+  },
+  {
+    "id": "984294b476c6419db8b506aa33f0942e",
+    "logPagingExhausted": true,
+    "earliestReturnedOffset": 0,
+    "callCount": 0,
+    "browserCalls": 0,
+    "toolErrors": 0,
+    "callNames": [],
+    "completeTerminalMessages": true
+  },
+  {
+    "id": "9fd12bc9e26f4f118699148d07950a50",
+    "logPagingExhausted": true,
+    "earliestReturnedOffset": 0,
+    "callCount": 0,
+    "browserCalls": 0,
+    "toolErrors": 0,
+    "callNames": [],
+    "completeTerminalMessages": true
+  }
+]

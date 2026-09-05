@@ -1,0 +1,15 @@
+✔ fresh ordinary Pi exposes skill command without QA registrations (0.712927ms)
+✔ existing direct retrieval succeeds and inaccessible source remains a gap (0.30241ms)
+✔ canonical native attempts, receipts, helper budget and sibling retention (0.15005ms)
+✔ actual native schema failure leaves successful sibling intact (0.408787ms)
+✔ current-field actually ran declared engine once with scoped artifacts and both opt-outs (7.045008ms)
+✔ complete terminal native research messages contain zero browser calls or denied-call loops (5.327864ms)
+✔ ordinary non-research BetterWright inspection succeeds without QA activation (0.14581ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56.203721

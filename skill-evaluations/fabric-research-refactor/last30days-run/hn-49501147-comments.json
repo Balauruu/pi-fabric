@@ -1,0 +1,44 @@
+[
+  {
+    "id": 49501182,
+    "author": "ajayvk",
+    "created_at": "2026-08-30T18:08:05.000Z",
+    "text": "Built-in Litestream replication and automatic restore is a new feature I added in OpenRun (a self-hosted deployment platform for web apps). Apps can use SQLite with zero code changes while OpenRun handles backup/recovery. This works on a single node with Docker/Podman and also on Kubernetes."
+  },
+  {
+    "id": 49502335,
+    "author": "simonw",
+    "created_at": "2026-08-30T20:17:51.000Z",
+    "text": "Do you have any mechanisms in place to prevent two separate instances of OpenRun that share the same configuration from corrupting their shared S3 Litestream store? UPDATE: Looks like you answered that here already: https://news.ycombinator.com/item?id=49502025"
+  },
+  {
+    "id": 49502495,
+    "author": "ajayvk",
+    "created_at": "2026-08-30T20:35:17.000Z",
+    "text": "That comment was about what happens during an app deployment, to avoid multiple pods on Kubernetes from writing to the same volume. Multiple apps on one OpenRun have no issues, the replication will be identify them as different. If by mistake you actually have two separate instances of OpenRun pointing to the same S3 volume and path_prefix (with single-node Docker or with Kubernetes), the generated S3 paths have an binding ID which should be unique across instances. I will check whether there is anything more which can be done to prevent any issues with such an incorrect config."
+  },
+  {
+    "id": 49501681,
+    "author": "sighansen",
+    "created_at": "2026-08-30T18:56:41.000Z",
+    "text": "I use the same stack to run my apps! sqlite as Database backen on ephemeral pods. On initialisation, the pod restores the current litestream backup from object storage. No persistent volumes needed. No issues so far."
+  },
+  {
+    "id": 49501795,
+    "author": "ajayvk",
+    "created_at": "2026-08-30T19:09:08.000Z",
+    "text": "Without persistent volumes, every deployment of the app may require the SQLite data to be restored from S3, which can take time if database size is large. With PVC, regular app deployments use existing database, only a disaster recovery scenario restores from S3. Yes, it feels magical to just recreate your namespace or even create a new K8s cluster and see all your apps (from OpenRun metadata) and app data restored automatically."
+  },
+  {
+    "id": 49501895,
+    "author": "sighansen",
+    "created_at": "2026-08-30T19:20:45.000Z",
+    "text": "I have no use case where I store a TB of data in a sqlite let alone few GB. Currently this checks out and restore is few seconds."
+  },
+  {
+    "id": 49503256,
+    "author": "solatic",
+    "created_at": "2026-08-30T21:55:00.000Z",
+    "text": "It's classic HN to criticize OP that their solution doesn't scale, and then for OP to respond by saying that they don't need the scale and anyway PG tells you to do things that don't scale. SQLite is great for small-production scale. Don't let anyone tell you different. Just keep in mind that it's a pain to move if you ever do need to scale up. If it's a startup, you might. If it's a weekend hobby project you're building for your personal use only, you probably won't."
+  }
+]

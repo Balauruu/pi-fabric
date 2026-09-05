@@ -1,0 +1,31 @@
+{
+  "at": "2026-09-05T12:46:56.281Z",
+  "inspection": {
+    "remainingRemovalTargets": [],
+    "betterwright": [
+      "npm:betterwright"
+    ],
+    "otherPackageAdditions": [
+      "npm:pi-invisible-continue",
+      "npm:pi-hide-providers",
+      "npm:pi-toggle-skills"
+    ],
+    "nonPackageSettingsUnchanged": true
+  },
+  "registeredTools": [
+    "ask_user_question",
+    "browser",
+    "browser_download",
+    "browser_evidence",
+    "browser_login",
+    "fetch_content",
+    "fovea_dwell",
+    "fovea_focus",
+    "fovea_impact",
+    "fovea_sketch",
+    "get_search_content",
+    "source_check",
+    "web_search"
+  ],
+  "legacyRegistered": []
+}

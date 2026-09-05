@@ -1,0 +1,244 @@
+{
+  "id": "9fd12bc9e26f4f118699148d07950a50",
+  "complete": true,
+  "totalEvents": 21,
+  "retainedEvents": 11,
+  "omitted": "Streaming deltas, duplicate entry_appended and cumulative tool updates omitted; all completed messages and tool starts/ends retained; cryptographic signatures omitted",
+  "calls": [],
+  "browserCalls": 0,
+  "events": [
+    {
+      "offset": 0,
+      "event": {
+        "type": "extension_ui_request",
+        "id": "a7913173-2ab3-4c97-85a1-1bbdff5ea147",
+        "method": "setStatus",
+        "statusKey": "fabric-prewalk"
+      }
+    },
+    {
+      "offset": 126,
+      "event": {
+        "type": "response",
+        "command": "prompt",
+        "success": true
+      }
+    },
+    {
+      "offset": 180,
+      "event": {
+        "type": "agent_start"
+      }
+    },
+    {
+      "offset": 203,
+      "event": {
+        "type": "turn_start"
+      }
+    },
+    {
+      "offset": 225,
+      "event": {
+        "type": "message_start",
+        "message": {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "RESEARCH lifecycle acceptance fixture only. No tools, no browser, no file writes, no agents. Return a JSON object with x equal to ok. Do not invent evidence. This is intentional structured-delivery boundary testing, not substantive research."
+            }
+          ],
+          "timestamp": 1788611671950
+        }
+      }
+    },
+    {
+      "offset": 581,
+      "event": {
+        "type": "message_end",
+        "message": {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "RESEARCH lifecycle acceptance fixture only. No tools, no browser, no file writes, no agents. Return a JSON object with x equal to ok. Do not invent evidence. This is intentional structured-delivery boundary testing, not substantive research."
+            }
+          ],
+          "timestamp": 1788611671950
+        }
+      }
+    },
+    {
+      "offset": 935,
+      "event": {
+        "type": "message_start",
+        "message": {
+          "role": "assistant",
+          "content": [],
+          "api": "openai-codex-responses",
+          "provider": "openai-codex",
+          "model": "gpt-6-astra",
+          "usage": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "totalTokens": 0,
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0,
+              "total": 0
+            }
+          },
+          "stopReason": "pending",
+          "timestamp": 1788611671956
+        }
+      }
+    },
+    {
+      "offset": 3504,
+      "event": {
+        "type": "message_end",
+        "message": {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "thinking",
+              "thinking": ""
+            },
+            {
+              "type": "text",
+              "text": "{\"missing\":null}"
+            }
+          ],
+          "api": "openai-codex-responses",
+          "provider": "openai-codex",
+          "model": "gpt-6-astra",
+          "usage": {
+            "input": 2669,
+            "output": 136,
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "reasoning": 125,
+            "totalTokens": 2805,
+            "cost": {
+              "input": 0.026690000000000002,
+              "output": 0.0068000000000000005,
+              "cacheRead": 0,
+              "cacheWrite": 0,
+              "total": 0.033490000000000006
+            }
+          },
+          "stopReason": "stop",
+          "timestamp": 1788611671956,
+          "responseId": "resp_05f029b7c37c7699016a9c0c58ecec87d2b41a26e16a6f4f7a",
+          "rawStopReason": "completed"
+        }
+      }
+    },
+    {
+      "offset": 6601,
+      "event": {
+        "type": "turn_end",
+        "message": {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "thinking",
+              "thinking": ""
+            },
+            {
+              "type": "text",
+              "text": "{\"missing\":null}"
+            }
+          ],
+          "api": "openai-codex-responses",
+          "provider": "openai-codex",
+          "model": "gpt-6-astra",
+          "usage": {
+            "input": 2669,
+            "output": 136,
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "reasoning": 125,
+            "totalTokens": 2805,
+            "cost": {
+              "input": 0.026690000000000002,
+              "output": 0.0068000000000000005,
+              "cacheRead": 0,
+              "cacheWrite": 0,
+              "total": 0.033490000000000006
+            }
+          },
+          "stopReason": "stop",
+          "timestamp": 1788611671956,
+          "responseId": "resp_05f029b7c37c7699016a9c0c58ecec87d2b41a26e16a6f4f7a",
+          "rawStopReason": "completed"
+        },
+        "toolResults": []
+      }
+    },
+    {
+      "offset": 9712,
+      "event": {
+        "type": "agent_end",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "RESEARCH lifecycle acceptance fixture only. No tools, no browser, no file writes, no agents. Return a JSON object with x equal to ok. Do not invent evidence. This is intentional structured-delivery boundary testing, not substantive research."
+              }
+            ],
+            "timestamp": 1788611671950
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "thinking",
+                "thinking": ""
+              },
+              {
+                "type": "text",
+                "text": "{\"missing\":null}"
+              }
+            ],
+            "api": "openai-codex-responses",
+            "provider": "openai-codex",
+            "model": "gpt-6-astra",
+            "usage": {
+              "input": 2669,
+              "output": 136,
+              "cacheRead": 0,
+              "cacheWrite": 0,
+              "reasoning": 125,
+              "totalTokens": 2805,
+              "cost": {
+                "input": 0.026690000000000002,
+                "output": 0.0068000000000000005,
+                "cacheRead": 0,
+                "cacheWrite": 0,
+                "total": 0.033490000000000006
+              }
+            },
+            "stopReason": "stop",
+            "timestamp": 1788611671956,
+            "responseId": "resp_05f029b7c37c7699016a9c0c58ecec87d2b41a26e16a6f4f7a",
+            "rawStopReason": "completed"
+          }
+        ],
+        "willRetry": false
+      }
+    },
+    {
+      "offset": 13445,
+      "event": {
+        "type": "agent_settled"
+      }
+    }
+  ]
+}

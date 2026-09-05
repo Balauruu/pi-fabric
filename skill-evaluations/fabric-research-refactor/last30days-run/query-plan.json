@@ -1,0 +1,14 @@
+{
+  "intent": "opinion",
+  "freshness_mode": "strict_recent",
+  "cluster_mode": "debate",
+  "subqueries": [
+    {
+      "label": "primary",
+      "search_query": "SQLite",
+      "ranking_query": "What are Hacker News participants saying about SQLite, the embedded SQL database, during the requested seven-day window ending 2026-09-05?",
+      "sources": ["hackernews"],
+      "weight": 1.0
+    }
+  ]
+}

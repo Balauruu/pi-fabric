@@ -1,0 +1,66 @@
+{
+  "kind": "recorded native smoke assertions; one pair, not a statistical benchmark",
+  "simple": {
+    "model": "openai-codex/gpt-6-astra",
+    "thinking": "high",
+    "beforeMs": 70659,
+    "afterMs": 42619,
+    "beforeAgentToolCalls": 5,
+    "afterAgentToolCalls": 4,
+    "beforeUsage": {
+      "input": 36653,
+      "output": 885,
+      "cacheRead": 81664,
+      "cacheWrite": 0,
+      "cost": 0.49244400000000005
+    },
+    "afterUsage": {
+      "input": 25527,
+      "output": 376,
+      "cacheRead": 41472,
+      "cacheWrite": 0,
+      "cost": 0.31554200000000004
+    },
+    "requestedSkillReadBytesBefore": 34565,
+    "requestedSkillReadBytesAfter": 4778,
+    "sameSupportedAnswer": true
+  },
+  "parallel": {
+    "successfulWorkers": 5,
+    "dispatchFailures": 1,
+    "peakOverlappingNativeRunLifetimes": 5,
+    "allRequestedBeforeAnyReturned": true,
+    "sourceFactsChecked": 5
+  },
+  "evidenceGaps": {
+    "metadataDidNotDiscardPassage": true,
+    "successfulEvidencePreserved": true,
+    "sharedOriginsDeduplicated": true,
+    "incompatibleNumbersNotAveraged": true,
+    "unsupportedReliabilityWithheld": true
+  },
+  "browser": {
+    "visibleCallsInspected": 52,
+    "browserToolCalls": 0,
+    "searchWorkflow": "none",
+    "scope": "Native agent tool events and execution arguments; not a syscall or remote-provider audit"
+  },
+  "last30days": {
+    "exit": 0,
+    "sourceStatus": {
+      "hackernews": "ok"
+    },
+    "results": 6,
+    "windowDays": 7,
+    "requestedQuickAndAsOfPreserved": true,
+    "engineFlagsAndScopedPathsChecked": true
+  },
+  "asReady": {
+    "nativeDeferredProbe": true,
+    "events": [
+      "independent-input-ready",
+      "check-ready-evidence",
+      "unrelated-work-finished"
+    ]
+  }
+}

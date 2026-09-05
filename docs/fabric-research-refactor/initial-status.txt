@@ -1,0 +1,143 @@
+ M AGENTS.md
+ D docs/agent-benchmark-rework
+ M models-store.json
+ M npm/package-lock.json
+ M npm/package.json
+ M settings.json
+ D skills/BetterWright/.directory
+ D skills/BetterWright/browser/SKILL.md
+ D skills/BetterWright/full-stack-e2e-review/SKILL.md
+ M skills/agent-benchmarking/SKILL.md
+ M skills/agent-benchmarking/references/architecture.md
+ M skills/agent-benchmarking/references/audit-and-reporting.md
+ M skills/agent-benchmarking/references/conditions-and-mechanisms.md
+ M skills/agent-benchmarking/references/evidence/decision-ledger.md
+ M skills/agent-benchmarking/references/evidence/external-research.md
+ M skills/agent-benchmarking/references/evidence/migration-cleanup.md
+ M skills/agent-benchmarking/references/evidence/session-failure-to-fix.md
+ M skills/agent-benchmarking/references/execution-lifecycle.md
+ M skills/agent-benchmarking/references/grading.md
+ M skills/agent-benchmarking/references/protocol-design.md
+ M skills/agent-benchmarking/references/statistical-analysis.md
+ M skills/agent-benchmarking/references/telemetry.md
+ M skills/agent-benchmarking/references/validation.md
+ D skills/agent-benchmarking/schemas/adjudication-assignment.schema.json
+ D skills/agent-benchmarking/schemas/adjudication-plan.schema.json
+ D skills/agent-benchmarking/schemas/adjudication-terminal.schema.json
+ D skills/agent-benchmarking/schemas/attempt.schema.json
+ D skills/agent-benchmarking/schemas/budget-ledger.schema.json
+ D skills/agent-benchmarking/schemas/call-plan.schema.json
+ D skills/agent-benchmarking/schemas/condition.schema.json
+ D skills/agent-benchmarking/schemas/grader.schema.json
+ D skills/agent-benchmarking/schemas/mechanism.schema.json
+ D skills/agent-benchmarking/schemas/protected-state.schema.json
+ M skills/agent-benchmarking/schemas/result.schema.json
+ D skills/agent-benchmarking/schemas/runtime-capability.schema.json
+ D skills/agent-benchmarking/schemas/seal.schema.json
+ D skills/agent-benchmarking/schemas/task.schema.json
+ D skills/agent-benchmarking/schemas/telemetry.schema.json
+ D skills/agent-benchmarking/schemas/workflow-request.schema.json
+ M skills/agent-benchmarking/scripts/aggregate_telemetry.py
+ M skills/agent-benchmarking/scripts/analyze_paired.py
+ M skills/agent-benchmarking/scripts/benchmark_lib.py
+ D skills/agent-benchmarking/scripts/build_benchmark_bundle.py
+ D skills/agent-benchmarking/scripts/build_p217_replay.py
+ D skills/agent-benchmarking/scripts/deep_stage.py
+ D skills/agent-benchmarking/scripts/final_integrity.py
+ D skills/agent-benchmarking/scripts/generate_blind_map.py
+ D skills/agent-benchmarking/scripts/generate_canary_receipts.py
+ M skills/agent-benchmarking/scripts/generate_schedule.py
+ D skills/agent-benchmarking/scripts/probe_deep_runner.mjs
+ D skills/agent-benchmarking/scripts/reconcile_lifecycle.py
+ D skills/agent-benchmarking/scripts/run_canaries.py
+ D skills/agent-benchmarking/scripts/run_p217_replay.mjs
+ D skills/agent-benchmarking/scripts/typecheck_fabric_guest.mjs
+ D skills/agent-benchmarking/scripts/validate_contracts.py
+ D skills/agent-benchmarking/scripts/validate_workflow.mjs
+ D skills/agent-benchmarking/scripts/verify_seal.py
+ D skills/agent-benchmarking/scripts/write_once.py
+ D skills/agent-benchmarking/tests/fake_canary_adapter.py
+ D skills/agent-benchmarking/tests/test_adjudication.py
+ D skills/agent-benchmarking/tests/test_deep_runtime.py
+ D skills/agent-benchmarking/tests/test_delta_seals.py
+ D skills/agent-benchmarking/tests/test_helpers.py
+ D skills/agent-benchmarking/validation/fixtures/baselines/project-status.txt
+ D skills/agent-benchmarking/validation/fixtures/baselines/protected-packet.json
+ D skills/agent-benchmarking/validation/fixtures/boundary/schedule-boundaries.json
+ D skills/agent-benchmarking/validation/fixtures/boundary/single-task-paired-analysis.json
+ D skills/agent-benchmarking/validation/fixtures/canary/attempt-lifecycle.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/blind-map-isolation.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/condition-loading.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/development/README.txt
+ D skills/agent-benchmarking/validation/fixtures/canary/false-complete-refusal.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/fresh-parent-sessions.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/interrupted-wave-resume.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/mechanism-nested.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/primary-source-grading.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/randomized-schedule.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/runtime-model-identity.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/supervisor-prelaunch-failure.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/synthetic-catalog.json
+ D skills/agent-benchmarking/validation/fixtures/canary/token-cost-attribution.request.json
+ D skills/agent-benchmarking/validation/fixtures/canary/workflow-request.json
+ D skills/agent-benchmarking/validation/fixtures/fixture-catalog.json
+ D skills/agent-benchmarking/validation/fixtures/isolated-defect/grader-condition-leakage.json
+ D skills/agent-benchmarking/validation/fixtures/isolated-defect/stale-seal.json
+ D skills/agent-benchmarking/validation/fixtures/known-bad/analysis-unknown-option.json
+ D skills/agent-benchmarking/validation/fixtures/known-bad/unequal-cells.json
+ D skills/agent-benchmarking/validation/fixtures/known-bad/workflow-request-extra-property.json
+ D skills/agent-benchmarking/validation/fixtures/known-good/confirmatory-paired-analysis.json
+ D skills/agent-benchmarking/validation/fixtures/known-good/paired-analysis.json
+ D skills/agent-benchmarking/validation/fixtures/known-good/workflow-request.json
+ D skills/agent-benchmarking/validation/fixtures/malformed/blank-line.jsonl
+ D skills/agent-benchmarking/validation/fixtures/malformed/crlf.jsonl
+ D skills/agent-benchmarking/validation/fixtures/malformed/duplicate-key.json
+ D skills/agent-benchmarking/validation/fixtures/malformed/invalid-utf8.json
+ D skills/agent-benchmarking/validation/fixtures/malformed/invalid.json
+ D skills/agent-benchmarking/workflows/artifact_store.ts
+ D skills/agent-benchmarking/workflows/benchmark.source.ts
+ M skills/agent-benchmarking/workflows/benchmark.ts
+ D skills/agent-benchmarking/workflows/runtime_canaries.ts
+ M skills/fabric-research/SKILL.md
+ M skills/fabric-research/references/stream-contracts.md
+ M skills/fabric-research/references/synthesis-and-reporting.md
+ M skills/fabric-research/references/workflow-program.md
+ M skills/fabric-research/scripts/workflow-program.js
+?? docs/agent-benchmarking-refactor/
+?? docs/fabric-research-refactor/
+?? docs/fabric-research-refactoring-plan.md
+?? hide-providers.json
+?? npm/README.md
+?? npm/patches/
+?? npm/tests/
+?? skill-evaluations/agent-benchmarking/minimum-version-r1-eVAB3c/
+?? skill-evaluations/agent-benchmarking/refactor-review-r1-ZRdCB8/
+?? skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/
+?? skill-evaluations/fabric-research-browser-policy/
+?? skill-evaluations/fabric-research-native/
+?? skills/agent-benchmarking/README.md
+?? skills/agent-benchmarking/requirements-models.txt
+?? skills/agent-benchmarking/requirements.txt
+?? skills/agent-benchmarking/schemas/spec.schema.json
+?? skills/agent-benchmarking/scripts/analysis_engine.py
+?? skills/agent-benchmarking/scripts/analysis_models.py
+?? skills/agent-benchmarking/scripts/grade.py
+?? skills/agent-benchmarking/scripts/inspect_legacy_report.py
+?? skills/agent-benchmarking/scripts/lifecycle_store.py
+?? skills/agent-benchmarking/scripts/run.py
+?? skills/agent-benchmarking/scripts/statistical_core.py
+?? skills/agent-benchmarking/tests/fixtures/
+?? skills/agent-benchmarking/tests/test_analysis_core.py
+?? skills/agent-benchmarking/tests/test_analysis_models.py
+?? skills/agent-benchmarking/tests/test_analysis_simulation.py
+?? skills/agent-benchmarking/tests/test_fixed_guest.mjs
+?? skills/agent-benchmarking/tests/test_grading.py
+?? skills/agent-benchmarking/tests/test_integration.py
+?? skills/agent-benchmarking/tests/test_legacy_report.py
+?? skills/agent-benchmarking/tests/test_measurement.py
+?? skills/agent-benchmarking/tests/test_randomization.py
+?? skills/agent-benchmarking/tests/test_refactor_baseline.py
+?? skills/agent-benchmarking/tests/test_run.py
+?? skills/agent-benchmarking/tests/test_skill_loading.mjs
+?? skills/agent-benchmarking/tests/test_task_state.py
+?? web-search.json

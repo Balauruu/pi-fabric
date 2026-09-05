@@ -1,0 +1,16 @@
+{
+  "startedAtUTC": "2026-09-05T08:35:31.852Z",
+  "runtime": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/bin/node",
+  "model": null,
+  "search": null,
+  "worker": null,
+  "checks": {},
+  "limitations": [
+    "Hosted-search usage is not exposed by the public helper.",
+    "Child usage measures completion only, not parent or hosted-search usage.",
+    "No browser launched; not an OS sandbox."
+  ],
+  "status": "failed",
+  "failure": "Live probe failed at model-runtime construction; raw errors suppressed to protect authentication.",
+  "finishedAtUTC": "2026-09-05T08:35:31.855Z"
+}

@@ -1,0 +1,31 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "# Example Domains\n\nText matches (exact)\n\n1. \"They are not available for registration or transfer.\" ×1\nAs described in [RFC 2606](/go/rfc2606) and [RFC 6761](/go/rfc6761), a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer. We provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production applications. While incidental traffic for incorrectly configured applications is expected, please do not design applications that require the example domains to have operating HTTP service. ##…"
+    }
+  ],
+  "text": "# Example Domains\n\nText matches (exact)\n\n1. \"They are not available for registration or transfer.\" ×1\nAs described in [RFC 2606](/go/rfc2606) and [RFC 6761](/go/rfc6761), a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer. We provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production applications. While incidental traffic for incorrectly configured applications is expected, please do not design applications that require the example domains to have operating HTTP service. ##…",
+  "details": {
+    "url": "https://www.iana.org/help/example-domains",
+    "title": "Example Domains",
+    "contentLength": 817,
+    "findMode": "exact",
+    "matchCount": 1,
+    "returnedMatches": 1,
+    "queryResults": [
+      {
+        "query": "They are not available for registration or transfer.",
+        "matchCount": 1
+      }
+    ]
+  },
+  "isError": false,
+  "source": {
+    "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access/index.ts",
+    "source": "npm:pi-web-access",
+    "scope": "user",
+    "origin": "package",
+    "baseDir": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access"
+  }
+}

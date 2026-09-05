@@ -1,0 +1,759 @@
+{
+  "schema": "last30days-report-cache/v1",
+  "topic": "SQLite",
+  "timestamp": "2026-09-05T14:00:53.948869+00:00",
+  "comparison": false,
+  "reports": [
+    {
+      "entity": "SQLite",
+      "report": {
+        "topic": "SQLite",
+        "range_from": "2026-08-29",
+        "range_to": "2026-09-05",
+        "generated_at": "2026-09-05T14:00:53.948779+00:00",
+        "provider_runtime": {
+          "reasoning_provider": "local",
+          "planner_model": "deterministic",
+          "rerank_model": "local-score"
+        },
+        "query_plan": {
+          "intent": "opinion",
+          "freshness_mode": "strict_recent",
+          "cluster_mode": "debate",
+          "raw_topic": "SQLite",
+          "subqueries": [
+            {
+              "label": "primary",
+              "search_query": "SQLite",
+              "ranking_query": "What are Hacker News participants saying about SQLite, the embedded SQL database, during the requested seven-day window ending 2026-09-05?",
+              "sources": [
+                "hackernews"
+              ],
+              "weight": 1.0
+            }
+          ],
+          "source_weights": {
+            "hackernews": 1.0
+          },
+          "notes": []
+        },
+        "clusters": [
+          {
+            "cluster_id": "cluster-1",
+            "title": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+            "candidate_ids": [
+              "https://github.com/ucsandman/declick"
+            ],
+            "representative_ids": [
+              "https://github.com/ucsandman/declick"
+            ],
+            "sources": [
+              "hackernews"
+            ],
+            "score": 38.27836065573771,
+            "uncertainty": "single-source"
+          },
+          {
+            "cluster_id": "cluster-2",
+            "title": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+            "candidate_ids": [
+              "https://github.com/el1s7/model"
+            ],
+            "representative_ids": [
+              "https://github.com/el1s7/model"
+            ],
+            "sources": [
+              "hackernews"
+            ],
+            "score": 30.48825396825397,
+            "uncertainty": "single-source"
+          },
+          {
+            "cluster_id": "cluster-3",
+            "title": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+            "candidate_ids": [
+              "https://dolthub.com/blog/2026-08-31-doltlite-beta"
+            ],
+            "representative_ids": [
+              "https://dolthub.com/blog/2026-08-31-doltlite-beta"
+            ],
+            "sources": [
+              "hackernews"
+            ],
+            "score": 8.751677419354838,
+            "uncertainty": "single-source"
+          },
+          {
+            "cluster_id": "cluster-4",
+            "title": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+            "candidate_ids": [
+              "https://editable.website"
+            ],
+            "representative_ids": [
+              "https://editable.website"
+            ],
+            "sources": [
+              "hackernews"
+            ],
+            "score": 7.334363636363636,
+            "uncertainty": "single-source"
+          },
+          {
+            "cluster_id": "cluster-5",
+            "title": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+            "candidate_ids": [
+              "https://github.com/helius-finance/helius-finance-tracker"
+            ],
+            "representative_ids": [
+              "https://github.com/helius-finance/helius-finance-tracker"
+            ],
+            "sources": [
+              "hackernews"
+            ],
+            "score": 7.195846153846154,
+            "uncertainty": "single-source"
+          },
+          {
+            "cluster_id": "cluster-6",
+            "title": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+            "candidate_ids": [
+              "https://openrun.dev/blog/litestream"
+            ],
+            "representative_ids": [
+              "https://openrun.dev/blog/litestream"
+            ],
+            "sources": [
+              "hackernews"
+            ],
+            "score": 6.991874999999999,
+            "uncertainty": "single-source"
+          }
+        ],
+        "ranked_candidates": [
+          {
+            "candidate_id": "https://github.com/ucsandman/declick",
+            "item_id": "49564984",
+            "source": "hackernews",
+            "title": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+            "url": "https://github.com/ucsandman/declick",
+            "snippet": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+            "subquery_labels": [
+              "primary"
+            ],
+            "native_ranks": {
+              "primary:hackernews": 1
+            },
+            "local_relevance": 0.04,
+            "freshness": 85,
+            "engagement": 21,
+            "source_quality": 0.8,
+            "rrf_score": 0.01639344262295082,
+            "sources": [
+              "hackernews"
+            ],
+            "source_items": [
+              {
+                "item_id": "49564984",
+                "source": "hackernews",
+                "title": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+                "body": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+                "url": "https://github.com/ucsandman/declick",
+                "author": "practicalsystem",
+                "container": "Hacker News",
+                "published_at": "2026-09-04",
+                "date_confidence": "high",
+                "engagement": {
+                  "points": 6,
+                  "comments": 2
+                },
+                "relevance_hint": 1.0,
+                "why_relevant": "HN story about Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLit",
+                "snippet": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+                "metadata": {
+                  "hn_url": "https://news.ycombinator.com/item?id=49564984",
+                  "top_comments": [],
+                  "comment_insights": []
+                },
+                "local_relevance": 0.04,
+                "freshness": 85,
+                "engagement_score": 21,
+                "source_quality": 0.8,
+                "local_rank_score": 0.2595
+              }
+            ],
+            "rerank_score": 27.8,
+            "final_score": 38.27836065573771,
+            "explanation": "fallback-local-score",
+            "fun_score": 7.35,
+            "fun_explanation": "heuristic-fallback",
+            "cluster_id": "cluster-1",
+            "metadata": {
+              "provenance": [
+                {
+                  "source": "hackernews",
+                  "subquery_label": "primary",
+                  "native_rank": 1,
+                  "item_id": "49564984"
+                }
+              ],
+              "range_from": "2026-08-29",
+              "range_to": "2026-09-05"
+            }
+          },
+          {
+            "candidate_id": "https://github.com/el1s7/model",
+            "item_id": "49553359",
+            "source": "hackernews",
+            "title": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+            "url": "https://github.com/el1s7/model",
+            "snippet": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+            "subquery_labels": [
+              "primary"
+            ],
+            "native_ranks": {
+              "primary:hackernews": 3
+            },
+            "local_relevance": 0.05,
+            "freshness": 71,
+            "engagement": 0,
+            "source_quality": 0.8,
+            "rrf_score": 0.015873015873015872,
+            "sources": [
+              "hackernews"
+            ],
+            "source_items": [
+              {
+                "item_id": "49553359",
+                "source": "hackernews",
+                "title": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+                "body": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+                "url": "https://github.com/el1s7/model",
+                "author": "el1s7",
+                "container": "Hacker News",
+                "published_at": "2026-09-03",
+                "date_confidence": "high",
+                "engagement": {
+                  "points": 4,
+                  "comments": 0
+                },
+                "relevance_hint": 0.99,
+                "why_relevant": "HN story about Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+                "snippet": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+                "metadata": {
+                  "hn_url": "https://news.ycombinator.com/item?id=49553359",
+                  "top_comments": [],
+                  "comment_insights": []
+                },
+                "local_relevance": 0.05,
+                "freshness": 71,
+                "engagement_score": 0,
+                "source_quality": 0.8,
+                "local_rank_score": 0.21
+              }
+            ],
+            "rerank_score": 25.700000000000003,
+            "final_score": 30.48825396825397,
+            "explanation": "fallback-local-score",
+            "fun_score": 12.45,
+            "fun_explanation": "heuristic-fallback",
+            "cluster_id": "cluster-2",
+            "metadata": {
+              "provenance": [
+                {
+                  "source": "hackernews",
+                  "subquery_label": "primary",
+                  "native_rank": 3,
+                  "item_id": "49553359"
+                }
+              ],
+              "range_from": "2026-08-29",
+              "range_to": "2026-09-05"
+            }
+          },
+          {
+            "candidate_id": "https://dolthub.com/blog/2026-08-31-doltlite-beta",
+            "item_id": "49516848",
+            "source": "hackernews",
+            "title": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+            "url": "https://www.dolthub.com/blog/2026-08-31-doltlite-beta/",
+            "snippet": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+            "subquery_labels": [
+              "primary"
+            ],
+            "native_ranks": {
+              "primary:hackernews": 2
+            },
+            "local_relevance": 0.05,
+            "freshness": 42,
+            "engagement": 100,
+            "source_quality": 0.8,
+            "rrf_score": 0.016129032258064516,
+            "sources": [
+              "hackernews"
+            ],
+            "source_items": [
+              {
+                "item_id": "49516848",
+                "source": "hackernews",
+                "title": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+                "body": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+                "url": "https://www.dolthub.com/blog/2026-08-31-doltlite-beta/",
+                "author": "lbw1215",
+                "container": "Hacker News",
+                "published_at": "2026-09-01",
+                "date_confidence": "high",
+                "engagement": {
+                  "points": 61,
+                  "comments": 60
+                },
+                "relevance_hint": 1.0,
+                "why_relevant": "HN story about DoltLite: A SQLite fork with Git-style version control, buil",
+                "snippet": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+                "metadata": {
+                  "hn_url": "https://news.ycombinator.com/item?id=49516848",
+                  "top_comments": [],
+                  "comment_insights": []
+                },
+                "local_relevance": 0.05,
+                "freshness": 42,
+                "engagement_score": 100,
+                "source_quality": 0.8,
+                "local_rank_score": 0.23750000000000002
+              }
+            ],
+            "rerank_score": 19.9,
+            "final_score": 8.751677419354838,
+            "explanation": "fallback-local-score",
+            "fun_score": 6.1499999999999995,
+            "fun_explanation": "heuristic-fallback",
+            "cluster_id": "cluster-3",
+            "metadata": {
+              "provenance": [
+                {
+                  "source": "hackernews",
+                  "subquery_label": "primary",
+                  "native_rank": 2,
+                  "item_id": "49516848"
+                }
+              ],
+              "range_from": "2026-08-29",
+              "range_to": "2026-09-05"
+            }
+          },
+          {
+            "candidate_id": "https://editable.website",
+            "item_id": "49508276",
+            "source": "hackernews",
+            "title": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+            "url": "https://editable.website/",
+            "snippet": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+            "subquery_labels": [
+              "primary"
+            ],
+            "native_ranks": {
+              "primary:hackernews": 6
+            },
+            "local_relevance": 0.05,
+            "freshness": 28,
+            "engagement": 12,
+            "source_quality": 0.8,
+            "rrf_score": 0.015151515151515152,
+            "sources": [
+              "hackernews"
+            ],
+            "source_items": [
+              {
+                "item_id": "49508276",
+                "source": "hackernews",
+                "title": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+                "body": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+                "url": "https://editable.website/",
+                "author": "_mql",
+                "container": "Hacker News",
+                "published_at": "2026-08-31",
+                "date_confidence": "high",
+                "engagement": {
+                  "points": 5,
+                  "comments": 1
+                },
+                "relevance_hint": 1.0,
+                "why_relevant": "HN story about Editable 2.0 preview \u2013 CMS-free editable websites with Svelt",
+                "snippet": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+                "metadata": {
+                  "hn_url": "https://news.ycombinator.com/item?id=49508276",
+                  "top_comments": [],
+                  "comment_insights": []
+                },
+                "local_relevance": 0.05,
+                "freshness": 28,
+                "engagement_score": 12,
+                "source_quality": 0.8,
+                "local_rank_score": 0.1145
+              }
+            ],
+            "rerank_score": 17.1,
+            "final_score": 7.334363636363636,
+            "explanation": "fallback-local-score",
+            "fun_score": 8.25,
+            "fun_explanation": "heuristic-fallback",
+            "cluster_id": "cluster-4",
+            "metadata": {
+              "provenance": [
+                {
+                  "source": "hackernews",
+                  "subquery_label": "primary",
+                  "native_rank": 6,
+                  "item_id": "49508276"
+                }
+              ],
+              "range_from": "2026-08-29",
+              "range_to": "2026-09-05"
+            }
+          },
+          {
+            "candidate_id": "https://github.com/helius-finance/helius-finance-tracker",
+            "item_id": "49519540",
+            "source": "hackernews",
+            "title": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+            "url": "https://github.com/Helius-Finance/helius-finance-tracker",
+            "snippet": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+            "subquery_labels": [
+              "primary"
+            ],
+            "native_ranks": {
+              "primary:hackernews": 5
+            },
+            "local_relevance": 0.05,
+            "freshness": 42,
+            "engagement": 0,
+            "source_quality": 0.8,
+            "rrf_score": 0.015384615384615385,
+            "sources": [
+              "hackernews"
+            ],
+            "source_items": [
+              {
+                "item_id": "49519540",
+                "source": "hackernews",
+                "title": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+                "body": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+                "url": "https://github.com/Helius-Finance/helius-finance-tracker",
+                "author": "stvr393",
+                "container": "Hacker News",
+                "published_at": "2026-09-01",
+                "date_confidence": "high",
+                "engagement": {
+                  "points": 4,
+                  "comments": 0
+                },
+                "relevance_hint": 0.98,
+                "why_relevant": "HN story about Helius \u2013 Personal Finance in One SQLite File, with a Rust CL",
+                "snippet": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+                "metadata": {
+                  "hn_url": "https://news.ycombinator.com/item?id=49519540",
+                  "top_comments": [],
+                  "comment_insights": []
+                },
+                "local_relevance": 0.05,
+                "freshness": 42,
+                "engagement_score": 0,
+                "source_quality": 0.8,
+                "local_rank_score": 0.1375
+              }
+            ],
+            "rerank_score": 19.9,
+            "final_score": 7.195846153846154,
+            "explanation": "fallback-local-score",
+            "fun_score": 9.15,
+            "fun_explanation": "heuristic-fallback",
+            "cluster_id": "cluster-5",
+            "metadata": {
+              "provenance": [
+                {
+                  "source": "hackernews",
+                  "subquery_label": "primary",
+                  "native_rank": 5,
+                  "item_id": "49519540"
+                }
+              ],
+              "range_from": "2026-08-29",
+              "range_to": "2026-09-05"
+            }
+          },
+          {
+            "candidate_id": "https://openrun.dev/blog/litestream",
+            "item_id": "49501147",
+            "source": "hackernews",
+            "title": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+            "url": "https://openrun.dev/blog/litestream/",
+            "snippet": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+            "subquery_labels": [
+              "primary"
+            ],
+            "native_ranks": {
+              "primary:hackernews": 4
+            },
+            "local_relevance": 0.06,
+            "freshness": 14,
+            "engagement": 68,
+            "source_quality": 0.8,
+            "rrf_score": 0.015625,
+            "sources": [
+              "hackernews"
+            ],
+            "source_items": [
+              {
+                "item_id": "49501147",
+                "source": "hackernews",
+                "title": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+                "body": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+                "url": "https://openrun.dev/blog/litestream/",
+                "author": "ajayvk",
+                "container": "Hacker News",
+                "published_at": "2026-08-30",
+                "date_confidence": "high",
+                "engagement": {
+                  "points": 30,
+                  "comments": 14
+                },
+                "relevance_hint": 1.0,
+                "why_relevant": "HN story about Running SQLite Apps on Docker and Kubernetes with Litestream",
+                "snippet": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+                "metadata": {
+                  "hn_url": "https://news.ycombinator.com/item?id=49501147",
+                  "top_comments": [],
+                  "comment_insights": []
+                },
+                "local_relevance": 0.06,
+                "freshness": 14,
+                "engagement_score": 68,
+                "source_quality": 0.8,
+                "local_rank_score": 0.14200000000000002
+              }
+            ],
+            "rerank_score": 15.0,
+            "final_score": 6.991874999999999,
+            "explanation": "fallback-local-score",
+            "fun_score": 11.850000000000001,
+            "fun_explanation": "heuristic-fallback",
+            "cluster_id": "cluster-6",
+            "metadata": {
+              "provenance": [
+                {
+                  "source": "hackernews",
+                  "subquery_label": "primary",
+                  "native_rank": 4,
+                  "item_id": "49501147"
+                }
+              ],
+              "range_from": "2026-08-29",
+              "range_to": "2026-09-05"
+            }
+          }
+        ],
+        "items_by_source": {
+          "hackernews": [
+            {
+              "item_id": "49564984",
+              "source": "hackernews",
+              "title": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+              "body": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+              "url": "https://github.com/ucsandman/declick",
+              "author": "practicalsystem",
+              "container": "Hacker News",
+              "published_at": "2026-09-04",
+              "date_confidence": "high",
+              "engagement": {
+                "points": 6,
+                "comments": 2
+              },
+              "relevance_hint": 1.0,
+              "why_relevant": "HN story about Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLit",
+              "snippet": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+              "metadata": {
+                "hn_url": "https://news.ycombinator.com/item?id=49564984",
+                "top_comments": [],
+                "comment_insights": []
+              },
+              "local_relevance": 0.04,
+              "freshness": 85,
+              "engagement_score": 21,
+              "source_quality": 0.8,
+              "local_rank_score": 0.2595
+            },
+            {
+              "item_id": "49516848",
+              "source": "hackernews",
+              "title": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+              "body": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+              "url": "https://www.dolthub.com/blog/2026-08-31-doltlite-beta/",
+              "author": "lbw1215",
+              "container": "Hacker News",
+              "published_at": "2026-09-01",
+              "date_confidence": "high",
+              "engagement": {
+                "points": 61,
+                "comments": 60
+              },
+              "relevance_hint": 1.0,
+              "why_relevant": "HN story about DoltLite: A SQLite fork with Git-style version control, buil",
+              "snippet": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+              "metadata": {
+                "hn_url": "https://news.ycombinator.com/item?id=49516848",
+                "top_comments": [],
+                "comment_insights": []
+              },
+              "local_relevance": 0.05,
+              "freshness": 42,
+              "engagement_score": 100,
+              "source_quality": 0.8,
+              "local_rank_score": 0.23750000000000002
+            },
+            {
+              "item_id": "49553359",
+              "source": "hackernews",
+              "title": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+              "body": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+              "url": "https://github.com/el1s7/model",
+              "author": "el1s7",
+              "container": "Hacker News",
+              "published_at": "2026-09-03",
+              "date_confidence": "high",
+              "engagement": {
+                "points": 4,
+                "comments": 0
+              },
+              "relevance_hint": 0.99,
+              "why_relevant": "HN story about Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+              "snippet": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+              "metadata": {
+                "hn_url": "https://news.ycombinator.com/item?id=49553359",
+                "top_comments": [],
+                "comment_insights": []
+              },
+              "local_relevance": 0.05,
+              "freshness": 71,
+              "engagement_score": 0,
+              "source_quality": 0.8,
+              "local_rank_score": 0.21
+            },
+            {
+              "item_id": "49501147",
+              "source": "hackernews",
+              "title": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+              "body": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+              "url": "https://openrun.dev/blog/litestream/",
+              "author": "ajayvk",
+              "container": "Hacker News",
+              "published_at": "2026-08-30",
+              "date_confidence": "high",
+              "engagement": {
+                "points": 30,
+                "comments": 14
+              },
+              "relevance_hint": 1.0,
+              "why_relevant": "HN story about Running SQLite Apps on Docker and Kubernetes with Litestream",
+              "snippet": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+              "metadata": {
+                "hn_url": "https://news.ycombinator.com/item?id=49501147",
+                "top_comments": [],
+                "comment_insights": []
+              },
+              "local_relevance": 0.06,
+              "freshness": 14,
+              "engagement_score": 68,
+              "source_quality": 0.8,
+              "local_rank_score": 0.14200000000000002
+            },
+            {
+              "item_id": "49519540",
+              "source": "hackernews",
+              "title": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+              "body": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+              "url": "https://github.com/Helius-Finance/helius-finance-tracker",
+              "author": "stvr393",
+              "container": "Hacker News",
+              "published_at": "2026-09-01",
+              "date_confidence": "high",
+              "engagement": {
+                "points": 4,
+                "comments": 0
+              },
+              "relevance_hint": 0.98,
+              "why_relevant": "HN story about Helius \u2013 Personal Finance in One SQLite File, with a Rust CL",
+              "snippet": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+              "metadata": {
+                "hn_url": "https://news.ycombinator.com/item?id=49519540",
+                "top_comments": [],
+                "comment_insights": []
+              },
+              "local_relevance": 0.05,
+              "freshness": 42,
+              "engagement_score": 0,
+              "source_quality": 0.8,
+              "local_rank_score": 0.1375
+            },
+            {
+              "item_id": "49508276",
+              "source": "hackernews",
+              "title": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+              "body": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+              "url": "https://editable.website/",
+              "author": "_mql",
+              "container": "Hacker News",
+              "published_at": "2026-08-31",
+              "date_confidence": "high",
+              "engagement": {
+                "points": 5,
+                "comments": 1
+              },
+              "relevance_hint": 1.0,
+              "why_relevant": "HN story about Editable 2.0 preview \u2013 CMS-free editable websites with Svelt",
+              "snippet": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+              "metadata": {
+                "hn_url": "https://news.ycombinator.com/item?id=49508276",
+                "top_comments": [],
+                "comment_insights": []
+              },
+              "local_relevance": 0.05,
+              "freshness": 28,
+              "engagement_score": 12,
+              "source_quality": 0.8,
+              "local_rank_score": 0.1145
+            }
+          ]
+        },
+        "errors_by_source": {},
+        "source_status": {
+          "hackernews": {
+            "source": "hackernews",
+            "state": "ok",
+            "items_returned": 6,
+            "attempted": true,
+            "at": "2026-09-05T14:00:53.947802Z"
+          }
+        },
+        "freshness_verdicts": [],
+        "warnings": [
+          "Top evidence is highly concentrated in one source."
+        ],
+        "artifacts": {
+          "grounding": [],
+          "plan_source": "external",
+          "corpus_in_export": false,
+          "hiring_signals_mode": false,
+          "resolved": {
+            "entity": "SQLite",
+            "x_handle": "",
+            "subreddits": [],
+            "github_user": "",
+            "github_repos": [],
+            "trustpilot_domain": "",
+            "context": ""
+          }
+        },
+        "library_context": []
+      }
+    }
+  ]
+}

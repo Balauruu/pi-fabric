@@ -1,0 +1,148 @@
+{
+  "startedAtUTC": "2026-09-05T08:50:25.812Z",
+  "runtime": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/bin/node",
+  "model": {
+    "provider": "openai-codex",
+    "id": "gpt-6-astra",
+    "api": "openai-codex-responses"
+  },
+  "search": {
+    "status": "retrieved",
+    "provider": "current-model",
+    "answer": "IANA’s official “Example Domains” documentation explains their use as illustrative examples in documents. ([iana.org](https://www.iana.org/help/example-domains?webscale_search_refresh_probe=codex_20260605_175533&utm_source=openai))",
+    "results": [
+      {
+        "title": "Example Domains",
+        "url": "https://www.iana.org/help/example-domains?webscale_search_refresh_probe=codex_20260605_175533",
+        "description": "official “Example Domains” documentation explains their use as illustrative examples in documents. (iana.org)"
+      }
+    ],
+    "retrievedAtUTC": "2026-09-05T08:50:34.977Z",
+    "method": "current-model-openai-http",
+    "usage": "unavailable",
+    "childCalls": 0
+  },
+  "worker": {
+    "status": "success",
+    "report": {
+      "conclusion": "Example Domain",
+      "evidence": [
+        {
+          "requirementIds": [
+            "r1"
+          ],
+          "claim": "The exact h1 heading is Example Domain.",
+          "finding": "<h1>Example Domain</h1>",
+          "url": "https://example.com/",
+          "status": "documented fact",
+          "confidence": "high",
+          "provenance": {
+            "sourceType": "primary page",
+            "locator": "html > body > div > h1: <h1>Example Domain</h1>",
+            "retrievedAtUTC": "2026-09-05T08:50:38.174Z",
+            "method": "ordinary-http-get",
+            "origin": "example.com",
+            "temporalStatus": "current-only"
+          }
+        }
+      ],
+      "contradictions": [],
+      "gaps": [],
+      "stopReason": "requirements-covered"
+    },
+    "terminalStatus": "completed-usable",
+    "lineage": [
+      {
+        "streamId": "heading",
+        "attempt": 1,
+        "agentId": "01a070c3-2f7c-7383-a24f-c53fc0838594",
+        "runnerSessionId": "01a070c3-2f7c-7383-a24f-c53fc0838594",
+        "execution": "pi-sdk-leaf",
+        "launch": {
+          "runner": "pi",
+          "execution": "sdk-in-process",
+          "recursive": false,
+          "extensions": false,
+          "cwd": "/home/balauru/.pi-profiles/fabric",
+          "tools": [
+            "research_fetch"
+          ],
+          "loadedExtensions": 0,
+          "loadedSkills": 0,
+          "persistentSession": false
+        },
+        "terminalStatus": "completed",
+        "serviceTimeMs": 10378,
+        "usage": {
+          "input": 2377,
+          "output": 175,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "cost": 0.03252
+        },
+        "turns": 2,
+        "toolCalls": 1,
+        "maxRetrievalSteps": 1,
+        "retrievalLimitCompliance": "within-limit",
+        "outcomeStatus": "completed-usable",
+        "error": null
+      }
+    ],
+    "usage": {
+      "children": {
+        "input": 2377,
+        "output": 175,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0.03252
+      },
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "toolCalls": {
+      "children": 1,
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "observations": [
+      {
+        "toolNames": [
+          "research_fetch"
+        ],
+        "browserGuidanceAbsent": true,
+        "toolResults": []
+      },
+      {
+        "toolNames": [
+          "research_fetch"
+        ],
+        "browserGuidanceAbsent": true,
+        "toolResults": [
+          {
+            "name": "research_fetch",
+            "isError": false,
+            "headingSeen": true
+          }
+        ]
+      }
+    ]
+  },
+  "checks": {
+    "parentActiveTools": [
+      "fabric_exec"
+    ],
+    "searchAuthCalls": 1,
+    "actualModelCompletions": 2,
+    "factories": 0,
+    "hosts": 0,
+    "browserRuns": 0,
+    "genericDispatches": 0
+  },
+  "limitations": [
+    "Hosted-search usage is not exposed by the public helper.",
+    "Child usage measures completion only, not parent or hosted-search usage.",
+    "No browser launched; not an OS sandbox."
+  ],
+  "status": "passed",
+  "finishedAtUTC": "2026-09-05T08:50:45.381Z"
+}

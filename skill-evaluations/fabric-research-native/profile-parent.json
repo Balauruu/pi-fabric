@@ -1,0 +1,55 @@
+[
+  {
+    "pid": 358662,
+    "name": "Name:\tpython",
+    "env": {
+      "PI_CODING_AGENT_DIR": "/home/balauru/.pi-profiles/fabric"
+    }
+  },
+  {
+    "pid": 358661,
+    "name": "Name:\tbash",
+    "env": {
+      "PI_CODING_AGENT_DIR": "/home/balauru/.pi-profiles/fabric"
+    }
+  },
+  {
+    "pid": 349506,
+    "name": "Name:\tpi",
+    "env": {
+      "PI_CODING_AGENT_DIR": "/home/balauru/.pi-profiles/fabric"
+    },
+    "resolvedPi": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js"
+  },
+  {
+    "pid": 349489,
+    "name": "Name:\tnode-MainThread",
+    "env": {
+      "PI_CODING_AGENT_DIR": "/home/balauru/.pi-profiles/fabric"
+    },
+    "resolvedPi": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js"
+  },
+  {
+    "pid": 7407,
+    "name": "Name:\tpi",
+    "env": {
+      "PI_CODING_AGENT_DIR": "/home/balauru/.pi-profiles/fabric"
+    },
+    "resolvedPi": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js"
+  },
+  {
+    "pid": 2683,
+    "name": "Name:\tfish",
+    "env": {}
+  },
+  {
+    "pid": 2652,
+    "name": "Name:\therdr",
+    "env": {}
+  },
+  {
+    "pid": 2651,
+    "name": "Name:\therdr",
+    "env": {}
+  }
+]

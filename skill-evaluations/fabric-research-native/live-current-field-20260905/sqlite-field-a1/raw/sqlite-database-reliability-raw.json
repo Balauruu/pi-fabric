@@ -1,0 +1,146 @@
+{
+  "clusters": [
+    {
+      "engagement_total": 6,
+      "sources": [
+        "hackernews"
+      ],
+      "summary": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+      "title": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI"
+    },
+    {
+      "engagement_total": 4,
+      "sources": [
+        "hackernews"
+      ],
+      "summary": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+      "title": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite"
+    },
+    {
+      "engagement_total": 61,
+      "sources": [
+        "hackernews"
+      ],
+      "summary": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+      "title": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs"
+    },
+    {
+      "engagement_total": 5,
+      "sources": [
+        "hackernews"
+      ],
+      "summary": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+      "title": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite"
+    },
+    {
+      "engagement_total": 4,
+      "sources": [
+        "hackernews"
+      ],
+      "summary": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+      "title": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI"
+    },
+    {
+      "engagement_total": 30,
+      "sources": [
+        "hackernews"
+      ],
+      "summary": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+      "title": "Running SQLite Apps on Docker and Kubernetes with Litestream"
+    }
+  ],
+  "freshness_verdicts": [],
+  "generated_at": "2026-09-05T12:31:02.756799Z",
+  "query": "SQLite database reliability",
+  "results": [
+    {
+      "candidate_id": "https://github.com/ucsandman/declick",
+      "cluster": 0,
+      "engagement": {
+        "comments": 2,
+        "points": 6
+      },
+      "published_at": "2026-09-04",
+      "relevance_score": 0.3786,
+      "source": "hackernews",
+      "summary": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+      "title": "Show HN: Declick \u2013 Turn an OpenAPI Spec, MCP Server or SQLite DB into a CLI",
+      "url": "https://github.com/ucsandman/declick"
+    },
+    {
+      "candidate_id": "https://github.com/el1s7/model",
+      "cluster": 1,
+      "engagement": {
+        "comments": 0,
+        "points": 4
+      },
+      "published_at": "2026-09-03",
+      "relevance_score": 0.3007,
+      "source": "hackernews",
+      "summary": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+      "title": "Show HN: Model \u2013 A Minimal Python ORM for MySQL and SQLite",
+      "url": "https://github.com/el1s7/model"
+    },
+    {
+      "candidate_id": "https://dolthub.com/blog/2026-08-31-doltlite-beta",
+      "cluster": 2,
+      "engagement": {
+        "comments": 60,
+        "points": 61
+      },
+      "published_at": "2026-09-01",
+      "relevance_score": 0.085,
+      "source": "hackernews",
+      "summary": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+      "title": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+      "url": "https://www.dolthub.com/blog/2026-08-31-doltlite-beta/"
+    },
+    {
+      "candidate_id": "https://editable.website",
+      "cluster": 3,
+      "engagement": {
+        "comments": 1,
+        "points": 5
+      },
+      "published_at": "2026-08-31",
+      "relevance_score": 0.0721,
+      "source": "hackernews",
+      "summary": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+      "title": "Editable 2.0 preview \u2013 CMS-free editable websites with Svelte and SQLite",
+      "url": "https://editable.website/"
+    },
+    {
+      "candidate_id": "https://github.com/helius-finance/helius-finance-tracker",
+      "cluster": 4,
+      "engagement": {
+        "comments": 0,
+        "points": 4
+      },
+      "published_at": "2026-09-01",
+      "relevance_score": 0.0707,
+      "source": "hackernews",
+      "summary": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+      "title": "Helius \u2013 Personal Finance in One SQLite File, with a Rust CLI and TUI",
+      "url": "https://github.com/Helius-Finance/helius-finance-tracker"
+    },
+    {
+      "candidate_id": "https://openrun.dev/blog/litestream",
+      "cluster": 5,
+      "engagement": {
+        "comments": 14,
+        "points": 30
+      },
+      "published_at": "2026-08-30",
+      "relevance_score": 0.0687,
+      "source": "hackernews",
+      "summary": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+      "title": "Running SQLite Apps on Docker and Kubernetes with Litestream",
+      "url": "https://openrun.dev/blog/litestream/"
+    }
+  ],
+  "schema_version": "1.2",
+  "source_status": {
+    "hackernews": "ok"
+  },
+  "window_days": 7
+}

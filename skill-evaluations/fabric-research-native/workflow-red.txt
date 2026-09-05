@@ -1,0 +1,143 @@
+✖ native dispatch, authoritative browser assignment, clocks and receipt fields (1.962946ms)
+✖ failed worker preserves successful sibling and native terminal receipt (1.350261ms)
+✖ one fresh targeted retry, not a rerun of successful siblings (0.685378ms)
+✖ current-field dispatches native engine worker with scoped artifacts and can retry (1.035545ms)
+✔ preflight and malformed manifests launch no workers (2.171223ms)
+✖ missing current-field artifact directory blocks only that stream (0.636567ms)
+✖ missing or foreign provenance is retained but cannot satisfy requirements (0.636283ms)
+✖ native budget refusal survives; token observation is not raw-run enforcement (0.657338ms)
+✖ concurrency stays bounded and overlapping ownership does not invent a unique retry (0.705753ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 1
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51.929599
+
+✖ failing tests:
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:31:1
+✖ native dispatch, authoritative browser assignment, clocks and receipt fields (1.962946ms)
+  Error: Unreviewed manifest option.
+      at closed (evalmachine.<anonymous>:8:131)
+      at evalmachine.<anonymous>:10:1
+      at evalmachine.<anonymous>:460:3
+      at Script.runInContext (node:vm:150:12)
+      at Script.runInNewContext (node:vm:155:17)
+      at Object.runInNewContext (node:vm:311:38)
+      at run (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:27:27)
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:33:52)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:49:1
+✖ failed worker preserves successful sibling and native terminal receipt (1.350261ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'failed'
+  - 'partial'
+  
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:51:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'failed',
+    expected: 'partial',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:55:1
+✖ one fresh targeted retry, not a rerun of successful siblings (0.685378ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 3
+  
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:58:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 3,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:62:1
+✖ current-field dispatches native engine worker with scoped artifacts and can retry (1.035545ms)
+  Error: Unreviewed manifest option.
+      at closed (evalmachine.<anonymous>:8:131)
+      at evalmachine.<anonymous>:10:1
+      at evalmachine.<anonymous>:460:3
+      at Script.runInContext (node:vm:150:12)
+      at Script.runInNewContext (node:vm:155:17)
+      at Object.runInNewContext (node:vm:311:38)
+      at run (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:27:27)
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:64:35)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:82:1
+✖ missing current-field artifact directory blocks only that stream (0.636567ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:84:50)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:88:1
+✖ missing or foreign provenance is retained but cannot satisfy requirements (0.636283ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:92:67)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:95:1
+✖ native budget refusal survives; token observation is not raw-run enforcement (0.657338ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'failed'
+  - 'partial'
+  
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:97:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'failed',
+    expected: 'partial',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at skill-evaluations/fabric-research-native/workflow.test.mjs:104:1
+✖ concurrency stays bounded and overlapping ownership does not invent a unique retry (0.705753ms)
+  TypeError: Cannot read properties of undefined (reading 'concurrency')
+      at TestContext.<anonymous> (file:///home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/workflow.test.mjs:107:27)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7)

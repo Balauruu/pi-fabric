@@ -1,0 +1,35 @@
+{
+  "kind": "deterministic mock of unchanged program, not native timing",
+  "readBytes": {
+    "SKILL.md": 14392,
+    "references/stream-contracts.md": 13272,
+    "references/synthesis-and-reporting.md": 12638,
+    "references/workflow-program.md": 7535,
+    "scripts/workflow-program.js": 29415
+  },
+  "manifestBytes": 1526,
+  "requestedConcurrency": 5,
+  "peak": 4,
+  "operationCounts": {
+    "configure": 1,
+    "phase": 3,
+    "list": 1,
+    "read": 1,
+    "parallel": 1,
+    "item": 10,
+    "agents.run": 5,
+    "event": 1
+  },
+  "assignmentBytes": [
+    1881,
+    1881,
+    1881,
+    1881,
+    1881
+  ],
+  "schemaBytes": 1894,
+  "resultBytes": 12453,
+  "usefulReportsRetained": 5,
+  "candidateUsableWithoutRetrievalTime": 0,
+  "status": "failed"
+}

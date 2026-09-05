@@ -1,0 +1,14 @@
+{
+  "runStartedAtUTC": "2026-09-05T12:24:41.648Z",
+  "route": "direct",
+  "reason": "One stable IANA primary document suffices for reserved example-domain purpose",
+  "childCalls": 0,
+  "requirements": [
+    {
+      "id": "r1",
+      "text": "Verify IANA example domains are for documentation and cannot be registered/transferred",
+      "status": "pending",
+      "owner": "coordinator"
+    }
+  ]
+}

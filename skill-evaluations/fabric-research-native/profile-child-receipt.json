@@ -1,0 +1,42 @@
+{
+  "id": "d5c7964a565f472eaeca01aeecba91e3",
+  "name": "Native profile loading acceptance",
+  "task": "NON-RESEARCH native resource loading acceptance. Do not retrieve web pages or call browser. Run only `python -B /home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/profile-probe.py` through ordinary tools. Verify cwd/root exact /home/balauru/.pi-profiles/fabric and inherited PI_CODING_AGENT_DIR exact same path. Never access /home/balauru/.pi/agent, credentials or installed dependency contents. No writes or modifications. Return actual profile output summarized plus all tools actually exposed to you in native tool schemas, distinguishing registered from usable (none executed except bash). Stop after one shell call; no agents. If profile mismatch abort immediately.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-6-astra",
+  "thinking": "high",
+  "startedAt": 1788611008168,
+  "updatedAt": 1788611030852,
+  "turns": 2,
+  "toolCalls": 1,
+  "text": "{\n  \"profile\": \"/home/balauru/.pi-profiles/fabric\",\n  \"tools\": [\n    \"functions.read\",\n    \"functions.bash\",\n    \"functions.web_search\",\n    \"functions.fetch_content\",\n    \"functions.get_search_content\",\n    \"functions.source_check\",\n    \"functions.browser\",\n    \"multi_tool_use.parallel\"\n  ],\n  \"diagnostics\": \"Executed only the requested command in one bash call. Probe confirms inherited PI_CODING_AGENT_DIR exactly matches the profile for Python and five Pi/Node ancestors; two further ancestors omit it. No profile mismatch observed. Cwd/root matches supplied context but is not independently verified by probe output. Listed tools are registered native schemas; only bash was executed and demonstrated usable. Others remain untested. fabric_exec is not exposed. No additional calls, agents, web retrieval, or modifications.\"\n}",
+  "usage": {
+    "input": 7755,
+    "output": 326,
+    "cacheRead": 6912,
+    "cacheWrite": 0,
+    "cost": 0.100762
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788611030852,
+  "value": {
+    "profile": "/home/balauru/.pi-profiles/fabric",
+    "tools": [
+      "functions.read",
+      "functions.bash",
+      "functions.web_search",
+      "functions.fetch_content",
+      "functions.get_search_content",
+      "functions.source_check",
+      "functions.browser",
+      "multi_tool_use.parallel"
+    ],
+    "diagnostics": "Executed only the requested command in one bash call. Probe confirms inherited PI_CODING_AGENT_DIR exactly matches the profile for Python and five Pi/Node ancestors; two further ancestors omit it. No profile mismatch observed. Cwd/root matches supplied context but is not independently verified by probe output. Listed tools are registered native schemas; only bash was executed and demonstrated usable. Others remain untested. fabric_exec is not exposed. No additional calls, agents, web retrieval, or modifications."
+  },
+  "logFile": "/tmp/pi-fabric-runs-q6CmuH/9ac67fd06e68473e9cfcbecf5ba7bb8c/nested/d5c7964a565f472eaeca01aeecba91e3/events.jsonl",
+  "sessionId": "360298"
+}

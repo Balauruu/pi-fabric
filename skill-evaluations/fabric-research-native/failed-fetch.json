@@ -1,0 +1,26 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Error: Failed to resolve fabric-research-acceptance.invalid: getaddrinfo ENOTFOUND fabric-research-acceptance.invalid"
+    }
+  ],
+  "text": "Error: Failed to resolve fabric-research-acceptance.invalid: getaddrinfo ENOTFOUND fabric-research-acceptance.invalid",
+  "details": {
+    "urls": [
+      "https://fabric-research-acceptance.invalid/unavailable"
+    ],
+    "urlCount": 1,
+    "successful": 0,
+    "error": "Failed to resolve fabric-research-acceptance.invalid: getaddrinfo ENOTFOUND fabric-research-acceptance.invalid",
+    "responseId": "mtocvpthj3ae5n"
+  },
+  "isError": false,
+  "source": {
+    "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access/index.ts",
+    "source": "npm:pi-web-access",
+    "scope": "user",
+    "origin": "package",
+    "baseDir": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access"
+  }
+}

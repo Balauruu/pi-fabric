@@ -1,0 +1,14 @@
+{
+  "intent": "opinion",
+  "freshness_mode": "strict_recent",
+  "cluster_mode": "debate",
+  "subqueries": [
+    {
+      "label": "sqlite-reliability-hn",
+      "search_query": "SQLite reliability corruption WAL",
+      "ranking_query": "What does Hacker News discuss about SQLite database reliability, durability, corruption, WAL recovery and production failure modes in the seven-day sample ending 2026-09-05? Exclude unrelated databases except explicit SQLite comparisons; distinguish practitioner claims from measured reliability.",
+      "sources": ["hackernews"],
+      "weight": 1.0
+    }
+  ]
+}

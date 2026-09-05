@@ -1,0 +1,362 @@
+[
+  {
+    "id": 49517893,
+    "author": "grebc",
+    "created_at": "2026-09-01T04:16:37.000Z",
+    "text": "Did I read that correctly that there\u2019s no WAL?"
+  },
+  {
+    "id": 49517937,
+    "author": "anon291",
+    "created_at": "2026-09-01T04:25:55.000Z",
+    "text": "I let agents do their things but I would not trust them with my data without extensive validation. A database efforts main product is not exotic data structures but validation."
+  },
+  {
+    "id": 49518162,
+    "author": "Joel_Mckay",
+    "created_at": "2026-09-01T05:02:44.000Z",
+    "text": "One of the reasons SQLite was mostly stable over the years was it sand-boxed its closed developer environment, and clearly defined the project scope. While controversial, they did not have to deal with common accountability issues associated with screening anonymous malicious and or incompetent clown PR. =3 https://www.youtube.com/watch?v=T4Upf_B9RLQ"
+  },
+  {
+    "id": 49518304,
+    "author": "WatchDog",
+    "created_at": "2026-09-01T05:31:15.000Z",
+    "text": "So the main feature of this project is that it's easy to fork a database, however it's 1.2x to 4x slower than sqlite, and it's level of testing and validation will be nothing like sqlite. The simple way to fork a sqlite db is just to copy it, but if that is too slow you could use it with a copy on write filesystem, either something native, a FUSE filesystem, or build a sqlite VFS. That would probably be faster to build, faster to run, and easier to validate."
+  },
+  {
+    "id": 49518772,
+    "author": "IanCal",
+    "created_at": "2026-09-01T06:47:43.000Z",
+    "text": "> however it's 1.2x to 4x slower than sqlite No? Where are you getting those figures? It feels like you may have pulled that from the 125 and 400 us numbers? > The simple way to fork a sqlite db is just to copy it, but if that is too slow you could use it with a copy on write filesystem, either something native, a FUSE filesystem, or build a sqlite VFS. That wouldn\u2019t really solve what dolt does though. > and it's level of testing and validation will be nothing like sqlite. They\u2019re using the other dolt tests as well as the SQLite tests. Nothing will hit the level of real world testing SQLite does."
+  },
+  {
+    "id": 49518792,
+    "author": "WatchDog",
+    "created_at": "2026-09-01T06:51:54.000Z",
+    "text": "> Where are you getting those figures? https://www.dolthub.com/blog/2026-06-08-how-fast-is-doltlite..."
+  },
+  {
+    "id": 49519234,
+    "author": "gunalx",
+    "created_at": "2026-09-01T07:52:03.000Z",
+    "text": "God that had a lot of llm'isms. Couldnt get through it with all the repeats and info bloat."
+  },
+  {
+    "id": 49523774,
+    "author": "alsetmusic",
+    "created_at": "2026-09-01T15:56:56.000Z",
+    "text": "Dunno if I'd have directly attributed the writing to LLMs had I not read this, but I wouldn't have opened the link otherwise. Holy crap, that reads just like the documentation / explainers that I have Claude write for future agents or to remind me what I had it do in the future."
+  },
+  {
+    "id": 49524052,
+    "author": "IanCal",
+    "created_at": "2026-09-01T16:15:10.000Z",
+    "text": "Ah yes so the 4x slower isn\u2019t really a real world case and you\u2019d have to explicitly measure yours - it\u2019s not a fixed slowdown but depends on table size - and it\u2019s for doing many many single inserts in a row, which you\u2019d be batching either way."
+  },
+  {
+    "id": 49524141,
+    "author": "Izkata",
+    "created_at": "2026-09-01T16:21:22.000Z",
+    "text": "That's probably why they gave a range in their original comment."
+  },
+  {
+    "id": 49543593,
+    "author": "IanCal",
+    "created_at": "2026-09-02T22:42:33.000Z",
+    "text": "Which isn\u2019t correct, either for real world cases or worst case linear inserts."
+  },
+  {
+    "id": 49545034,
+    "author": "WatchDog",
+    "created_at": "2026-09-03T01:49:31.000Z",
+    "text": "How is it not correct? Sure the benchmark does not measure a real world application, but I never claimed it was. Do you have a better benchmark to share? I thought I was being charitable by using a benchmark published by the database's own authors."
+  },
+  {
+    "id": 49519289,
+    "author": "ncruces",
+    "created_at": "2026-09-01T08:01:16.000Z",
+    "text": "It's easy to do a VFS that handles instant forking (snapshots). Here's an in-memory one I made (pretty useful for unit tests): https://github.com/ncruces/go-sqlite3/tree/main/vfs/mvcc The problem DoltLite solves is merging, not forking."
+  },
+  {
+    "id": 49520558,
+    "author": "OskarS",
+    "created_at": "2026-09-01T11:33:57.000Z",
+    "text": "> The simple way to fork a sqlite db is just to copy it SQLite recommends against doing that [1] while a transaction is active, because the copy might have some pre/post data in it which could potentially cause corruption. Presumably this isn't an issue with copy-on-write filesystems assuming they copy atomically, but I probably still wouldn't do it, instead use the backup API or VACUUM INTO (if nothing else, because VACUUM INTO will also obviously VACUUM the copy). If you're not attached/writing to it, then of course it's fine. [1]: https://www.sqlite.org/howtocorrupt.html#_backup_or_restore_..."
+  },
+  {
+    "id": 49526486,
+    "author": "nagaiaida",
+    "created_at": "2026-09-01T19:04:19.000Z",
+    "text": "if you don't trust something to survive an atomic filesystem snapshot, why would you trust it to survive sudden power loss?"
+  },
+  {
+    "id": 49533619,
+    "author": "OskarS",
+    "created_at": "2026-09-02T08:51:52.000Z",
+    "text": "That's what I'm saying, if you have a CoW filesystem, backing up with atomic snapshots is almost certainly fine, SQLite's advice against copying probably doesn't apply to that. But just typing `cp` in a terminal is probably not a good idea if a transaction is active (even if you're on a CoW filesystem, `cp` in experience usually isn't atomic without some flags)."
+  },
+  {
+    "id": 49518525,
+    "author": "vrighter",
+    "created_at": "2026-09-01T06:08:55.000Z",
+    "text": "Why would I trust my data to a vibe coded database, over a battle tested, tested to hell and back one?"
+  },
+  {
+    "id": 49518711,
+    "author": "dekelpilli",
+    "created_at": "2026-09-01T06:40:00.000Z",
+    "text": "Dolt has been around for 7 years[0]. Doltlite, like most software nowadays, has been touched by LLMs, but dismissing this project as \"vibe coded\" seems harsh [0] - https://www.dolthub.com/blog/2019-10-14-dolt-a-simple-exampl..."
+  },
+  {
+    "id": 49518797,
+    "author": "Skinney",
+    "created_at": "2026-09-01T06:52:36.000Z",
+    "text": "> Doltlite, like most software nowadays, has been touched by LLMs, but dismissing this project as \"vibe coded\" seems harsh From the article, at the end of the second paragraph: > Could a team of agents pull it off? It only took about 2,000 pull requests but DoltLite going Beta proves a team of agents certainly could. The first PR was merged March 17th. \"vibe coded\" seems pretty fitting"
+  },
+  {
+    "id": 49519570,
+    "author": "solarkraft",
+    "created_at": "2026-09-01T08:48:14.000Z",
+    "text": "If going through a strongly designed process with quality gates is vibe coding, I guess so. I thought the term was reserved fir \u201cclaude, make this happen\u201d style development and the term for the more professional approach was \u201cagentic development\u201d, though this seems to be another layer higher. Grouping it all under \u201cvibe coded\u201d loses precision. Sure, it uses AI, but differently from other projects and with different implications."
+  },
+  {
+    "id": 49520401,
+    "author": "louis-lau",
+    "created_at": "2026-09-01T11:11:51.000Z",
+    "text": "Agentic development still requires human review and human ownership of PRs. This is vibe coded. Seems precise to me."
+  },
+  {
+    "id": 49540531,
+    "author": "zachmu",
+    "created_at": "2026-09-02T18:40:48.000Z",
+    "text": "You can call it what you want I guess, but \"vibe coded\" around these parts is a simple pejorative, it means the authors don't know what the code does and the product is poor quality. Most successful agent-coded projects have a few essential features that it's worth calling out: 1) The human driving it has real domain expertise; 2) There's an oracle for correctness; 3) The agent has a real-world example to copy, adapt, or translate. This project had all these elements. The human driving the agent understood the technical and product decisions that make a version-controlled database work, because he's been doing that for 8 years. The project uses the existing 5.7M query test suite for SQLite3 as its oracle, as well as adapted versions of Dolt's extensive test suite to verify the version-control features that SQLite has no tests for. And the agent had a human-written implementation of the core product (Dolt) to crib from. All of this is to say: yes, agents wrote this code, but if you or another randomly chosen software engineer sat down and tried to duplicate this result you wouldn't succeed. You wouldn't know what the agent had gotten wrong at every step of development, or even what questions to ask to find out where the errors might be. Despite the existence of a correctness oracle, the agent on its own cannot iterate to 100% correctness without a domain expert steering it. And that expert also has to have an extensive understanding of the existing code base that's being copied. You can't just say \"Claude, implement version control in SQLite3, make no mistakes\", it's not going to work."
+  },
+  {
+    "id": 49546544,
+    "author": "vrighter",
+    "created_at": "2026-09-03T06:24:01.000Z",
+    "text": "\"going beta\" is a human decision. It proves nothing. All it proves is that at some point someone looked at it and said \"good enough, ship it\". It says nothing about the quality of the unreviewed code."
+  },
+  {
+    "id": 49519258,
+    "author": "asaddhamani",
+    "created_at": "2026-09-01T07:54:50.000Z",
+    "text": "It is vibe coded. But worse. > Gas Town is for \u201cwrite-only code\u201d, \u2026 If you adopt Gas Town, you will lose the speed benefit of multiple agents if you read the code it produces. The first time you stare at an 8,500 line Git diff and try and parse what happened, you\u2019ve lost. Go back to a single Claude Code session. Gas Town isn\u2019t for you. So none of the code has even been read by the author, it\u2019s purposely overly verbose. \u201cTouched by LLMs\u201d seems to downplay just how vibe coded this is. I won\u2019t use this database for anything."
+  },
+  {
+    "id": 49519276,
+    "author": "throw234259",
+    "created_at": "2026-09-01T07:58:36.000Z",
+    "text": "Look at dev process (i did), this think is \"tested to hell\" and \"battle tested\". But the feedback loop was automated and accelerated. Instead of 1000 loops spread over 20 years, it had 1000 loops over a few months. Calling it \"vibe coded\" just shows something about you, not the project. It is not production ready yet, but that is not for fast ai dev or for technical reasons. It needs independent reviews, independent verification, and reputation."
+  },
+  {
+    "id": 49519326,
+    "author": "grebc",
+    "created_at": "2026-09-01T08:08:02.000Z",
+    "text": "Battle tested means deployed in production . So when you say battle tested earlier, and then not production ready later - which one is it?"
+  },
+  {
+    "id": 49519827,
+    "author": "esperent",
+    "created_at": "2026-09-01T09:32:26.000Z",
+    "text": "That's selling it short. You could deploy something to production in minutes. Battle tested implies it's been not only deployed, but heavily used in all kinds of scenarios, and in the case of sqlite, probably by millions of different apps. But anyway I assume that random name green account above is just a pro-vibe coding bot."
+  },
+  {
+    "id": 49520013,
+    "author": "grebc",
+    "created_at": "2026-09-01T10:09:07.000Z",
+    "text": "It\u2019s ridiculous how common the bots are becoming, then again Sam\u2019s put a lot of money on the line so can\u2019t be having bad vibes."
+  },
+  {
+    "id": 49519729,
+    "author": "postexitus",
+    "created_at": "2026-09-01T09:13:13.000Z",
+    "text": "This, from a 1 day old throwaway account, tells a lot."
+  },
+  {
+    "id": 49519769,
+    "author": "vrighter",
+    "created_at": "2026-09-01T09:22:01.000Z",
+    "text": "I don't trust AI testing. An automated loop == zero testing in my book."
+  },
+  {
+    "id": 49519988,
+    "author": "rurban",
+    "created_at": "2026-09-01T10:05:12.000Z",
+    "text": "Battle tested and tested to hell, maybe yes. But still horrible insecure architecture, with read-only access being able to write. And totally insecure full text search. https://github.com/rurban/hardsqlite"
+  },
+  {
+    "id": 49518538,
+    "author": "bawolff",
+    "created_at": "2026-09-01T06:10:34.000Z",
+    "text": "I don't understand why you would want this."
+  },
+  {
+    "id": 49518775,
+    "author": "IanCal",
+    "created_at": "2026-09-01T06:48:54.000Z",
+    "text": "A version controlled db? Have a look at dolts main page then, it\u2019s been around for some time - this is just adding an embedded version."
+  },
+  {
+    "id": 49519168,
+    "author": "bawolff",
+    "created_at": "2026-09-01T07:41:38.000Z",
+    "text": "I read it, and i think i understand even less than when i started."
+  },
+  {
+    "id": 49519346,
+    "author": "grebc",
+    "created_at": "2026-09-01T08:10:55.000Z",
+    "text": "They\u2019re probably a VC backed product in search of a solution."
+  },
+  {
+    "id": 49527079,
+    "author": "IanCal",
+    "created_at": "2026-09-01T19:44:29.000Z",
+    "text": "Version controlled data is a legitimate solution to actual problems."
+  },
+  {
+    "id": 49528428,
+    "author": "grebc",
+    "created_at": "2026-09-01T21:22:49.000Z",
+    "text": "Care to name them?"
+  },
+  {
+    "id": 49540267,
+    "author": "zachmu",
+    "created_at": "2026-09-02T18:20:49.000Z",
+    "text": "Here are some ideas https://www.dolthub.com/blog/2024-10-15-dolt-use-cases/"
+  },
+  {
+    "id": 49519732,
+    "author": "thesz",
+    "created_at": "2026-09-01T09:14:09.000Z",
+    "text": "There are filesystems (ZFS and btrfs) with snapshots and this feature can be used to version-control things. They both do copy-on-write and this is pretty close to what content-addressable storage would give you in terms of compression."
+  },
+  {
+    "id": 49523891,
+    "author": "IanCal",
+    "created_at": "2026-09-01T16:03:53.000Z",
+    "text": "With merging updates between branches?"
+  },
+  {
+    "id": 49524932,
+    "author": "thesz",
+    "created_at": "2026-09-01T17:17:35.000Z",
+    "text": "Physical or semantic merging?"
+  },
+  {
+    "id": 49543578,
+    "author": "IanCal",
+    "created_at": "2026-09-02T22:41:24.000Z",
+    "text": "Both."
+  },
+  {
+    "id": 49519782,
+    "author": "darkfloo",
+    "created_at": "2026-09-01T09:24:13.000Z",
+    "text": "What problems does a version controlled database solves that is not solved by proper table auditing ?"
+  },
+  {
+    "id": 49520467,
+    "author": "zmmmmm",
+    "created_at": "2026-09-01T11:22:55.000Z",
+    "text": "not having to implement proper table auditing?"
+  },
+  {
+    "id": 49521036,
+    "author": "timsehn",
+    "created_at": "2026-09-01T12:26:27.000Z",
+    "text": "For DoltLite in particular, push/pull/clone/fetch are an elegant solution to the local-first sync problem. You can use data conflicts instead of CRDTs. https://www.dolthub.com/blog/2026-04-27-why-doltlite/ In general, branch and merge seem to be required primitives for agentic writes. Would you let a coding agent change your code if it wasn't in Git? We think the same will apply to databases."
+  },
+  {
+    "id": 49519855,
+    "author": "1718627440",
+    "created_at": "2026-09-01T09:37:51.000Z",
+    "text": "If you want to take a version from a database, it's usually for backup. If you want different versions in your data, you put that IN the database. Manually merging different database versions does not sound too surprising. A VCS is useful for code, because plaintext lacks a version feature. This problem does not exist for databases, because you design the structure yourself."
+  },
+  {
+    "id": 49523879,
+    "author": "IanCal",
+    "created_at": "2026-09-01T16:03:28.000Z",
+    "text": "> If you want to take a version from a database, it's usually for backup. If you want different versions in your data, you put that IN the database. Manually merging different database versions does not sound too surprising. This is not primarily for backups and has been part of ml and ds work for a while. And more, but that\u2019s where I hit it. > This problem does not exist for databases, because you design the structure yourself. It is entirely possible to solve a lot of this in a more generic way, so that you don\u2019t have to solve it each time. That\u2019s what dolt is about. Here\u2019s a blog post from a few years ago with some use cases from actual users https://www.dolthub.com/blog/2024-10-15-dolt-use-cases/"
+  },
+  {
+    "id": 49525393,
+    "author": "zachmu",
+    "created_at": "2026-09-01T17:55:31.000Z",
+    "text": "You use it to write version-controlled applications, so that your structured table data gets the same collaboration and auditing benefits that your source code enjoys. This is a couple years of out date but should give you an idea for how it's being used in the real world. https://www.dolthub.com/blog/2024-10-15-dolt-use-cases/ For DoltLite, the big use case is embedded local-first development. It's a DB you can write to locally offline, then sync to a remote server when you have connectivity. Crucially, this works in both directions, and tolerates writes from multiple offline clients by merging their changes together."
+  },
+  {
+    "id": 49518544,
+    "author": "SipitenoMK",
+    "created_at": "2026-09-01T06:11:10.000Z",
+    "text": "Would be good, but why not to vibe code this database myself if I had a problem with my current database?"
+  },
+  {
+    "id": 49519530,
+    "author": "solarkraft",
+    "created_at": "2026-09-01T08:42:57.000Z",
+    "text": "You\u2019d have to do the relevant R&D and maintain the product."
+  },
+  {
+    "id": 49519553,
+    "author": "Sharlin",
+    "created_at": "2026-09-01T08:45:48.000Z",
+    "text": "\"But Claude does that for me\""
+  },
+  {
+    "id": 49518760,
+    "author": "vonnieda",
+    "created_at": "2026-09-01T06:46:53.000Z",
+    "text": "Psyched to see this! I've been working on my own similar thing that sucks and I don't want to - I want to write a local first music app that syncs across all my devices. This might get me there!"
+  },
+  {
+    "id": 49535581,
+    "author": "joelwallis",
+    "created_at": "2026-09-02T13:02:51.000Z",
+    "text": "Unrelated to the post \u2013 but if you're trying to build smt that \"magically syncs\" across devices, you'd like to use CouchDB (and it's front end companion, PouchDB). They solve this problem for you, and it's solved in a very, very reliable way for years! FWIW, search [and research] about offline-first apps. Lots of gems in this niche!"
+  },
+  {
+    "id": 49518788,
+    "author": "michelangelo",
+    "created_at": "2026-09-01T06:51:30.000Z",
+    "text": "Pre 2020 HN reading this would be stoked."
+  },
+  {
+    "id": 49520723,
+    "author": "sureglymop",
+    "created_at": "2026-09-01T11:54:31.000Z",
+    "text": "But post 2020 HN contains 70% AI related posts on the front page such that the moment it is revealed that something is connected to AI, the excitement seems to falter (understandably so)."
+  },
+  {
+    "id": 49519878,
+    "author": "nylonstrung",
+    "created_at": "2026-09-01T09:41:45.000Z",
+    "text": "Everything touching this ecosystem (Gas Town, Dolt, Beads) seems like the absolute nadir of vibecoded slop This specific community has been a Schelling point for some of the worst engineering practices I've ever seen and a desire to abstract away all details of code to LLM personas like the \"Refinery\" and \"Deacon\""
+  },
+  {
+    "id": 49520268,
+    "author": "oreally",
+    "created_at": "2026-09-01T10:55:52.000Z",
+    "text": "I'm a little more interested how they automated the process to such a degree. How do they do it? Subagents?"
+  },
+  {
+    "id": 49521056,
+    "author": "timsehn",
+    "created_at": "2026-09-01T12:28:57.000Z",
+    "text": "After about three weeks I hand drove three agents in parallel for 8-10 hours/day. There is very little automation."
+  },
+  {
+    "id": 49525133,
+    "author": "OutOfHere",
+    "created_at": "2026-09-01T17:33:38.000Z",
+    "text": "The biggest limitation I see is the absence of a Go client. I know this opens a can of worms, but using ncruces/wasm2go, or just coordinating with ncruces/go-sqlite3 might work."
+  },
+  {
+    "id": 49535554,
+    "author": "joelwallis",
+    "created_at": "2026-09-02T12:59:32.000Z",
+    "text": "It's wonderful to see people trying to fork SQLite in any way possible, to supposedly build a better product with AI, out of smt that's been built by seriously talented people for over 20 years. Kudos to the team behind SQLite. These people built smt absolutely amazing!"
+  }
+]

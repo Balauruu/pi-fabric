@@ -1,0 +1,35 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "As described in [RFC 2606](/go/rfc2606) and [RFC 6761](/go/rfc6761), a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer.\n\nWe provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production applications. While incidental traffic for incorrectly configured applications is expected, please do not design applications that require the example domains to have operating HTTP service.\n\n## Further Reading\n\n*   [IANA-managed Reserved Domains](/domains/reserved)\n\nLast revised 2017-05-13."
+    }
+  ],
+  "text": "As described in [RFC 2606](/go/rfc2606) and [RFC 6761](/go/rfc6761), a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer.\n\nWe provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production applications. While incidental traffic for incorrectly configured applications is expected, please do not design applications that require the example domains to have operating HTTP service.\n\n## Further Reading\n\n*   [IANA-managed Reserved Domains](/domains/reserved)\n\nLast revised 2017-05-13.",
+  "details": {
+    "urls": [
+      "https://www.iana.org/help/example-domains"
+    ],
+    "urlCount": 1,
+    "successful": 1,
+    "totalChars": 817,
+    "title": "Example Domains",
+    "responseId": "mtocval1pxyn8f",
+    "truncated": false,
+    "hasImage": false,
+    "imageCount": 0,
+    "mode": "readable",
+    "totalBytes": 817,
+    "totalLines": 9,
+    "shownBytes": 817,
+    "shownLines": 9
+  },
+  "isError": false,
+  "source": {
+    "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access/index.ts",
+    "source": "npm:pi-web-access",
+    "scope": "user",
+    "origin": "package",
+    "baseDir": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access"
+  }
+}

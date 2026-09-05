@@ -1,0 +1,34 @@
+{
+  "args": {
+    "query": "RFC 9110 section 15.5.11 HTTP 410 Gone likely permanent",
+    "workflow": "none"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "**HTTP 410 Gone** means the requested resource is no longer available at the origin server and the condition is **likely permanent**. If the server cannot determine permanence, it should use **404 Not Found** instead. A 410 is intended to signal that links should be removed, and it is heuristically cacheable unless overridden by method semantics or explicit cache controls. ([rfc-editor.org](https://www.rfc-editor.org/rfc/rfc9110.html?utm_source=openai))\n\n---\n\n**Sources:**\n1. RFC 9110: HTTP Semantics\n   https://www.rfc-editor.org/rfc/rfc9110.html\n\n2. https://www.rfc-editor.org/info/rfc9110/\n   https://www.rfc-editor.org/info/rfc9110/\n\n3. https://datatracker.ietf.org/doc/rfc9110/\n   https://datatracker.ietf.org/doc/rfc9110/\n\n4. https://datatracker.ietf.org/doc/html/rfc9110\n   https://datatracker.ietf.org/doc/html/rfc9110\n\n5. https://datatracker.ietf.org/doc/html/rfc9110.txt\n   https://datatracker.ietf.org/doc/html/rfc9110.txt\n\n6. https://www.iankduncan.com/projects/rfc-browser/9110\n   https://www.iankduncan.com/projects/rfc-browser/9110\n\n7. https://rfcinfo.com/rfc-9110/15-status-codes/\n   https://rfcinfo.com/rfc-9110/15-status-codes/\n\n8. https://httpwg.org/specs/rfc9110.html\n   https://httpwg.org/specs/rfc9110.html\n\n9. https://m.mirror.facebook.net/rfc/rfc9110.pdf\n   https://m.mirror.facebook.net/rfc/rfc9110.pdf\n\n10. https://www.greenbytes.de/tech/webdav/rfc9110-prince.pdf\n   https://www.greenbytes.de/tech/webdav/rfc9110-prince.pdf\n\n11. https://www.rfc-editor.org/rfc/rfc9110.pdf\n   https://www.rfc-editor.org/rfc/rfc9110.pdf\n\n12. https://www.rfc-editor.org/info/rfc7231/\n   https://www.rfc-editor.org/info/rfc7231/\n\n13. https://datatracker.ietf.org/doc/draft-ietf-httpbis-semantics/18/\n   https://datatracker.ietf.org/doc/draft-ietf-httpbis-semantics/18/\n\n14. https://greenbytes.de/tech/specs/rfc9110.html\n   https://greenbytes.de/tech/specs/rfc9110.html\n\n15. https://www.greenbytes.de/tech/webdav/rfc9110-firefox-print-as-pdf.pdf\n   https://www.greenbytes.de/tech/webdav/rfc9110-firefox-print-as-pdf.pdf\n\n16. https://formatkit.app/http-status-codes\n   https://formatkit.app/http-status-codes\n\n17. https://www.ietf.org/rfc/rfc9110.pdf\n   https://www.ietf.org/rfc/rfc9110.pdf\n\n18. https://en.wikipedia.org/wiki/List_of_HTTP_header_fields\n   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields\n\n\n---\nResults stored as responseId \"mtogl4a82lcdea\". Use get_search_content({ responseId: \"mtogl4a82lcdea\", queryIndex: 0 }) to retrieve them."
+      }
+    ],
+    "text": "**HTTP 410 Gone** means the requested resource is no longer available at the origin server and the condition is **likely permanent**. If the server cannot determine permanence, it should use **404 Not Found** instead. A 410 is intended to signal that links should be removed, and it is heuristically cacheable unless overridden by method semantics or explicit cache controls. ([rfc-editor.org](https://www.rfc-editor.org/rfc/rfc9110.html?utm_source=openai))\n\n---\n\n**Sources:**\n1. RFC 9110: HTTP Semantics\n   https://www.rfc-editor.org/rfc/rfc9110.html\n\n2. https://www.rfc-editor.org/info/rfc9110/\n   https://www.rfc-editor.org/info/rfc9110/\n\n3. https://datatracker.ietf.org/doc/rfc9110/\n   https://datatracker.ietf.org/doc/rfc9110/\n\n4. https://datatracker.ietf.org/doc/html/rfc9110\n   https://datatracker.ietf.org/doc/html/rfc9110\n\n5. https://datatracker.ietf.org/doc/html/rfc9110.txt\n   https://datatracker.ietf.org/doc/html/rfc9110.txt\n\n6. https://www.iankduncan.com/projects/rfc-browser/9110\n   https://www.iankduncan.com/projects/rfc-browser/9110\n\n7. https://rfcinfo.com/rfc-9110/15-status-codes/\n   https://rfcinfo.com/rfc-9110/15-status-codes/\n\n8. https://httpwg.org/specs/rfc9110.html\n   https://httpwg.org/specs/rfc9110.html\n\n9. https://m.mirror.facebook.net/rfc/rfc9110.pdf\n   https://m.mirror.facebook.net/rfc/rfc9110.pdf\n\n10. https://www.greenbytes.de/tech/webdav/rfc9110-prince.pdf\n   https://www.greenbytes.de/tech/webdav/rfc9110-prince.pdf\n\n11. https://www.rfc-editor.org/rfc/rfc9110.pdf\n   https://www.rfc-editor.org/rfc/rfc9110.pdf\n\n12. https://www.rfc-editor.org/info/rfc7231/\n   https://www.rfc-editor.org/info/rfc7231/\n\n13. https://datatracker.ietf.org/doc/draft-ietf-httpbis-semantics/18/\n   https://datatracker.ietf.org/doc/draft-ietf-httpbis-semantics/18/\n\n14. https://greenbytes.de/tech/specs/rfc9110.html\n   https://greenbytes.de/tech/specs/rfc9110.html\n\n15. https://www.greenbytes.de/tech/webdav/rfc9110-firefox-print-as-pdf.pdf\n   https://www.greenbytes.de/tech/webdav/rfc9110-firefox-print-as-pdf.pdf\n\n16. https://formatkit.app/http-status-codes\n   https://formatkit.app/http-status-codes\n\n17. https://www.ietf.org/rfc/rfc9110.pdf\n   https://www.ietf.org/rfc/rfc9110.pdf\n\n18. https://en.wikipedia.org/wiki/List_of_HTTP_header_fields\n   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields\n\n\n---\nResults stored as responseId \"mtogl4a82lcdea\". Use get_search_content({ responseId: \"mtogl4a82lcdea\", queryIndex: 0 }) to retrieve them.",
+    "details": {
+      "queries": [
+        "RFC 9110 section 15.5.11 HTTP 410 Gone likely permanent"
+      ],
+      "queryCount": 1,
+      "successfulQueries": 1,
+      "totalResults": 18,
+      "includeContent": false,
+      "fetchId": null,
+      "searchId": "mtogl4a82lcdea"
+    },
+    "isError": false,
+    "source": {
+      "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access/index.ts",
+      "source": "npm:pi-web-access",
+      "scope": "user",
+      "origin": "package",
+      "baseDir": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access"
+    }
+  }
+}

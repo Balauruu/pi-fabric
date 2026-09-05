@@ -1,0 +1,99 @@
+{
+  "startedAtUTC": "2026-09-05T08:36:37.386Z",
+  "runtime": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/bin/node",
+  "model": {
+    "provider": "openai-codex",
+    "id": "gpt-5.4",
+    "api": "openai-codex-responses"
+  },
+  "search": {
+    "status": "blocked",
+    "reason": "current-model HTTP 400; no browser/auth/CLI/provider fallback"
+  },
+  "worker": {
+    "status": "failed",
+    "report": null,
+    "terminalStatus": "failed-agent",
+    "lineage": [
+      {
+        "streamId": "heading",
+        "attempt": 1,
+        "agentId": "01a070b6-6e82-70f0-8d61-2eb66808fa4e",
+        "runnerSessionId": "01a070b6-6e82-70f0-8d61-2eb66808fa4e",
+        "execution": "pi-sdk-leaf",
+        "launch": {
+          "runner": "pi",
+          "execution": "sdk-in-process",
+          "recursive": false,
+          "extensions": false,
+          "cwd": "/home/balauru/.pi-profiles/fabric",
+          "tools": [
+            "research_fetch"
+          ],
+          "loadedExtensions": 0,
+          "loadedSkills": 0,
+          "persistentSession": false
+        },
+        "terminalStatus": "failed",
+        "serviceTimeMs": 1009,
+        "usage": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "cost": 0
+        },
+        "turns": 1,
+        "toolCalls": 0,
+        "maxRetrievalSteps": 1,
+        "retrievalLimitCompliance": "within-limit",
+        "outcomeStatus": "failed-agent",
+        "error": "Child failed; raw provider error suppressed"
+      }
+    ],
+    "usage": {
+      "children": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0
+      },
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "toolCalls": {
+      "children": 0,
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "observations": [
+      {
+        "toolNames": [
+          "research_fetch"
+        ],
+        "browserGuidanceAbsent": true,
+        "toolResults": []
+      }
+    ]
+  },
+  "checks": {
+    "parentActiveTools": [
+      "fabric_exec"
+    ],
+    "searchAuthCalls": 1,
+    "actualModelCompletions": 1,
+    "factories": 0,
+    "hosts": 0,
+    "browserRuns": 0,
+    "genericDispatches": 0
+  },
+  "limitations": [
+    "Hosted-search usage is not exposed by the public helper.",
+    "Child usage measures completion only, not parent or hosted-search usage.",
+    "No browser launched; not an OS sandbox."
+  ],
+  "status": "failed",
+  "failure": "Live probe failed at one actual-model standard worker: raw errors suppressed to protect authentication.",
+  "finishedAtUTC": "2026-09-05T08:36:40.179Z"
+}

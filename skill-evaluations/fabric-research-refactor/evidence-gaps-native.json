@@ -1,0 +1,28 @@
+{
+  "id": "4ae8ae754c884d10b26aedd3783cc565",
+  "name": "evidence gaps",
+  "task": "Use /home/balauru/.pi-profiles/fabric/skills/fabric-research/SKILL.md. Offline research synthesis exercise: retrieval and further agents are unavailable, so use only this supplied evidence packet. User asks whether A is faster than B for their large-production workload and whether either has independently verified reliability of 99.99%. Worker alpha supplied an accessible primary test passage at https://example.org/lab-a (fixture): 'On 100 small requests, A completed in 2 ms median and B in 3 ms median; single-threaded test, no large workload measured.' No retrieval timestamp or other workflow metadata was recorded. Worker beta supplied https://example.org/news-a and https://example.org/news-b, both quoting the same lab-a run, calling A universally faster. Worker gamma supplied an independent primary passage at https://example.org/lab-b (fixture): 'On 10 large batch requests, B completed in 20 ms median and A in 30 ms median; 16-thread setup.' Worker delta failed before returning anything. A vendor snippet claims 99.99% reliability at https://example.org/blocked (fixture), but the supporting source is inaccessible and no alternative was found. Give the user the best supported answer with limitations; no new files. These fixture URLs and passages are hypothetical evidence, not live external claims.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-6-astra",
+  "thinking": "high",
+  "startedAt": 1788616725911,
+  "updatedAt": 1788616754302,
+  "turns": 2,
+  "toolCalls": 1,
+  "text": "**The packet does not establish that A is faster for your large-production workload. Neither has independently verified 99.99% reliability in the supplied evidence.**\n\n| Primary evidence | Finding | Applicability |\n|---|---|---|\n| [Lab A](https://example.org/lab-a) | 100 small requests, single-threaded: A **2 ms**, B **3 ms** median | Supports A only for that test; no large workload measured. |\n| [Lab B](https://example.org/lab-b) | 10 large batch requests, 16 threads: B **20 ms**, A **30 ms** median | More relevant to large workloads and favors B, but too limited to establish production performance. |\n\nThese results concern different workloads and thread counts, so they should not be averaged or treated as a direct contradiction. [News A](https://example.org/news-a) and [News B](https://example.org/news-b) repeat Lab A’s run, not independent corroboration. Their “universally faster” claim exceeds its evidence.\n\n**Reliability:** The [vendor snippet](https://example.org/blocked) claims 99.99%, but its supporting source is inaccessible. It establishes neither independent verification nor a defined reliability metric, measurement period, or production applicability. This is missing evidence, not proof that either system falls below 99.99%.\n\n**Recommendation:** Treat B as the better-supported candidate for further large-workload testing, not a proven production winner. Settle the choice with a matched benchmark using your request mix, concurrency, hardware, and versions, measuring throughput, median/tail latency, and errors. Reliability needs an accessible independent assessment with a defined metric and observation period.\n\nLimitations: Lab A lacks retrieval/workflow metadata, which limits provenance tracking but does not negate its supplied passage. Worker delta returned no evidence; further retrieval is unavailable. All findings above use only the hypothetical packet.",
+  "usage": {
+    "input": 4798,
+    "output": 433,
+    "cacheRead": 3584,
+    "cacheWrite": 0,
+    "cost": 0.073214
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788616754302,
+  "logFile": "/tmp/pi-fabric-runs-vS8xyI/4ae8ae754c884d10b26aedd3783cc565/events.jsonl",
+  "sessionId": "511575"
+}

@@ -1,0 +1,40 @@
+✔ current-model uses only the host Pi auth capability and official HTTP search (8.563985ms)
+✔ current-model never reads web-search config or calls process/browser/credential commands (0.940397ms)
+✔ closed search schema and runtime inputs reject every override before auth or HTTP (0.787011ms)
+✔ unsupported endpoints/models and unavailable host auth visibly block without fallback or leaked errors (1.225679ms)
+✔ Codex uses the fixed endpoint and bound host capability, never supplied leaf context (0.924672ms)
+✔ HTTP/auth response errors, invalid output and cancellation are sanitized with no retry (2.039577ms)
+✔ inherited pi-web-access proxy scope is disabled without reading proxy config or invoking curl (0.802276ms)
+✔ red-capable baseline: installed BetterWright leaks prompt and permits dispatch (450.850257ms)
+✔ default rejects every browser tool before factory or host creation; coding bash works (12.152603ms)
+✔ explicit confirmed QA enables real BetterWright definitions and prompt; off scrubs metadata (6.012793ms)
+✔ production local entry lazy-imports the installed factory only for QA registration, without executing tools (15.94833ms)
+✔ no agent boolean, child, non-TUI or declined confirmation can grant QA (19.1765ms)
+✔ mentions do not activate; actual input skill invocation locks all subsequent recovery turns (6.896446ms)
+✔ SDK canonical expanded skill activates; reload/resume and tree cannot clear research (17.348812ms)
+✔ known and legacy coding resume retain shell but never QA; exit only creates new session (18.435417ms)
+✔ actual Fabric loader/capture/QuickJS dispatch respects QA revocation and exposes generic preflight gap safely (920.353539ms)
+✔ actual AgentSession.prompt expands the installed research skill and revokes QA before any model work (14.746313ms)
+✔ settings package filtering plus actual Pi resource loader loads local wrapper, not raw BetterWright (9.282949ms)
+✔ coarse-denial regression: exact fixed gateway runs through actual Fabric while other programs do not (24.521302ms)
+✔ launcher inputs and executable source closure are closed, drift blocks every entry (6.143511ms)
+✔ direct typed file operations and unsupported effect outcomes retain zero-child receipt (46.184178ms)
+✔ offline HTTP retrieval through real Fabric gateway; task and request strings are never evald (28.929422ms)
+✔ actual live ordinary HTTP fetch through research gateway, no browser or model (93.306563ms)
+✔ retrieval rejects private targets, alternate providers, config and executable knobs (1.40736ms)
+✔ current-model direct and actual SDK worker search bind host Pi auth through the exact Fabric gateway (77.652469ms)
+✔ standard and mixed workflow use actual isolated Pi SDK children and safe loaded tools (72.926151ms)
+✔ all-current-field has terminal blocked receipt and zero children; unsafe manifests cannot widen grants (51.779375ms)
+✔ child attempts to call a browser are unavailable, never a hidden fallback (28.372964ms)
+✔ missing credentials visibly block and vetted Brave API succeeds with offline HTTP in a sterile environment (78.787181ms)
+✔ legacy v1 coding migration retains actual Fabric; real prior invocation restores restriction (24.716571ms)
+✔ startup drift leaves the guard and ordinary coding functional but never imports the drifted body (46.277249ms)
+✔ one targeted retry retains both real child receipts (38.050719ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2443.413722

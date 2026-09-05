@@ -1,0 +1,331 @@
+{
+  "source": "agents.log owner-held finalized traces; 426 paginated API reads, no session-file scraping",
+  "coordinator": "9ac67fd06e68473e9cfcbecf5ba7bb8c",
+  "completeToolStarts": 60,
+  "completeToolEnds": 60,
+  "finalizedTracesDroppedOperations": 0,
+  "oversizedRedundantSnapshotsSkipped": [
+    {
+      "offset": 33702390,
+      "originalChars": 8225512
+    },
+    {
+      "offset": 26536612,
+      "originalChars": 2164876
+    },
+    {
+      "offset": 25628348,
+      "originalChars": 2021929
+    }
+  ],
+  "direct": {
+    "outerCalls": 3,
+    "childDispatches": 0,
+    "browserInvocations": 0,
+    "responseId": "mtocuw8c11xs6l",
+    "selectedProvider": "exa",
+    "searchModel": "not exposed by Exa search; no model override or model-completion attribution claimed"
+  },
+  "canonical": {
+    "phases": [
+      "Preflight",
+      "Research",
+      "Account"
+    ],
+    "operations": [
+      {
+        "type": "call",
+        "sequence": 0,
+        "ref": "pi.write",
+        "provider": "pi",
+        "action": "write",
+        "args": {
+          "path": "skill-evaluations/fabric-research-native/live-manifest.json"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 1,
+        "ref": "pi.read",
+        "provider": "pi",
+        "action": "read",
+        "args": {
+          "path": "skills/fabric-research/scripts/workflow-program.js"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 2,
+        "ref": "fabric.workflow.configure",
+        "provider": "fabric",
+        "action": "workflow.configure",
+        "args": {
+          "name": "Independent research"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 3,
+        "ref": "fabric.workflow.phase",
+        "provider": "fabric",
+        "action": "workflow.phase",
+        "args": {
+          "name": "Preflight",
+          "total": 1
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 4,
+        "ref": "fabric.discovery.list",
+        "provider": "fabric",
+        "action": "discovery.list",
+        "args": {
+          "limit": 200,
+          "provider": "extensions"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 5,
+        "ref": "pi.read",
+        "provider": "pi",
+        "action": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skills/fabric-research/SKILL.md"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 6,
+        "ref": "pi.read",
+        "provider": "pi",
+        "action": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skills/fabric-research/references/stream-contracts.md"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 7,
+        "ref": "fabric.workflow.phase",
+        "provider": "fabric",
+        "action": "workflow.phase",
+        "args": {
+          "id": "research",
+          "name": "Research",
+          "total": 3
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 8,
+        "ref": "fabric.workflow.parallel",
+        "provider": "fabric",
+        "action": "workflow.parallel",
+        "args": {
+          "concurrency": 2,
+          "itemCount": 3,
+          "kind": "parallel"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 9,
+        "ref": "fabric.workflow.item",
+        "provider": "fabric",
+        "action": "workflow.item",
+        "args": {
+          "id": "iana-a1",
+          "kind": "task",
+          "phase": "research",
+          "status": "running"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 10,
+        "ref": "fabric.workflow.item",
+        "provider": "fabric",
+        "action": "workflow.item",
+        "args": {
+          "id": "sqlite-field-a1",
+          "kind": "task",
+          "phase": "research",
+          "status": "running"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 11,
+        "ref": "agents.run",
+        "provider": "agents",
+        "action": "run",
+        "args": {},
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 12,
+        "ref": "agents.run",
+        "provider": "agents",
+        "action": "run",
+        "args": {},
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 13,
+        "ref": "fabric.workflow.item",
+        "provider": "fabric",
+        "action": "workflow.item",
+        "args": {
+          "id": "iana-a1",
+          "kind": "task",
+          "phase": "research",
+          "status": "completed"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 14,
+        "ref": "fabric.workflow.item",
+        "provider": "fabric",
+        "action": "workflow.item",
+        "args": {
+          "id": "budget-boundary-a1",
+          "kind": "task",
+          "phase": "research",
+          "status": "running"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 15,
+        "ref": "agents.run",
+        "provider": "agents",
+        "action": "run",
+        "args": {},
+        "outcome": "failed",
+        "failureStage": "guard",
+        "error": "Call failed during guard: Fabric agent budget exhausted (2 per execution)"
+      },
+      {
+        "type": "call",
+        "sequence": 16,
+        "ref": "fabric.workflow.item",
+        "provider": "fabric",
+        "action": "workflow.item",
+        "args": {
+          "id": "budget-boundary-a1",
+          "kind": "task",
+          "phase": "research",
+          "status": "failed"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 17,
+        "ref": "fabric.workflow.item",
+        "provider": "fabric",
+        "action": "workflow.item",
+        "args": {
+          "id": "sqlite-field-a1",
+          "kind": "task",
+          "phase": "research",
+          "status": "completed"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 18,
+        "ref": "fabric.workflow.phase",
+        "provider": "fabric",
+        "action": "workflow.phase",
+        "args": {
+          "name": "Account",
+          "total": 1
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 19,
+        "ref": "fabric.workflow.event",
+        "provider": "fabric",
+        "action": "workflow.event",
+        "args": {
+          "level": "warning"
+        },
+        "outcome": "succeeded"
+      },
+      {
+        "type": "call",
+        "sequence": 20,
+        "ref": "pi.write",
+        "provider": "pi",
+        "action": "write",
+        "args": {
+          "path": "skill-evaluations/fabric-research-native/live-canonical-receipt.json"
+        },
+        "outcome": "succeeded"
+      }
+    ]
+  },
+  "researchBrowserInvocations": 0,
+  "separateNonResearchBrowserInvocations": [
+    {
+      "type": "call",
+      "sequence": 1,
+      "ref": "extensions.browser",
+      "provider": "extensions",
+      "action": "browser",
+      "args": {},
+      "outcome": "succeeded",
+      "outer": "call_SHu3JqvgwDrseV3gVolJCw1r|fc_0466fb9b973c36ee016a9c0d366d2487d2bb7452f38cc7866d",
+      "milestone": "NON-RESEARCH ordinary BetterWright probe"
+    }
+  ],
+  "allActualCallRefs": [
+    "pi.bash",
+    "pi.read",
+    "pi.ls",
+    "fabric.discovery.list",
+    "pi.grep",
+    "pi.find",
+    "fabric.discovery.describe",
+    "pi.write",
+    "agents.run",
+    "fabric.workflow.configure",
+    "fabric.workflow.phase",
+    "fabric.workflow.event",
+    "agents.log",
+    "extensions.web_search",
+    "extensions.fetch_content",
+    "extensions.source_check",
+    "extensions.get_search_content",
+    "fabric.workflow.parallel",
+    "fabric.workflow.item",
+    "memory.recall",
+    "memory.sessions",
+    "agents.self",
+    "agents.main",
+    "agents.steer",
+    "extensions.browser"
+  ]
+}

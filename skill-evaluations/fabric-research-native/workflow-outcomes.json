@@ -1,0 +1,12 @@
+[
+  {
+    "label": "restore native research",
+    "status": "completed",
+    "result": "Implemented steps 2-5 in all five files under `skills/fabric-research/`.\n\n- Restored native agents, retrieval tools, parallelism, progress and receipts.\n- Restored current-field engine worker with scoped artifacts and both browser opt-outs.\n- Kept one authoritative browser rule and accurate native budget semantics.\n- Added focused tests under `skill-evaluations/fabric-research-native/`.\n\n**Validation:** 13 tests passed; skill validator, syntax and whitespace checks passed.\n\nNo settings, dependencies, cleanup targets or protected files changed. No research/browser calls ran.\n\nMain still owns cleanup, restart and live acceptance. Details: `skill-evaluations/fabric-research-native/implementation-checks.md`."
+  },
+  {
+    "label": "native acceptance validation",
+    "status": "completed",
+    "result": "**PARTIAL acceptance.**\n\n- 20 tests passed: 13 prior mocked checks, 7 new live-evidence checks. Native typecheck passed.\n- Native multistream, failure retention, last30days and ordinary BetterWright worked.\n- Complete child transcripts show zero research browser calls.\n- Remaining: Main-owned coordinator trace audit, search provider/model provenance, and missing current-field retrieval timestamp.\n- Main TUI still needs user `/reload`.\n\nEvidence: `skill-evaluations/fabric-research-native/acceptance-ledger.md`.\n\nNo production edits made. Ledger records BetterWright’s automatic out-of-directory proof artifact exception."
+  }
+]

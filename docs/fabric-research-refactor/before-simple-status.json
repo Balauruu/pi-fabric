@@ -1,0 +1,29 @@
+{
+  "id": "a984da31ac8941ad83f344cb8ec6aa0f",
+  "name": "research-before-simple",
+  "task": "Use /home/balauru/.pi-profiles/fabric/skills/fabric-research/SKILL.md to research: What does HTTP 410 Gone mean, and is the condition likely permanent? Answer concisely with the authoritative RFC citation. Do not edit files or configuration. Only the Fabric profile is in scope.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-6-astra",
+  "thinking": "high",
+  "startedAt": 1788615805087,
+  "updatedAt": 1788615875746,
+  "turns": 6,
+  "toolCalls": 5,
+  "text": "**HTTP 410 Gone** means access to the target resource is no longer available at the origin server, and the condition is **likely permanent**, not guaranteed permanent. If permanence is unknown, the server ought to use **404 Not Found** instead.\n\nAuthoritative source: [RFC 9110 §15.5.11](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.11).",
+  "usage": {
+    "input": 36653,
+    "output": 885,
+    "cacheRead": 81664,
+    "cacheWrite": 0,
+    "cost": 0.49244400000000005
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788615875746,
+  "logFile": "/tmp/pi-fabric-runs-vS8xyI/a984da31ac8941ad83f344cb8ec6aa0f/events.jsonl",
+  "recursive": true,
+  "sessionId": "489928"
+}

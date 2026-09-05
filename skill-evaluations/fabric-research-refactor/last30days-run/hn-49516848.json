@@ -1,0 +1,956 @@
+{
+  "url": "https://hn.algolia.com/api/v1/items/49516848",
+  "hn_url": "https://news.ycombinator.com/item?id=49516848",
+  "retrieved_at": "2026-09-05T14:02:26.978502+00:00",
+  "status": 200,
+  "data": {
+    "author": "lbw1215",
+    "children": [
+      {
+        "author": "grebc",
+        "children": [],
+        "created_at": "2026-09-01T04:16:37.000Z",
+        "created_at_i": 1788236197,
+        "id": 49517893,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "Did I read that correctly that there\u2019s no WAL?",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "anon291",
+        "children": [
+          {
+            "author": "Joel_Mckay",
+            "children": [],
+            "created_at": "2026-09-01T05:02:44.000Z",
+            "created_at_i": 1788238964,
+            "id": 49518162,
+            "options": [],
+            "parent_id": 49517937,
+            "points": null,
+            "story_id": 49516848,
+            "text": "One of the reasons SQLite was mostly stable over the years was it sand-boxed its closed developer environment, and clearly defined the project scope.  While controversial, they did not have to deal with common accountability issues associated with screening anonymous malicious and or incompetent clown PR. =3<p><a href=\"https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=T4Upf_B9RLQ\" rel=\"nofollow\">https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=T4Upf_B9RLQ</a>",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T04:25:55.000Z",
+        "created_at_i": 1788236755,
+        "id": 49517937,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "I let agents do their things but I would not trust them with my data without extensive validation. A database efforts main product is not exotic data structures but validation.",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "WatchDog",
+        "children": [
+          {
+            "author": "IanCal",
+            "children": [
+              {
+                "author": "WatchDog",
+                "children": [
+                  {
+                    "author": "gunalx",
+                    "children": [
+                      {
+                        "author": "alsetmusic",
+                        "children": [],
+                        "created_at": "2026-09-01T15:56:56.000Z",
+                        "created_at_i": 1788278216,
+                        "id": 49523774,
+                        "options": [],
+                        "parent_id": 49519234,
+                        "points": null,
+                        "story_id": 49516848,
+                        "text": "Dunno if I&#x27;d have directly attributed the writing to LLMs had I not read this, but I wouldn&#x27;t have opened the link otherwise. Holy crap, that reads just like the documentation &#x2F; explainers that I have Claude write for future agents or to remind me what I had it do in the future.",
+                        "title": null,
+                        "type": "comment",
+                        "url": null
+                      }
+                    ],
+                    "created_at": "2026-09-01T07:52:03.000Z",
+                    "created_at_i": 1788249123,
+                    "id": 49519234,
+                    "options": [],
+                    "parent_id": 49518792,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "God that had a lot of llm&#x27;isms. Couldnt get through it with all the repeats and info bloat.",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  },
+                  {
+                    "author": "IanCal",
+                    "children": [
+                      {
+                        "author": "Izkata",
+                        "children": [
+                          {
+                            "author": "IanCal",
+                            "children": [
+                              {
+                                "author": "WatchDog",
+                                "children": [],
+                                "created_at": "2026-09-03T01:49:31.000Z",
+                                "created_at_i": 1788400171,
+                                "id": 49545034,
+                                "options": [],
+                                "parent_id": 49543593,
+                                "points": null,
+                                "story_id": 49516848,
+                                "text": "How is it not correct?<p>Sure the benchmark does not measure a real world application, but I never claimed it was.<p>Do you have a better benchmark to share?<p>I thought I was being charitable by using a benchmark published by the database&#x27;s own authors.",
+                                "title": null,
+                                "type": "comment",
+                                "url": null
+                              }
+                            ],
+                            "created_at": "2026-09-02T22:42:33.000Z",
+                            "created_at_i": 1788388953,
+                            "id": 49543593,
+                            "options": [],
+                            "parent_id": 49524141,
+                            "points": null,
+                            "story_id": 49516848,
+                            "text": "Which isn\u2019t correct, either for real world cases or worst case linear inserts.",
+                            "title": null,
+                            "type": "comment",
+                            "url": null
+                          }
+                        ],
+                        "created_at": "2026-09-01T16:21:22.000Z",
+                        "created_at_i": 1788279682,
+                        "id": 49524141,
+                        "options": [],
+                        "parent_id": 49524052,
+                        "points": null,
+                        "story_id": 49516848,
+                        "text": "That&#x27;s probably why they gave a range in their original comment.",
+                        "title": null,
+                        "type": "comment",
+                        "url": null
+                      }
+                    ],
+                    "created_at": "2026-09-01T16:15:10.000Z",
+                    "created_at_i": 1788279310,
+                    "id": 49524052,
+                    "options": [],
+                    "parent_id": 49518792,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "Ah yes so the 4x slower isn\u2019t really a real world case and you\u2019d have to explicitly measure yours - it\u2019s not a fixed slowdown but depends on table size - and it\u2019s for doing many many single inserts in a row, which you\u2019d be batching either way.",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T06:51:54.000Z",
+                "created_at_i": 1788245514,
+                "id": 49518792,
+                "options": [],
+                "parent_id": 49518772,
+                "points": null,
+                "story_id": 49516848,
+                "text": "&gt; Where are you getting those figures?<p><a href=\"https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2026-06-08-how-fast-is-doltlite&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2026-06-08-how-fast-is-doltlite...</a>",
+                "title": null,
+                "type": "comment",
+                "url": null
+              }
+            ],
+            "created_at": "2026-09-01T06:47:43.000Z",
+            "created_at_i": 1788245263,
+            "id": 49518772,
+            "options": [],
+            "parent_id": 49518304,
+            "points": null,
+            "story_id": 49516848,
+            "text": "&gt; however it&#x27;s 1.2x to 4x slower than sqlite<p>No? Where are you getting those figures? It feels like you may have pulled that from the 125 and 400 us numbers?<p>&gt; The simple way to fork a sqlite db is just to copy it, but if that is too slow you could use it with a copy on write filesystem, either something native, a FUSE filesystem, or build a sqlite VFS.<p>That wouldn\u2019t really solve what dolt does though.<p>&gt; and it&#x27;s level of testing and validation will be nothing like sqlite.<p>They\u2019re using the other dolt tests as well as the SQLite tests. Nothing will hit the level of real world testing SQLite does.",
+            "title": null,
+            "type": "comment",
+            "url": null
+          },
+          {
+            "author": "ncruces",
+            "children": [],
+            "created_at": "2026-09-01T08:01:16.000Z",
+            "created_at_i": 1788249676,
+            "id": 49519289,
+            "options": [],
+            "parent_id": 49518304,
+            "points": null,
+            "story_id": 49516848,
+            "text": "It&#x27;s easy to do a VFS that handles instant forking (snapshots).<p>Here&#x27;s an in-memory one I made (pretty useful for unit tests): <a href=\"https:&#x2F;&#x2F;github.com&#x2F;ncruces&#x2F;go-sqlite3&#x2F;tree&#x2F;main&#x2F;vfs&#x2F;mvcc\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;ncruces&#x2F;go-sqlite3&#x2F;tree&#x2F;main&#x2F;vfs&#x2F;mvcc</a><p>The problem DoltLite solves is merging, not forking.",
+            "title": null,
+            "type": "comment",
+            "url": null
+          },
+          {
+            "author": "OskarS",
+            "children": [
+              {
+                "author": "nagaiaida",
+                "children": [
+                  {
+                    "author": "OskarS",
+                    "children": [],
+                    "created_at": "2026-09-02T08:51:52.000Z",
+                    "created_at_i": 1788339112,
+                    "id": 49533619,
+                    "options": [],
+                    "parent_id": 49526486,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "That&#x27;s what I&#x27;m saying, if you have a CoW filesystem, backing up with atomic snapshots is almost certainly fine, SQLite&#x27;s advice against copying probably doesn&#x27;t apply to that. But just typing `cp` in a terminal is probably not a good idea if a transaction is active (even if you&#x27;re on a CoW filesystem, `cp` in experience usually isn&#x27;t atomic without some flags).",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T19:04:19.000Z",
+                "created_at_i": 1788289459,
+                "id": 49526486,
+                "options": [],
+                "parent_id": 49520558,
+                "points": null,
+                "story_id": 49516848,
+                "text": "if you don&#x27;t trust something to survive an atomic filesystem snapshot, why would you trust it to survive sudden power loss?",
+                "title": null,
+                "type": "comment",
+                "url": null
+              }
+            ],
+            "created_at": "2026-09-01T11:33:57.000Z",
+            "created_at_i": 1788262437,
+            "id": 49520558,
+            "options": [],
+            "parent_id": 49518304,
+            "points": null,
+            "story_id": 49516848,
+            "text": "&gt; The simple way to fork a sqlite db is just to copy it<p>SQLite recommends against doing that [1] while a transaction is active, because the copy might have some pre&#x2F;post data in it which could potentially cause corruption. Presumably this isn&#x27;t an issue with copy-on-write filesystems assuming they copy atomically, but I probably still wouldn&#x27;t do it, instead use the backup API or VACUUM INTO (if nothing else, because VACUUM INTO will also obviously VACUUM the copy).<p>If you&#x27;re not attached&#x2F;writing to it, then of course it&#x27;s fine.<p>[1]: <a href=\"https:&#x2F;&#x2F;www.sqlite.org&#x2F;howtocorrupt.html#_backup_or_restore_while_a_transaction_is_active\" rel=\"nofollow\">https:&#x2F;&#x2F;www.sqlite.org&#x2F;howtocorrupt.html#_backup_or_restore_...</a>",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T05:31:15.000Z",
+        "created_at_i": 1788240675,
+        "id": 49518304,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "So the main feature of this project is that it&#x27;s easy to fork a database, however it&#x27;s 1.2x to 4x slower than sqlite, and it&#x27;s level of testing and validation will be nothing like sqlite.<p>The simple way to fork a sqlite db is just to copy it, but if that is too slow you could use it with a copy on write filesystem, either something native, a FUSE  filesystem, or build a sqlite VFS.<p>That would probably be faster to build, faster to run, and easier to validate.",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "vrighter",
+        "children": [
+          {
+            "author": "dekelpilli",
+            "children": [
+              {
+                "author": "Skinney",
+                "children": [
+                  {
+                    "author": "solarkraft",
+                    "children": [
+                      {
+                        "author": "louis-lau",
+                        "children": [
+                          {
+                            "author": "zachmu",
+                            "children": [],
+                            "created_at": "2026-09-02T18:40:48.000Z",
+                            "created_at_i": 1788374448,
+                            "id": 49540531,
+                            "options": [],
+                            "parent_id": 49520401,
+                            "points": null,
+                            "story_id": 49516848,
+                            "text": "You can call it what you want I guess, but &quot;vibe coded&quot; around these parts is a simple pejorative, it means the authors don&#x27;t know what the code does and the product is poor quality.<p>Most successful agent-coded projects have a few essential features that it&#x27;s worth calling out: 1) The human driving it has real domain expertise; 2) There&#x27;s an oracle for correctness; 3) The agent has a real-world example to copy, adapt, or translate.<p>This project had all these elements. The human driving the agent understood the technical and product decisions that make a version-controlled database work, because he&#x27;s been doing that for 8 years. The project uses the existing 5.7M query test suite for SQLite3 as its oracle, as well as adapted versions of Dolt&#x27;s extensive test suite to verify the version-control features that SQLite has no tests for. And the agent had a human-written implementation of the core product (Dolt) to crib from.<p>All of this is to say: yes, agents wrote this code, but if you or another randomly chosen software engineer sat down and tried to duplicate this result you wouldn&#x27;t succeed. You wouldn&#x27;t know what the agent had gotten wrong at every step of development, or even what questions to ask to find out where the errors might be. Despite the existence of a correctness oracle, the agent on its own cannot iterate to 100% correctness without a domain expert steering it. And that expert also has to have an extensive understanding of the existing code base that&#x27;s being copied. You can&#x27;t just say &quot;Claude, implement version control in SQLite3, make no mistakes&quot;, it&#x27;s not going to work.",
+                            "title": null,
+                            "type": "comment",
+                            "url": null
+                          }
+                        ],
+                        "created_at": "2026-09-01T11:11:51.000Z",
+                        "created_at_i": 1788261111,
+                        "id": 49520401,
+                        "options": [],
+                        "parent_id": 49519570,
+                        "points": null,
+                        "story_id": 49516848,
+                        "text": "Agentic development still requires human review and human ownership of PRs. This is vibe coded. Seems precise to me.",
+                        "title": null,
+                        "type": "comment",
+                        "url": null
+                      }
+                    ],
+                    "created_at": "2026-09-01T08:48:14.000Z",
+                    "created_at_i": 1788252494,
+                    "id": 49519570,
+                    "options": [],
+                    "parent_id": 49518797,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "If going through a strongly designed process with quality gates is vibe coding, I guess so. I thought the term was reserved fir \u201cclaude, make this happen\u201d style development and the term for the more professional approach was \u201cagentic development\u201d, though this seems to be another layer higher.<p>Grouping it all under \u201cvibe coded\u201d loses precision. Sure, it uses AI, but differently from other projects and with different implications.",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  },
+                  {
+                    "author": "vrighter",
+                    "children": [],
+                    "created_at": "2026-09-03T06:24:01.000Z",
+                    "created_at_i": 1788416641,
+                    "id": 49546544,
+                    "options": [],
+                    "parent_id": 49518797,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "&quot;going beta&quot; is a human decision. It proves nothing. All it proves is that at some point someone looked at it and said &quot;good enough, ship it&quot;. It says nothing about the quality of the unreviewed code.",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T06:52:36.000Z",
+                "created_at_i": 1788245556,
+                "id": 49518797,
+                "options": [],
+                "parent_id": 49518711,
+                "points": null,
+                "story_id": 49516848,
+                "text": "&gt; Doltlite, like most software nowadays, has been touched by LLMs, but dismissing this project as &quot;vibe coded&quot; seems harsh<p>From the article, at the end of the second paragraph:<p>&gt; Could a team of agents pull it off? It only took about 2,000 pull requests but DoltLite going Beta proves a team of agents certainly could.<p>The first PR was merged March 17th.<p>&quot;vibe coded&quot; seems pretty fitting",
+                "title": null,
+                "type": "comment",
+                "url": null
+              },
+              {
+                "author": "asaddhamani",
+                "children": [],
+                "created_at": "2026-09-01T07:54:50.000Z",
+                "created_at_i": 1788249290,
+                "id": 49519258,
+                "options": [],
+                "parent_id": 49518711,
+                "points": null,
+                "story_id": 49516848,
+                "text": "It is vibe coded.<p>But worse.<p>&gt; Gas Town is for \u201cwrite-only code\u201d, \u2026 If you adopt Gas Town, you will lose the speed benefit of multiple agents if you read the code it produces. The first time you stare at an 8,500 line Git diff and try and parse what happened, you\u2019ve lost. Go back to a single Claude Code session. Gas Town isn\u2019t for you.<p>So none of the code has even been read by the author, it\u2019s purposely overly verbose. \u201cTouched by LLMs\u201d seems to downplay just how vibe coded this is. I won\u2019t use this database for anything.",
+                "title": null,
+                "type": "comment",
+                "url": null
+              }
+            ],
+            "created_at": "2026-09-01T06:40:00.000Z",
+            "created_at_i": 1788244800,
+            "id": 49518711,
+            "options": [],
+            "parent_id": 49518525,
+            "points": null,
+            "story_id": 49516848,
+            "text": "Dolt has been around for 7 years[0]. Doltlite, like most software nowadays, has been touched by LLMs, but dismissing this project as &quot;vibe coded&quot; seems harsh<p>[0] - <a href=\"https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2019-10-14-dolt-a-simple-example&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2019-10-14-dolt-a-simple-exampl...</a>",
+            "title": null,
+            "type": "comment",
+            "url": null
+          },
+          {
+            "author": "throw234259",
+            "children": [
+              {
+                "author": "grebc",
+                "children": [
+                  {
+                    "author": "esperent",
+                    "children": [
+                      {
+                        "author": "grebc",
+                        "children": [],
+                        "created_at": "2026-09-01T10:09:07.000Z",
+                        "created_at_i": 1788257347,
+                        "id": 49520013,
+                        "options": [],
+                        "parent_id": 49519827,
+                        "points": null,
+                        "story_id": 49516848,
+                        "text": "It\u2019s ridiculous how common the bots are becoming, then again Sam\u2019s put a lot of money on the line so can\u2019t be having bad vibes.",
+                        "title": null,
+                        "type": "comment",
+                        "url": null
+                      }
+                    ],
+                    "created_at": "2026-09-01T09:32:26.000Z",
+                    "created_at_i": 1788255146,
+                    "id": 49519827,
+                    "options": [],
+                    "parent_id": 49519326,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "That&#x27;s selling it short. You could deploy something to production in minutes. Battle tested implies it&#x27;s been not only deployed, but heavily used in all kinds of scenarios, and in the case of sqlite, probably by millions of different apps.<p>But anyway I assume that random name green account above is just a pro-vibe coding bot.",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T08:08:02.000Z",
+                "created_at_i": 1788250082,
+                "id": 49519326,
+                "options": [],
+                "parent_id": 49519276,
+                "points": null,
+                "story_id": 49516848,
+                "text": "Battle tested means <i>deployed in production</i>.<p>So when you say battle tested earlier, and then not production ready later - which one is it?",
+                "title": null,
+                "type": "comment",
+                "url": null
+              },
+              {
+                "author": "postexitus",
+                "children": [],
+                "created_at": "2026-09-01T09:13:13.000Z",
+                "created_at_i": 1788253993,
+                "id": 49519729,
+                "options": [],
+                "parent_id": 49519276,
+                "points": null,
+                "story_id": 49516848,
+                "text": "This, from a 1 day old throwaway account, tells a lot.",
+                "title": null,
+                "type": "comment",
+                "url": null
+              },
+              {
+                "author": "vrighter",
+                "children": [],
+                "created_at": "2026-09-01T09:22:01.000Z",
+                "created_at_i": 1788254521,
+                "id": 49519769,
+                "options": [],
+                "parent_id": 49519276,
+                "points": null,
+                "story_id": 49516848,
+                "text": "I don&#x27;t trust AI testing. An automated loop == zero testing in my book.",
+                "title": null,
+                "type": "comment",
+                "url": null
+              }
+            ],
+            "created_at": "2026-09-01T07:58:36.000Z",
+            "created_at_i": 1788249516,
+            "id": 49519276,
+            "options": [],
+            "parent_id": 49518525,
+            "points": null,
+            "story_id": 49516848,
+            "text": "Look at dev process (i did), this think is &quot;tested to hell&quot; and &quot;battle tested&quot;.<p>But the feedback loop was automated and accelerated. Instead of 1000 loops spread over 20 years, it had 1000 loops over a few months.<p>Calling it &quot;vibe coded&quot; just shows something about you, not the project. It is not production ready yet, but that is not for fast ai dev or for technical reasons. It needs independent reviews, independent verification, and reputation.",
+            "title": null,
+            "type": "comment",
+            "url": null
+          },
+          {
+            "author": "rurban",
+            "children": [],
+            "created_at": "2026-09-01T10:05:12.000Z",
+            "created_at_i": 1788257112,
+            "id": 49519988,
+            "options": [],
+            "parent_id": 49518525,
+            "points": null,
+            "story_id": 49516848,
+            "text": "Battle tested and tested to hell, maybe yes. But still horrible insecure architecture, with read-only access being able to write. And totally insecure full text search. <a href=\"https:&#x2F;&#x2F;github.com&#x2F;rurban&#x2F;hardsqlite\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;rurban&#x2F;hardsqlite</a>",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T06:08:55.000Z",
+        "created_at_i": 1788242935,
+        "id": 49518525,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "Why would I trust my data to a vibe coded database, over a battle tested, tested to hell and back one?",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "bawolff",
+        "children": [
+          {
+            "author": "IanCal",
+            "children": [
+              {
+                "author": "bawolff",
+                "children": [
+                  {
+                    "author": "grebc",
+                    "children": [
+                      {
+                        "author": "IanCal",
+                        "children": [
+                          {
+                            "author": "grebc",
+                            "children": [
+                              {
+                                "author": "zachmu",
+                                "children": [],
+                                "created_at": "2026-09-02T18:20:49.000Z",
+                                "created_at_i": 1788373249,
+                                "id": 49540267,
+                                "options": [],
+                                "parent_id": 49528428,
+                                "points": null,
+                                "story_id": 49516848,
+                                "text": "Here are some ideas<p><a href=\"https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2024-10-15-dolt-use-cases&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2024-10-15-dolt-use-cases&#x2F;</a>",
+                                "title": null,
+                                "type": "comment",
+                                "url": null
+                              }
+                            ],
+                            "created_at": "2026-09-01T21:22:49.000Z",
+                            "created_at_i": 1788297769,
+                            "id": 49528428,
+                            "options": [],
+                            "parent_id": 49527079,
+                            "points": null,
+                            "story_id": 49516848,
+                            "text": "Care to name them?",
+                            "title": null,
+                            "type": "comment",
+                            "url": null
+                          }
+                        ],
+                        "created_at": "2026-09-01T19:44:29.000Z",
+                        "created_at_i": 1788291869,
+                        "id": 49527079,
+                        "options": [],
+                        "parent_id": 49519346,
+                        "points": null,
+                        "story_id": 49516848,
+                        "text": "Version controlled data is a legitimate solution to actual problems.",
+                        "title": null,
+                        "type": "comment",
+                        "url": null
+                      }
+                    ],
+                    "created_at": "2026-09-01T08:10:55.000Z",
+                    "created_at_i": 1788250255,
+                    "id": 49519346,
+                    "options": [],
+                    "parent_id": 49519168,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "They\u2019re probably a VC backed product in search of a solution.",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T07:41:38.000Z",
+                "created_at_i": 1788248498,
+                "id": 49519168,
+                "options": [],
+                "parent_id": 49518775,
+                "points": null,
+                "story_id": 49516848,
+                "text": "I read it, and i think i understand even less than when i started.",
+                "title": null,
+                "type": "comment",
+                "url": null
+              },
+              {
+                "author": "thesz",
+                "children": [
+                  {
+                    "author": "IanCal",
+                    "children": [
+                      {
+                        "author": "thesz",
+                        "children": [
+                          {
+                            "author": "IanCal",
+                            "children": [],
+                            "created_at": "2026-09-02T22:41:24.000Z",
+                            "created_at_i": 1788388884,
+                            "id": 49543578,
+                            "options": [],
+                            "parent_id": 49524932,
+                            "points": null,
+                            "story_id": 49516848,
+                            "text": "Both.",
+                            "title": null,
+                            "type": "comment",
+                            "url": null
+                          }
+                        ],
+                        "created_at": "2026-09-01T17:17:35.000Z",
+                        "created_at_i": 1788283055,
+                        "id": 49524932,
+                        "options": [],
+                        "parent_id": 49523891,
+                        "points": null,
+                        "story_id": 49516848,
+                        "text": "Physical or semantic merging?",
+                        "title": null,
+                        "type": "comment",
+                        "url": null
+                      }
+                    ],
+                    "created_at": "2026-09-01T16:03:53.000Z",
+                    "created_at_i": 1788278633,
+                    "id": 49523891,
+                    "options": [],
+                    "parent_id": 49519732,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "With merging updates between branches?",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T09:14:09.000Z",
+                "created_at_i": 1788254049,
+                "id": 49519732,
+                "options": [],
+                "parent_id": 49518775,
+                "points": null,
+                "story_id": 49516848,
+                "text": "There are filesystems (ZFS and btrfs) with snapshots and this feature can be used to version-control things. They both do copy-on-write and this is pretty close to what content-addressable storage would give you in terms of compression.",
+                "title": null,
+                "type": "comment",
+                "url": null
+              },
+              {
+                "author": "darkfloo",
+                "children": [
+                  {
+                    "author": "zmmmmm",
+                    "children": [],
+                    "created_at": "2026-09-01T11:22:55.000Z",
+                    "created_at_i": 1788261775,
+                    "id": 49520467,
+                    "options": [],
+                    "parent_id": 49519782,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "not having to implement proper table auditing?",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  },
+                  {
+                    "author": "timsehn",
+                    "children": [],
+                    "created_at": "2026-09-01T12:26:27.000Z",
+                    "created_at_i": 1788265587,
+                    "id": 49521036,
+                    "options": [],
+                    "parent_id": 49519782,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "For DoltLite in particular, push&#x2F;pull&#x2F;clone&#x2F;fetch are an elegant solution to the local-first sync problem. You can use data conflicts instead of CRDTs.<p><a href=\"https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2026-04-27-why-doltlite&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2026-04-27-why-doltlite&#x2F;</a><p>In general, branch and merge seem to be required primitives for agentic writes. Would you let a coding agent change your code if it wasn&#x27;t in Git? We think the same will apply to databases.",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T09:24:13.000Z",
+                "created_at_i": 1788254653,
+                "id": 49519782,
+                "options": [],
+                "parent_id": 49518775,
+                "points": null,
+                "story_id": 49516848,
+                "text": "What problems does a version controlled database solves that is not solved by proper table auditing ?",
+                "title": null,
+                "type": "comment",
+                "url": null
+              },
+              {
+                "author": "1718627440",
+                "children": [
+                  {
+                    "author": "IanCal",
+                    "children": [],
+                    "created_at": "2026-09-01T16:03:28.000Z",
+                    "created_at_i": 1788278608,
+                    "id": 49523879,
+                    "options": [],
+                    "parent_id": 49519855,
+                    "points": null,
+                    "story_id": 49516848,
+                    "text": "&gt; If you want to take a version from a database, it&#x27;s usually for backup. If you want different versions in your data, you put that IN the database. Manually merging different database versions does not sound too surprising.<p>This is not primarily for backups and has been part of ml and ds work for a while. And more, but that\u2019s where I hit it.<p>&gt; This problem does not exist for databases, because you design the structure yourself.<p>It is entirely possible to solve a lot of this in a more generic way, so that you don\u2019t have to solve it each time. That\u2019s what dolt is about.<p>Here\u2019s a blog post from a few years ago with some use cases from actual users<p><a href=\"https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2024-10-15-dolt-use-cases&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2024-10-15-dolt-use-cases&#x2F;</a>",
+                    "title": null,
+                    "type": "comment",
+                    "url": null
+                  }
+                ],
+                "created_at": "2026-09-01T09:37:51.000Z",
+                "created_at_i": 1788255471,
+                "id": 49519855,
+                "options": [],
+                "parent_id": 49518775,
+                "points": null,
+                "story_id": 49516848,
+                "text": "If you want to take a version from a database, it&#x27;s usually for backup.  If you want different versions in your data, you put that IN the database.  Manually merging different database versions does not sound too surprising.<p>A VCS is useful for code, because plaintext lacks a version feature.  This problem does not exist for databases, because you design the structure yourself.",
+                "title": null,
+                "type": "comment",
+                "url": null
+              }
+            ],
+            "created_at": "2026-09-01T06:48:54.000Z",
+            "created_at_i": 1788245334,
+            "id": 49518775,
+            "options": [],
+            "parent_id": 49518538,
+            "points": null,
+            "story_id": 49516848,
+            "text": "A version controlled db? Have a look at dolts main page then, it\u2019s been around for some time - this is just adding an embedded version.",
+            "title": null,
+            "type": "comment",
+            "url": null
+          },
+          {
+            "author": "zachmu",
+            "children": [],
+            "created_at": "2026-09-01T17:55:31.000Z",
+            "created_at_i": 1788285331,
+            "id": 49525393,
+            "options": [],
+            "parent_id": 49518538,
+            "points": null,
+            "story_id": 49516848,
+            "text": "You use it to write version-controlled applications, so that your structured table data gets the same collaboration and auditing benefits that your source code enjoys. This is a couple years of out date but should give you an idea for how it&#x27;s being used in the real world.<p><a href=\"https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2024-10-15-dolt-use-cases&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;www.dolthub.com&#x2F;blog&#x2F;2024-10-15-dolt-use-cases&#x2F;</a><p>For DoltLite, the big use case is embedded local-first development. It&#x27;s a DB you can write to locally offline, then sync to a remote server when you have connectivity. Crucially, this works in both directions, and tolerates writes from multiple offline clients by merging their changes together.",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T06:10:34.000Z",
+        "created_at_i": 1788243034,
+        "id": 49518538,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "I don&#x27;t understand why you would want this.",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "SipitenoMK",
+        "children": [
+          {
+            "author": "solarkraft",
+            "children": [
+              {
+                "author": "Sharlin",
+                "children": [],
+                "created_at": "2026-09-01T08:45:48.000Z",
+                "created_at_i": 1788252348,
+                "id": 49519553,
+                "options": [],
+                "parent_id": 49519530,
+                "points": null,
+                "story_id": 49516848,
+                "text": "&quot;But Claude does that for me&quot;",
+                "title": null,
+                "type": "comment",
+                "url": null
+              }
+            ],
+            "created_at": "2026-09-01T08:42:57.000Z",
+            "created_at_i": 1788252177,
+            "id": 49519530,
+            "options": [],
+            "parent_id": 49518544,
+            "points": null,
+            "story_id": 49516848,
+            "text": "You\u2019d have to do the relevant R&amp;D and maintain the product.",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T06:11:10.000Z",
+        "created_at_i": 1788243070,
+        "id": 49518544,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "Would be good, but why not to vibe code this database myself if I had a problem with my current database?",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "vonnieda",
+        "children": [
+          {
+            "author": "joelwallis",
+            "children": [],
+            "created_at": "2026-09-02T13:02:51.000Z",
+            "created_at_i": 1788354171,
+            "id": 49535581,
+            "options": [],
+            "parent_id": 49518760,
+            "points": null,
+            "story_id": 49516848,
+            "text": "Unrelated to the post \u2013 but if you&#x27;re trying to build smt that &quot;magically syncs&quot; across devices, you&#x27;d like to use CouchDB (and it&#x27;s front end companion, PouchDB). They solve this problem for you, and it&#x27;s solved in a very, very reliable way for years!<p>FWIW, search [and research] about offline-first apps. Lots of gems in this niche!",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T06:46:53.000Z",
+        "created_at_i": 1788245213,
+        "id": 49518760,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "Psyched to see this! I&#x27;ve been working on my own similar thing that sucks and I don&#x27;t want to - I want to write a local first music app that syncs across all my devices. This might get me there!",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "michelangelo",
+        "children": [
+          {
+            "author": "sureglymop",
+            "children": [],
+            "created_at": "2026-09-01T11:54:31.000Z",
+            "created_at_i": 1788263671,
+            "id": 49520723,
+            "options": [],
+            "parent_id": 49518788,
+            "points": null,
+            "story_id": 49516848,
+            "text": "But post 2020 HN contains 70% AI related posts on the front page such that the moment it is revealed that something is connected to AI, the excitement seems to falter (understandably so).",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T06:51:30.000Z",
+        "created_at_i": 1788245490,
+        "id": 49518788,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "Pre 2020 HN reading this would be stoked.",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "nylonstrung",
+        "children": [],
+        "created_at": "2026-09-01T09:41:45.000Z",
+        "created_at_i": 1788255705,
+        "id": 49519878,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "Everything touching this ecosystem (Gas Town, Dolt, Beads) seems like the absolute nadir of vibecoded slop<p>This specific community has been a Schelling point for some of the worst engineering practices I&#x27;ve ever seen and a desire to abstract away all details of code to LLM personas like the &quot;Refinery&quot; and &quot;Deacon&quot;",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "oreally",
+        "children": [
+          {
+            "author": "timsehn",
+            "children": [],
+            "created_at": "2026-09-01T12:28:57.000Z",
+            "created_at_i": 1788265737,
+            "id": 49521056,
+            "options": [],
+            "parent_id": 49520268,
+            "points": null,
+            "story_id": 49516848,
+            "text": "After about three weeks I hand drove three agents in parallel for 8-10 hours&#x2F;day. There is very little automation.",
+            "title": null,
+            "type": "comment",
+            "url": null
+          }
+        ],
+        "created_at": "2026-09-01T10:55:52.000Z",
+        "created_at_i": 1788260152,
+        "id": 49520268,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "I&#x27;m a little more interested how they automated the process to such a degree. How do they do it? Subagents?",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "OutOfHere",
+        "children": [],
+        "created_at": "2026-09-01T17:33:38.000Z",
+        "created_at_i": 1788284018,
+        "id": 49525133,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "The biggest limitation I see is the absence of a Go client. I know this opens a can of worms, but using ncruces&#x2F;wasm2go, or just coordinating with ncruces&#x2F;go-sqlite3 might work.",
+        "title": null,
+        "type": "comment",
+        "url": null
+      },
+      {
+        "author": "joelwallis",
+        "children": [],
+        "created_at": "2026-09-02T12:59:32.000Z",
+        "created_at_i": 1788353972,
+        "id": 49535554,
+        "options": [],
+        "parent_id": 49516848,
+        "points": null,
+        "story_id": 49516848,
+        "text": "It&#x27;s wonderful to see people trying to fork SQLite in any way possible, to supposedly build a better product with AI, out of smt that&#x27;s been built by seriously talented people for over 20 years.<p>Kudos to the team behind SQLite. These people built smt absolutely amazing!",
+        "title": null,
+        "type": "comment",
+        "url": null
+      }
+    ],
+    "created_at": "2026-09-01T01:25:40.000Z",
+    "created_at_i": 1788225940,
+    "id": 49516848,
+    "options": [],
+    "parent_id": null,
+    "points": 61,
+    "story_id": 49516848,
+    "text": null,
+    "title": "DoltLite: A SQLite fork with Git-style version control, built with 2k agent PRs",
+    "type": "story",
+    "url": "https://www.dolthub.com/blog/2026-08-31-doltlite-beta/"
+  }
+}

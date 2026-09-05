@@ -1,0 +1,21 @@
+✔ native dispatch, authoritative browser assignment, clocks and receipt fields (5.585938ms)
+✔ failed worker preserves successful sibling and native terminal receipt (1.287237ms)
+✔ one fresh targeted retry, not a rerun of successful siblings (1.379462ms)
+✔ current-field dispatches native engine worker with scoped artifacts and can retry (1.431117ms)
+✔ preflight and malformed manifests launch no workers (3.222044ms)
+✔ missing current-field artifact directory blocks only that stream (2.130168ms)
+✔ missing or foreign provenance is retained but cannot satisfy requirements (1.072255ms)
+✔ native budget refusal survives; token observation is not raw-run enforcement (1.117674ms)
+✔ concurrency stays bounded and only truly sole owners can retry (3.141722ms)
+✔ missing native telemetry remains unavailable, not zero-filled (1.126885ms)
+✔ native schema failure is retained without inventing validator paths or a retry (1.088092ms)
+✔ ordinary documented execution pattern runs the canonical source (2.161208ms)
+✔ documented direct retrieval uses configured tools and zero children (1.436528ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66.858522

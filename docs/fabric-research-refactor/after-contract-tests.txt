@@ -1,0 +1,12 @@
+✔ public Pi loader discovers one explicit-only skill without target diagnostics (446.481608ms)
+✔ current skill-owned Markdown links resolve, including last30days dependencies (0.678448ms)
+✔ current direct TS example compiles with Fabric and performs only a mocked search (213.949918ms)
+✔ no skill-owned program, legacy links, temporal fields or mandatory accounting contract (0.945532ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 706.543286

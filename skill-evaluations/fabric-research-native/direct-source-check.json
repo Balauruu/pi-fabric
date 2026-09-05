@@ -1,0 +1,83 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "# Source check: IANA example.com and example.org are maintained for documentation purposes and are not available for registration or transfer.\n\n**Status:** unclear (confidence 0.30)\n**Rationale:** Passages mention the claim's terms but contain no clear support or contradiction markers.\n\n## Sources\n1. [unknown] Source 1\n   https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.txt\n\nArtifact responseId: mtocvcm8rwujhm (retrievable via get_search_content)."
+    }
+  ],
+  "text": "# Source check: IANA example.com and example.org are maintained for documentation purposes and are not available for registration or transfer.\n\n**Status:** unclear (confidence 0.30)\n**Rationale:** Passages mention the claim's terms but contain no clear support or contradiction markers.\n\n## Sources\n1. [unknown] Source 1\n   https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.txt\n\nArtifact responseId: mtocvcm8rwujhm (retrievable via get_search_content).",
+  "details": {
+    "responseId": "mtocvcm8rwujhm",
+    "artifact": {
+      "id": "mtocvcm8rwujhm",
+      "type": "research",
+      "timestamp": 1788611104160,
+      "query": "IANA example.com and example.org are maintained for documentation purposes and are not available for registration or transfer.",
+      "sources": [
+        {
+          "rank": 1,
+          "url": "https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.txt",
+          "title": "Source 1",
+          "snippet": "",
+          "quality": "unknown",
+          "fetched": true,
+          "fetch_timestamp": 1788611104159,
+          "content_hash": "sha256:7f6560e1be181cfa2328c503fde177e9023a487d1becb0bae71f45f443031413"
+        }
+      ],
+      "passages": [
+        {
+          "passage_id": "p-1-1",
+          "source_url": "https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.txt",
+          "source_rank": 1,
+          "text": "Available Formats\n   [IMG]\n   CSV\n\n              Name                 Reference\n   alt.",
+          "extraction_span": {
+            "start": 601,
+            "end": 688
+          },
+          "content_hash": "sha256:25fb8b4201122d1fa262ec8d9a02dd4a2f7b0e63012bb28be7d4c979e2b498c7"
+        },
+        {
+          "passage_id": "p-1-2",
+          "source_url": "https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.txt",
+          "source_rank": 1,
+          "text": "[RFC9665]\n   example.",
+          "extraction_span": {
+            "start": 2033,
+            "end": 2054
+          },
+          "content_hash": "sha256:f52024ccdedb109fc666241da637ae7fa62bcb542fd38c9c95a96440ed07426c"
+        }
+      ],
+      "provider": "exa",
+      "summary": "IANA example.com and example.org are maintained for documentation purposes and are not available for registration or transfer.: resolver.arpa. [RFC9462]\n service.arpa. [RFC9665]\n example. [RFC6761]\n example.com. [RFC6761]\n example.net. [RFC6761]\n example.org. [RFC6761]\n invalid\nSource: Source 1 (https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.txt)",
+      "content_hash": "sha256:f8015fb1add91286f828cd9257409378f33b408afa9a37db18b63ca4c2b88e3e",
+      "filters": {
+        "domain_include": [
+          "iana.org"
+        ],
+        "domain_exclude": []
+      },
+      "claims": [
+        {
+          "claim": "IANA example.com and example.org are maintained for documentation purposes and are not available for registration or transfer.",
+          "status": "unclear",
+          "supporting_passages": [],
+          "contradicting_passages": [],
+          "rationale": "Passages mention the claim's terms but contain no clear support or contradiction markers.",
+          "confidence": 0.3
+        }
+      ]
+    },
+    "sourceCount": 1,
+    "passageCount": 2
+  },
+  "isError": false,
+  "source": {
+    "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access/index.ts",
+    "source": "npm:pi-web-access",
+    "scope": "user",
+    "origin": "package",
+    "baseDir": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access"
+  }
+}

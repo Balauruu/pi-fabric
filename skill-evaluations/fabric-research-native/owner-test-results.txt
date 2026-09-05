@@ -1,0 +1,6 @@
+First owner-trace run: 4 passed, 1 failed. The broad matcher found an unrelated startup /proc/1111/environ PermissionError.
+Inspected every failed native operation and its milestone before correcting the research-window boundary. The startup failure remains explicitly asserted, not hidden.
+Targeted rerun: node --test --test-name-pattern='sole coordinator browser' skill-evaluations/fabric-research-native/owner-evidence.test.mjs
+Result: 1 passed, 0 failed. Other four passing checks were not rerun unchanged.
+Combined owner checks: 5 passed. Overall: 13 deterministic + 7 live-evidence + 5 owner-trace = 25 passed.
+Owner starts/ends: 60/60; zero dropped finalized operations. Native search custom entry identifies Exa. One browser call belongs only to separate NON-RESEARCH acceptance; zero research browser calls.

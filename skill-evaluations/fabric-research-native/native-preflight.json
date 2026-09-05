@@ -1,0 +1,97 @@
+{
+  "status": "failed",
+  "outcomes": [
+    {
+      "id": "preflight",
+      "label": "Preflight",
+      "kind": "standard",
+      "status": "blocked-preflight",
+      "attempt": 0,
+      "diagnostic": {
+        "category": "preflight",
+        "message": "No existing retrieval tools are available.",
+        "jsonPath": "unavailable",
+        "keyword": "unavailable"
+      },
+      "candidateRequirementIds": [],
+      "incompleteEvidenceRows": 0,
+      "attemptReceipt": null
+    }
+  ],
+  "failures": [
+    {
+      "id": "preflight",
+      "label": "Preflight",
+      "kind": "standard",
+      "status": "blocked-preflight",
+      "attempt": 0,
+      "diagnostic": {
+        "category": "preflight",
+        "message": "No existing retrieval tools are available.",
+        "jsonPath": "unavailable",
+        "keyword": "unavailable"
+      },
+      "candidateRequirementIds": [],
+      "incompleteEvidenceRows": 0,
+      "attemptReceipt": null
+    }
+  ],
+  "attempts": [],
+  "requirementCandidates": [
+    {
+      "id": "r1",
+      "text": "No-tool preflight",
+      "required": true,
+      "evidenceStandard": "No dispatch",
+      "status": "unavailable",
+      "candidateStreams": []
+    }
+  ],
+  "researchReceipt": {
+    "route": "fabric",
+    "routeReason": "Preflight-only native execution",
+    "runStartedAtUTC": "2026-09-05T12:24:07.985Z",
+    "requestedAsOfUTC": null,
+    "temporalMode": "current",
+    "durationMs": 9,
+    "coverage": {
+      "planned": 1,
+      "terminal": 1,
+      "structurallyValid": 0,
+      "usable": 0,
+      "failed": 1,
+      "retryAttempts": 0
+    },
+    "dispatchAttempts": 0,
+    "unreceiptedAttempts": 0,
+    "lineage": [],
+    "failureCategories": {
+      "blocked-preflight": 1
+    },
+    "coordinatorRecovery": {
+      "status": "pending-main",
+      "actions": []
+    },
+    "usage": {
+      "children": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0
+      },
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "toolCalls": {
+      "children": 0,
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "capabilities": {
+      "hardPerAgentRetrievalLimit": false,
+      "schemaJsonPath": false,
+      "parentUsageInsideProgram": false
+    }
+  }
+}

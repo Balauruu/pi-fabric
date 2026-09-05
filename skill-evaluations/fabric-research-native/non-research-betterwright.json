@@ -1,0 +1,35 @@
+{
+  "text": "{\"ok\":true,\"result\":{\"pages\":[{\"type\":\"Page\",\"pageId\":\"page-1\",\"url\":\"about:blank\",\"title\":\"\",\"closed\":false}],\"url\":\"about:blank\",\"snapshot\":\"page page-1 about:blank\\n(no interactive elements)\",\"proof\":{\"kind\":\"proof\",\"path\":\"/home/balauru/.betterwright/artifacts/85b42e1702877c85/proof-1788611903441-ddbbd7.png\",\"media\":\"MEDIA:/home/balauru/.betterwright/artifacts/85b42e1702877c85/proof-1788611903441-ddbbd7.png\"}},\"artifacts\":[{\"kind\":\"proof\",\"path\":\"/home/balauru/.betterwright/artifacts/85b42e1702877c85/proof-1788611903441-ddbbd7.png\",\"media\":\"MEDIA:/home/balauru/.betterwright/artifacts/85b42e1702877c85/proof-1788611903441-ddbbd7.png\"}],\"profileMode\":\"persistent\",\"pages\":[{\"type\":\"Page\",\"pageId\":\"page-1\",\"url\":\"about:blank\",\"title\":\"\",\"closed\":false,\"active\":true}],\"durationMs\":1352.8,\"pi\":{\"step\":1,\"maxSteps\":null,\"remainingSteps\":null,\"budgetExhausted\":false}}",
+  "details": {
+    "step": 1,
+    "ok": true,
+    "durationMs": 1352.8,
+    "warnings": [],
+    "pages": [
+      {
+        "type": "Page",
+        "pageId": "page-1",
+        "url": "about:blank",
+        "title": "",
+        "closed": false,
+        "active": true
+      }
+    ],
+    "artifacts": [
+      {
+        "kind": "proof",
+        "path": "/home/balauru/.betterwright/artifacts/85b42e1702877c85/proof-1788611903441-ddbbd7.png",
+        "media": "MEDIA:/home/balauru/.betterwright/artifacts/85b42e1702877c85/proof-1788611903441-ddbbd7.png"
+      }
+    ],
+    "budgetExhausted": false
+  },
+  "isError": false,
+  "source": {
+    "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/betterwright/dist/src/pi-extension.js",
+    "source": "npm:betterwright",
+    "scope": "user",
+    "origin": "package",
+    "baseDir": "/home/balauru/.pi-profiles/fabric/npm/node_modules/betterwright"
+  }
+}

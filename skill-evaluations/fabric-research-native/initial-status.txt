@@ -1,0 +1,40 @@
+ M AGENTS.md
+ D docs/agent-benchmark-rework
+ M models-store.json
+ M npm/package-lock.json
+ M npm/package.json
+ M settings.json
+ D skills/BetterWright/.directory
+ D skills/BetterWright/browser/SKILL.md
+ D skills/BetterWright/full-stack-e2e-review/SKILL.md
+ M skills/agent-benchmarking/SKILL.md
+ M skills/agent-benchmarking/references/architecture.md
+ M skills/agent-benchmarking/references/evidence/decision-ledger.md
+ M skills/agent-benchmarking/references/evidence/external-research.md
+ M skills/agent-benchmarking/references/validation.md
+ M skills/agent-benchmarking/tests/test_helpers.py
+ M skills/agent-benchmarking/workflows/benchmark.source.ts
+ M skills/agent-benchmarking/workflows/benchmark.ts
+ M skills/fabric-research/SKILL.md
+ M skills/fabric-research/references/stream-contracts.md
+ M skills/fabric-research/references/synthesis-and-reporting.md
+ M skills/fabric-research/references/workflow-program.md
+ M skills/fabric-research/scripts/workflow-program.js
+?? .tmp-agent-benchmarking-wp0/
+?? docs/agent-benchmarking-refactor/
+?? docs/fabric-research-refactoring-plan.md
+?? docs/runtime-browser-policy/
+?? extensions/qa-browser/
+?? npm/README.md
+?? npm/patches/
+?? npm/tests/
+?? skill-evaluations/agent-benchmarking/minimum-version-r1-eVAB3c/
+?? skill-evaluations/agent-benchmarking/refactor-review-r1-ZRdCB8/
+?? skill-evaluations/fabric-research-browser-policy/
+?? skill-evaluations/fabric-research-native/
+?? skills/agent-benchmarking/requirements-models.txt
+?? skills/agent-benchmarking/requirements.txt
+?? skills/agent-benchmarking/schemas/public-result.schema.json
+?? skills/agent-benchmarking/schemas/spec.schema.json
+?? skills/agent-benchmarking/tests/fixtures/
+?? skills/agent-benchmarking/tests/test_refactor_baseline.py

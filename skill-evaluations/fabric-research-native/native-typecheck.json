@@ -1,0 +1,6 @@
+{
+  "source": "skills/fabric-research/scripts/workflow-program.js",
+  "compiler": "installed Fabric typeCheckFabricCode with native guestTypeDeclarations(true)",
+  "mocked": false,
+  "errors": []
+}

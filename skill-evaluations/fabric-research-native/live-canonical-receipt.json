@@ -1,0 +1,463 @@
+{
+  "status": "partial",
+  "outcomes": [
+    {
+      "id": "iana",
+      "label": "IANA primary",
+      "kind": "standard",
+      "status": "completed-usable",
+      "attempt": 1,
+      "report": {
+        "conclusion": "IANA confirms that example domains serve documentation purposes, may be used illustratively without prior coordination, and cannot be registered or transferred.",
+        "evidence": [
+          {
+            "requirementIds": [
+              "r1"
+            ],
+            "claim": "IANA maintains example domains for documentation and excludes them from registration or transfer.",
+            "finding": "Exact opening paragraph: “As described in RFC 2606 and RFC 6761, a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer.”",
+            "url": "https://www.iana.org/help/example-domains",
+            "status": "documented fact",
+            "confidence": "high",
+            "provenance": {
+              "sourceType": "Primary IANA documentation",
+              "locator": "Opening paragraph, sentences 1–3",
+              "publishedOrRevisedAt": "2017-05-13",
+              "retrievedAtUTC": "2026-09-05T12:28:56.446Z",
+              "method": "One fetch_content call to the assigned URL; inspected returned readable text. Timestamp uses the coordinator clock verbatim.",
+              "origin": "Internet Assigned Numbers Authority",
+              "temporalStatus": "current-only"
+            }
+          }
+        ],
+        "artifacts": [],
+        "contradictions": [],
+        "gaps": [
+          "Retrieval provider/model metadata was not exposed."
+        ],
+        "stopReason": "requirements-covered"
+      },
+      "candidateRequirementIds": [
+        "r1"
+      ],
+      "incompleteEvidenceRows": 0,
+      "unassignedEvidenceRows": 0,
+      "attemptReceipt": {
+        "streamId": "iana",
+        "attempt": 1,
+        "agentId": "2fd290b6f7fd4e4da0c63f9e5ed4bce9",
+        "runner": "pi",
+        "runnerSessionId": null,
+        "terminalStatus": "completed",
+        "serviceTimeMs": 22679,
+        "usage": {
+          "input": 6589,
+          "output": 367,
+          "cacheRead": 6016,
+          "cacheWrite": 0,
+          "cost": 0.090256
+        },
+        "turns": 2,
+        "toolCalls": 1,
+        "maxRetrievalSteps": 1,
+        "retrievalLimitCompliance": "unavailable",
+        "error": null
+      }
+    },
+    {
+      "id": "sqlite-field",
+      "label": "SQLite HN current-field",
+      "kind": "current-field",
+      "status": "completed-no-usable-evidence",
+      "attempt": 1,
+      "report": {
+        "conclusion": "r2 acceptance probe completed: exactly one real Hacker News-only engine run with quick depth, --days=7 and --as-of 2026-09-05. Exit 0; schema_version 1.2; source_status={\"hackernews\":\"ok\"}; six results. One dated thread supports sampling backup/recovery discussion, not a measured reliability conclusion. Three retrieval calls; no browser or retry. Main owns final interpretation.",
+        "evidence": [
+          {
+            "requirementIds": [
+              "r2"
+            ],
+            "claim": "The engine surfaced a recent HN discussion of SQLite backup/recovery and deployment safeguards.",
+            "finding": "Item 49501147 is dated 2026-08-30 in the engine cache, with 30 HN points and 14 comments. Direct HN retrieval confirms discussion of Litestream automatic restore, restore-time costs, and single-pod Recreate deployments to prevent concurrent database access. These are practitioner claims, not reliability measurements. Engine comment arrays were empty; discussion content came from the separate supplement. The author's OpenRun pitch and linked article share origin.",
+            "url": "https://news.ycombinator.com/item?id=49501147",
+            "status": "sourced claim",
+            "confidence": "medium",
+            "provenance": {
+              "sourceType": "Hacker News discussion via Algolia engine and direct retrieval",
+              "locator": "config/last-report.json: item_id 49501147; supplements.md",
+              "publishedOrRevisedAt": "2026-08-30",
+              "method": "One HN-only engine run followed by one supplement search and direct fetch_content of the discussion. Publication date from engine; native engagement corroborated by retrieved HN page.",
+              "origin": "HN submission by ajayvk linking openrun.dev/blog/litestream; discussion responses",
+              "temporalStatus": "current-only"
+            }
+          }
+        ],
+        "artifacts": [
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/plan.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/targeting.md",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/engine.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/stdout.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/stderr.log",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/exit-status.txt",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/raw/sqlite-database-reliability-raw.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/config/last-report.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/config/last-run.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/diagnostics.md",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/supplements.md"
+        ],
+        "contradictions": [
+          "Generic stderr claims 'Research quality: 4/5 core sources', but actual source_status and exported results contain only Hacker News. The generic message is not evidence of additional coverage."
+        ],
+        "gaps": [
+          "Engine dates span 2026-08-29 through 2026-09-05 inclusive despite window_days=7. This is not exact trailing-168-hour coverage or proof of the coordinator's intraday boundary, 2026-09-05T12:28:56.446Z.",
+          "Selected result has low engine relevance_score 0.0687. Direct retrieval supports reliability-adjacent discussion only; this small sample cannot establish SQLite reliability or community consensus.",
+          "Absolute publication date comes from engine metadata; readable HN retrieval exposes only a relative date. Individual commenter handles were absent from extracted content.",
+          "Host search provider/model unavailable. Engine cache exposes reasoning_provider=local, planner_model=deterministic and rerank_model=local-score; stderr confirms the supplied external plan."
+        ],
+        "stopReason": "requirements-covered"
+      },
+      "candidateRequirementIds": [],
+      "incompleteEvidenceRows": 1,
+      "unassignedEvidenceRows": 0,
+      "attemptReceipt": {
+        "streamId": "sqlite-field",
+        "attempt": 1,
+        "agentId": "254ad50ac5144924a61a20c8c66ce6e3",
+        "runner": "pi",
+        "runnerSessionId": null,
+        "terminalStatus": "completed",
+        "serviceTimeMs": 305980,
+        "usage": {
+          "input": 89756,
+          "output": 5156,
+          "cacheRead": 1681792,
+          "cacheWrite": 0,
+          "cost": 2.8371520000000006
+        },
+        "turns": 26,
+        "toolCalls": 25,
+        "maxRetrievalSteps": 4,
+        "retrievalLimitCompliance": "unavailable",
+        "error": null
+      }
+    },
+    {
+      "id": "budget-boundary",
+      "label": "Budget boundary",
+      "kind": "standard",
+      "status": "failed-budget",
+      "attempt": 1,
+      "diagnostic": {
+        "category": "failed-budget",
+        "message": "Fabric agent budget exhausted (2 per execution)",
+        "jsonPath": "unavailable",
+        "keyword": "unavailable"
+      },
+      "candidateRequirementIds": [],
+      "incompleteEvidenceRows": 0,
+      "attemptReceipt": null
+    }
+  ],
+  "attempts": [
+    {
+      "id": "iana",
+      "label": "IANA primary",
+      "kind": "standard",
+      "status": "completed-usable",
+      "attempt": 1,
+      "report": {
+        "conclusion": "IANA confirms that example domains serve documentation purposes, may be used illustratively without prior coordination, and cannot be registered or transferred.",
+        "evidence": [
+          {
+            "requirementIds": [
+              "r1"
+            ],
+            "claim": "IANA maintains example domains for documentation and excludes them from registration or transfer.",
+            "finding": "Exact opening paragraph: “As described in RFC 2606 and RFC 6761, a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer.”",
+            "url": "https://www.iana.org/help/example-domains",
+            "status": "documented fact",
+            "confidence": "high",
+            "provenance": {
+              "sourceType": "Primary IANA documentation",
+              "locator": "Opening paragraph, sentences 1–3",
+              "publishedOrRevisedAt": "2017-05-13",
+              "retrievedAtUTC": "2026-09-05T12:28:56.446Z",
+              "method": "One fetch_content call to the assigned URL; inspected returned readable text. Timestamp uses the coordinator clock verbatim.",
+              "origin": "Internet Assigned Numbers Authority",
+              "temporalStatus": "current-only"
+            }
+          }
+        ],
+        "artifacts": [],
+        "contradictions": [],
+        "gaps": [
+          "Retrieval provider/model metadata was not exposed."
+        ],
+        "stopReason": "requirements-covered"
+      },
+      "candidateRequirementIds": [
+        "r1"
+      ],
+      "incompleteEvidenceRows": 0,
+      "unassignedEvidenceRows": 0,
+      "attemptReceipt": {
+        "streamId": "iana",
+        "attempt": 1,
+        "agentId": "2fd290b6f7fd4e4da0c63f9e5ed4bce9",
+        "runner": "pi",
+        "runnerSessionId": null,
+        "terminalStatus": "completed",
+        "serviceTimeMs": 22679,
+        "usage": {
+          "input": 6589,
+          "output": 367,
+          "cacheRead": 6016,
+          "cacheWrite": 0,
+          "cost": 0.090256
+        },
+        "turns": 2,
+        "toolCalls": 1,
+        "maxRetrievalSteps": 1,
+        "retrievalLimitCompliance": "unavailable",
+        "error": null
+      }
+    },
+    {
+      "id": "sqlite-field",
+      "label": "SQLite HN current-field",
+      "kind": "current-field",
+      "status": "completed-no-usable-evidence",
+      "attempt": 1,
+      "report": {
+        "conclusion": "r2 acceptance probe completed: exactly one real Hacker News-only engine run with quick depth, --days=7 and --as-of 2026-09-05. Exit 0; schema_version 1.2; source_status={\"hackernews\":\"ok\"}; six results. One dated thread supports sampling backup/recovery discussion, not a measured reliability conclusion. Three retrieval calls; no browser or retry. Main owns final interpretation.",
+        "evidence": [
+          {
+            "requirementIds": [
+              "r2"
+            ],
+            "claim": "The engine surfaced a recent HN discussion of SQLite backup/recovery and deployment safeguards.",
+            "finding": "Item 49501147 is dated 2026-08-30 in the engine cache, with 30 HN points and 14 comments. Direct HN retrieval confirms discussion of Litestream automatic restore, restore-time costs, and single-pod Recreate deployments to prevent concurrent database access. These are practitioner claims, not reliability measurements. Engine comment arrays were empty; discussion content came from the separate supplement. The author's OpenRun pitch and linked article share origin.",
+            "url": "https://news.ycombinator.com/item?id=49501147",
+            "status": "sourced claim",
+            "confidence": "medium",
+            "provenance": {
+              "sourceType": "Hacker News discussion via Algolia engine and direct retrieval",
+              "locator": "config/last-report.json: item_id 49501147; supplements.md",
+              "publishedOrRevisedAt": "2026-08-30",
+              "method": "One HN-only engine run followed by one supplement search and direct fetch_content of the discussion. Publication date from engine; native engagement corroborated by retrieved HN page.",
+              "origin": "HN submission by ajayvk linking openrun.dev/blog/litestream; discussion responses",
+              "temporalStatus": "current-only"
+            }
+          }
+        ],
+        "artifacts": [
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/plan.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/targeting.md",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/engine.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/stdout.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/stderr.log",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/exit-status.txt",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/raw/sqlite-database-reliability-raw.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/config/last-report.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/config/last-run.json",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/diagnostics.md",
+          "/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-native/live-current-field-20260905/sqlite-field-a1/supplements.md"
+        ],
+        "contradictions": [
+          "Generic stderr claims 'Research quality: 4/5 core sources', but actual source_status and exported results contain only Hacker News. The generic message is not evidence of additional coverage."
+        ],
+        "gaps": [
+          "Engine dates span 2026-08-29 through 2026-09-05 inclusive despite window_days=7. This is not exact trailing-168-hour coverage or proof of the coordinator's intraday boundary, 2026-09-05T12:28:56.446Z.",
+          "Selected result has low engine relevance_score 0.0687. Direct retrieval supports reliability-adjacent discussion only; this small sample cannot establish SQLite reliability or community consensus.",
+          "Absolute publication date comes from engine metadata; readable HN retrieval exposes only a relative date. Individual commenter handles were absent from extracted content.",
+          "Host search provider/model unavailable. Engine cache exposes reasoning_provider=local, planner_model=deterministic and rerank_model=local-score; stderr confirms the supplied external plan."
+        ],
+        "stopReason": "requirements-covered"
+      },
+      "candidateRequirementIds": [],
+      "incompleteEvidenceRows": 1,
+      "unassignedEvidenceRows": 0,
+      "attemptReceipt": {
+        "streamId": "sqlite-field",
+        "attempt": 1,
+        "agentId": "254ad50ac5144924a61a20c8c66ce6e3",
+        "runner": "pi",
+        "runnerSessionId": null,
+        "terminalStatus": "completed",
+        "serviceTimeMs": 305980,
+        "usage": {
+          "input": 89756,
+          "output": 5156,
+          "cacheRead": 1681792,
+          "cacheWrite": 0,
+          "cost": 2.8371520000000006
+        },
+        "turns": 26,
+        "toolCalls": 25,
+        "maxRetrievalSteps": 4,
+        "retrievalLimitCompliance": "unavailable",
+        "error": null
+      }
+    },
+    {
+      "id": "budget-boundary",
+      "label": "Budget boundary",
+      "kind": "standard",
+      "status": "failed-budget",
+      "attempt": 1,
+      "diagnostic": {
+        "category": "failed-budget",
+        "message": "Fabric agent budget exhausted (2 per execution)",
+        "jsonPath": "unavailable",
+        "keyword": "unavailable"
+      },
+      "candidateRequirementIds": [],
+      "incompleteEvidenceRows": 0,
+      "attemptReceipt": null
+    }
+  ],
+  "failures": [
+    {
+      "id": "budget-boundary",
+      "label": "Budget boundary",
+      "kind": "standard",
+      "status": "failed-budget",
+      "attempt": 1,
+      "diagnostic": {
+        "category": "failed-budget",
+        "message": "Fabric agent budget exhausted (2 per execution)",
+        "jsonPath": "unavailable",
+        "keyword": "unavailable"
+      },
+      "candidateRequirementIds": [],
+      "incompleteEvidenceRows": 0,
+      "attemptReceipt": null
+    }
+  ],
+  "requirementCandidates": [
+    {
+      "id": "r1",
+      "text": "Primary IANA example-domain documentation purpose",
+      "required": true,
+      "evidenceStandard": "IANA URL and exact passage",
+      "status": "candidate-evidence",
+      "candidateStreams": [
+        "iana"
+      ]
+    },
+    {
+      "id": "r2",
+      "text": "Actual recent SQLite database reliability engine run over Hacker News, quick 7-day sample",
+      "required": true,
+      "evidenceStandard": "Real engine JSON and source_status, dated direct links if available",
+      "status": "unavailable",
+      "candidateStreams": []
+    },
+    {
+      "id": "r3",
+      "text": "Native attempt-budget refusal must retain completed siblings",
+      "required": true,
+      "evidenceStandard": "Native refusal, no invented receipt",
+      "status": "unavailable",
+      "candidateStreams": []
+    }
+  ],
+  "researchReceipt": {
+    "route": "fabric",
+    "routeReason": "Explicit independent-stream acceptance, plus native budget refusal boundary",
+    "runStartedAtUTC": "2026-09-05T12:28:56.446Z",
+    "requestedAsOfUTC": null,
+    "temporalMode": "current",
+    "durationMs": 305994,
+    "coverage": {
+      "planned": 3,
+      "terminal": 3,
+      "structurallyValid": 2,
+      "usable": 1,
+      "failed": 1,
+      "retryAttempts": 0
+    },
+    "dispatchAttempts": 3,
+    "unreceiptedAttempts": 1,
+    "lineage": [
+      {
+        "streamId": "iana",
+        "attempt": 1,
+        "agentId": "2fd290b6f7fd4e4da0c63f9e5ed4bce9",
+        "runner": "pi",
+        "runnerSessionId": null,
+        "terminalStatus": "completed",
+        "serviceTimeMs": 22679,
+        "usage": {
+          "input": 6589,
+          "output": 367,
+          "cacheRead": 6016,
+          "cacheWrite": 0,
+          "cost": 0.090256
+        },
+        "turns": 2,
+        "toolCalls": 1,
+        "maxRetrievalSteps": 1,
+        "retrievalLimitCompliance": "unavailable",
+        "error": null,
+        "outcomeStatus": "completed-usable"
+      },
+      {
+        "streamId": "sqlite-field",
+        "attempt": 1,
+        "agentId": "254ad50ac5144924a61a20c8c66ce6e3",
+        "runner": "pi",
+        "runnerSessionId": null,
+        "terminalStatus": "completed",
+        "serviceTimeMs": 305980,
+        "usage": {
+          "input": 89756,
+          "output": 5156,
+          "cacheRead": 1681792,
+          "cacheWrite": 0,
+          "cost": 2.8371520000000006
+        },
+        "turns": 26,
+        "toolCalls": 25,
+        "maxRetrievalSteps": 4,
+        "retrievalLimitCompliance": "unavailable",
+        "error": null,
+        "outcomeStatus": "completed-no-usable-evidence"
+      }
+    ],
+    "failureCategories": {
+      "failed-budget": 1
+    },
+    "coordinatorRecovery": {
+      "status": "pending-main",
+      "actions": []
+    },
+    "usage": {
+      "children": "unavailable",
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "toolCalls": {
+      "children": "unavailable",
+      "parent": "unavailable",
+      "aggregateIncludingParent": "unavailable"
+    },
+    "tokenBudgetObservation": {
+      "total": 1,
+      "spent": 0,
+      "remaining": 1,
+      "hardReservation": false,
+      "appliesToRawAgentsRun": false,
+      "scope": "Native workflow helper observation, not raw agents.run usage"
+    },
+    "capabilities": {
+      "hardPerAgentRetrievalLimit": false,
+      "retrievalLimitCheck": "advisory; Main must inspect native traces",
+      "schemaJsonPath": false,
+      "schemaDiagnosticMessage": true,
+      "childUsageAndIds": true,
+      "parentUsageInsideProgram": false,
+      "cancellation": "native host-managed; not measured by this receipt"
+    }
+  }
+}

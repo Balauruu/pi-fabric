@@ -1,0 +1,62 @@
+[
+  {
+    "id": "984294b476c6419db8b506aa33f0942e",
+    "name": "Valid sibling control",
+    "task": "RESEARCH lifecycle acceptance fixture only. No tools, no browser, no file writes, no agents. Return a JSON object with x equal to ok. Do not invent evidence. This is intentional structured-delivery boundary testing, not substantive research.",
+    "status": "completed",
+    "runner": "pi",
+    "transport": "process",
+    "cwd": "/home/balauru/.pi-profiles/fabric",
+    "model": "openai-codex/gpt-6-astra",
+    "thinking": "high",
+    "startedAt": 1788611670571,
+    "updatedAt": 1788611676020,
+    "turns": 1,
+    "toolCalls": 0,
+    "text": "{\"x\":\"ok\"}",
+    "usage": {
+      "input": 2685,
+      "output": 9,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "cost": 0.0273
+    },
+    "exitCode": 0,
+    "stderr": "",
+    "finishedAt": 1788611676020,
+    "value": {
+      "x": "ok"
+    },
+    "logFile": "/tmp/pi-fabric-runs-q6CmuH/9ac67fd06e68473e9cfcbecf5ba7bb8c/nested/984294b476c6419db8b506aa33f0942e/events.jsonl",
+    "sessionId": "384072"
+  },
+  {
+    "id": "9fd12bc9e26f4f118699148d07950a50",
+    "name": "Impossible-schema worker",
+    "task": "RESEARCH lifecycle acceptance fixture only. No tools, no browser, no file writes, no agents. Return a JSON object with x equal to ok. Do not invent evidence. This is intentional structured-delivery boundary testing, not substantive research.",
+    "status": "failed",
+    "runner": "pi",
+    "transport": "process",
+    "cwd": "/home/balauru/.pi-profiles/fabric",
+    "model": "openai-codex/gpt-6-astra",
+    "thinking": "high",
+    "startedAt": 1788611670573,
+    "updatedAt": 1788611684204,
+    "turns": 1,
+    "toolCalls": 0,
+    "text": "{\"missing\":null}",
+    "usage": {
+      "input": 2669,
+      "output": 136,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "cost": 0.033490000000000006
+    },
+    "exitCode": 0,
+    "stderr": "",
+    "finishedAt": 1788611684204,
+    "error": "Structured agent output was invalid: must not have additional properties (output: {\"missing\":null})",
+    "logFile": "/tmp/pi-fabric-runs-q6CmuH/9ac67fd06e68473e9cfcbecf5ba7bb8c/nested/9fd12bc9e26f4f118699148d07950a50/events.jsonl",
+    "sessionId": "384073"
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "id": "cc4e67d545654f0d8f98b94d331a0273",
+  "name": "last30days source run",
+  "task": "Use /home/balauru/.pi-profiles/fabric/skills/fabric-research/SKILL.md and its last30days branch to research what Hacker News is saying about SQLite. Use only Hacker News, quick depth, 7 days ending 2026-09-05. Run the actual installed last30days engine if available. Return a compact evidence brief for Main, not a final cross-topic recommendation. Store any needed run artifacts only under /home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-refactor/last30days-run/. No edits to skill source, dependency, provider or credential configuration; only the Fabric Pi profile is in scope. Existing process credentials may be used but never print them. If engine or source access fails, preserve any useful output and report the real gap. The dates and source restriction are this probe's user inputs, not research defaults.",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-6-astra",
+  "thinking": "high",
+  "startedAt": 1788616725933,
+  "updatedAt": 1788617076550,
+  "turns": 19,
+  "toolCalls": 29,
+  "text": "### Evidence brief for Main\n\n**Scope:** Hacker News only, quick, 7 days ending 2026-09-05. Installed engine ran successfully: exit 0, HN status `ok`, six stories.\n\n- **Reliability dominates the strongest discussion.** The [DoltLite thread](https://news.ycombinator.com/item?id=49516848) attracted 61 points and 60 comments. Participants contrast SQLite’s accumulated validation with an agent-written fork. [anon291](https://news.ycombinator.com/item?id=49517937): “A database efforts main product is not exotic data structures but validation.” Defenders cite domain expertise and reused test suites, not consensus.\n- **Local-first synchronization interests some users.** [ncruces](https://news.ycombinator.com/item?id=49519289) clarifies: “The problem DoltLite solves is merging, not forking.” Others question its necessity and performance. Benchmark claims remain disputed.\n- **Deployment enthusiasm comes with operational questions.** The [SQLite/Litestream thread](https://news.ycombinator.com/item?id=49501147), 30 points and 14 reported comments, includes positive ephemeral-pod experience alongside concerns about restore costs and multiple writers sharing backup storage.\n- Four smaller submissions show SQLite powering CLIs, an ORM, editable websites, and personal finance. Their limited engagement supports builder activity, not broad sentiment.\n\n**Limits:** Quick output lacked comments; two HN-only API fetches supplied them successfully. Litestream returned only seven comment texts despite reporting fourteen. The engine starts its window August 29, but all retained stories fall August 30–September 4. September 5 coverage stops at retrieval, approximately 14:02 UTC.\n\n**Artifacts and detailed citations:**  \n`/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-refactor/last30days-run/brief-for-main.md`",
+  "usage": {
+    "input": 67859,
+    "output": 5418,
+    "cacheRead": 791168,
+    "cacheWrite": 0,
+    "cost": 1.7406580000000003
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788617076550,
+  "logFile": "/tmp/pi-fabric-runs-vS8xyI/cc4e67d545654f0d8f98b94d331a0273/events.jsonl",
+  "sessionId": "511581"
+}

@@ -1,0 +1,214 @@
+{
+  "kind": "native smoke with injected dispatch failure",
+  "order": [
+    {
+      "label": "HTTP Gone",
+      "event": "start"
+    },
+    {
+      "label": "JSON member names",
+      "event": "start"
+    },
+    {
+      "label": "URI scheme case",
+      "event": "start"
+    },
+    {
+      "label": "Base64 padding",
+      "event": "start"
+    },
+    {
+      "label": "UUID v4 random bits",
+      "event": "start"
+    },
+    {
+      "label": "injected dispatch failure",
+      "event": "start"
+    },
+    {
+      "label": "injected dispatch failure",
+      "event": "failed"
+    },
+    {
+      "label": "HTTP Gone",
+      "event": "returned"
+    },
+    {
+      "label": "UUID v4 random bits",
+      "event": "returned"
+    },
+    {
+      "label": "Base64 padding",
+      "event": "returned"
+    },
+    {
+      "label": "JSON member names",
+      "event": "returned"
+    },
+    {
+      "label": "URI scheme case",
+      "event": "returned"
+    }
+  ],
+  "outcomes": [
+    {
+      "label": "HTTP Gone",
+      "result": {
+        "id": "aab40fbe37144671b74f328b35e17318",
+        "name": "HTTP Gone",
+        "task": "Use search and content-retrieval tools, not browser automation or browser-backed recovery. Set web_search workflow: \"none\"; do not opt into fetch_content.auth browser cookies. Use an accessible alternative or report the source gap.\nUse the provided original source to resolve only this question: Does HTTP 410 guarantee permanence?\nSource: https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.11\nFetch it using the native content tools; return a short answer, the direct URL and exact supporting passage. Report inaccessible support as a gap. Do not make a cross-topic recommendation, read skill manuals, launch agents or change files.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-6-astra",
+        "thinking": "high",
+        "startedAt": 1788616546998,
+        "updatedAt": 1788616566342,
+        "turns": 3,
+        "toolCalls": 2,
+        "text": "**No.** HTTP 410 indicates likely permanence, not guaranteed permanence.\n\nExact supporting passage:\n> “The 410 (Gone) status code indicates that access to the target resource is no longer available at the origin server and that this condition is likely to be permanent.”\n\nSource: https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.11",
+        "usage": {
+          "input": 16608,
+          "output": 170,
+          "cacheRead": 12928,
+          "cacheWrite": 0,
+          "cost": 0.18750800000000004
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788616566342,
+        "logFile": "/tmp/pi-fabric-runs-vS8xyI/aab40fbe37144671b74f328b35e17318/events.jsonl",
+        "sessionId": "506769"
+      }
+    },
+    {
+      "label": "JSON member names",
+      "result": {
+        "id": "28d5835169744af18ac98ea7a43cf925",
+        "name": "JSON member names",
+        "task": "Use search and content-retrieval tools, not browser automation or browser-backed recovery. Set web_search workflow: \"none\"; do not opt into fetch_content.auth browser cookies. Use an accessible alternative or report the source gap.\nUse the provided original source to resolve only this question: Are object member names required to be unique, and what happens when they are not?\nSource: https://www.rfc-editor.org/rfc/rfc8259.html#section-4\nFetch it using the native content tools; return a short answer, the direct URL and exact supporting passage. Report inaccessible support as a gap. Do not make a cross-topic recommendation, read skill manuals, launch agents or change files.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-6-astra",
+        "thinking": "high",
+        "startedAt": 1788616547011,
+        "updatedAt": 1788616572408,
+        "turns": 3,
+        "toolCalls": 2,
+        "text": "**No absolute requirement:** object member names **SHOULD**, not MUST, be unique. Duplicate-name handling is unpredictable: implementations may retain only the last pair, reject the object, or report all pairs.\n\nSource: https://www.rfc-editor.org/rfc/rfc8259.html#section-4\n\nExact supporting passages:\n> The names within an object SHOULD be unique.\n\n> When the names within an object are not unique, the behavior of software that receives such an object is unpredictable. Many implementations report the last name/value pair only. Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.\n\nRetrieved using native raw fetch after readable extraction failed. No source gap.",
+        "usage": {
+          "input": 15073,
+          "output": 228,
+          "cacheRead": 2944,
+          "cacheWrite": 0,
+          "cost": 0.165074
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788616572408,
+        "logFile": "/tmp/pi-fabric-runs-vS8xyI/28d5835169744af18ac98ea7a43cf925/events.jsonl",
+        "sessionId": "506775"
+      }
+    },
+    {
+      "label": "URI scheme case",
+      "result": {
+        "id": "6757cc8ac2b94470b9980cce2599f984",
+        "name": "URI scheme case",
+        "task": "Use search and content-retrieval tools, not browser automation or browser-backed recovery. Set web_search workflow: \"none\"; do not opt into fetch_content.auth browser cookies. Use an accessible alternative or report the source gap.\nUse the provided original source to resolve only this question: Are URI scheme names case-sensitive?\nSource: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.1\nFetch it using the native content tools; return a short answer, the direct URL and exact supporting passage. Report inaccessible support as a gap. Do not make a cross-topic recommendation, read skill manuals, launch agents or change files.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-6-astra",
+        "thinking": "high",
+        "startedAt": 1788616547039,
+        "updatedAt": 1788616588674,
+        "turns": 6,
+        "toolCalls": 5,
+        "text": "No. URI scheme names are **case-insensitive**.\n\nSource: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.1\n\nExact supporting passage:\n> Although schemes are case-insensitive, the canonical form is lowercase and documents that specify schemes must do so with lowercase letters. An implementation should accept uppercase letters as equivalent to lowercase in scheme names (e.g., allow \"HTTP\" as well as \"http\") for the sake of robustness but should only produce lowercase scheme names for consistency.",
+        "usage": {
+          "input": 14383,
+          "output": 310,
+          "cacheRead": 43904,
+          "cacheWrite": 0,
+          "cost": 0.203234
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788616588674,
+        "logFile": "/tmp/pi-fabric-runs-vS8xyI/6757cc8ac2b94470b9980cce2599f984/events.jsonl",
+        "sessionId": "506782"
+      }
+    },
+    {
+      "label": "Base64 padding",
+      "result": {
+        "id": "72f0468a26014158aa11cd176d6eca20",
+        "name": "Base64 padding",
+        "task": "Use search and content-retrieval tools, not browser automation or browser-backed recovery. Set web_search workflow: \"none\"; do not opt into fetch_content.auth browser cookies. Use an accessible alternative or report the source gap.\nUse the provided original source to resolve only this question: When may Base64 padding be omitted?\nSource: https://www.rfc-editor.org/rfc/rfc4648.html#section-3.2\nFetch it using the native content tools; return a short answer, the direct URL and exact supporting passage. Report inaccessible support as a gap. Do not make a cross-topic recommendation, read skill manuals, launch agents or change files.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-6-astra",
+        "thinking": "high",
+        "startedAt": 1788616547118,
+        "updatedAt": 1788616568482,
+        "turns": 3,
+        "toolCalls": 2,
+        "text": "Base64 padding may be omitted **when the specification referring to RFC 4648 explicitly permits it**; otherwise, appropriate padding is mandatory.\n\nSource: https://www.rfc-editor.org/rfc/rfc4648.html#section-3.2\n\nExact supporting passage:\n> Implementations MUST include appropriate pad characters at the end of encoded data unless the specification referring to this document explicitly states otherwise.",
+        "usage": {
+          "input": 11623,
+          "output": 162,
+          "cacheRead": 6016,
+          "cacheWrite": 0,
+          "cost": 0.130346
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788616568482,
+        "logFile": "/tmp/pi-fabric-runs-vS8xyI/72f0468a26014158aa11cd176d6eca20/events.jsonl",
+        "sessionId": "506789"
+      }
+    },
+    {
+      "label": "UUID v4 random bits",
+      "result": {
+        "id": "20220571ecdb45e8b0d18559ad46dcd7",
+        "name": "UUID v4 random bits",
+        "task": "Use search and content-retrieval tools, not browser automation or browser-backed recovery. Set web_search workflow: \"none\"; do not opt into fetch_content.auth browser cookies. Use an accessible alternative or report the source gap.\nUse the provided original source to resolve only this question: How many random bits are in a UUIDv4?\nSource: https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4\nFetch it using the native content tools; return a short answer, the direct URL and exact supporting passage. Report inaccessible support as a gap. Do not make a cross-topic recommendation, read skill manuals, launch agents or change files.",
+        "status": "completed",
+        "runner": "pi",
+        "transport": "process",
+        "cwd": "/home/balauru/.pi-profiles/fabric",
+        "model": "openai-codex/gpt-6-astra",
+        "thinking": "high",
+        "startedAt": 1788616547083,
+        "updatedAt": 1788616568482,
+        "turns": 3,
+        "toolCalls": 2,
+        "text": "A UUIDv4 contains **122 random bits**.\n\nSource: https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4\n\nExact supporting passage:\n> Alternatively, an implementation MAY choose to randomly generate the exact required number of bits for random_a, random_b, and random_c (122 bits total) and then concatenate the version and variant in the required position.",
+        "usage": {
+          "input": 16950,
+          "output": 160,
+          "cacheRead": 14592,
+          "cacheWrite": 0,
+          "cost": 0.192092
+        },
+        "exitCode": 0,
+        "stderr": "",
+        "finishedAt": 1788616568482,
+        "logFile": "/tmp/pi-fabric-runs-vS8xyI/20220571ecdb45e8b0d18559ad46dcd7/events.jsonl",
+        "sessionId": "506796"
+      }
+    },
+    {
+      "label": "injected dispatch failure",
+      "error": "Error: Invalid Fabric agent cwd \"/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-refactor/nonexistent-worker-cwd\": ENOENT: no such file or directory, lstat '/home/balauru/.pi-profiles/fabric/skill-evaluations/fabric-research-refactor/nonexistent-worker-cwd'"
+    }
+  ]
+}

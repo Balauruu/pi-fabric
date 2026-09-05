@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "As described in RFC 2606 and RFC 6761, a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer. ... We provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production ap\nSource: Example Domains (https://www.iana.org/help/example-domains)\n\n---\n\n**Sources:**\n1. Example Domains\n   https://www.iana.org/help/example-domains\n\n\n---\nResults stored as responseId \"mtocuw8c11xs6l\". Use get_search_content({ responseId: \"mtocuw8c11xs6l\", queryIndex: 0 }) to retrieve them."
+    }
+  ],
+  "text": "As described in RFC 2606 and RFC 6761, a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer. ... We provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production ap\nSource: Example Domains (https://www.iana.org/help/example-domains)\n\n---\n\n**Sources:**\n1. Example Domains\n   https://www.iana.org/help/example-domains\n\n\n---\nResults stored as responseId \"mtocuw8c11xs6l\". Use get_search_content({ responseId: \"mtocuw8c11xs6l\", queryIndex: 0 }) to retrieve them.",
+  "details": {
+    "queries": [
+      "site.iana.org/help/example-domains reserved documentation not available registration transfer"
+    ],
+    "queryCount": 1,
+    "successfulQueries": 1,
+    "totalResults": 1,
+    "includeContent": false,
+    "fetchId": null,
+    "searchId": "mtocuw8c11xs6l"
+  },
+  "isError": false,
+  "source": {
+    "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access/index.ts",
+    "source": "npm:pi-web-access",
+    "scope": "user",
+    "origin": "package",
+    "baseDir": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-web-access"
+  }
+}

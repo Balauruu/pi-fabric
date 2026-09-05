@@ -1,0 +1,13 @@
+{
+  "kind": "native parallel with deferred fixture; no agents/network in this scheduling probe",
+  "events": [
+    "independent-input-ready",
+    "check-ready-evidence",
+    "unrelated-work-finished"
+  ],
+  "values": [
+    "supported",
+    "supported"
+  ],
+  "asReady": true
+}
