@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.84.4",
+  "lastChangelogVersion": "0.85.1",
   "theme": "dark",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
@@ -12,7 +12,11 @@
     "npm:pi-zentui",
     "npm:betterwright",
     "npm:pi-fabric",
-    "npm:pi-fovea"
+    "npm:pi-fovea",
+    "npm:pi-tool-repair",
+    "npm:pi-invisible-continue",
+    "npm:pi-hide-providers",
+    "npm:pi-toggle-skills"
   ],
   "observational-memory": {
     "models": {

@@ -1,12 +1,20 @@
 {
   "name": "pi-extensions",
   "private": true,
+  "scripts": {
+    "postinstall": "node patches/apply-pi-zentui-git-counts.cjs",
+    "test:pi-zentui": "node tests/pi-zentui-git-counts.test.cjs"
+  },
   "dependencies": {
     "@juicesharp/rpiv-ask-user-question": "^2.9.0",
-    "betterwright": "^2.2.0",
-    "pi-fabric": "^0.77.0",
-    "pi-fovea": "^0.19.0",
-    "pi-web-access": "^0.27.0",
+    "betterwright": "^2.3.0",
+    "pi-fabric": "^0.83.0",
+    "pi-fovea": "^0.21.1",
+    "pi-hide-providers": "^0.1.17",
+    "pi-invisible-continue": "^0.3.10",
+    "pi-toggle-skills": "^0.1.15",
+    "pi-tool-repair": "^0.2.4",
+    "pi-web-access": "^0.28.0",
     "pi-zentui": "^0.22.3"
   },
   "devDependencies": {

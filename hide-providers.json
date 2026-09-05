@@ -1,0 +1,134 @@
+{
+  "hide": [
+    {
+      "provider": "amazon-bedrock"
+    },
+    {
+      "provider": "ant-ling"
+    },
+    {
+      "provider": "anthropic"
+    },
+    {
+      "provider": "azure-openai-responses"
+    },
+    {
+      "provider": "baseten"
+    },
+    {
+      "provider": "cerebras"
+    },
+    {
+      "provider": "cloudflare-ai-gateway"
+    },
+    {
+      "provider": "cloudflare-workers-ai"
+    },
+    {
+      "provider": "deepseek"
+    },
+    {
+      "provider": "fireworks"
+    },
+    {
+      "provider": "github-copilot"
+    },
+    {
+      "provider": "google"
+    },
+    {
+      "provider": "google-vertex"
+    },
+    {
+      "provider": "groq"
+    },
+    {
+      "provider": "huggingface"
+    },
+    {
+      "provider": "kimi-coding"
+    },
+    {
+      "provider": "minimax"
+    },
+    {
+      "provider": "minimax-cn"
+    },
+    {
+      "provider": "mistral"
+    },
+    {
+      "provider": "moonshotai"
+    },
+    {
+      "provider": "moonshotai-cn"
+    },
+    {
+      "provider": "nvidia"
+    },
+    {
+      "provider": "openai"
+    },
+    {
+      "provider": "opencode"
+    },
+    {
+      "provider": "opencode-go"
+    },
+    {
+      "provider": "openrouter"
+    },
+    {
+      "provider": "qwen-token-plan"
+    },
+    {
+      "provider": "qwen-token-plan-cn"
+    },
+    {
+      "provider": "qwen-token-plan-individual"
+    },
+    {
+      "provider": "together"
+    },
+    {
+      "provider": "vercel-ai-gateway"
+    },
+    {
+      "provider": "xai"
+    },
+    {
+      "provider": "xiaomi"
+    },
+    {
+      "provider": "xiaomi-token-plan-ams"
+    },
+    {
+      "provider": "xiaomi-token-plan-cn"
+    },
+    {
+      "provider": "xiaomi-token-plan-sgp"
+    },
+    {
+      "provider": "zai"
+    },
+    {
+      "provider": "zai-coding-cn"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.3-codex-spark"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.4"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.4-mini"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.5"
+    }
+  ]
+}
