@@ -1,0 +1,112 @@
+{
+  "case": "source-conversion",
+  "id": "404cf90cb22c478ca1faba6a42fb35ae",
+  "calls": [
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/references/mechanism-selection.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "ls",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric",
+        "limit": 200
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/lib/node_modules/@earendil-works/pi-coding-agent/docs/skills.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/skills.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/configuration.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/references/agents.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "offset": 475,
+        "limit": 1000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-workflow/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-rlm/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/package.json",
+        "offset": 1,
+        "limit": 500
+      }
+    }
+  ],
+  "skillRead": true,
+  "referenceRead": true,
+  "unexpectedTools": []
+}

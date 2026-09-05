@@ -1,0 +1,400 @@
+{
+  "case": "confirmed",
+  "id": "0d26d2c41f2343c5a115600f86165ad8",
+  "calls": [
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/references/mechanism-selection.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "ls",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric",
+        "limit": 200
+      }
+    },
+    {
+      "name": "find",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric",
+        "pattern": "**/*.md",
+        "limit": 500
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/package.json",
+        "offset": 1,
+        "limit": 500
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/lib/node_modules/@earendil-works/pi-coding-agent/docs/skills.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/skills.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/references/agents.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/configuration.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "offset": 475,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-workflow/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-council/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-fusion/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/lib/node_modules/@earendil-works/pi-coding-agent/docs/skills.md",
+        "pattern": "disable-model-invocation",
+        "literal": true,
+        "context": 3,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/skills.md",
+        "pattern": "user invokes every advanced workflow",
+        "literal": true,
+        "context": 4,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "workflow.parallel",
+        "literal": true,
+        "context": 5,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "JSON Schema",
+        "literal": true,
+        "context": 4,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "tools.models()",
+        "literal": true,
+        "context": 4,
+        "limit": 20
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/references/agents.md",
+        "pattern": "council.run",
+        "literal": true,
+        "context": 4,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/configuration.md",
+        "pattern": "maxPerExecution",
+        "literal": true,
+        "context": 3,
+        "limit": 20
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "agents.cleanup",
+        "literal": true,
+        "context": 3,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "agents.models({ runner: \"claude\" })",
+        "literal": true,
+        "context": 5,
+        "limit": 20
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "same model",
+        "literal": true,
+        "context": 4,
+        "limit": 20
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-fusion/SKILL.md",
+        "pattern": "distinct resolved models",
+        "literal": true,
+        "context": 4,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-fusion/SKILL.md",
+        "pattern": "tools.models()",
+        "literal": true,
+        "context": 5,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-council/SKILL.md",
+        "pattern": "independent",
+        "literal": true,
+        "context": 4,
+        "limit": 20
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-workflow/SKILL.md",
+        "pattern": "partial",
+        "literal": true,
+        "context": 4,
+        "limit": 20
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "residency: \"session\" | \"durable\"",
+        "literal": true,
+        "context": 4,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/configuration.md",
+        "pattern": "oneShotRunMs",
+        "literal": true,
+        "context": 4,
+        "limit": 20
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "offset": 7,
+        "limit": 50
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "offset": 145,
+        "limit": 40
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/configuration.md",
+        "offset": 370,
+        "limit": 25
+      }
+    },
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/SKILL.md",
+        "offset": 151,
+        "limit": 80
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/SKILL.md",
+        "pattern": "tools.models()",
+        "literal": true,
+        "context": 3,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/skills.md",
+        "pattern": "Put required ordered actions",
+        "literal": true,
+        "context": 4,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/SKILL.md",
+        "pattern": "fresh executor",
+        "literal": true,
+        "context": 3,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skills/fabric-exec/SKILL.md",
+        "pattern": "Every `π.key`",
+        "literal": true,
+        "context": 3,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/configuration.md",
+        "pattern": "sessionExport",
+        "literal": true,
+        "context": 3,
+        "limit": 20
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "Set `cwd`",
+        "literal": true,
+        "context": 3,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "JSON schemas use Claude",
+        "literal": true,
+        "context": 3,
+        "limit": 10
+      }
+    },
+    {
+      "name": "grep",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/docs/agents.md",
+        "pattern": "adds `--no-session-persistence`",
+        "literal": true,
+        "context": 2,
+        "limit": 10
+      }
+    }
+  ],
+  "skillRead": true,
+  "referenceRead": true,
+  "unexpectedTools": []
+}

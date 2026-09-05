@@ -1,0 +1,16 @@
+{
+  "case": "confirmation-boundary",
+  "id": "46d9c89a5deb446d9b16bf44c5b43f6c",
+  "calls": [
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    }
+  ],
+  "skillRead": true,
+  "unexpectedTools": []
+}

@@ -1,0 +1,17 @@
+{
+  "case": "interview",
+  "id": "730f19d6cea44108ad264912a42f301b",
+  "calls": [
+    {
+      "name": "read",
+      "args": {
+        "path": "/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/SKILL.md",
+        "offset": 1,
+        "limit": 2000
+      }
+    }
+  ],
+  "skillRead": true,
+  "referenceRead": false,
+  "unexpectedTools": []
+}

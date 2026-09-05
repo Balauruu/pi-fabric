@@ -1,0 +1,26 @@
+{
+  "traces": [
+    {
+      "case": "interview-r2",
+      "skillRead": true,
+      "unexpectedTools": []
+    },
+    {
+      "case": "confirmation-boundary",
+      "skillRead": true,
+      "unexpectedTools": []
+    }
+  ],
+  "checks": [
+    {
+      "ok": true,
+      "output": "OK create-fabric-skill: valid frontmatter, local links, and 2 reachable files\n{\n  \"status\": \"passed\",\n  \"discovery\": \"isolated and profile-default loading, one matching skill, no target diagnostics\",\n  \"invocation\": \"explicit-only; excluded from model prompt; native slash expansion preserves body and arguments\",\n  \"boundaries\": \"ordinary prompts, absent alias and misspelled slash command are not expanded\",\n  \"relativePointers\": \"one existing, readable support file\",\n  \"files\": [\n    {\n      \"path\": \"/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/SKILL.md\",\n      \"sha256\": \"fc9dfe5ac87a560700a015d7095ec8fc4160949a7872e40f454317bf4f7095b8\"\n    },\n    {\n      \"path\": \"/home/balauru/.pi-profiles/fabric/skills/create-fabric-skill/references/mechanism-selection.md\",\n      \"sha256\": \"11748da37092c99b48e68b8c0a14484ceeb9c1465fecb84540d57588dd90a208\"\n    }\n  ],\n  \"aliasCreated\": false\n}\n",
+      "details": null
+    },
+    {
+      "ok": true,
+      "output": "?? skill-evaluations/create-fabric-skill/\n?? skills/create-fabric-skill/\nreferences/mechanism-selection.md\nSKILL.md\n",
+      "details": null
+    }
+  ]
+}
