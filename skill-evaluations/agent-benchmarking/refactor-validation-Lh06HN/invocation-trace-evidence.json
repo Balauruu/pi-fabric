@@ -1,0 +1,220 @@
+[
+  {
+    "id": "design",
+    "run": "bca7c734d52e4ac1837b13aadf65e264",
+    "hasMore": false,
+    "toolStarts": [
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi/agent/skills/agent-benchmarking/SKILL.md",
+          "offset": 1,
+          "limit": 400
+        }
+      },
+      {
+        "tool": "ls",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric",
+          "limit": 200
+        }
+      },
+      {
+        "tool": "grep",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric",
+          "pattern": "resume",
+          "glob": "**/*",
+          "ignoreCase": true,
+          "limit": 50
+        }
+      },
+      {
+        "tool": "grep",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric",
+          "pattern": "run",
+          "glob": "**/*",
+          "ignoreCase": true,
+          "limit": 50
+        }
+      },
+      {
+        "tool": "grep",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric",
+          "pattern": "agents.run",
+          "glob": "**/*",
+          "ignoreCase": false,
+          "limit": 100
+        }
+      },
+      {
+        "tool": "grep",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric",
+          "pattern": "agents.resume",
+          "glob": "**/*",
+          "ignoreCase": false,
+          "limit": 100
+        }
+      },
+      {
+        "tool": "grep",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric",
+          "pattern": "run/resume",
+          "glob": "**/*",
+          "ignoreCase": true,
+          "limit": 100
+        }
+      },
+      {
+        "tool": "grep",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/README.md",
+          "pattern": "run/resume",
+          "context": 3,
+          "ignoreCase": true,
+          "limit": 20
+        }
+      },
+      {
+        "tool": "grep",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/README.md",
+          "pattern": "interface",
+          "context": 2,
+          "ignoreCase": true,
+          "limit": 20
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skills/agent-benchmarking/README.md",
+          "offset": 1,
+          "limit": 260
+        }
+      }
+    ],
+    "status": "invalid-profile-routing"
+  },
+  {
+    "id": "implicit",
+    "run": "939aea3fa0254bba9a5bcda7e0fac48f",
+    "hasMore": false,
+    "toolStarts": [
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi/agent/skills/agent-benchmarking/SKILL.md",
+          "offset": 1,
+          "limit": 400
+        }
+      }
+    ],
+    "status": "invalid-profile-routing"
+  },
+  {
+    "id": "report",
+    "run": "aeb69d46d9a440129e388a654385d6d4",
+    "hasMore": false,
+    "toolStarts": [
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi/agent/skills/agent-benchmarking/SKILL.md",
+          "offset": 1,
+          "limit": 260
+        }
+      },
+      {
+        "tool": "ls",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run",
+          "limit": 200
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/report.md",
+          "offset": 1,
+          "limit": 260
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/report.json",
+          "offset": 1,
+          "limit": 260
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/spec.json",
+          "offset": 1,
+          "limit": 260
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/analysis.json",
+          "offset": 1,
+          "limit": 260
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/checkpoint.json",
+          "offset": 1,
+          "limit": 220
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/telemetry.json",
+          "offset": 1,
+          "limit": 220
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/paired-analysis.json",
+          "offset": 1,
+          "limit": 220
+        }
+      },
+      {
+        "tool": "read",
+        "args": {
+          "path": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/schedule.json",
+          "offset": 1,
+          "limit": 220
+        }
+      }
+    ],
+    "status": "invalid-profile-routing"
+  },
+  {
+    "id": "one-example",
+    "run": "773f440eb37147f7b89b15fc70d4bb8f",
+    "hasMore": false,
+    "toolStarts": [],
+    "status": "invalid-profile-routing"
+  },
+  {
+    "id": "code-review",
+    "run": "fab5bb9ab9ef4dbc901c83b442b23b7e",
+    "hasMore": false,
+    "toolStarts": [],
+    "status": "invalid-profile-routing"
+  }
+]

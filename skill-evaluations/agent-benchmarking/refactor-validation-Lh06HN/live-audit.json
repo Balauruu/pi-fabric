@@ -1,0 +1,88 @@
+{
+  "publicResult": {
+    "counts": {
+      "assigned": 4,
+      "failed": 0,
+      "pending": 0,
+      "planned": 4,
+      "terminal": 4,
+      "unresolved": 0
+    },
+    "errors": [],
+    "limitations": [
+      "maxWallTimeSeconds stops admission between waves per invocation; it does not cancel in-flight calls or bound final analysis.",
+      "timeoutMs requests an override only; Fabric ignores values below its configured timeout floor. No lower per-call enforcement is claimed.",
+      "Results apply to the declared finite task set; no task-population claim was made.",
+      "attempts[0].nativeResult.directUsage.cost: native cost unit is unavailable",
+      "attempts[1].nativeResult.directUsage.cost: native cost unit is unavailable",
+      "attempts[2].nativeResult.directUsage.cost: native cost unit is unavailable",
+      "attempts[3].nativeResult.directUsage.cost: native cost unit is unavailable"
+    ],
+    "nextAction": null,
+    "phase": "complete",
+    "reportPaths": {
+      "json": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/live-process/run/report.json",
+      "markdown": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/live-process/run/report.md"
+    },
+    "runDirectory": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/live-process/run",
+    "schemaVersion": 1,
+    "scientificDecision": "inconclusive",
+    "status": "complete"
+  },
+  "attempts": [
+    {
+      "attempt": "a-000001",
+      "nativeId": "4cbf6966cf61406393544cd6e8a37163",
+      "transport": "process",
+      "model": "openai-codex/gpt-5.4-mini",
+      "output": "7",
+      "toolCalls": 3,
+      "rawNativeCost": 0.0047897999999999994,
+      "archivedLogBytes": 80909,
+      "taskPreparation": "passed",
+      "finalState": "passed"
+    },
+    {
+      "attempt": "a-000002",
+      "nativeId": "3f339e628473445db803b99fa633e1f3",
+      "transport": "process",
+      "model": "openai-codex/gpt-5.4-mini",
+      "output": "7",
+      "toolCalls": 3,
+      "rawNativeCost": 0.00477705,
+      "archivedLogBytes": 80567,
+      "taskPreparation": "passed",
+      "finalState": "passed"
+    },
+    {
+      "attempt": "a-000003",
+      "nativeId": "d46496fd4e1342de8fb475b2adfc7b63",
+      "transport": "process",
+      "model": "openai-codex/gpt-5.4-mini",
+      "output": "5",
+      "toolCalls": 3,
+      "rawNativeCost": 0.0030123,
+      "archivedLogBytes": 81159,
+      "taskPreparation": "passed",
+      "finalState": "passed"
+    },
+    {
+      "attempt": "a-000004",
+      "nativeId": "ff5a975d179c44b1a6bed39c83b2dcfe",
+      "transport": "process",
+      "model": "openai-codex/gpt-5.4-mini",
+      "output": "5",
+      "toolCalls": 3,
+      "rawNativeCost": 0.00482205,
+      "archivedLogBytes": 81973,
+      "taskPreparation": "passed",
+      "finalState": "passed"
+    }
+  ],
+  "liveMeasuredCalls": 4,
+  "completedResumeChecked": true,
+  "hostAgentBudgetPerInvocation": 1,
+  "runBytesAndEntriesUnchanged": true,
+  "readOnlyReportChecked": true,
+  "additionalMeasuredCalls": 0
+}

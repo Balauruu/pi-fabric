@@ -713,110 +713,13 @@ def check_schema(schema: Any, *, machine_contract: bool = False) -> list[str]:
     return issues
 
 
-def validate_contract_semantics(contract_name: str, instance: Any) -> list[str]:
-    """Validate deterministic relations that the supported schema subset cannot express."""
-    if contract_name == "mechanism" and isinstance(instance, dict):
-        issues: list[str] = []
-        valid = instance.get("valid")
-        status = instance.get("status")
-        exposure = instance.get("exposure")
-        source_state = instance.get("source_state")
-        source_path = instance.get("source_path")
-        source_sha256 = instance.get("source_sha256")
-        evidence = instance.get("evidence")
-        actor_expected = instance.get("actor_expected")
-        actor_observed = instance.get("actor_observed")
-        lifecycle = instance.get("actor_lifecycle")
-        if valid is True and status not in {"valid", "not-applicable"}:
-            issues.append("$.status: a valid mechanism must be valid or not-applicable")
-        if valid is False and status != "invalid":
-            issues.append("$.status: an invalid mechanism must use status invalid")
-        if status == "not-applicable" and exposure != "not-applicable":
-            issues.append("$.exposure: not-applicable status requires not-applicable exposure")
-        if source_state == "file":
-            if not isinstance(source_path, str) or not isinstance(source_sha256, str):
-                issues.append("$.source_state: file requires source_path and source_sha256")
-        elif source_path is not None or source_sha256 is not None:
-            issues.append("$.source_state: non-file source requires null path and digest")
-        if valid is True and (not isinstance(evidence, list) or not evidence):
-            issues.append("$.evidence: a valid projection requires structured evidence")
-        if instance.get("attempt_status") != "succeeded" and valid is not False:
-            issues.append("$.valid: a non-succeeded attempt cannot have valid mechanism evidence")
-        if valid is True and actor_expected is True:
-            if not isinstance(lifecycle, dict) or any(lifecycle.get(key) is not True for key in ("create", "terminal", "cleanup")):
-                issues.append("$.actor_lifecycle: an actor-bearing valid projection requires create, terminal, and cleanup")
-        if valid is True and actor_expected is False and actor_observed is not False:
-            issues.append("$.actor_observed: a valid non-actor projection must observe no actor")
-        return issues
-
-    if contract_name != "workflow-request" or not isinstance(instance, dict):
-        return []
-    issues: list[str] = []
-    max_agents = instance.get("max_agents")
-    max_concurrency = instance.get("max_concurrency")
-    if isinstance(max_agents, int) and not isinstance(max_agents, bool) and max_agents > 100:
-        issues.append("$.max_agents: greater than hard maximum 100")
-    if (
-        isinstance(max_concurrency, int)
-        and not isinstance(max_concurrency, bool)
-        and max_concurrency > 32
-    ):
-        issues.append("$.max_concurrency: greater than hard maximum 32")
-    if (
-        isinstance(max_agents, int)
-        and not isinstance(max_agents, bool)
-        and isinstance(max_concurrency, int)
-        and not isinstance(max_concurrency, bool)
-        and max_concurrency > max_agents
-    ):
-        issues.append("$.max_concurrency: cannot exceed $.max_agents")
-
-    route = instance.get("route")
-    design = instance.get("design_revision")
-    execution = instance.get("execution_revision")
-    wave = instance.get("wave_id")
-    runtime = instance.get("requested_runtime")
-    model = instance.get("requested_model")
-    dry_run = instance.get("dry_run")
-    if route == "Design":
-        if design is None:
-            issues.append("$.design_revision: Design requires a design revision")
-        if execution is not None:
-            issues.append("$.execution_revision: Design forbids an execution revision")
-    elif route in {"Execute", "Analyze"}:
-        if design is None:
-            issues.append(f"$.design_revision: {route} requires a design revision")
-        if execution is None:
-            issues.append(f"$.execution_revision: {route} requires an execution revision")
-        if runtime not in {"pi", "claude", "veda"}:
-            issues.append(f"$.requested_runtime: {route} requires pi, claude, or veda")
-        if dry_run is True:
-            issues.append(f"$.dry_run: {route} does not permit dry-run execution")
-
-    if route == "Execute":
-        if not isinstance(wave, str) or re.fullmatch(r"[1-9][0-9]*", wave) is None:
-            issues.append("$.wave_id: Execute requires a positive integer string")
-    elif route in {"Design", "Audit", "Analyze"} and wave is not None:
-        issues.append(f"$.wave_id: {route} requires null")
-
-    if route in {"Design", "Audit"}:
-        if runtime is not None:
-            issues.append(f"$.requested_runtime: {route} requires null")
-        if model is not None:
-            issues.append(f"$.requested_model: {route} requires null when no runtime is used")
-    return issues
-
-
 def validate_or_raise(
     instance: Any,
     schema: Mapping[str, Any] | bool,
     source: str = "document",
-    *,
-    contract_name: str | None = None,
 ) -> None:
+    """Validate one document against the supported strict JSON-schema subset."""
     issues = validate_json_schema(instance, schema)
-    if contract_name is not None:
-        issues.extend(validate_contract_semantics(contract_name, instance))
     if issues:
         raise ContractError(tuple(f"{source}: {issue}" for issue in issues))
 
@@ -826,15 +729,9 @@ def load_and_validate_json(
     schema_path: os.PathLike[str] | str,
 ) -> Any:
     schema = load_json(schema_path)
-    schema_issues = check_schema(schema, machine_contract=True)
+    schema_issues = check_schema(schema)
     if schema_issues:
         raise ContractError(tuple(f"{os.fspath(schema_path)}: {issue}" for issue in schema_issues))
     document = load_json(document_path)
-    schema_name = Path(schema_path).name.removesuffix(".schema.json")
-    validate_or_raise(
-        document,
-        schema,
-        os.fspath(document_path),
-        contract_name=schema_name,
-    )
+    validate_or_raise(document, schema, os.fspath(document_path))
     return document

@@ -1,0 +1,72 @@
+{
+  "gradingPlan": {
+    "method": "model",
+    "rubric": "Label the overall outcome as pass or fail using only the supplied artifact output. Anchor: pass means the declared outcome is fully satisfied; fail means a material defect is present.",
+    "scoreMapping": [
+      {"label": "fail", "score": 0},
+      {"label": "pass", "score": 1}
+    ],
+    "deterministic": null,
+    "judgment": {
+      "graderIds": [
+        "judge-01", "judge-02", "judge-03", "judge-04",
+        "judge-05", "judge-06", "judge-07", "judge-08",
+        "judge-09", "judge-10", "judge-11", "judge-12",
+        "judge-13", "judge-14", "judge-15", "judge-16"
+      ],
+      "runner": "pi",
+      "model": "fake-judge-model",
+      "rubric": "Label the overall outcome as pass or fail using only the supplied artifact output. Anchor: pass means the declared outcome is fully satisfied; fail means a material defect is present.",
+      "calibrationInputPaths": ["inputs/grading-calibration.json"],
+      "labelSet": ["fail", "pass"],
+      "repetitions": 1,
+      "retainUncertainty": true
+    },
+    "adjudication": {
+      "enabled": true,
+      "trigger": "declared-disagreement",
+      "resolverIds": ["resolver-01", "resolver-02", "resolver-03"],
+      "maxCalls": 18,
+      "precedence": "resolver"
+    }
+  },
+  "items": [
+    {
+      "assignment": {"attemptId": "a-000001", "taskId": "task-1", "conditionId": "control", "request": {"runner": "pi", "model": "measured-model"}},
+      "result": {"dispatchStatus": "completed", "nativeResult": {"output": "artifact 1"}},
+      "existingLabels": []
+    },
+    {
+      "assignment": {"attemptId": "a-000002", "taskId": "task-1", "conditionId": "candidate", "request": {"runner": "pi", "model": "measured-model"}},
+      "result": {"dispatchStatus": "completed", "nativeResult": {"output": "artifact 2"}},
+      "existingLabels": []
+    },
+    {
+      "assignment": {"attemptId": "a-000003", "taskId": "task-2", "conditionId": "control", "request": {"runner": "pi", "model": "measured-model"}},
+      "result": {"dispatchStatus": "completed", "nativeResult": {"output": "artifact 3"}},
+      "existingLabels": []
+    },
+    {
+      "assignment": {"attemptId": "a-000004", "taskId": "task-2", "conditionId": "candidate", "request": {"runner": "pi", "model": "measured-model"}},
+      "result": {"dispatchStatus": "completed", "nativeResult": {"output": "artifact 4"}},
+      "existingLabels": []
+    },
+    {
+      "assignment": {"attemptId": "a-000005", "taskId": "task-3", "conditionId": "control", "request": {"runner": "pi", "model": "measured-model"}},
+      "result": {"dispatchStatus": "completed", "nativeResult": {"output": "artifact 5"}},
+      "existingLabels": []
+    },
+    {
+      "assignment": {"attemptId": "a-000006", "taskId": "task-3", "conditionId": "candidate", "request": {"runner": "pi", "model": "measured-model"}},
+      "result": {"dispatchStatus": "completed", "nativeResult": {"output": "artifact 6"}},
+      "existingLabels": []
+    }
+  ],
+  "criteria": ["outcome"],
+  "expected": {
+    "measured": 6,
+    "judgeJobs": 96,
+    "adjudicationJobs": 18,
+    "liveCalls": 0
+  }
+}

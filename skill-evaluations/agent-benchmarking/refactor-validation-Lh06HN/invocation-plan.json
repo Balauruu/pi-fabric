@@ -1,0 +1,63 @@
+{
+  "purpose": "one fresh-context adoption smoke per case, not a statistical skill-effect estimate",
+  "model": "openai-codex/gpt-5.4-mini",
+  "maxScenarioCalls": 5,
+  "cases": [
+    {
+      "id": "design",
+      "expectedRead": true,
+      "tools": [
+        "read",
+        "grep",
+        "find",
+        "ls"
+      ],
+      "prompt": "Plan a controlled comparison of two agent prompts on twelve fixed text extraction tasks. This is screening, not an adoption decision. No scored model calls or edits now. Identify consequential missing choices and the installed run/resume interface we should use. Keep the answer concise."
+    },
+    {
+      "id": "implicit",
+      "expectedRead": true,
+      "tools": [
+        "read",
+        "grep",
+        "find",
+        "ls"
+      ],
+      "prompt": "I tweaked a skill and wanna benhcmark whether it helps compared with the old one, same tasks. What would you freeze before running it? Don't run agents or edit files."
+    },
+    {
+      "id": "report",
+      "expectedRead": true,
+      "tools": [
+        "read",
+        "grep",
+        "find",
+        "ls",
+        "bash"
+      ],
+      "prompt": "Inspect the interrupted-or-complete agent comparison at /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run using the installed read-only report operation. Do not rerun, repair, install, or change any files. Summarize completion separately from the scientific decision."
+    },
+    {
+      "id": "one-example",
+      "expectedRead": false,
+      "tools": [
+        "read",
+        "grep",
+        "find",
+        "ls"
+      ],
+      "prompt": "Give me one example prompt that extracts an ISO date from a sentence. I only want a one-off demonstration, not a comparison, study, or evaluation."
+    },
+    {
+      "id": "code-review",
+      "expectedRead": false,
+      "tools": [
+        "read",
+        "grep",
+        "find",
+        "ls"
+      ],
+      "prompt": "Review this Python function for a concrete bug: def average(xs): return sum(xs) / len(xs). This is ordinary code review, not an agent or prompt comparison. Keep it short."
+    }
+  ]
+}

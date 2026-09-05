@@ -1,0 +1,25 @@
+{
+  "hasMore": true,
+  "events": [
+    {
+      "type": "tool_execution_start",
+      "tool": "bash",
+      "args": {
+        "command": "printf 'PI_CODING_AGENT_DIR=%s\\nPI_FABRIC_AGENT_DIR=%s\\n' \"${PI_CODING_AGENT_DIR-UNSET}\" \"${PI_FABRIC_AGENT_DIR-UNSET}\" ."
+      }
+    },
+    {
+      "type": "tool_execution_end",
+      "tool": "bash",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "PI_CODING_AGENT_DIR=/home/balauru/.pi-profiles/fabric\nPI_FABRIC_AGENT_DIR=/home/balauru/.pi-profiles/fabric\nPI_CODING_AGENT_DIR=.\nPI_FABRIC_AGENT_DIR=\n"
+          }
+        ]
+      },
+      "isError": false
+    }
+  ]
+}

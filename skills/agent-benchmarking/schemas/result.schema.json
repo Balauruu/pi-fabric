@@ -1,107 +1,75 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pi.local/agent-benchmarking/result.schema.json",
-  "title": "Immutable benchmark grade result",
+  "title": "Benchmark run and report result",
+  "description": "Compact public result returned by the file-backed run and read-only report operations.",
   "type": "object",
+  "$defs": {
+    "count": {"type": "integer", "minimum": 0},
+    "nullable_path": {"type": ["string", "null"], "minLength": 1},
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "workId"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "workId": {"type": ["string", "null"], "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  },
   "required": [
-    "schema_version",
-    "benchmark_id",
-    "attempt_id",
-    "blind_id",
-    "grader_id",
-    "grader_revision",
-    "grader_run_id",
-    "stage",
+    "schemaVersion",
     "status",
-    "qualifiers",
-    "failure",
-    "score",
-    "criterion_results",
-    "evidence_paths",
-    "graded_at",
-    "provider_native"
+    "runDirectory",
+    "phase",
+    "counts",
+    "nextAction",
+    "errors",
+    "limitations",
+    "reportPaths",
+    "scientificDecision"
   ],
   "properties": {
-    "schema_version": {"const": 1},
-    "benchmark_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
-    "attempt_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
-    "blind_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
-    "grader_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
-    "grader_revision": {"type": "string", "pattern": "^v[1-9][0-9]*$"},
-    "grader_run_id": {"type": ["string", "null"], "minLength": 1},
-    "stage": {"enum": ["judge", "adjudicate"]},
-    "status": {"enum": ["passed", "failed", "abstained", "grader-error", "invalid"]},
-    "qualifiers": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": {"enum": ["model-terminal", "schema-invalid", "runtime-error", "evidence-incomplete", "adjudication-required", "analysis-limited"]}
-    },
-    "failure": {
-      "type": ["object", "null"],
-      "required": ["stage", "code", "classification", "message", "retryable"],
+    "schemaVersion": {"const": 1},
+    "status": {"enum": ["complete", "checkpoint", "blocked", "unsupported", "failed"]},
+    "runDirectory": {"type": "string", "pattern": "^/", "minLength": 1},
+    "phase": {"enum": ["initialize", "execute", "grade", "analyze", "finalize", "complete", "inspect"]},
+    "counts": {
+      "type": "object",
+      "required": ["planned", "assigned", "terminal", "failed", "unresolved", "pending"],
       "properties": {
-        "stage": {"enum": ["judge", "adjudicate"]},
-        "code": {"type": "string", "minLength": 1},
-        "classification": {"type": "string", "minLength": 1},
-        "message": {"type": "string", "minLength": 1},
-        "retryable": {"type": "boolean"}
+        "planned": {"$ref": "#/$defs/count"},
+        "assigned": {"$ref": "#/$defs/count"},
+        "terminal": {"$ref": "#/$defs/count"},
+        "failed": {"$ref": "#/$defs/count"},
+        "unresolved": {"$ref": "#/$defs/count"},
+        "pending": {"$ref": "#/$defs/count"}
       },
       "additionalProperties": false
     },
-    "score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-    "criterion_results": {
+    "nextAction": {"type": ["string", "null"], "minLength": 1},
+    "errors": {
       "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "$comment": "criterion_id uniqueness and exact frozen-grader coverage are enforced by lifecycle reconciliation",
-      "items": {
-        "type": "object",
-        "required": ["criterion_id", "status", "score", "rationale"],
-        "properties": {
-          "criterion_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
-          "status": {"enum": ["passed", "failed", "abstained", "error"]},
-          "score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-          "rationale": {"type": "string", "minLength": 1}
-        },
-        "oneOf": [
-          {
-            "properties": {
-              "status": {"enum": ["passed", "failed"]},
-              "score": {"type": "number", "minimum": 0, "maximum": 1}
-            }
-          },
-          {
-            "properties": {
-              "status": {"enum": ["abstained", "error"]},
-              "score": {"const": null}
-            }
-          }
-        ],
-        "additionalProperties": false
-      }
+      "items": {"$ref": "#/$defs/error"}
     },
-    "evidence_paths": {
+    "limitations": {
       "type": "array",
-      "minItems": 1,
       "uniqueItems": true,
-      "items": {"type": "string", "format": "safe-relative-path"}
+      "items": {"type": "string", "minLength": 1}
     },
-    "graded_at": {"type": "string", "format": "date-time"},
-    "provider_native": {"type": "object", "additionalProperties": true}
-  },
-  "oneOf": [
-    {
+    "reportPaths": {
+      "type": "object",
+      "required": ["json", "markdown"],
       "properties": {
-        "status": {"enum": ["passed", "failed"]},
-        "score": {"type": "number", "minimum": 0, "maximum": 1}
-      }
+        "json": {"$ref": "#/$defs/nullable_path"},
+        "markdown": {"$ref": "#/$defs/nullable_path"}
+      },
+      "additionalProperties": false
     },
-    {
-      "properties": {
-        "status": {"enum": ["abstained", "grader-error", "invalid"]},
-        "score": {"const": null}
-      }
+    "scientificDecision": {
+      "enum": ["adopt", "retain-control", "inconclusive", "descriptive-only", null]
     }
-  ],
+  },
   "additionalProperties": false
 }

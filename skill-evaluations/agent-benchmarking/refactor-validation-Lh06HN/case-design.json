@@ -1,0 +1,15 @@
+{
+  "caseId": "design",
+  "expectedRead": true,
+  "id": "bca7c734d52e4ac1837b13aadf65e264",
+  "status": "completed",
+  "text": "Use a paired, within-task screen.\n\nMissing choices to freeze:\n- exact 12-task corpus, version, and inclusion/exclusion rules\n- prompt A vs B text, with everything else held constant\n- output schema and objective grader\n- retry/abstention policy and whether first-attempt only counts\n- assignment/order and randomization seed\n- model, timeout, budget, concurrency, and cache/state reset\n- tie-break rule and what result would count as “better” in screening\n\nInstalled run/resume interface:\n- `workflows/benchmark.ts` via `fabric_exec`\n- payload must be exactly:\n  ```json\n  {\"specPath\":\"/absolute/experiment/spec.json\",\"outputDirectory\":\"/absolute/runs/run-001\"}\n  ```\n- if status is `checkpoint`, rerun the identical request in a fresh dedicated invocation\n- read-only follow-up is `report({...})` or:\n  `python -B scripts/run.py report --run-dir /absolute/runs/run-001 --format markdown`\n\n",
+  "toolCalls": 10,
+  "usage": {
+    "input": 45226,
+    "output": 2269,
+    "cacheRead": 50176,
+    "cacheWrite": 0,
+    "cost": 0.0478932
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "status": "incomplete",
+  "completed": 2,
+  "planned": 800,
+  "designs": [
+    {
+      "design": "effect",
+      "observed": 1,
+      "planned": 400,
+      "failed": 0,
+      "covered": 0,
+      "recovered": 0,
+      "falsePositive": 0,
+      "coverage": 0.0,
+      "exact95Interval": [
+        0.0,
+        0.975
+      ],
+      "meanErrorAmongUsableFits": -0.09810579269912013,
+      "verdict": "incomplete"
+    },
+    {
+      "design": "null",
+      "observed": 1,
+      "planned": 400,
+      "failed": 0,
+      "covered": 1,
+      "recovered": 1,
+      "falsePositive": 0,
+      "coverage": 1.0,
+      "exact95Interval": [
+        0.025000000000000022,
+        1.0
+      ],
+      "meanErrorAmongUsableFits": 0.002418753444963476,
+      "verdict": "incomplete"
+    }
+  ],
+  "originalAcceptanceGates": "unchanged; supplementary calibration cannot close A07/A13",
+  "readOnlyReportVerified": true,
+  "independentCellComparisons": [
+    {
+      "case": "0000",
+      "design": "effect",
+      "truth": 0.20587690246427498,
+      "rawWeightedDifference": 0.10678571428571428,
+      "independentBetaMean": 0.10170068027210884,
+      "estimate": 0.10777110976515485,
+      "interval": [
+        0.05941293046796689,
+        0.15473231412283625
+      ],
+      "elapsedSeconds": 41.88785672999802
+    },
+    {
+      "case": "0001",
+      "design": "null",
+      "truth": -1.8865117801247777e-17,
+      "rawWeightedDifference": 0.01809523809523809,
+      "independentBetaMean": 0.017233560090702944,
+      "estimate": 0.0024187534449634568,
+      "interval": [
+        -0.0459351234643489,
+        0.05744573657812026
+      ],
+      "elapsedSeconds": 40.641183968000405
+    }
+  ],
+  "comparisonScope": "Independent estimators on the same observed datasets, not independent datasets."
+}

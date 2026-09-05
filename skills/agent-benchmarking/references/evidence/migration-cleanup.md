@@ -1,4 +1,6 @@
-# Migration and cleanup receipt
+# Historical migration and cleanup receipt
+
+> Historical evidence only. This receipt describes an earlier package migration and is not a current execution or acceptance gate.
 
 Date: 2026-09-02
 

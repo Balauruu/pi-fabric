@@ -1,4 +1,6 @@
-# Session failure-to-fix ledger
+# Historical session failure-to-fix ledger
+
+> Historical evidence only. Corrections below describe the superseded workflow; protection, seal, receipt, and version-admission requirements are not current runner policy.
 
 Source packet: `/data/AI/PI/Fabric/benchmarks/fabric-research-actor-eval-2026-09-02`. The amendment decision records and final report were read as historical evidence. They describe failures of bespoke session workflows, not supported behavior of this package.
 

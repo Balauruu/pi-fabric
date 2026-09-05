@@ -1,0 +1,16 @@
+{
+  "id": "bf515b0aa9a14158adebd902fbb58bc4",
+  "status": "completed",
+  "runner": "pi",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "text": "PI_CODING_AGENT_DIR=/home/balauru/.pi-profiles/fabric\nPI_FABRIC_AGENT_DIR=/home/balauru/.pi-profiles/fabric",
+  "toolCalls": 1,
+  "usage": {
+    "input": 2929,
+    "output": 498,
+    "cacheRead": 2560,
+    "cacheWrite": 0,
+    "cost": 0.00462975
+  }
+}

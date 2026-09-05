@@ -1,0 +1,15 @@
+{
+  "caseId": "implicit",
+  "expectedRead": true,
+  "id": "939aea3fa0254bba9a5bcda7e0fac48f",
+  "status": "completed",
+  "text": "Freeze everything except the skill revision.\n\nMinimum freeze list:\n\n- **Tasks**: exact task set, versions, inclusion rules, holdouts, ordering, and input snapshots\n- **Grader**: rubric, hidden checks, thresholds, tie-breaks, reference outputs\n- **Model/runtime**: model, system prompt, temperature, top_p, max tokens, context window, retries, timeout\n- **Tools**: allowed tools, tool versions/schemas, permissions, network access, extensions/MCPs\n- **Environment**: repo revision, filesystem state, working dir, cache state, seeds, session bootstrap\n- **Execution policy**: parallelism, schedule, worker slots, stopping rules, failure handling\n- **Artifact contract**: what counts as success, required outputs, logging/trace format\n\nAlso freeze:\n\n- **Exposure rule** if the skill effect is optional, meaning whether it must actually get used\n- **Measurement rule** so the old and new skill are judged with the same denominator\n\nSo the only declared change should be:\n\n- **Skill version**: old vs new\n\nIf you want, I can turn that into a one-page benchmark freeze checklist.",
+  "toolCalls": 1,
+  "usage": {
+    "input": 6877,
+    "output": 982,
+    "cacheRead": 3072,
+    "cacheWrite": 0,
+    "cost": 0.00980715
+  }
+}

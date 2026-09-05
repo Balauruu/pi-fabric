@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 from decimal import Decimal
+import json
+import math
 from pathlib import Path
 import sys
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 import benchmark_lib as lib
 
@@ -563,6 +566,508 @@ def aggregate(
             "nested_direct": category(child_entities),
             "unique_direct_subtrees": category([*parent_entities, *child_entities]),
         },
+    }
+
+
+
+# New file-first runner interface.  The legacy ``aggregate`` entry above is
+# retained for read-only inspection of historical telemetry records.  New runs
+# call only ``aggregate_telemetry`` below; it has no source-attestation or
+# provider-implementation identity dependency.
+_V2_ROLES = ("measured", "judge", "adjudicator", "retry", "smoke", "local")
+_V2_METRICS: dict[str, tuple[str | None, tuple[str, ...]]] = {
+    "inputTokens": ("tokens", ("inputTokens", "input_tokens", "input")),
+    "outputTokens": ("tokens", ("outputTokens", "output_tokens", "output")),
+    "cacheReadTokens": ("tokens", ("cacheReadTokens", "cache_read_tokens", "cacheRead")),
+    "cacheWriteTokens": ("tokens", ("cacheWriteTokens", "cache_write_tokens", "cacheWrite")),
+    "cost": (None, ("costUsd", "cost_usd", "cost")),
+    "agentCalls": ("calls", ("agentCalls", "agent_calls")),
+    "toolCalls": ("calls", ("toolCalls", "tool_calls")),
+    "latencyMs": ("milliseconds", ("latencyMs", "latency_ms", "durationMs", "duration_ms")),
+}
+
+
+class TelemetryContractError(ValueError):
+    """Raised when native usage cannot be attributed without guessing."""
+
+    def __init__(self, issues: Iterable[str]):
+        self.issues = tuple(issues)
+        super().__init__("; ".join(self.issues))
+
+
+def _v2_copy(value: Any, field: str) -> Any:
+    try:
+        return json.loads(lib.canonical_json_bytes(value))
+    except lib.BenchmarkError as exc:
+        raise TelemetryContractError((f"{field}: {exc}",)) from None
+
+
+def _v2_number(value: Any) -> bool:
+    return (
+        not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and value >= 0
+        and (not isinstance(value, float) or math.isfinite(value))
+    )
+
+
+def _v2_path(value: Any, path: tuple[str, ...]) -> Any:
+    current = value
+    for key in path:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+
+def _v2_distinct(observations: list[dict[str, Any]]) -> list[Any]:
+    distinct: dict[bytes, Any] = {}
+    for row in observations:
+        try:
+            key = lib.canonical_json_bytes(row["value"])
+        except lib.BenchmarkError:
+            continue
+        distinct.setdefault(key, row["value"])
+    return list(distinct.values())
+
+
+def _v2_observation(native: dict[str, Any], candidates: tuple[tuple[str, tuple[str, ...]], ...]) -> dict[str, Any]:
+    observations = []
+    for source, path in candidates:
+        value = _v2_path(native, path)
+        if value is not None:
+            observations.append({"source": source, "value": deepcopy(value)})
+    distinct = _v2_distinct(observations)
+    return {
+        "status": "unavailable" if not observations else ("observed" if len(distinct) == 1 else "conflict"),
+        "value": deepcopy(distinct[0]) if len(distinct) == 1 else None,
+        "observations": observations,
+    }
+
+
+def _v2_identity_observations(native: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
+    model = {
+        "requested": _v2_observation(native, (
+            ("native.requestedModel", ("requestedModel",)),
+            ("native.requested_model", ("requested_model",)),
+            ("native.request.model", ("request", "model")),
+        )),
+        "resolved": _v2_observation(native, (
+            ("native.resolvedModel", ("resolvedModel",)),
+            ("native.resolved_model", ("resolved_model",)),
+            ("native.model", ("model",)),
+            ("native.providerNative.resolvedModel", ("providerNative", "resolvedModel")),
+            ("native.provider_native.resolved_model", ("provider_native", "resolved_model")),
+        )),
+        "observed": _v2_observation(native, (
+            ("native.observedModel", ("observedModel",)),
+            ("native.observed_model", ("observed_model",)),
+            ("native.providerNative.observedModel", ("providerNative", "observedModel")),
+            ("native.provider_native.observed_model", ("provider_native", "observed_model")),
+        )),
+    }
+    settings = {
+        "requested": _v2_observation(native, (
+            ("native.requestedSettings", ("requestedSettings",)),
+            ("native.requested_settings", ("requested_settings",)),
+            ("native.request.settings", ("request", "settings")),
+        )),
+        "resolved": _v2_observation(native, (
+            ("native.resolvedSettings", ("resolvedSettings",)),
+            ("native.resolved_settings", ("resolved_settings",)),
+        )),
+        "observed": _v2_observation(native, (
+            ("native.observedSettings", ("observedSettings",)),
+            ("native.observed_settings", ("observed_settings",)),
+            ("native.providerNative.observedSettings", ("providerNative", "observedSettings")),
+            ("native.provider_native.observed_settings", ("provider_native", "observed_settings")),
+            ("native.settings", ("settings",)),
+        )),
+    }
+    conflicts: list[dict[str, Any]] = []
+    for kind, groups in (("model", model), ("settings", settings)):
+        for name, group in groups.items():
+            if group["status"] == "conflict":
+                conflicts.append({"kind": f"{kind}-{name}-observations-conflict", "observations": deepcopy(group["observations"])})
+        requested = groups["requested"]
+        observed = groups["observed"]
+        if requested["status"] == observed["status"] == "observed" and requested["value"] != observed["value"]:
+            conflicts.append({
+                "kind": f"requested-vs-observed-{kind}",
+                "requested": deepcopy(requested["value"]),
+                "observed": deepcopy(observed["value"]),
+            })
+    return model, settings, conflicts
+
+
+def _v2_cost_unit(usage: dict[str, Any], alias: str) -> str | None:
+    if alias in {"costUsd", "cost_usd"}:
+        return "USD"
+    for key in ("costUnit", "cost_unit", "currency"):
+        value = usage.get(key)
+        if isinstance(value, str) and value:
+            return value.upper() if value.lower() == "usd" else value
+    return None
+
+
+def _v2_metric(usage: dict[str, Any] | None, metric: str, source: str, limitations: list[str]) -> dict[str, Any]:
+    default_unit, aliases = _V2_METRICS[metric]
+    observations: list[dict[str, Any]] = []
+    if isinstance(usage, dict):
+        for alias in aliases:
+            if alias in usage:
+                unit = _v2_cost_unit(usage, alias) if metric == "cost" else default_unit
+                observations.append({"source": f"{source}.{alias}", "value": usage[alias], "unit": unit})
+        if metric == "toolCalls" and not observations:
+            calls = usage.get("tools")
+            if isinstance(calls, list):
+                observations.append({"source": f"{source}.tools", "value": len(calls), "unit": "calls"})
+    valid = [row for row in observations if _v2_number(row["value"])]
+    invalid = [row for row in observations if not _v2_number(row["value"])]
+    distinct = {(str(row["value"]), row["unit"]) for row in valid}
+    if not observations:
+        status, value, unit = "unavailable", None, default_unit
+    elif invalid:
+        status, value, unit = "invalid", None, valid[0]["unit"] if valid else default_unit
+        limitations.append(f"{source}.{metric}: native value is negative, non-finite, boolean, or non-numeric")
+    elif len(distinct) > 1:
+        status, value, unit = "conflict", None, None
+        limitations.append(f"{source}.{metric}: conflicting native aliases were retained")
+    else:
+        status, value, unit = "observed", valid[0]["value"], valid[0]["unit"]
+        if metric == "cost" and unit is None:
+            limitations.append(f"{source}.{metric}: native cost unit is unavailable")
+    return {
+        "value": value,
+        "status": status,
+        "unit": unit,
+        "observations": observations,
+    }
+
+
+def _v2_usage_maps(native: dict[str, Any], has_children: bool, source: str, limitations: list[str]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    direct_raw = native.get("directUsage", native.get("direct_usage"))
+    inclusive_raw = native.get("inclusiveUsage", native.get("inclusive_usage", native.get("subtreeUsage", native.get("subtree_usage"))))
+    generic = native.get("usage")
+    scope = None
+    if isinstance(generic, dict):
+        scope = generic.get("scope", generic.get("usageScope", generic.get("usage_scope")))
+    if scope is None:
+        scope = native.get("usageScope", native.get("usage_scope"))
+    normalized_scope = scope.lower().replace("_", "-") if isinstance(scope, str) else None
+    if direct_raw is None and inclusive_raw is None and isinstance(generic, dict):
+        if normalized_scope in {"inclusive", "subtree", "run-total"}:
+            inclusive_raw = generic
+        elif normalized_scope in {"direct", "self"} or not has_children:
+            direct_raw = generic
+        else:
+            limitations.append(f"{source}.usage: recursive native usage has unknown direct/inclusive scope")
+    elif isinstance(generic, dict):
+        if normalized_scope in {"inclusive", "subtree", "run-total"} and inclusive_raw is None:
+            inclusive_raw = generic
+        elif normalized_scope in {"direct", "self"} and direct_raw is None:
+            direct_raw = generic
+    if direct_raw is not None and not isinstance(direct_raw, dict):
+        limitations.append(f"{source}.directUsage: expected an object")
+        direct_raw = None
+    if inclusive_raw is not None and not isinstance(inclusive_raw, dict):
+        limitations.append(f"{source}.inclusiveUsage: expected an object")
+        inclusive_raw = None
+    direct_raw = deepcopy(direct_raw) if isinstance(direct_raw, dict) else {}
+    native_tools = native.get("toolCalls", native.get("tool_calls"))
+    if not any(alias in direct_raw for alias in _V2_METRICS["toolCalls"][1]):
+        if isinstance(native_tools, list):
+            direct_raw["toolCalls"] = len(native_tools)
+        elif _v2_number(native_tools):
+            direct_raw["toolCalls"] = native_tools
+    if not any(alias in direct_raw for alias in _V2_METRICS["latencyMs"][1]):
+        for key in ("latencyMs", "latency_ms", "durationMs", "duration_ms"):
+            if key in native:
+                direct_raw["latencyMs"] = native[key]
+                break
+    direct = {metric: _v2_metric(direct_raw, metric, f"{source}.directUsage", limitations) for metric in _V2_METRICS}
+    inclusive = {metric: _v2_metric(inclusive_raw, metric, f"{source}.inclusiveUsage", limitations) for metric in _V2_METRICS}
+    return direct, inclusive, {
+        "usage": deepcopy(generic),
+        "directUsage": deepcopy(direct_raw),
+        "inclusiveUsage": deepcopy(inclusive_raw),
+        "declaredScope": scope,
+    }
+
+
+def _v2_children(container: dict[str, Any], native: dict[str, Any]) -> list[Any]:
+    explicit = container.get("children")
+    if isinstance(explicit, list) and explicit:
+        return explicit
+    for key in ("nestedAgents", "nested_agents", "children"):
+        value = native.get(key)
+        if isinstance(value, list):
+            return value
+    return []
+
+
+def _v2_child_id(container: dict[str, Any], native: dict[str, Any]) -> str | None:
+    for key in ("childId", "child_id", "agentId", "agent_id", "id"):
+        value = container.get(key)
+        if isinstance(value, str) and value:
+            return value
+        value = native.get(key)
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
+def _v2_native(container: dict[str, Any]) -> dict[str, Any]:
+    value = container.get("nativeResult", container.get("native_result", container))
+    return value if isinstance(value, dict) else {}
+
+
+def _v2_logs(native: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for source, path in (
+        ("native.logFile", ("logFile",)),
+        ("native.log_file", ("log_file",)),
+        ("native.logs", ("logs",)),
+        ("native.providerNative.logFile", ("providerNative", "logFile")),
+        ("native.provider_native.log_file", ("provider_native", "log_file")),
+    ):
+        value = _v2_path(native, path)
+        if value is not None:
+            rows.append({"source": source, "value": deepcopy(value)})
+    return rows
+
+
+def _v2_status(native: dict[str, Any]) -> dict[str, Any]:
+    value = native.get("status", native.get("dispatchStatus", native.get("dispatch_status")))
+    if not isinstance(value, str):
+        return {"value": None, "status": "unavailable", "normalized": "unknown"}
+    normalized = value.lower().replace("_", "-")
+    if normalized in {"complete", "completed", "succeeded", "success"}:
+        normalized = "completed"
+    elif normalized in {"timed-out", "timeout"}:
+        normalized = "timeout"
+    elif normalized in {"canceled", "cancelled"}:
+        normalized = "cancelled"
+    elif normalized in {"failed", "error", "infrastructure-failure", "agent-failure"}:
+        normalized = "failed"
+    else:
+        normalized = "unknown"
+    return {"value": value, "status": "observed", "normalized": normalized}
+
+
+def _v2_entity(container: dict[str, Any], *, entity_id: str, relation: str, source: str, limitations: list[str]) -> tuple[dict[str, Any], list[tuple[dict[str, Any], str]]]:
+    if "children" in container and not isinstance(container["children"], list):
+        raise TelemetryContractError((f"{source}.children: expected an array",))
+    native = _v2_native(container)
+    children = _v2_children(container, native)
+    direct, inclusive, native_usage = _v2_usage_maps(native, bool(children), source, limitations)
+    model, settings, conflicts = _v2_identity_observations(native)
+    entity = {
+        "entityId": entity_id,
+        "relation": relation,
+        "nativeStatus": _v2_status(native),
+        "usage": {"direct": direct, "inclusive": inclusive},
+        "nativeUsage": native_usage,
+        "models": model,
+        "settings": settings,
+        "observationConflicts": conflicts,
+        "logs": _v2_logs(native),
+        "nativeTools": deepcopy(native.get("toolCalls", native.get("tool_calls"))),
+        "nativeTiming": {
+            key: deepcopy(native[key])
+            for key in ("startedAt", "started_at", "finishedAt", "finished_at", "latencyMs", "latency_ms", "durationMs", "duration_ms")
+            if key in native
+        },
+    }
+    nested: list[tuple[dict[str, Any], str]] = []
+    for index, child in enumerate(children):
+        if not isinstance(child, dict):
+            raise TelemetryContractError((f"{source}.children[{index}]: expected an object",))
+        child_native = _v2_native(child)
+        child_id = _v2_child_id(child, child_native)
+        if child_id is None:
+            raise TelemetryContractError((f"{source}.children[{index}]: childId/agentId is required for attribution",))
+        nested.append((child, child_id))
+    return entity, nested
+
+
+def _v2_aggregate_metrics(metric_rows: list[dict[str, Any]], *, entity_count: int) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for metric, (default_unit, _) in _V2_METRICS.items():
+        rows = [row[metric] for row in metric_rows]
+        observed = [row for row in rows if row["status"] in {"observed", "partial"} and _v2_number(row.get("value"))]
+        bad = [row for row in rows if row["status"] in {"invalid", "conflict"}]
+        unavailable = [row for row in rows if row["status"] == "unavailable"]
+        nested_unknown = sum(row.get("unknownCount", 0) for row in observed if row["status"] == "partial")
+        unknown = len(unavailable) + nested_unknown
+        units = {row["unit"] for row in observed}
+        if bad or len(units) > 1:
+            status, value, unit = "conflict", None, None
+        elif not observed:
+            status, value, unit = "unavailable", None, default_unit
+        else:
+            total = sum((_decimal(row["value"]) for row in observed), Decimal(0))
+            integer = metric != "cost"
+            value = _json_number(total, integer=integer)
+            status = "observed" if not unknown else "partial"
+            unit = next(iter(units)) if units else default_unit
+        result[metric] = {
+            "value": value,
+            "status": status,
+            "unit": unit,
+            "knownCount": len(observed),
+            "unknownCount": unknown,
+            "invalidOrConflictCount": len(bad),
+            "entityCount": entity_count,
+        }
+    return result
+
+
+def _v2_attempt_usage(entities: list[dict[str, Any]]) -> dict[str, Any]:
+    direct = _v2_aggregate_metrics([entity["usage"]["direct"] for entity in entities], entity_count=len(entities))
+    root_inclusive = _v2_aggregate_metrics([entities[0]["usage"]["inclusive"]], entity_count=1)
+    accounted: dict[str, Any] = {}
+    for metric in _V2_METRICS:
+        direct_row = direct[metric]
+        inclusive_row = root_inclusive[metric]
+        if direct_row["status"] == "observed":
+            selected = direct_row
+            basis = "unique-direct"
+        elif inclusive_row["status"] == "observed":
+            selected = inclusive_row
+            basis = "root-inclusive"
+        elif direct_row["status"] == "partial":
+            selected = direct_row
+            basis = "partial-unique-direct"
+        else:
+            selected = direct_row
+            basis = "unavailable"
+        accounted[metric] = {**deepcopy(selected), "basis": basis}
+    return {"direct": direct, "inclusive": root_inclusive, "accounted": accounted}
+
+
+def _v2_total_role(attempts: list[dict[str, Any]]) -> dict[str, Any]:
+    direct_rows = [entity["usage"]["direct"] for attempt in attempts for entity in attempt["entities"]]
+    inclusive_rows = [attempt["entities"][0]["usage"]["inclusive"] for attempt in attempts]
+    accounted_rows = [{metric: attempt["usage"]["accounted"][metric] for metric in _V2_METRICS} for attempt in attempts]
+    return {
+        "attemptCount": len(attempts),
+        "entityCount": sum(len(attempt["entities"]) for attempt in attempts),
+        "direct": _v2_aggregate_metrics(direct_rows, entity_count=len(direct_rows)),
+        "inclusive": _v2_aggregate_metrics(inclusive_rows, entity_count=len(inclusive_rows)),
+        "accounted": _v2_aggregate_metrics(accounted_rows, entity_count=len(accounted_rows)),
+        "accountingRule": "For each attempt and metric, use complete unique-direct usage; otherwise use one observed root-inclusive value; never add both.",
+    }
+
+
+def aggregate_telemetry(request: Mapping[str, Any]) -> dict[str, Any]:
+    """Project and total new-run native telemetry without double counting.
+
+    Unknown values stay null with ``status='unavailable'``.  A numeric zero is
+    observed.  Direct entities and root-inclusive observations are retained as
+    alternative views; ``accounted`` selects one per attempt and metric.
+    """
+    if not isinstance(request, Mapping):
+        raise TelemetryContractError(("request: expected an object",))
+    if set(request) != {"schemaVersion", "attempts", "ownership"}:
+        raise TelemetryContractError(("request: expected exactly schemaVersion, attempts, and ownership",))
+    if request.get("schemaVersion") != 1:
+        raise TelemetryContractError(("schemaVersion: expected 1",))
+    raw_attempts = request.get("attempts")
+    raw_ownership = request.get("ownership")
+    if not isinstance(raw_attempts, list) or not isinstance(raw_ownership, list):
+        raise TelemetryContractError(("attempts and ownership must be arrays",))
+    attempts = [_v2_copy(value, f"attempts[{index}]") for index, value in enumerate(raw_attempts)]
+    ownership = [_v2_copy(value, f"ownership[{index}]") for index, value in enumerate(raw_ownership)]
+    issues: list[str] = []
+    owner_by_child: dict[str, str] = {}
+    for index, edge in enumerate(ownership):
+        if not isinstance(edge, dict):
+            issues.append(f"ownership[{index}]: expected an object")
+            continue
+        child_id = edge.get("childId")
+        owner_id = edge.get("ownerAttemptId")
+        if not isinstance(child_id, str) or not child_id or not isinstance(owner_id, str) or not owner_id:
+            issues.append(f"ownership[{index}]: childId and ownerAttemptId must be non-empty strings")
+            continue
+        if child_id in owner_by_child:
+            issues.append(f"ownership[{index}]: child {child_id!r} has more than one owner")
+        else:
+            owner_by_child[child_id] = owner_id
+    if issues:
+        raise TelemetryContractError(issues)
+
+    limitations: list[str] = []
+    projected: list[dict[str, Any]] = []
+    attempt_ids: set[str] = set()
+    seen_children: set[str] = set()
+    for index, attempt in enumerate(attempts):
+        if not isinstance(attempt, dict):
+            issues.append(f"attempts[{index}]: expected an object")
+            continue
+        attempt_id = attempt.get("attemptId")
+        role = attempt.get("role")
+        if not isinstance(attempt_id, str) or not attempt_id:
+            issues.append(f"attempts[{index}].attemptId: expected a non-empty string")
+            continue
+        if attempt_id in attempt_ids:
+            issues.append(f"attempts[{index}]: duplicate attemptId {attempt_id!r}")
+            continue
+        attempt_ids.add(attempt_id)
+        if role not in _V2_ROLES:
+            issues.append(f"attempts[{index}].role: expected one of {_V2_ROLES}")
+            continue
+        native = attempt.get("nativeResult")
+        if native is None:
+            native = {}
+        if not isinstance(native, dict):
+            issues.append(f"attempts[{index}].nativeResult: expected an object or null")
+            native = {}
+        root_container = {"nativeResult": native, "children": attempt.get("children", [])}
+        try:
+            root, pending = _v2_entity(root_container, entity_id=attempt_id, relation="root", source=f"attempts[{index}].nativeResult", limitations=limitations)
+            entities = [root]
+            while pending:
+                child, child_id = pending.pop(0)
+                if child_id in seen_children:
+                    issues.append(f"attempts[{index}]: child {child_id!r} appears more than once")
+                    continue
+                seen_children.add(child_id)
+                if owner_by_child.get(child_id) != attempt_id:
+                    actual = owner_by_child.get(child_id)
+                    issues.append(f"attempts[{index}]: child {child_id!r} ownership is {actual!r}, expected {attempt_id!r}")
+                entity, nested = _v2_entity(child, entity_id=child_id, relation="child", source=f"attempts[{index}].children[{child_id}]", limitations=limitations)
+                entities.append(entity)
+                pending.extend(nested)
+        except TelemetryContractError as exc:
+            issues.extend(exc.issues)
+            continue
+        projected.append({
+            "attemptId": attempt_id,
+            "role": role,
+            "entities": entities,
+            "usage": _v2_attempt_usage(entities),
+        })
+    extra_ownership = sorted(set(owner_by_child) - seen_children)
+    if extra_ownership:
+        issues.append("ownership names absent children: " + ", ".join(extra_ownership))
+    unknown_owners = sorted(set(owner_by_child.values()) - attempt_ids)
+    if unknown_owners:
+        issues.append("ownership names absent attempts: " + ", ".join(unknown_owners))
+    if issues:
+        raise TelemetryContractError(issues)
+
+    projected.sort(key=lambda row: row["attemptId"])
+    totals = {role: _v2_total_role([attempt for attempt in projected if attempt["role"] == role]) for role in _V2_ROLES}
+    totals["all"] = _v2_total_role(projected)
+    for attempt in projected:
+        if any(entity["observationConflicts"] for entity in attempt["entities"]):
+            limitations.append(f"attempt {attempt['attemptId']}: conflicting model/settings observations retained")
+    return {
+        "schemaVersion": 1,
+        "attempts": projected,
+        "totals": totals,
+        "limitations": sorted(set(limitations)),
     }
 
 

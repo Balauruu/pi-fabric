@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "fresh-context-file-only-validation",
+  "question": {
+    "text": "Does the candidate instruction improve exact answers on this fixed two-task sample?",
+    "role": "screening",
+    "scope": "finite-task-set",
+    "samplingFrame": "Two fixed text transformations used only by this fixture.",
+    "selectionMethod": "Curated deterministic boundary examples.",
+    "targetPopulation": null
+  },
+  "tasks": [
+    {
+      "id": "add-2-and-3",
+      "prompt": "Return only the sum of 2 and 3.",
+      "weight": 1,
+      "family": "text-arithmetic",
+      "stratum": "easy",
+      "inputPaths": [],
+      "outcomeDefinition": "The complete trimmed output equals 5."
+    },
+    {
+      "id": "uppercase-blue",
+      "prompt": "Return only BLUE in uppercase.",
+      "weight": 1,
+      "family": "text-transformation",
+      "stratum": "easy",
+      "inputPaths": [],
+      "outcomeDefinition": "The complete trimmed output equals BLUE."
+    }
+  ],
+  "conditions": [
+    {
+      "id": "control",
+      "runner": "pi",
+      "model": "fixture-model",
+      "instructions": "Answer the prompt.",
+      "instructionPaths": [],
+      "tools": [],
+      "settings": {},
+      "intervention": "Baseline instruction."
+    },
+    {
+      "id": "candidate",
+      "runner": "pi",
+      "model": "fixture-model",
+      "instructions": "Compute or transform carefully, then return only the requested answer.",
+      "instructionPaths": [],
+      "tools": [],
+      "settings": {},
+      "intervention": "Adds an explicit careful-answer instruction."
+    }
+  ],
+  "design": {
+    "repetitions": 1,
+    "conditionOrder": [
+      "control",
+      "candidate"
+    ],
+    "assignment": {
+      "method": "independent-block-v1",
+      "seed": 7,
+      "conditioning": "fixed-block-order",
+      "parameters": {
+        "periods": null,
+        "carryoverAssumption": null,
+        "balanceRemainder": "not-applicable"
+      }
+    },
+    "concurrency": {
+      "max": 1,
+      "interleaveConditions": true
+    }
+  },
+  "grading": {
+    "method": "deterministic",
+    "rubric": "Exact trimmed text match against the prespecified answer.",
+    "scoreMapping": [
+      {
+        "label": "incorrect",
+        "score": 0
+      },
+      {
+        "label": "correct",
+        "score": 1
+      }
+    ],
+    "deterministic": {
+      "kind": "exact-text",
+      "expectedByTask": {
+        "add-2-and-3": "5",
+        "uppercase-blue": "BLUE"
+      },
+      "caseSensitive": true,
+      "malformedAction": "evaluator-failure",
+      "timeoutAction": "agent-failure"
+    },
+    "judgment": null,
+    "adjudication": {
+      "enabled": false,
+      "trigger": "never",
+      "resolverIds": [],
+      "maxCalls": 0,
+      "precedence": "not-applicable"
+    }
+  },
+  "analysis": {
+    "metrics": [
+      {
+        "id": "accepted",
+        "source": "grade.score",
+        "summary": "binary-rate",
+        "quantile": null,
+        "direction": "higher",
+        "unit": "accepted attempt",
+        "statusActions": [
+          {
+            "status": "agent-failure",
+            "action": "score",
+            "value": 0
+          },
+          {
+            "status": "timeout",
+            "action": "score",
+            "value": 0
+          },
+          {
+            "status": "cancelled",
+            "action": "score",
+            "value": 0
+          },
+          {
+            "status": "infrastructure-failure",
+            "action": "bound",
+            "value": null
+          },
+          {
+            "status": "evaluator-failure",
+            "action": "bound",
+            "value": null
+          },
+          {
+            "status": "treatment-unverified",
+            "action": "bound",
+            "value": null
+          },
+          {
+            "status": "unresolved",
+            "action": "bound",
+            "value": null
+          }
+        ]
+      }
+    ],
+    "contrasts": [
+      {
+        "id": "candidate-v-control",
+        "candidateConditionId": "candidate",
+        "controlConditionId": "control",
+        "metricIds": [
+          "accepted"
+        ],
+        "role": "primary",
+        "estimand": "task-weighted-rate-difference",
+        "taskWeighting": "saved"
+      }
+    ],
+    "precisionPower": {
+      "method": "none",
+      "simulationCount": 0,
+      "seed": 17,
+      "scenarios": []
+    },
+    "randomization": {
+      "inferenceContract": "independent-block-v1",
+      "mode": "exact",
+      "tail": "greater-or-equal",
+      "maxExactAllocations": 65536,
+      "permitApproximation": false,
+      "monteCarlo": {
+        "draws": 10000,
+        "seed": 19,
+        "intervalLevel": 0.95
+      },
+      "tieTolerance": {
+        "absolute": 1e-12,
+        "relative": 1e-12
+      }
+    },
+    "bootstrap": {
+      "method": "percentile",
+      "unit": "task",
+      "stratifyBy": [],
+      "draws": 2000,
+      "confidenceLevel": 0.95,
+      "seed": 23
+    },
+    "decision": {
+      "rule": "estimate-only",
+      "practicalThreshold": null,
+      "nonInferiorityMargin": null,
+      "vetoMetricIds": []
+    },
+    "multiplicity": {
+      "method": "none",
+      "alpha": 0.05,
+      "familyId": "primary-family",
+      "hypothesisIds": [
+        "candidate-v-control.accepted"
+      ],
+      "intervalPolicy": "marginal"
+    },
+    "sequential": {
+      "method": "fixed-sample",
+      "maxTasks": 2,
+      "looks": [
+        {
+          "id": "final",
+          "completeTasks": 2,
+          "alphaByHypothesis": {
+            "candidate-v-control.accepted": 0.05
+          }
+        }
+      ],
+      "stopOn": "final-look"
+    },
+    "missingness": {
+      "incompleteRunPolicy": "descriptive-with-bounds",
+      "boundRange": {
+        "lower": 0,
+        "upper": 1
+      },
+      "statusActions": [
+        {
+          "status": "agent-failure",
+          "action": "score",
+          "value": 0
+        },
+        {
+          "status": "timeout",
+          "action": "score",
+          "value": 0
+        },
+        {
+          "status": "cancelled",
+          "action": "score",
+          "value": 0
+        },
+        {
+          "status": "infrastructure-failure",
+          "action": "bound",
+          "value": null
+        },
+        {
+          "status": "evaluator-failure",
+          "action": "bound",
+          "value": null
+        },
+        {
+          "status": "treatment-unverified",
+          "action": "bound",
+          "value": null
+        },
+        {
+          "status": "unresolved",
+          "action": "bound",
+          "value": null
+        }
+      ]
+    },
+    "retryPolicy": {
+      "estimand": "first-attempt",
+      "maxRetries": 0,
+      "eligibleStatuses": [],
+      "retainOriginal": true
+    },
+    "reliability": [
+      {
+        "metric": "pass-at-1",
+        "k": null,
+        "population": "first-attempts"
+      }
+    ],
+    "graderUncertainty": {
+      "method": "none",
+      "singleGraderPolicy": "not-applicable",
+      "disagreementPolicy": "retain"
+    },
+    "sensitivities": [
+      "missing-outcome-bounds",
+      "leave-one-task-out"
+    ],
+    "models": []
+  },
+  "stoppingAndBudgets": {
+    "maxTasks": 2,
+    "maxRepetitions": 1,
+    "maxDirectCalls": 4,
+    "maxRetries": 0,
+    "maxWallTimeSeconds": 60,
+    "tokenGuard": null,
+    "costGuard": null
+  }
+}

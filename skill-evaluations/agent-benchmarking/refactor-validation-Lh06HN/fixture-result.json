@@ -1,0 +1,34 @@
+{
+  "fakeCalls": 4,
+  "liveCalls": 0,
+  "result": {
+    "schemaVersion": 1,
+    "status": "complete",
+    "runDirectory": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run",
+    "phase": "complete",
+    "counts": {
+      "planned": 4,
+      "assigned": 4,
+      "terminal": 4,
+      "failed": 0,
+      "unresolved": 0,
+      "pending": 0
+    },
+    "nextAction": null,
+    "errors": [],
+    "limitations": [
+      "maxWallTimeSeconds stops admission between waves per invocation; it does not cancel in-flight calls or bound final analysis.",
+      "timeoutMs requests an override only; Fabric ignores values below its configured timeout floor. No lower per-call enforcement is claimed.",
+      "Results apply to the declared finite task set; no task-population claim was made.",
+      "attempts[0].nativeResult.directUsage.cost: native cost unit is unavailable",
+      "attempts[1].nativeResult.directUsage.cost: native cost unit is unavailable",
+      "attempts[2].nativeResult.directUsage.cost: native cost unit is unavailable",
+      "attempts[3].nativeResult.directUsage.cost: native cost unit is unavailable"
+    ],
+    "reportPaths": {
+      "json": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/report.json",
+      "markdown": "/home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/refactor-validation-Lh06HN/complete-run/report.md"
+    },
+    "scientificDecision": "inconclusive"
+  }
+}

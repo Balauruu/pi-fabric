@@ -1,0 +1,15 @@
+{
+  "caseId": "one-example",
+  "expectedRead": false,
+  "id": "773f440eb37147f7b89b15fc70d4bb8f",
+  "status": "completed",
+  "text": "Example prompt:\n\n> Extract the date from this sentence and return it in ISO 8601 format (YYYY-MM-DD). Sentence: “We met on July 4, 2023.”\n\nExpected output:\n`2023-07-04`",
+  "toolCalls": 0,
+  "usage": {
+    "input": 3398,
+    "output": 210,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0.0034935
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "minimal-deterministic",
+  "assignment": {
+    "method": "independent-block-v1",
+    "seed": 7,
+    "conditionOrder": ["control", "candidate"],
+    "conditioning": "fixed-block-order",
+    "parameters": {
+      "periods": null,
+      "carryoverAssumption": null,
+      "balanceRemainder": "not-applicable"
+    }
+  },
+  "rows": [
+    {"attemptId": "a-000001", "taskId": "add-2-and-3", "conditionId": "control", "repetition": 1, "blockId": "b-000001", "blockIndex": 1, "orderPosition": 1, "retryOf": null},
+    {"attemptId": "a-000002", "taskId": "add-2-and-3", "conditionId": "candidate", "repetition": 1, "blockId": "b-000001", "blockIndex": 1, "orderPosition": 2, "retryOf": null},
+    {"attemptId": "a-000003", "taskId": "uppercase-blue", "conditionId": "candidate", "repetition": 1, "blockId": "b-000002", "blockIndex": 2, "orderPosition": 1, "retryOf": null},
+    {"attemptId": "a-000004", "taskId": "uppercase-blue", "conditionId": "control", "repetition": 1, "blockId": "b-000002", "blockIndex": 2, "orderPosition": 2, "retryOf": null}
+  ]
+}

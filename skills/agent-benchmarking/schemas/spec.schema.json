@@ -1,0 +1,703 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pi.local/agent-benchmarking/spec.schema.json",
+  "title": "Resolved agent benchmark experiment specification",
+  "description": "Experiment inputs consumed by the refactored file-backed runner. Caller defaults are resolved into this shape before scored dispatch.",
+  "type": "object",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "nullable_id": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "input_path": {
+      "type": "string",
+      "format": "safe-relative-path"
+    },
+    "question": {
+      "type": "object",
+      "required": ["text", "role", "scope", "samplingFrame", "selectionMethod", "targetPopulation"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1},
+        "role": {"enum": ["development", "screening", "estimation", "confirmatory"]},
+        "scope": {"enum": ["finite-task-set", "task-population"]},
+        "samplingFrame": {"type": "string", "minLength": 1},
+        "selectionMethod": {"type": "string", "minLength": 1},
+        "targetPopulation": {"type": ["string", "null"], "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "prompt", "weight", "family", "stratum", "inputPaths", "outcomeDefinition"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "prompt": {"type": "string", "minLength": 1},
+        "weight": {"type": "number", "exclusiveMinimum": 0},
+        "family": {"$ref": "#/$defs/nullable_id"},
+        "stratum": {"$ref": "#/$defs/nullable_id"},
+        "inputPaths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/input_path"}
+        },
+        "outcomeDefinition": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "condition_settings": {
+      "type": "object",
+      "required": [],
+      "properties": {},
+      "additionalProperties": true
+    },
+    "condition": {
+      "type": "object",
+      "required": ["id", "runner", "model", "instructions", "instructionPaths", "tools", "settings", "intervention"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "runner": {"type": "string", "minLength": 1},
+        "model": {"type": "string", "minLength": 1},
+        "instructions": {"type": "string"},
+        "instructionPaths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/input_path"}
+        },
+        "tools": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "settings": {"$ref": "#/$defs/condition_settings"},
+        "intervention": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "assignment": {
+      "type": "object",
+      "required": ["method", "seed", "conditioning", "parameters"],
+      "properties": {
+        "method": {
+          "enum": [
+            "independent-block-v1",
+            "task-vector-v1",
+            "balanced-cyclic-v1",
+            "counterbalanced-v1"
+          ]
+        },
+        "seed": {"type": "integer"},
+        "conditioning": {
+          "enum": ["fixed-block-order", "unconditional", "period-and-block", "none"]
+        },
+        "parameters": {
+          "type": "object",
+          "required": ["periods", "carryoverAssumption", "balanceRemainder"],
+          "properties": {
+            "periods": {"type": ["integer", "null"], "minimum": 1},
+            "carryoverAssumption": {"type": ["string", "null"], "minLength": 1},
+            "balanceRemainder": {"enum": ["random-distinct-shifts", "not-applicable"]}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "design": {
+      "type": "object",
+      "required": ["repetitions", "conditionOrder", "assignment", "concurrency"],
+      "properties": {
+        "repetitions": {"type": "integer", "minimum": 1},
+        "conditionOrder": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "assignment": {"$ref": "#/$defs/assignment"},
+        "concurrency": {
+          "type": "object",
+          "required": ["max", "interleaveConditions"],
+          "properties": {
+            "max": {"type": "integer", "minimum": 1},
+            "interleaveConditions": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "deterministic_grader": {
+      "type": "object",
+      "required": ["kind", "expectedByTask", "caseSensitive", "malformedAction", "timeoutAction"],
+      "properties": {
+        "kind": {"enum": ["exact-text", "exact-json", "json-schema", "command", "predicate", "final-state"]},
+        "expectedByTask": {
+          "type": "object",
+          "required": [],
+          "properties": {},
+          "additionalProperties": true
+        },
+        "caseSensitive": {"type": "boolean"},
+        "malformedAction": {"enum": ["fail", "evaluator-failure", "missing"]},
+        "timeoutAction": {"enum": ["fail", "agent-failure", "missing"]}
+      },
+      "additionalProperties": false
+    },
+    "judgment_grader": {
+      "type": "object",
+      "required": ["graderIds", "runner", "model", "rubric", "calibrationInputPaths", "labelSet", "repetitions", "retainUncertainty"],
+      "properties": {
+        "graderIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "runner": {"type": "string", "minLength": 1},
+        "model": {"type": "string", "minLength": 1},
+        "rubric": {"type": "string", "minLength": 1},
+        "calibrationInputPaths": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/input_path"}
+        },
+        "labelSet": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "repetitions": {"type": "integer", "minimum": 1},
+        "retainUncertainty": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "adjudication": {
+      "type": "object",
+      "required": ["enabled", "trigger", "resolverIds", "maxCalls", "precedence"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "trigger": {"enum": ["never", "declared-disagreement"]},
+        "resolverIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "maxCalls": {"type": "integer", "minimum": 0},
+        "precedence": {"enum": ["resolver", "majority", "retain-disagreement", "not-applicable"]}
+      },
+      "additionalProperties": false
+    },
+    "grading": {
+      "type": "object",
+      "required": ["method", "rubric", "scoreMapping", "deterministic", "judgment", "adjudication"],
+      "properties": {
+        "method": {"enum": ["deterministic", "model", "human"]},
+        "rubric": {"type": "string", "minLength": 1},
+        "scoreMapping": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["label", "score"],
+            "properties": {
+              "label": {"type": "string", "minLength": 1},
+              "score": {"type": "number"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "deterministic": {
+          "oneOf": [
+            {"$ref": "#/$defs/deterministic_grader"},
+            {"type": "null"}
+          ]
+        },
+        "judgment": {
+          "oneOf": [
+            {"$ref": "#/$defs/judgment_grader"},
+            {"type": "null"}
+          ]
+        },
+        "adjudication": {"$ref": "#/$defs/adjudication"}
+      },
+      "additionalProperties": false
+    },
+    "status_action": {
+      "type": "object",
+      "required": ["status", "action", "value"],
+      "properties": {
+        "status": {
+          "enum": [
+            "agent-failure",
+            "timeout",
+            "cancelled",
+            "infrastructure-failure",
+            "evaluator-failure",
+            "treatment-unverified",
+            "unresolved"
+          ]
+        },
+        "action": {"enum": ["score", "missing", "bound", "refuse"]},
+        "value": {"type": ["number", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "metric": {
+      "type": "object",
+      "required": ["id", "source", "summary", "quantile", "direction", "unit", "statusActions"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "source": {"type": "string", "minLength": 1, "description": "grade.score aggregates resolved criteria; grade.score:<criterionId> selects one criterion. Native telemetry sources remain separate."},
+        "summary": {"enum": ["mean", "median", "quantile", "binary-rate", "transformed-mean"]},
+        "quantile": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "direction": {"enum": ["higher", "lower"]},
+        "unit": {"type": "string", "minLength": 1},
+        "statusActions": {
+          "type": "array",
+          "minItems": 7,
+          "items": {"$ref": "#/$defs/status_action"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "contrast": {
+      "type": "object",
+      "required": ["id", "candidateConditionId", "controlConditionId", "metricIds", "role", "estimand", "taskWeighting"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "candidateConditionId": {"$ref": "#/$defs/id"},
+        "controlConditionId": {"$ref": "#/$defs/id"},
+        "metricIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "role": {"enum": ["primary", "secondary", "exploratory"]},
+        "estimand": {"enum": ["task-weighted-mean-difference", "task-weighted-rate-difference", "task-weighted-transformed-difference"]},
+        "taskWeighting": {"enum": ["saved", "equal"]}
+      },
+      "additionalProperties": false
+    },
+    "precision_scenario": {
+      "type": "object",
+      "required": ["id", "tasks", "repetitions", "effect", "taskStandardDeviation", "failureRate", "graderErrorRate"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "tasks": {"type": "integer", "minimum": 1},
+        "repetitions": {"type": "integer", "minimum": 1},
+        "effect": {"type": "number"},
+        "taskStandardDeviation": {"type": "number", "minimum": 0},
+        "failureRate": {"type": "number", "minimum": 0, "maximum": 1},
+        "graderErrorRate": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "precision_power": {
+      "description": "Simulation runs the saved production analysis and decision on prefixes of the saved task roster, preserving IDs, families, strata, and weights. decisionProbability means adoption; rejectionProbability is separate. Additional task units, model fits, retry/grader processes, and saved repair/alternative payload generators are not synthesized and return explicit unsupported results. No selected method is silently disabled.",
+      "type": "object",
+      "required": ["method", "simulationCount", "seed", "scenarios"],
+      "properties": {
+        "method": {"enum": ["none", "simulation", "analytic-reference", "simulation-with-reference"]},
+        "simulationCount": {"type": "integer", "minimum": 0},
+        "seed": {"type": "integer", "minimum": 0},
+        "scenarios": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/precision_scenario"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "randomization_analysis": {
+      "type": "object",
+      "required": ["inferenceContract", "mode", "tail", "maxExactAllocations", "permitApproximation", "monteCarlo", "tieTolerance"],
+      "properties": {
+        "inferenceContract": {
+          "enum": [
+            "independent-block-v1",
+            "task-vector-v1",
+            "balanced-cyclic-v1",
+            "counterbalanced-v1"
+          ]
+        },
+        "mode": {"enum": ["exact", "monte-carlo", "exact-or-monte-carlo", "none"]},
+        "tail": {"enum": ["greater-or-equal", "less-or-equal", "two-sided-absolute", "two-sided-doubled"]},
+        "maxExactAllocations": {"type": "integer", "minimum": 1},
+        "permitApproximation": {"type": "boolean"},
+        "monteCarlo": {
+          "type": "object",
+          "required": ["draws", "seed", "intervalLevel"],
+          "properties": {
+            "draws": {"type": "integer", "minimum": 1},
+            "seed": {"type": "integer", "minimum": 0},
+            "intervalLevel": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1}
+          },
+          "additionalProperties": false
+        },
+        "tieTolerance": {
+          "type": "object",
+          "required": ["absolute", "relative"],
+          "properties": {
+            "absolute": {"type": "number", "minimum": 0},
+            "relative": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "bootstrap": {
+      "type": "object",
+      "required": ["method", "unit", "stratifyBy", "draws", "confidenceLevel", "seed"],
+      "properties": {
+        "method": {"enum": ["none", "percentile", "bca"]},
+        "unit": {"enum": ["task", "family"]},
+        "stratifyBy": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["stratum", "family", "concurrency", "service"]}
+        },
+        "draws": {"type": "integer", "minimum": 0},
+        "confidenceLevel": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "seed": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "decision": {
+      "type": "object",
+      "required": ["rule", "practicalThreshold", "nonInferiorityMargin", "vetoMetricIds"],
+      "properties": {
+        "rule": {"enum": ["estimate-only", "adopt-if-all-primary", "retain-control-unless-noninferior", "descriptive-only"]},
+        "practicalThreshold": {"type": ["number", "null"]},
+        "nonInferiorityMargin": {"type": ["number", "null"], "minimum": 0},
+        "vetoMetricIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "multiplicity": {
+      "type": "object",
+      "required": ["method", "alpha", "familyId", "hypothesisIds", "intervalPolicy"],
+      "properties": {
+        "method": {"enum": ["none", "bonferroni", "holm", "fdr-bh", "fdr-by"]},
+        "alpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "familyId": {"$ref": "#/$defs/id"},
+        "hypothesisIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "intervalPolicy": {"enum": ["marginal", "simultaneous", "not-reported"]}
+      },
+      "additionalProperties": false
+    },
+    "look": {
+      "type": "object",
+      "required": ["id", "completeTasks", "alphaByHypothesis"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "completeTasks": {"type": "integer", "minimum": 1},
+        "alphaByHypothesis": {
+          "type": "object",
+          "required": [],
+          "properties": {},
+          "additionalProperties": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1}
+        }
+      },
+      "additionalProperties": false
+    },
+    "sequential": {
+      "type": "object",
+      "required": ["method", "maxTasks", "looks", "stopOn"],
+      "properties": {
+        "method": {"enum": ["fixed-sample", "finite-look-union-bound"]},
+        "maxTasks": {"type": "integer", "minimum": 1},
+        "looks": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/look"}
+        },
+        "stopOn": {"enum": ["final-look", "declared-boundary"]}
+      },
+      "additionalProperties": false
+    },
+    "missingness": {
+      "description": "Global status actions are an eligibility ceiling. Combine global and metric actions using refuse > bound > missing > score. Unit-specific metric scores apply only when both maps permit scoring; global scoring never overrides a more conservative metric action.",
+      "type": "object",
+      "required": ["incompleteRunPolicy", "boundRange", "statusActions"],
+      "properties": {
+        "incompleteRunPolicy": {"enum": ["descriptive-with-bounds", "refuse-inference", "score-by-status-map"]},
+        "boundRange": {
+          "type": "object",
+          "required": ["lower", "upper"],
+          "properties": {
+            "lower": {"type": "number"},
+            "upper": {"type": "number"}
+          },
+          "additionalProperties": false
+        },
+        "statusActions": {
+          "type": "array",
+          "minItems": 7,
+          "items": {"$ref": "#/$defs/status_action"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "retry_policy": {
+      "type": "object",
+      "required": ["estimand", "maxRetries", "eligibleStatuses", "retainOriginal"],
+      "properties": {
+        "estimand": {"enum": ["first-attempt", "production-policy", "both"]},
+        "maxRetries": {"type": "integer", "minimum": 0},
+        "eligibleStatuses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["agent-failure", "timeout", "infrastructure-failure", "evaluator-failure"]}
+        },
+        "retainOriginal": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "reliability": {
+      "type": "object",
+      "required": ["metric", "k", "population"],
+      "properties": {
+        "metric": {"enum": ["pass-at-1", "retry-policy-acceptance", "pass-at-k", "pass-all-k"]},
+        "k": {"type": ["integer", "null"], "minimum": 1},
+        "population": {"enum": ["all-scheduled", "first-attempts", "eligible-retries"]}
+      },
+      "additionalProperties": false
+    },
+    "grader_uncertainty": {
+      "type": "object",
+      "required": ["method", "singleGraderPolicy", "disagreementPolicy"],
+      "properties": {
+        "method": {"enum": ["none", "label-bounds", "crossed-model"]},
+        "singleGraderPolicy": {"enum": ["state-limitation", "not-applicable"]},
+        "disagreementPolicy": {"enum": ["retain", "adjudicate-if-declared", "bound"]}
+      },
+      "additionalProperties": false
+    },
+    "model_method": {
+      "type": "object",
+      "required": ["id", "method", "likelihood", "fixedEffects", "randomEffects", "priors", "sampler", "intervalProbability", "draws", "chains", "seed"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "metricId": {"$ref": "#/$defs/id"},
+        "contrastId": {"$ref": "#/$defs/id"},
+        "method": {"enum": ["gaussian-mixedlm", "bayesian-gaussian", "bayesian-bernoulli"]},
+        "likelihood": {"enum": ["gaussian", "bernoulli"]},
+        "fixedEffects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "randomEffects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["task-intercept", "task-condition", "grader-intercept", "family-intercept"]}
+        },
+        "priors": {
+          "type": "object",
+          "required": [],
+          "properties": {},
+          "additionalProperties": true
+        },
+        "sampler": {"enum": ["nuts", "metropolis", "not-applicable"]},
+        "intervalProbability": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "draws": {"type": "integer", "minimum": 0},
+        "chains": {"type": "integer", "minimum": 0},
+        "seed": {"type": "integer"}
+      },
+      "additionalProperties": false
+    },
+    "analysis": {
+      "type": "object",
+      "required": [
+        "metrics",
+        "contrasts",
+        "precisionPower",
+        "randomization",
+        "bootstrap",
+        "decision",
+        "multiplicity",
+        "sequential",
+        "missingness",
+        "retryPolicy",
+        "reliability",
+        "graderUncertainty",
+        "sensitivities",
+        "models"
+      ],
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/metric"}
+        },
+        "contrasts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/contrast"}
+        },
+        "precisionPower": {"$ref": "#/$defs/precision_power"},
+        "randomization": {"$ref": "#/$defs/randomization_analysis"},
+        "bootstrap": {"$ref": "#/$defs/bootstrap"},
+        "decision": {"$ref": "#/$defs/decision"},
+        "multiplicity": {"$ref": "#/$defs/multiplicity"},
+        "sequential": {"$ref": "#/$defs/sequential"},
+        "missingness": {"$ref": "#/$defs/missingness"},
+        "retryPolicy": {"$ref": "#/$defs/retry_policy"},
+        "reliability": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/reliability"}
+        },
+        "graderUncertainty": {"$ref": "#/$defs/grader_uncertainty"},
+        "sensitivities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "missing-outcome-bounds",
+              "infrastructure-inclusion-exclusion",
+              "first-attempt-vs-production-retry",
+              "repaired-vs-original",
+              "treatment-exposure-uncertainty",
+              "alternative-summary",
+              "alternative-weighting",
+              "leave-one-task-out",
+              "leave-one-family-out",
+              "grader-disagreement-bounds",
+              "concurrency-strata",
+              "service-strata"
+            ]
+          }
+        },
+        "sensitivityScenarios": {
+          "description": "Saved required alternatives. Every selected alternative method needs at least one scenario. Results never replace the primary analysis; unavailable selected analyses prevent completion/adoption. Repair originalValue must match the retained mapped observation.",
+          "type": "array",
+          "items": {"$ref": "#/$defs/sensitivity_scenario"}
+        },
+        "models": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/model_method"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "sensitivity_scenario": {
+      "oneOf": [
+        {
+          "type": "object", "required": ["id", "method", "metricId", "summary", "quantile"],
+          "properties": {
+            "id": {"$ref": "#/$defs/id"}, "method": {"const": "alternative-summary"},
+            "metricId": {"$ref": "#/$defs/id"},
+            "summary": {"enum": ["mean", "median", "quantile", "binary-rate", "transformed-mean"]},
+            "quantile": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+          }, "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["id", "method", "taskWeights"],
+          "properties": {
+            "id": {"$ref": "#/$defs/id"}, "method": {"const": "alternative-weighting"},
+            "taskWeights": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "number", "exclusiveMinimum": 0}}
+          }, "additionalProperties": false
+        },
+        {
+          "type": "object", "required": ["id", "method", "outcomes"],
+          "properties": {
+            "id": {"$ref": "#/$defs/id"}, "method": {"const": "repaired-vs-original"},
+            "outcomes": {"type": "array", "minItems": 1, "items": {
+              "type": "object", "required": ["attemptId", "metricId", "originalValue", "repairedValue"],
+              "properties": {
+                "attemptId": {"$ref": "#/$defs/id"}, "metricId": {"$ref": "#/$defs/id"},
+                "originalValue": {"type": ["number", "null"]}, "repairedValue": {"type": "number"}
+              }, "additionalProperties": false
+            }}
+          }, "additionalProperties": false
+        }
+      ]
+    },
+    "budgets": {
+      "type": "object",
+      "required": ["maxTasks", "maxRepetitions", "maxDirectCalls", "maxRetries", "maxWallTimeSeconds", "tokenGuard", "costGuard"],
+      "properties": {
+        "maxTasks": {"type": "integer", "minimum": 1},
+        "maxRepetitions": {"type": "integer", "minimum": 1},
+        "maxDirectCalls": {"type": "integer", "minimum": 0},
+        "maxRetries": {"type": "integer", "minimum": 0},
+        "maxWallTimeSeconds": {"type": "number", "exclusiveMinimum": 0, "description": "Per-invocation admission window between waves, not an enforced timeout on in-flight agents or final analysis."},
+        "tokenGuard": {"type": ["integer", "null"], "minimum": 0},
+        "costGuard": {"type": ["number", "null"], "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "task_state": {
+      "type": "object",
+      "required": ["setupCommand", "resetCommand", "verifyCommand"],
+      "properties": {
+        "setupCommand": {"type": ["string", "null"], "minLength": 1},
+        "resetCommand": {"type": ["string", "null"], "minLength": 1},
+        "verifyCommand": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "mechanism_observation": {
+      "type": "object",
+      "required": ["name", "evidence", "requiredForConditionIds"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "evidence": {"type": "string", "minLength": 1},
+        "requiredForConditionIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "experimentId",
+    "question",
+    "tasks",
+    "conditions",
+    "design",
+    "grading",
+    "analysis",
+    "stoppingAndBudgets"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "experimentId": {"$ref": "#/$defs/id"},
+    "question": {"$ref": "#/$defs/question"},
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/task"}
+    },
+    "conditions": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"$ref": "#/$defs/condition"}
+    },
+    "design": {"$ref": "#/$defs/design"},
+    "grading": {"$ref": "#/$defs/grading"},
+    "analysis": {"$ref": "#/$defs/analysis"},
+    "stoppingAndBudgets": {"$ref": "#/$defs/budgets"},
+    "taskState": {"$ref": "#/$defs/task_state"},
+    "mechanismObservation": {"$ref": "#/$defs/mechanism_observation"}
+  },
+  "additionalProperties": false
+}

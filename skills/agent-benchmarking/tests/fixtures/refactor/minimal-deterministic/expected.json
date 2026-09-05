@@ -1,0 +1,27 @@
+{
+  "gradeByAttempt": {
+    "a-000001": 0,
+    "a-000002": 1,
+    "a-000003": 1,
+    "a-000004": 1
+  },
+  "taskEffects": {
+    "add-2-and-3": 1,
+    "uppercase-blue": 0
+  },
+  "taskWeightedEffect": 0.5,
+  "judgeCalls": 0,
+  "adjudicatorCalls": 0,
+  "publicResult": {
+    "schemaVersion": 1,
+    "status": "complete",
+    "runDirectory": "/tmp/minimal-deterministic",
+    "phase": "complete",
+    "counts": {"planned": 4, "assigned": 4, "terminal": 4, "failed": 0, "unresolved": 0, "pending": 0},
+    "nextAction": null,
+    "errors": [],
+    "limitations": ["Fixture covers a finite two-task sample only."],
+    "reportPaths": {"json": "report.json", "markdown": "report.md"},
+    "scientificDecision": "inconclusive"
+  }
+}

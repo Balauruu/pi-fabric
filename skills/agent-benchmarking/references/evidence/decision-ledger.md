@@ -1,9 +1,11 @@
-# Durable decision ledger
+# Historical decision ledger
 
-These decisions convert the v2-v14 failure chain into package policy.
+> Historical evidence only. The refactored runner intentionally supersedes the version-admission, protection, seal, staged-call-plan, certification, and release policies below. Current behavior is defined by `SKILL.md` and `README.md`.
+
+These decisions recorded the earlier v2-v14 package policy and are retained only to explain the cutover.
 
 1. **One supported runner.** Callers execute the exact `workflows/benchmark.ts` bytes with a schema-valid request. They do not author, patch, wrap, or paste bespoke TypeScript for a benchmark session.
-2. **Capability before mutation.** Pin Pi/Fabric versions and prove request fields, stage selection, call cap, recursion, cwd, output bounds, and native-log access. Missing or contradictory support yields `unsupported` before assignment or grading.
+2. **Capability before mutation.** Require Pi >=0.84.4 and Pi Fabric >=0.77.0, pin the exact versions used by each run, and prove request fields, stage selection, call cap, recursion, cwd, output bounds, and native-log access. Missing or contradictory support yields `unsupported` before assignment or grading.
 3. **Protected state is a launch gate.** Declare protected roots and mutable-state ownership, capture a baseline, and require an isolation plan. A detected protected mutation yields `blocked`; preserve it as evidence rather than cleaning it away.
 4. **Bounded stage plan.** Analyze is preplanned as one explicit zero-call `prepare` transaction, one or more bound `judge` call plans, one or more bound `adjudicate` call plans, and `finalize`. Every call stays below the effective runtime call cap, is independently resumable, and publishes a revision-bound checkpoint.
 5. **Transactional stage closure.** A stage commits inputs and assignments first, publishes all required terminals and derivatives create-only, reconciles exact identities, then publishes its checkpoint last. Finalize performs no model calls.

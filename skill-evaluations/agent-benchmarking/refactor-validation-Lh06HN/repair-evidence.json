@@ -1,0 +1,59 @@
+{
+  "fullAcceptanceComplete": false,
+  "liveBenchmarkCalls": 0,
+  "invalidScenarioCalls": 5,
+  "workers": [
+    {
+      "id": "d6fc386f97e144c7a93ddf5f816aa673",
+      "name": "repair-statistical-validity",
+      "status": "completed",
+      "report": "Implemented fixes only in assigned paths. All six audit repros now pass with `AUDIT_RED=1`.\n\n- Sequential decisions use the eligible stopped look and allocated uncertainty.\n- Stratified BCa acceleration matches the independent oracle: **0.0467609764791412**.\n- Exact/MC reject impossible observed allocations before enumeration limits.\n- Added `analysis.sensitivityScenarios` payloads/drivers; unavailable required sensitivities block completion/adoption.\n- Simulation runs production analysis, preserves task metadata/weights, uses nonnegative seeds, and separates adoption from rejection.\n- Global missingness constrains metric scoring: `refuse > bound > missing > score`.\n\n**Validation:** core 13, randomization 11, simulation 11 (9-test suite plus two targeted additions), baseline 4, integration 9, lifecycle/run 20 passed.\n\n**Null calibration, first run:** seed 713021; 1,200 simulations; looks at 6/8 tasks; α=.025 each. Rejections **34/1200**, interim stops **21/1200**. Predeclared ceiling **6.88746%**; observed **2.83333%**, MCSE **0.47898%**, exact 95% interval **[1.96997%, 3.93694%]**.\n\n**Residual:** simulation generators for models, retries, grader processes, saved alternative-outcome scenarios, and additional task units remain explicitly unsupported, not delivered or silently disabled. Main still owns documentation/live/fresh-context validation; model-worker files were untouched."
+    },
+    {
+      "id": "306a0601ae2e43078ef5222a1ff0b1d4",
+      "name": "repair-model-validity",
+      "status": "completed",
+      "report": "Changed only:\n- `skills/agent-benchmarking/scripts/analysis_models.py`\n- `skills/agent-benchmarking/tests/test_analysis_models.py`\n\n**Fixed**\n- Gaussian finite-task predictions include fitted task slopes and joint fixed/random prediction covariance. Independent oracles cover both supported covariance constructions.\n- Focused weights now change estimates: **0.533183 → 0.938524**, SE **0.054816**.\n- Missing/nonfinite parameter-coordinate or contrast diagnostics block inference. MCSE uses each coordinate’s own posterior SD.\n- Both independent audit repros now pass.\n\n**Validation**\n- 19 focused tests, 4 adapter-smoke tests, and targeted lifecycle integration passed.\n- Scientific fits ran once: 4 chains, 1,500 tuning + 2,000 retained draws per chain.\n- All four achieved Rhat < **1.002**, bulk ESS > **1,670**, tail ESS > **2,187**, relative MCSE < **0.025**, and **zero divergences**.\n\n| Scientific case | Truth | Estimate | 95% interval | Check |\n|---|---:|---:|---|---|\n| Gaussian effect | .70000 | .69922 | [.62041, .77626] | Pass |\n| Gaussian null | 0 | .00040 | [-.07891, .07365] | Pass |\n| Bernoulli effect | .20583 | .14369 | [.09384, .19053] | **Fail** |\n| Bernoulli null | 0 | -.00574 | [-.05329, .04237] | Pass |\n\n**Residual work**\n- Bernoulli recovery remains a genuine red test. No seed, tolerance, or budget changes; no stochastic reruns. Independent calculations gave raw rate difference **.15310** and independent Beta posterior mean **.14580**, consistent with the fitted estimate but not a passing recovery check.\n- Gaussian uncertainty explicitly treats fitted variance components as known; coverage calibration remains outstanding.\n- Results explicitly target conditional saved-task means. Lifecycle selection omits `question.scope`/`estimand`; main should address that handoff/documentation.\n- Full scientific validation is **not complete**. No live agent calls."
+    },
+    {
+      "id": "f5073ae8962043389543050ce7c0b728",
+      "name": "repair-task-state-and-live-seam",
+      "status": "completed",
+      "report": "Implemented task-state execution in:\n- `scripts/lifecycle_store.py`\n- `scripts/run.py`\n- Assigned tests, including new `tests/test_task_state.py`\n\nVerified:\n- Fresh per-attempt input copies.\n- Setup/reset/verify execution and saved command evidence.\n- Stateful schedule ordering.\n- Explicit terminal failure and invalidation without replay.\n- Unsupported selections rejected before assignment.\n- 11 task-state, 20 lifecycle, and 9 integration checks passed; fixed-guest checks passed.\n\n**Production launch remains blocked:** no public usable call allowance found, and actual child profile inheritance remains unproven. No guessed budget/profile workaround added. **Zero live benchmark calls spent.**\n\nMain’s four-call fixture generator:\n```bash\n.venv/bin/python -B tests/test_task_state.py \\\n  --write-live-fixture /home/balauru/.pi-profiles/fabric/skill-evaluations/agent-benchmarking/task-state-live-NEW \\\n  --model openai-codex/gpt-5.6-sol\n```\nIt prints the stable request for exact `workflows/benchmark.ts` invocation. Do not launch until both blockers are resolved.\n\nMechanism observation remains explicitly unsupported, not falsely reported as delivered. Main received detailed evidence and documentation handoff."
+    }
+  ],
+  "mainChecks": [
+    {
+      "checks": 30,
+      "seconds": 3.582,
+      "status": "passed",
+      "scope": "baseline/grading/measurement/legacy plus separate zero-call SDK discovery"
+    },
+    {
+      "checks": 50,
+      "seconds": 14.018,
+      "status": "passed",
+      "scope": "model target/task state/run/integration/model audit, before error-count repair"
+    },
+    {
+      "checks": 36,
+      "seconds": 3.24,
+      "status": "passed",
+      "scope": "final model target/error counts/run/task state plus separate fixed guest typecheck"
+    },
+    {
+      "checks": 28,
+      "seconds": 5.671,
+      "status": "passed",
+      "scope": "final model target, explicit transform refusal, paired core and actual lifecycle model/grading integration"
+    }
+  ],
+  "scientificRecovery": {
+    "gaussianEffect": "passed",
+    "gaussianNull": "passed",
+    "bernoulliEffect": "failed",
+    "bernoulliNull": "passed",
+    "seedOrToleranceChanged": false,
+    "unchangedStochasticFitsRerun": false
+  }
+}

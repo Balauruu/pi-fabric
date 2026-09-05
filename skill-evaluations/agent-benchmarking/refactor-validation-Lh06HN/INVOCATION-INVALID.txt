@@ -1,0 +1,2 @@
+INVALID FRESH-CONTEXT VALIDATION
+Five bounded scenario sessions completed, but the implicit scenario's native read event targeted a skill outside the authorized active profile. The blacklisted profile was not inspected deliberately by Main; the managed child's default discovery was incorrect for this task. Do not count any of these five cases toward A01/A12 or claim they tested the rewritten skill. No scored benchmark agent calls were made. Further scenario or live launches require verified active-profile routing; no runtime/npm files were modified to hide this issue.

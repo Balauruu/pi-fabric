@@ -1,0 +1,15 @@
+{
+  "caseId": "code-review",
+  "expectedRead": false,
+  "id": "fab5bb9ab9ef4dbc901c83b442b23b7e",
+  "status": "completed",
+  "text": "Bug: `average([])` crashes with `ZeroDivisionError` because `len(xs)` is 0.\n\nIf `xs` may be any iterable, `len(xs)` is also a bug for generators/iterators (`TypeError`).\n\nFix: handle empty input explicitly.",
+  "toolCalls": 0,
+  "usage": {
+    "input": 3405,
+    "output": 167,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0.00330525
+  }
+}

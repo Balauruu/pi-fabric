@@ -1,0 +1,20 @@
+{
+  "authoritativeCounts": {"planned": 4, "assigned": 1, "terminal": 0, "failed": 0, "unresolved": 1, "pending": 3},
+  "staleCheckpoint": true,
+  "automaticReplayForbidden": ["a-000001"],
+  "nextAction": "Inspect available runtime output for a-000001; do not relaunch it automatically.",
+  "publicResult": {
+    "schemaVersion": 1,
+    "status": "blocked",
+    "runDirectory": "/tmp/interrupted-assigned-no-result",
+    "phase": "execute",
+    "counts": {"planned": 4, "assigned": 1, "terminal": 0, "failed": 0, "unresolved": 1, "pending": 3},
+    "nextAction": "Inspect available runtime output for a-000001; do not relaunch it automatically.",
+    "errors": [
+      {"code": "AMBIGUOUS_ASSIGNED_ATTEMPT", "message": "Assignment exists without a native result or terminal.", "workId": "a-000001"}
+    ],
+    "limitations": ["Completion status cannot be inferred from the stale checkpoint cache."],
+    "reportPaths": {"json": null, "markdown": null},
+    "scientificDecision": null
+  }
+}

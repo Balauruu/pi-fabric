@@ -1,0 +1,15 @@
+{
+  "caseId": "report",
+  "expectedRead": true,
+  "id": "aeb69d46d9a440129e388a654385d6d4",
+  "status": "completed",
+  "text": "Completion: **complete, not interrupted**\n- Planned 4, assigned 4, terminal 4, failed 0, unresolved 0, pending 0.\n- Checkpoint reconciles the same counts.\n- All 4 attempts normalized to `completed`.\n\nScientific decision: **inconclusive**\n- Primary contrast `candidate-v-control.accepted` effect = **0.0**\n- Bootstrap 95% interval = **[0.0, 0.0]**\n- Exact randomization p-value = **1.0**\n- No superiority or non-inferiority signal; both conditions scored 1.0 on both tasks.",
+  "toolCalls": 10,
+  "usage": {
+    "input": 43716,
+    "output": 1816,
+    "cacheRead": 17408,
+    "cacheWrite": 0,
+    "cost": 0.0422646
+  }
+}

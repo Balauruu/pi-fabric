@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "conditions": ["control", "candidate"],
+  "fixedBlocks": ["b-000001", "b-000002", "b-000003", "b-000004"],
+  "encoding": "Condition occupying order position 1 in fixed block order, C=control and A=candidate.",
+  "observedAllocation": "CACA",
+  "scheduleContract": "balanced-cyclic-v1",
+  "requestedInferenceContract": "task-vector-v1",
+  "balancedCyclic": {
+    "generatingPathCount": 8,
+    "uniqueAllocations": ["ACAC", "ACCA", "CAAC", "CACA"],
+    "pathMultiplicityByAllocation": {"ACAC": 2, "ACCA": 2, "CAAC": 2, "CACA": 2},
+    "minimumOneSidedP": "1/4"
+  },
+  "arbitraryGlobalBalance": {
+    "uniqueAllocations": ["AACC", "ACAC", "ACCA", "CAAC", "CACA", "CCAA"],
+    "minimumOneSidedP": "1/6"
+  },
+  "independentBlock": {
+    "uniqueAllocationCount": 16,
+    "minimumOneSidedP": "1/16"
+  },
+  "taskVectorForFourOneRepetitionTasks": {
+    "uniqueAllocationCount": 16,
+    "minimumOneSidedP": "1/16"
+  },
+  "expectedDecision": "refuse-confirmatory-contract-mismatch"
+}

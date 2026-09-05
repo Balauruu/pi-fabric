@@ -1,0 +1,6 @@
+[
+  {"attemptId": "a-000001", "status": "completed", "nativeResult": {"id": "fake-1", "status": "completed", "output": "4", "usage": {"input": 5, "output": 1}, "logFile": null}},
+  {"attemptId": "a-000002", "status": "completed", "nativeResult": {"id": "fake-2", "status": "completed", "output": "5", "usage": {"input": 8, "output": 1}, "logFile": null}},
+  {"attemptId": "a-000003", "status": "completed", "nativeResult": {"id": "fake-3", "status": "completed", "output": "BLUE", "usage": {"input": 8, "output": 1}, "logFile": null}},
+  {"attemptId": "a-000004", "status": "completed", "nativeResult": {"id": "fake-4", "status": "completed", "output": "BLUE", "usage": {"input": 5, "output": 1}, "logFile": null}}
+]

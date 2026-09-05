@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "fixtureRoot": "validation/fixtures",
+  "entries": [
+    {
+      "path": "baselines/project-status.txt",
+      "disposition": "retired-protection-only",
+      "reason": "Protected-state project snapshot; removed protection scan only.",
+      "portedTests": []
+    },
+    {
+      "path": "baselines/protected-packet.json",
+      "disposition": "retired-protection-only",
+      "reason": "Protected-state baseline packet; removed protection scan only.",
+      "portedTests": []
+    },
+    {
+      "path": "boundary/schedule-boundaries.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_schedule_boundary_cases_use_current_generation"
+      ]
+    },
+    {
+      "path": "boundary/single-task-paired-analysis.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_single_task_boundary_cannot_promote"
+      ]
+    },
+    {
+      "path": "canary/attempt-lifecycle.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/blind-map-isolation.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/condition-loading.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/development/README.txt",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/false-complete-refusal.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/fresh-parent-sessions.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/interrupted-wave-resume.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/mechanism-nested.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/primary-source-grading.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/randomized-schedule.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/runtime-model-identity.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/supervisor-prelaunch-failure.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/synthetic-catalog.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/token-cost-attribution.request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "canary/workflow-request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_old_stage_requests_are_data_not_current_runner_aliases"
+      ]
+    },
+    {
+      "path": "fixture-catalog.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": []
+    },
+    {
+      "path": "isolated-defect/grader-condition-leakage.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_condition_leakage_fixture_maps_to_actual_blind_projection"
+      ]
+    },
+    {
+      "path": "isolated-defect/stale-seal.json",
+      "disposition": "retired-protection-only",
+      "reason": "Removed seal verification only.",
+      "portedTests": []
+    },
+    {
+      "path": "known-bad/analysis-unknown-option.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_unknown_analysis_option_is_not_silently_dropped"
+      ]
+    },
+    {
+      "path": "known-bad/unequal-cells.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_unequal_cells_fail_against_the_saved_complete_schedule"
+      ]
+    },
+    {
+      "path": "known-bad/workflow-request-extra-property.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_old_stage_requests_are_data_not_current_runner_aliases"
+      ]
+    },
+    {
+      "path": "known-good/confirmatory-paired-analysis.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_paired_values_match_independent_hand_effects"
+      ]
+    },
+    {
+      "path": "known-good/paired-analysis.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_paired_values_match_independent_hand_effects"
+      ]
+    },
+    {
+      "path": "known-good/workflow-request.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_old_stage_requests_are_data_not_current_runner_aliases"
+      ]
+    },
+    {
+      "path": "malformed/blank-line.jsonl",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_original_malformed_bytes_reach_current_parser"
+      ]
+    },
+    {
+      "path": "malformed/crlf.jsonl",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_original_malformed_bytes_reach_current_parser"
+      ]
+    },
+    {
+      "path": "malformed/duplicate-key.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_original_malformed_bytes_reach_current_parser"
+      ]
+    },
+    {
+      "path": "malformed/invalid-utf8.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_original_malformed_bytes_reach_current_parser"
+      ]
+    },
+    {
+      "path": "malformed/invalid.json",
+      "disposition": "restored",
+      "reason": "Retained regression input; legacy request syntax is data, not an active runner entry.",
+      "portedTests": [
+        "test_original_malformed_bytes_reach_current_parser"
+      ]
+    }
+  ]
+}

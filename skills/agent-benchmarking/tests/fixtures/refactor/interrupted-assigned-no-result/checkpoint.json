@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "phase": "execute",
+  "counts": {"planned": 4, "assigned": 0, "terminal": 0, "failed": 0, "unresolved": 0, "pending": 4}
+}

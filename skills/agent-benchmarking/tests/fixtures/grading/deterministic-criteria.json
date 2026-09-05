@@ -1,0 +1,83 @@
+{
+  "gradingPlan": {
+    "method": "deterministic",
+    "rubric": "The complete trimmed text must exactly equal READY with case preserved.",
+    "scoreMapping": [
+      {"label": "incorrect", "score": 0},
+      {"label": "correct", "score": 1}
+    ],
+    "deterministic": {
+      "kind": "exact-text",
+      "expectedByTask": {
+        "known-good": "READY",
+        "known-bad": "READY",
+        "isolated-defect": "READY",
+        "boundary": "READY",
+        "malformed": "READY"
+      },
+      "caseSensitive": true,
+      "malformedAction": "evaluator-failure",
+      "timeoutAction": "agent-failure"
+    },
+    "judgment": null,
+    "adjudication": {
+      "enabled": false,
+      "trigger": "never",
+      "resolverIds": [],
+      "maxCalls": 0,
+      "precedence": "not-applicable"
+    }
+  },
+  "fixtures": [
+    {
+      "fixtureId": "good-exact",
+      "fixtureClass": "known-good",
+      "item": {
+        "assignment": {"attemptId": "fx-good", "taskId": "known-good"},
+        "result": {"dispatchStatus": "completed", "nativeResult": {"output": "READY"}},
+        "existingLabels": []
+      },
+      "expected": {"status": "valid", "label": "correct"}
+    },
+    {
+      "fixtureId": "bad-value",
+      "fixtureClass": "known-bad",
+      "item": {
+        "assignment": {"attemptId": "fx-bad", "taskId": "known-bad"},
+        "result": {"dispatchStatus": "completed", "nativeResult": {"output": "WRONG"}},
+        "existingLabels": []
+      },
+      "expected": {"status": "valid", "label": "incorrect"}
+    },
+    {
+      "fixtureId": "case-only-defect",
+      "fixtureClass": "isolated-defect",
+      "item": {
+        "assignment": {"attemptId": "fx-defect", "taskId": "isolated-defect"},
+        "result": {"dispatchStatus": "completed", "nativeResult": {"output": "ready"}},
+        "existingLabels": []
+      },
+      "expected": {"status": "valid", "label": "incorrect"}
+    },
+    {
+      "fixtureId": "trim-boundary",
+      "fixtureClass": "boundary",
+      "item": {
+        "assignment": {"attemptId": "fx-boundary", "taskId": "boundary"},
+        "result": {"dispatchStatus": "completed", "nativeResult": {"output": "  READY\n"}},
+        "existingLabels": []
+      },
+      "expected": {"status": "valid", "label": "correct"}
+    },
+    {
+      "fixtureId": "conflicting-native-fields",
+      "fixtureClass": "malformed",
+      "item": {
+        "assignment": {"attemptId": "fx-malformed", "taskId": "malformed"},
+        "result": {"dispatchStatus": "completed", "nativeResult": {"output": "READY", "text": "WRONG"}},
+        "existingLabels": []
+      },
+      "expected": {"status": "failed", "label": null}
+    }
+  ]
+}

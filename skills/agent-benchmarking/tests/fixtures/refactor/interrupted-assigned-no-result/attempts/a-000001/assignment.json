@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "attemptId": "a-000001",
+  "taskId": "add-2-and-3",
+  "conditionId": "control",
+  "repetition": 1,
+  "blockId": "b-000001",
+  "blockIndex": 1,
+  "orderPosition": 1,
+  "retryOf": null,
+  "request": {
+    "runner": "pi",
+    "model": "fixture-model",
+    "prompt": "Return only the sum of 2 and 3.",
+    "instructions": "Answer the prompt.",
+    "tools": [],
+    "settings": {"temperature": 0}
+  },
+  "assignedAt": "2026-09-05T00:00:00Z"
+}
