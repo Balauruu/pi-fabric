@@ -8,8 +8,9 @@ run-history.jsonl
 fabric/
 web-search-cache/
 
-# Locally disabled skills
+# Skills related
 skills-disabled/
+skill-evaluations/
 
 # Reinstallable dependencies and virtual environments
 npm/node_modules/
