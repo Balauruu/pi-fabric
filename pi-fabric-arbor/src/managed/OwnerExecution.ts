@@ -8,6 +8,8 @@ import { ACTOR_PROPOSAL_SCHEMA, type BoundCommand } from "../research/contracts.
 import { COORDINATOR_INSTRUCTIONS, EXECUTOR_INSTRUCTIONS } from "../research/spec.js";
 import { executionSpec, nativeOwner, object, proposal, localStop, text, TERMINAL, type ExecutionSpec, type NativeOwner, type OwnerCall, type OwnerRef, type Target, type Terminal } from "./contracts.js";
 
+import { bindRequest, immutableCopy, EvaluationBindingError } from "../evaluators/trust.js";
+import type { EvaluationRecord, Invocation, NativeEvidence } from "../evaluators/contracts.js";
 const exec = promisify(execFile);
 interface Run {
   binding: Binding; research: boolean; draining: boolean; ambiguous: boolean; reason?: string;
@@ -20,9 +22,91 @@ interface Run {
 export class OwnerExecution {
   #runs = new Map<string, Run>();
   #admission: Promise<unknown> = Promise.resolve();
+  #evaluations = new Map<Promise<unknown>, AbortController>();
   #draining = false;
   #disposed: Promise<void> | undefined;
   constructor(readonly call: OwnerCall, readonly store: BindingStore, readonly componentId: string, readonly generation: string, readonly research?: ResearchStore) {}
+
+  async evaluationSubject(record: EvaluationRecord, invocation: Invocation, request: Record<string, unknown>, signal: AbortSignal): Promise<NativeEvidence> {
+    this.#admit(); signal.throwIfAborted();
+    const controller = new AbortController(); const abort = () => controller.abort();
+    signal.addEventListener("abort", abort, { once: true });
+    const operation = this.#subject(record, invocation, request, controller.signal);
+    this.#evaluations.set(operation, controller);
+    try { return await operation; } finally { signal.removeEventListener("abort", abort); this.#evaluations.delete(operation); }
+  }
+  async observeEvaluation(record: EvaluationRecord, invocation: Invocation): Promise<void> {
+    if (invocation.reason?.startsWith("Evaluation binding rejected:")) throw new Error("Evaluation binding rejected; new measurement required, not recovery of poisoned execution");
+    if (!invocation.nativeId) throw new Error("Unknown native handle; no guessed launch or PID recovery");
+    const binding = bindRequest({ invocation, snapshot: record.snapshots[invocation.condition] });
+    const status = bindRequest({ id: invocation.nativeId });
+    const raw = object(await binding.accept(status.accept(this.call("agents.status", status.args))));
+    const snapshot = binding.expected.snapshot;
+    if (raw.id !== invocation.nativeId || raw.cwd !== snapshot.directory || raw.model !== invocation.model || raw.runner !== "pi" || raw.transport !== "process" || !TERMINAL.includes(raw.status as Terminal)) throw new Error("Native evaluation handle is absent, live or ambiguous; explicit recovery blocked");
+    if (invocation.native) {
+      if (raw.status !== invocation.native.status || raw.text !== invocation.native.text || (raw.error ?? null) !== invocation.native.error) throw new Error("Persisted native completion differs from public terminal observation");
+    } else {
+      // A known attached handle can lose its return during retirement. Public
+      // terminal observation supplies the missing fact, never a replacement run.
+      // Without a saved deadline receipt the execution is conservatively invalid.
+      if (typeof raw.text !== "string" || raw.runner !== "pi" || raw.transport !== "process") throw new Error("Incomplete native recovery result");
+      invocation.native = { id: invocation.nativeId, cwd: snapshot.directory, status: raw.status as Terminal, text: raw.text.slice(0, 65536), error: raw.error === undefined ? null : String(raw.error).slice(0, 4096), exitCode: typeof raw.exitCode === "number" ? raw.exitCode : null, deadline: true, checks: [], usage: null };
+      invocation.state = "native-complete";
+    }
+  }
+  async #subject(record: EvaluationRecord, invocation: Invocation, request: Record<string, unknown>, signal: AbortSignal): Promise<NativeEvidence> {
+    let id: string | undefined, stopping: Promise<void> | undefined, waiting: Promise<unknown> | undefined, deadline = false, terminal = false;
+    const bound = bindRequest(request), expected = bound.expected;
+    const cwd = String(expected.cwd), owner = immutableCopy(this.research!.get(record.runId)!.owner);
+    const stop = () => {
+      if (!id || stopping) return;
+      stopping = (async () => {
+        const query = bindRequest({ scope: "project", kinds: ["agent"], includeStale: false });
+        const members = await query.accept(this.call("agents.members", query.args));
+        const member = Array.isArray(members) ? members.map(object).find(m => m.id === id) : undefined;
+        if (!member || member.local !== true || member.stale !== false || member.rootId !== owner.rootId || member.ownerHostId !== owner.ownerHostId || member.ownerIdentityId !== owner.ownerIdentityId) throw new Error("Evaluation stop ownership unknown; cleanup pending");
+        const target = bindRequest({ id: id! });
+        localStop(await target.accept(this.call("agents.stop", target.args)), { id: target.expected.id, kind: "agent", cwd });
+      })(); void stopping.catch(() => undefined);
+    };
+    const abort = () => stop(); signal.addEventListener("abort", abort, { once: true });
+    const timer = setTimeout(() => { deadline = true; stop(); }, record.definition.deadlineMs);
+    try {
+      invocation.state = "launching"; this.research!.saveEvaluation(record);
+      const raw = object(immutableCopy(await this.call("agents.spawn", bound.args))); id = text(raw.id, "evaluation native ID");
+      // Immediately own the wait, before attachment/persistence/another launch.
+      const wait = bindRequest({ id });
+      waiting = wait.accept(this.call("agents.wait", wait.args)); void waiting.catch(() => undefined);
+      invocation.nativeId = id; invocation.state = "attached"; this.research!.saveEvaluation(record);
+      bound.check();
+      if (raw.cwd !== cwd || raw.runner !== "pi" || raw.transport !== "process" || raw.model !== expected.model) { stop(); await waiting; throw new EvaluationBindingError("Native subject handle mismatch"); }
+      if (signal.aborted || deadline || this.#draining) stop();
+      const result = object(await waiting); bound.check(); wait.check();
+      if (result.id !== id || result.cwd !== cwd || result.model !== expected.model || result.runner !== "pi" || result.transport !== "process" || !TERMINAL.includes(result.status as Terminal) || typeof result.text !== "string") throw new EvaluationBindingError("Ambiguous native subject terminal result");
+      terminal = true;
+      const usage = result.usage ? object(result.usage) : null;
+      const native: NativeEvidence = { id, cwd, status: result.status as Terminal, text: result.text.slice(0, 65536), error: result.error === undefined ? null : String(result.error).slice(0, 4096), exitCode: typeof result.exitCode === "number" && Number.isInteger(result.exitCode) ? result.exitCode : null, deadline, checks: [], elapsedMs: typeof result.startedAt === "number" && typeof result.finishedAt === "number" && Number.isSafeInteger(result.finishedAt - result.startedAt) && result.finishedAt >= result.startedAt ? result.finishedAt - result.startedAt : null, usage: usage && [usage.input, usage.output, usage.cost].every(n => typeof n === "number" && Number.isFinite(n) && n >= 0) ? { input: usage.input as number, output: usage.output as number, cost: usage.cost as number, ...(typeof usage.cacheRead === "number" ? { cacheRead: usage.cacheRead } : {}), ...(typeof usage.cacheWrite === "number" ? { cacheWrite: usage.cacheWrite } : {}) } : null };
+      if (result.text.length > 65536) native.error = "Native output exceeded evidence bound";
+      invocation.native = native; invocation.state = "native-complete";
+      // Consequential native completion commits BEFORE caller ingestion or abort.
+      this.research!.saveEvaluation(record);
+      // A stop can be denied during retirement after wait already proved exact
+      // terminal completion. Persist that independent proof before awaiting stop.
+      if (stopping) await stopping.catch(() => undefined);
+      bound.check(); wait.check();
+      return native;
+    } catch (error) {
+      if (error instanceof EvaluationBindingError) invocation.reason = `Evaluation binding rejected: ${error.message}`;
+      throw error;
+    } finally {
+      // Attachment/persistence/validation can fail after spawn. Those failures
+      // never detach the already-owned wait or lose the returned cleanup handle.
+      if (waiting && !terminal) stop();
+      if (waiting) await waiting.catch(() => undefined);
+      if (stopping) await stopping.catch(() => undefined);
+      clearTimeout(timer); signal.removeEventListener("abort", abort);
+    }
+  }
 
   async identity(context: FabricInvocationContext): Promise<NativeOwner> { const owner = await this.#owner(context); context.signal?.throwIfAborted(); this.#admit(); return owner; }
 
@@ -122,7 +206,7 @@ export class OwnerExecution {
         name: dispatch.name,
         instructions: run.research ? COORDINATOR_INSTRUCTIONS : "You are Arbor's proposal-only coordinator. Choose a bounded wave from owner observations or stop. Never approve, mutate Arbor, or dispatch. Return a silent directive with data matching the supplied closed contract. No scores are authoritative.",
         scope: "project", runner: "pi", transport: "process", residency: "session", model: spec.model,
-        thinking: "off", delivery: "mailbox", responseMode: "directive", triggerTurn: false, tools: ["fabric_exec"], extensions: true, requires: ["agents.self"],
+        thinking: "off", delivery: "mailbox", responseMode: "directive", triggerTurn: false, tools: run.research ? this.research!.get(spec.runId)!.spec.roles.coordinator.tools : ["fabric_exec"], extensions: true, requires: ["agents.self"],
       }));
       const actorId = text(raw.id, "native actor ID");
       run.targets.set(actorId, { id: actorId, kind: "actor" });
@@ -207,7 +291,7 @@ export class OwnerExecution {
     const b = run.binding, spec = b.spec;
     const dispatch: Binding["dispatches"][number] = { kind: "agent", name: `arbor-worker-${this.generation}-${b.dispatches.length}` };
     b.dispatches.push(dispatch); this.store.save(b);
-    const raw = object(await this.#call(run, "agents.spawn", { name: dispatch.name, task: `${EXECUTOR_INSTRUCTIONS}\nAssignment: ${task}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}`, runner: "pi", transport: "process", model: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.model : spec.model, thinking: "off", tools: ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" }));
+    const raw = object(await this.#call(run, "agents.spawn", { name: dispatch.name, task: `${EXECUTOR_INSTRUCTIONS}\nAssignment: ${task}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}`, runner: "pi", transport: "process", model: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.model : spec.model, thinking: "off", tools: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.tools : ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" }));
     const id = text(raw.id, "native worker ID");
     const target: Target = { id, kind: "agent", cwd: spec.cwd };
     run.targets.set(id, target);
@@ -277,6 +361,8 @@ export class OwnerExecution {
   dispose(): Promise<void> {
     this.#draining = true;
     this.#disposed ??= (async () => {
+      for (const controller of this.#evaluations.values()) controller.abort();
+      await Promise.allSettled([...this.#evaluations.keys()]);
       await this.#admission;
       await Promise.all([...this.#runs.values()].map(run => this.#drain(run, "interrupted")));
       const settled = await Promise.allSettled([...this.#runs.values()].map(run => run.operation));

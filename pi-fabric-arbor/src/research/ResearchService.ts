@@ -7,6 +7,7 @@ import { object, type NativeOwner } from "../managed/contracts.js";
 import { RESEARCH_ACTIONS, canonical, digest, validate, type BoundCommand, type ResearchAction, type Schema } from "./contracts.js";
 import { configFile, resolveSpec } from "./spec.js";
 import { ResearchStore, type Receipt } from "./ResearchStore.js";
+import type { EvaluationEngine } from "../evaluators/EvaluationEngine.js";
 
 async function canonicalDestination(path: string): Promise<string> {
   try { return await realpath(path); }
@@ -19,7 +20,7 @@ export class ResearchService {
   #draining = false;
   #disposed: Promise<void> | undefined;
   #pending = new Set<Promise<unknown>>();
-  constructor(readonly owner: OwnerExecution, readonly store: ResearchStore, readonly stateDirectory: string, readonly profileDirectory = getAgentDir()) {}
+  constructor(readonly owner: OwnerExecution, readonly store: ResearchStore, readonly stateDirectory: string, readonly profileDirectory = getAgentDir(), readonly evaluator?: EvaluationEngine) {}
   async invoke(name: string, args: Record<string, unknown>, context: FabricInvocationContext): Promise<unknown> {
     const descriptor = RESEARCH_ACTIONS.find(action => action.name === name); if (!descriptor) throw new Error(`Unknown Arbor action ${name}`);
     validate(descriptor.inputSchema as Schema, args);
@@ -33,10 +34,29 @@ export class ResearchService {
     if (this.#draining) throw new Error("Arbor research generation is draining");
     context.signal?.throwIfAborted();
     if (name === "start") return this.#start(args, context, identity);
+    if (((name === "control" && args.action === "resume") || (name === "evaluate" && args.payload?.resume === true)) && this.store.get(args.runId)?.spec.config.execution === "evaluate") {
+      if (!this.evaluator) throw new Error("Packaged evaluator unavailable");
+      const command: BoundCommand = { runId: args.runId, materialId: args.materialId, epoch: args.epoch, revision: args.revision, commandId: args.commandId };
+      const bound = this.store.get(args.runId)!; if (canonical(bound.owner) !== canonical(identity)) throw new Error("Different native owning Pi root/host/identity");
+      if (name === "control" && bound.spec.evaluation?.kind === "command") return this.store.unavailable(command, this.owner.generation, "control", { action: "resume", instruction: null }, "Command evaluation resume requires the execute-policy arbor.evaluate route; /arbor resume selects it through normal policy");
+      if (name === "evaluate" && (args.payload.attemptId !== "exact-material" || !this.store.evaluation(args.runId, args.payload.evaluationId))) throw new Error("Unknown exact evaluation resume binding");
+      const action = name === "evaluate" ? "evaluate" as const : "control" as const;
+      const payload = name === "evaluate" ? args.payload : { action: "resume", instruction: null };
+      const duplicate = this.store.receipt(command, action, payload); if (duplicate) return duplicate;
+      await this.evaluator.resume(command, identity, context.signal);
+      const current = this.store.get(args.runId)!;
+      return this.store.evaluationReceipt(command, this.owner.generation, action, payload, ["INTERRUPTED", "blocked"].includes(current.execution) ? "blocked" : "applied", current.error);
+    }
     const run = this.store.authorize(args.runId, identity, this.owner.generation);
     const command: BoundCommand = { runId: args.runId, materialId: args.materialId, epoch: args.epoch, revision: args.revision, commandId: args.commandId };
     if (name === "control") {
       const receipt = this.store.control(command, this.owner.generation, args.action, args.instruction);
+      if (run.spec.config.execution === "evaluate" && args.action === "cancel") {
+        await this.evaluator?.cancel(run.id);
+        const unresolved = this.store.evaluations(run.id).some(e => e.invocations.some(i => ["launching", "attached"].includes(i.state) && !i.native));
+        this.store.settle(run.id, this.owner.generation, unresolved ? "cleanup_pending" : "cancelled", unresolved ? "evaluation-cleanup-pending" : "evaluation-cancelled", unresolved ? "Unobservable evaluator handle retained" : null, `cancel-eval-${command.commandId}`);
+        return receipt;
+      }
       if (args.action === "cancel" && receipt.status === "queued") {
         const binding = this.owner.inspect(run.id);
         if (binding) await this.owner.cancel(run.id, context);
@@ -48,6 +68,13 @@ export class ResearchService {
       // Reopening/config inspection is frozen and never reloads changed defaults.
       // Native stopped-actor/partial-material resume remains explicitly PR8.
       return receipt;
+    }
+    if (name === "evaluate" && run.spec.config.execution === "evaluate") {
+      const duplicate = this.store.receipt(command, "evaluate", args.payload); if (duplicate) return duplicate;
+      this.store.check(run, command);
+      if (!this.evaluator || args.payload.attemptId !== "exact-material") throw new Error("PR4 evaluates only the frozen exact-material pair; candidate workspace freezing is PR5");
+      const e = await this.evaluator.evaluate(run.id, args.payload.evaluationId, context.signal, args.payload.purpose ?? "candidate");
+      return this.store.evaluationReceipt(command, this.owner.generation, "evaluate", args.payload, e.state === "completed" ? "applied" : "blocked", e.error);
     }
     if (name === "dispatch") return this.owner.dispatchResearch(command, args.payload);
     if (["propose", "collect", "evaluate", "distill", "decide"].includes(name)) return this.store.research(name as ResearchAction, command, args.payload, this.owner.generation);
@@ -83,11 +110,19 @@ export class ResearchService {
       const [profile, project] = await Promise.all([configFile(join(this.profileDirectory, "arbor.defaults.json")), configFile(join(context.cwd, "arbor.config.json"))]);
       const model = context.extensionContext.model;
       const spec = await resolveSpec(context.cwd, profile, project, object(args.overrides ?? {}), model ? `${model.provider}/${model.id}` : undefined);
+      if (spec.config.execution === "evaluate") {
+        if (!this.evaluator) throw new Error("Packaged evaluator unavailable");
+        for (const key of (spec.evaluation!.kind === "agent-suite" ? [spec.evaluation!.subject.model, spec.evaluation!.judge?.model].filter(Boolean) : [])) if (!context.extensionContext.modelRegistry.getAvailable().some(m => `${m.provider}/${m.id}` === key)) throw new Error(`Unavailable exact evaluation model ${key}`);
+        if (object(await this.owner.call("schema.status", {})).mode === "enforce") throw new Error("Native evaluation unavailable in Schema enforce; policy unchanged");
+      }
       if (spec.config.execution === "inspect") for (const role of ["coordinator", "executor"] as const) if (!context.extensionContext.modelRegistry.getAvailable().some(model => `${model.provider}/${model.id}` === spec.roles[role].model)) throw new Error(`Unavailable exact ${role} model`);
       const fromMaterial = relative(spec.source.root, await canonicalDestination(resolve(this.stateDirectory)));
       if (!fromMaterial || (fromMaterial !== ".." && !fromMaterial.startsWith(`..${sep}`) && !isAbsolute(fromMaterial))) throw new Error("Arbor state must live outside mutable material");
       context.signal?.throwIfAborted(); if (this.#draining) throw new Error("Generation retired during spec resolution");
-      this.store.create({ id: args.runId, spec, requestHash: hash, owner: identity, componentId: this.owner.componentId, generation: this.owner.generation, epoch: "epoch-1", revision: 0, state: "ready", attemptsUsed: 0, active: 0, createdAt: Date.now(), activeMs: 0, activeSince: spec.config.execution === "inspect" ? Date.now() : null, steering: [], pendingDecisionId: null, execution: "not-started", error: null });
+      this.store.create({ id: args.runId, spec, requestHash: hash, owner: identity, componentId: this.owner.componentId, generation: this.owner.generation, epoch: "epoch-1", revision: 0, state: "ready", attemptsUsed: 0, active: 0, createdAt: Date.now(), activeMs: 0, activeSince: spec.config.execution === "inspect" || (spec.config.execution === "evaluate" && spec.evaluation!.kind !== "command") ? Date.now() : null, steering: [], pendingDecisionId: null, execution: "not-started", error: null });
+      // Direct command effects require the execute-risk evaluate action. The Pi
+      // start command composes start -> evaluate through normal Fabric policy.
+      if (spec.config.execution === "evaluate" && spec.evaluation!.kind !== "command") await this.evaluator!.evaluate(args.runId, "evaluation-initial", context.signal);
       if (spec.config.execution === "inspect") {
         if (!spec.source.oid) { this.store.settle(args.runId, this.owner.generation, "paused", "blocked", "Non-Git native capture unavailable until PR5; resolved specification retained"); }
         else {
@@ -120,7 +155,7 @@ export class ResearchService {
     this.#draining = true;
     this.#disposed ??= (async () => {
       let failure: unknown;
-      try { await this.owner.dispose(); } catch (error) { failure = error; }
+      try { await this.evaluator?.dispose(); await this.owner.dispose(); } catch (error) { failure = error; }
       // Even failed native/storage settlement cannot close supporting resources
       // while a retained facade/review/export invocation can still use them.
       while (this.#pending.size) await Promise.allSettled([...this.#pending]);

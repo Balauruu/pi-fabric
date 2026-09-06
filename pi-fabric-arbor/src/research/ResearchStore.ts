@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { TERMINAL, type NativeOwner, type Terminal } from "../managed/contracts.js";
 import { ACTION_SCHEMAS, ACTOR_PROPOSAL_SCHEMA, canonical, digest, validate, type BoundCommand, type Proposal, type ResearchAction } from "./contracts.js";
 import type { ResolvedSpec } from "./spec.js";
+import { evaluationSummary, type EvaluationRecord } from "../evaluators/contracts.js";
 export interface ResearchRun {
   id: string; spec: ResolvedSpec; requestHash: string; owner: NativeOwner; componentId: string; generation: string;
   epoch: string; revision: number; state: "ready" | "running" | "paused" | "awaiting_review" | "completed" | "cancelled" | "interrupted" | "cleanup_pending" | "failed";
@@ -81,10 +82,60 @@ export class ResearchStore {
   projection(runId: string): Record<string, unknown> | null {
     return this.#read(db => {
       const run = this.#run(db, runId); if (!run) return null;
-      const projection: Record<string, unknown> = { run, validation: "unscored-read-only-observations; evaluators/candidate-snapshots unavailable-PR4+" };
-      for (const table of TABLES.filter(table => table !== "operations")) projection[table] = this.#rows(db, table, runId).slice(table === "events" ? -64 : 0);
+      const projection: Record<string, unknown> = { run, validation: run.spec.config.execution === "evaluate" ? "exact-material-evaluation; no-incumbent-adoption-PR5" : "unscored-read-only-observations" };
+      for (const table of TABLES.filter(table => table !== "operations")) projection[table] = table === "evaluations" ? this.#rows<EvaluationRecord>(db, table, runId).map(evaluationSummary) : this.#rows(db, table, runId).slice(table === "events" ? -64 : 0);
       return projection;
     }, null);
+  }
+  beginEvaluation(runId: string, generation: string): void {
+    this.#transaction(db => {
+      const run = this.#run(db, runId); if (!run || run.generation !== generation || run.spec.config.execution !== "evaluate") throw new Error("Evaluation generation unavailable");
+      if (["paused", "cancelled", "cleanup_pending", "interrupted"].includes(run.state)) throw new Error("Evaluation requires explicit resume");
+      if (run.activeSince === null) { run.activeSince = Date.now(); run.revision++; this.#save(db, run); }
+    });
+  }
+  evaluation(runId: string, id: string): EvaluationRecord | undefined { return this.#read(db => this.#row<EvaluationRecord>(db, "evaluations", runId, id), undefined); }
+  evaluations(runId: string): EvaluationRecord[] { return this.#read(db => this.#rows<EvaluationRecord>(db, "evaluations", runId), []); }
+  saveEvaluation(e: EvaluationRecord): void {
+    if (e.state === "completed" && e.invocations.some(i => i.state !== "ingested")) throw new Error("Evaluation completion requires every invocation ingested");
+    this.#transaction(db => {
+      const run = this.#run(db, e.runId); if (!run || run.generation !== e.generation || run.spec.identity !== e.specId || run.epoch !== e.epoch || digest(run.owner) !== e.ownerBinding) throw new Error("Stale evaluation owner/spec/epoch binding");
+      const previous = this.#row<EvaluationRecord>(db, "evaluations", run.id, e.id);
+      if (previous && (previous.purpose !== e.purpose || previous.definitionId !== e.definitionId || canonical(previous.snapshots) !== canonical(e.snapshots) || previous.invocations.length > e.invocations.length || previous.bindings.some((binding, i) => canonical(binding) !== canonical(e.bindings[i])))) throw new Error("Immutable evaluation identity changed");
+      for (const prior of previous?.invocations ?? []) {
+        const next = e.invocations.find(i => i.id === prior.id);
+        if (!next || next.requestId !== prior.requestId || (prior.nativeId && prior.nativeId !== next.nativeId) || (prior.native && canonical(prior.native) !== canonical(next.native)) || (prior.state === "ingested" && canonical(prior) !== canonical(next))) throw new Error("Conflicting native invocation or terminal replay");
+      }
+      const count = this.#rows<EvaluationRecord>(db, "evaluations", run.id).filter(r => r.id !== e.id).reduce((n, r) => n + r.invocations.length, e.invocations.length);
+      if (count > run.spec.config.limits.evaluatorCalls) throw new Error("Evaluator invocation capacity exhausted (including retries/rechecks/feedback/judges)");
+      this.#put(db, "evaluations", run.id, e.id, e); run.revision++;
+      this.#put(db, "events", run.id, String(run.revision), { revision: run.revision, type: `evaluation:${e.state}:${e.invocations.at(-1)?.state ?? "frozen"}`, commandId: e.id, status: e.state === "running" ? "queued" : e.state === "completed" ? "applied" : "blocked", reason: e.error });
+      this.#save(db, run);
+    });
+  }
+  evaluationReceipt(command: BoundCommand, generation: string, action: "control" | "evaluate", payload: unknown, status: Receipt["status"], reason: string | null): Receipt {
+    return this.#transaction(db => {
+      const run = this.#run(db, command.runId); if (!run || run.generation !== generation || run.spec.config.execution !== "evaluate" || run.epoch !== command.epoch || run.spec.source.materialId !== command.materialId) throw new Error("Stale evaluation receipt binding");
+      const hash = digest({ command, action, payload }), old = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", run.id, command.commandId);
+      if (old) { if (old.hash !== hash) throw new Error("Conflicting duplicate evaluation control"); return old.receipt; }
+      run.revision++;
+      const value = { state: run.state, specId: run.spec.identity };
+      const receipt: Receipt = { commandId: command.commandId, runId: run.id, revision: run.revision, status, action, reason, value };
+      this.#put(db, "operations", run.id, command.commandId, { hash, receipt });
+      this.#put(db, "events", run.id, String(run.revision), { revision: run.revision, type: action, commandId: command.commandId, status, reason });
+      if (action === "control" && status !== "blocked") this.#put(db, "controls", run.id, command.commandId, { ...command, action: "resume", instruction: null, status, value });
+      this.#save(db, run); return receipt;
+    });
+  }
+  rebindEvaluationRun(command: BoundCommand, owner: NativeOwner, componentId: string, generation: string): void {
+    this.#transaction(db => {
+      const run = this.#run(db, command.runId); if (!run) throw new Error("Unknown evaluation run"); this.check(run, command);
+      if (canonical(run.owner) !== canonical(owner) || run.componentId !== componentId || run.spec.config.execution !== "evaluate" || run.active !== 0) throw new Error("Immutable native owner/component/evaluation binding mismatch");
+      const oldGeneration = run.generation; run.generation = generation; run.revision++;
+      if (this.#rows<EvaluationRecord>(db, "evaluations", run.id).some(e => e.state !== "completed")) { run.state = "ready"; run.activeSince = Date.now(); }
+      if (db.prepare("UPDATE runs SET revision=?,generation=?,value=? WHERE id=? AND generation=? AND revision=?").run(run.revision, generation, canonical(run), run.id, oldGeneration, command.revision).changes !== 1) throw new Error("Stale reconciliation");
+      for (const e of this.#rows<EvaluationRecord>(db, "evaluations", run.id)) { e.generation = generation; this.#put(db, "evaluations", run.id, e.id, e); }
+    });
   }
   create(run: ResearchRun): ResearchRun {
     return this.#transaction(db => {

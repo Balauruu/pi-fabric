@@ -5,6 +5,11 @@ export const ARBOR_PACKAGE_VERSION = "0.1.0" as const;
 export const ARBOR_SOURCE_SENTINEL = "pr1-source-a" as const;
 
 export const ARBOR_PACKAGED_ASSETS = Object.freeze({
+  evaluationExample: "examples/pr4-agent-improvement/README.md",
+  evaluationBaseline: "examples/pr4-agent-improvement/baseline.md",
+  evaluationCandidate: "examples/pr4-agent-improvement/candidate.md",
+  evaluationTasks: "examples/pr4-agent-improvement/tasks.json",
+  evaluationPreset: "examples/pr4-agent-improvement/preset.json",
   publicSkill: "skills/fabric-arbor/SKILL.md",
   coordinatorRole: "skills/fabric-arbor/roles/coordinator.md",
   executorRole: "skills/fabric-arbor/roles/executor.md",
@@ -37,6 +42,7 @@ export interface ArborAvailability {
   cli: "read-only";
   web: "read-only-assets";
   research: "transactional-research-observation-only";
+  evaluation: "exact-material-pair; incumbent-decision-pending";
   component: "managed-definition; setup-and-reload-to-enable";
 }
 
@@ -48,6 +54,7 @@ export function getArborAvailability(): ArborAvailability {
     cli: "read-only",
     web: "read-only-assets",
     research: "transactional-research-observation-only",
+    evaluation: "exact-material-pair; incumbent-decision-pending",
     component: "managed-definition; setup-and-reload-to-enable",
   });
 }
