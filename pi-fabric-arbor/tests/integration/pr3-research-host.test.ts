@@ -51,7 +51,7 @@ test("PR3 real native owner: exact effective schemas, actor proposals, owned wai
   const h = await printHost("native", `
     const before=await agents.members({scope:"local",kinds:["actor","agent"]});
     const expected=${JSON.stringify(expected)}; const expectedOutputs=${JSON.stringify({ receipt: ARBOR_ACTIONS.find(a=>a.name==="control")!.outputSchema, projection: ARBOR_ACTIONS.find(a=>a.name==="inspect")!.outputSchema })}; const schemaChecks=[];
-    for(const e of expected){const a=await tools.describe({ref:"arbor."+e.name});schemaChecks.push({name:e.name,input:JSON.stringify(a.inputSchema)===JSON.stringify(e.inputSchema),output:e.name.startsWith("substrate") || JSON.stringify(a.outputSchema)===JSON.stringify(e.name==="start"||e.name==="inspect"?expectedOutputs.projection:expectedOutputs.receipt),risk:a.risk===e.risk,effect:JSON.stringify(a.effect)===JSON.stringify(e.effect)});}
+    for(const e of expected){const a=await tools.describe({ref:"arbor."+e.name});schemaChecks.push({name:e.name,input:JSON.stringify(a.inputSchema)===JSON.stringify(e.inputSchema),output:e.name.startsWith("substrate") || JSON.stringify(a.outputSchema)===JSON.stringify(["start","inspect","runResearch"].includes(e.name)?expectedOutputs.projection:expectedOutputs.receipt),risk:a.risk===e.risk,effect:JSON.stringify(a.effect)===JSON.stringify(e.effect)});}
     const p=${start}; const duplicate=${start}; const members=await agents.members({scope:"local",kinds:["actor","agent"]});
     return JSON.stringify({before,schemaChecks,p,duplicate,members});`);
   const { p, duplicate, members } = h.value;

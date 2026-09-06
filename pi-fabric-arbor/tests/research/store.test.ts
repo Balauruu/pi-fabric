@@ -219,7 +219,7 @@ test("public manifest exactly matches registrations; every nested schema is clos
     if (schema.items) check(schema.items); if (schema.oneOf) schema.oneOf.forEach(check);
   }
   ARBOR_ACTIONS.forEach(a => { check(a.inputSchema); if (a.outputSchema) check(a.outputSchema); }); check(ACTOR_PROPOSAL_SCHEMA);
-  assert.equal(RESEARCH_ACTIONS.length, 13); assert.equal(ARBOR_ACTIONS.length, 16);
+  assert.equal(RESEARCH_ACTIONS.length, 15); assert.equal(ARBOR_ACTIONS.length, 18);
   assert.deepEqual(ACTION_MANIFEST.map(a => a.name), RESEARCH_ACTIONS.map(a => a.name));
   const manifest = JSON.parse(await readFile("docs/pr3-action-manifest.json", "utf8"));
   assert.deepEqual(manifest.actions.map((a: any) => a.ref), ARBOR_ACTIONS.map(a => `arbor.${a.name}`));

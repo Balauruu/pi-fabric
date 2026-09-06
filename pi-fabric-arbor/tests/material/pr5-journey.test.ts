@@ -10,21 +10,31 @@ import { BindingStore } from "../../src/managed/BindingStore.js";
 import { OwnerExecution } from "../../src/managed/OwnerExecution.js";
 import { EvaluationEngine } from "../../src/evaluators/EvaluationEngine.js";
 import { EvaluatorCatalog } from "../../src/evaluators/catalog.js";
+import { researchFacts } from "../../src/research/policy.js";
+import { commandProgram, researchCommand } from "../../src/research/commands.js";
 import { acceptance } from "../../src/material/acceptance.js";
-import { gitText } from "../../src/material/Workspace.js";
+import { Workspace, gitBytes, gitText } from "../../src/material/Workspace.js";
 const identity = { id: "root", rootId: "root", ownerHostId: "host", ownerIdentityId: "identity", sessionId: "session" };
-async function fixture(t: test.TestContext, options: { failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
+async function fixture(t: test.TestContext, options: { research?: boolean; workerLoss?: boolean; workerFailure?: boolean; output?: string; checks?: string[]; limits?: Record<string, number>; failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
   const base = resolve(".runtime/pr5-journey"); await mkdir(base, { recursive: true }); const root = await mkdtemp(join(base, "case-")), cwd = join(root, "source"), state = join(root, "state"), profile = join(root, "profile"); await mkdir(cwd); await mkdir(profile);
   const git = (...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   git("init", "-b", "main"); git("config", "user.name", "PR5"); git("config", "user.email", "pr5@example.invalid");
   await writeFile(join(cwd, "prompt"), "source committed"); await writeFile(join(cwd, "check"), "fixed"); await writeFile(join(cwd, "other"), "base"); git("add", "."); git("commit", "-m", "source"); await writeFile(join(cwd, "prompt"), "user staged"); git("add", "prompt"); await writeFile(join(cwd, "prompt"), "BASELINE_SNAPSHOT_BAD");
   if (options.links) { await symlink(".", join(cwd, "a")); await symlink("a/../outside", join(cwd, "escape")); git("add", "a", "escape"); }
-  const definition = { version: 1, kind: options.command ? "command" : "agent-suite", baseline: { root: cwd, oid: "capture", files: ["prompt", "check"] }, candidate: { root: cwd, oid: "capture", files: ["prompt", "check"] }, tasks: Array.from({ length: options.tasks ?? 1 }, (_, n) => ({ id: `t${n + 1}`, prompt: `fixed task ${n + 1}`, expected: "GOOD" })), repeats: options.repeats ?? 1, retries: 0, deadlineMs: 15000, analysis: "paired-descriptive", order: "task-baseline-candidate", subject: { model: "fake/subject", tools: [], promptFiles: ["prompt"] }, judge: null, command: options.command ? { argv: [process.execPath, "-e", `const fs=require('fs');const good=fs.readFileSync('prompt','utf8').includes('GOOD');console.log('ARBOR_METRIC '+(1+(good?1:0)+(fs.readFileSync('other','utf8')==='GOOD'?1:0))+' points');${options.failedMetric ? "if(good)process.exit(3);" : ""}`], checks: [], unit: "points" } : null, providerAction: null };
+  const definition = { version: 1, kind: options.command ? "command" : "agent-suite", baseline: { root: cwd, oid: "capture", files: ["prompt", "check"] }, candidate: { root: cwd, oid: "capture", files: ["prompt", "check"] }, tasks: Array.from({ length: options.tasks ?? 1 }, (_, n) => ({ id: `t${n + 1}`, prompt: `fixed task ${n + 1}`, expected: "GOOD" })), repeats: options.repeats ?? 1, retries: 0, deadlineMs: 15000, analysis: "paired-descriptive", order: "task-baseline-candidate", subject: { model: "fake/subject", tools: [], promptFiles: ["prompt"] }, judge: null, command: options.command ? { argv: [process.execPath, "-e", `const fs=require('fs');const good=fs.readFileSync('prompt','utf8').includes('GOOD');console.log('ARBOR_METRIC '+(1+(good?1:0)+(fs.readFileSync('other','utf8')==='GOOD'?1:0))+' points');${options.failedMetric ? "if(good)process.exit(3);" : ""}${options.output ?? ""}`], checks: (options.checks ?? []).map(code=>[process.execPath,"-e",code]), unit: "points" } : null, providerAction: null };
   await writeFile(join(root, "definition.json"), JSON.stringify(definition));
   const store = new ResearchStore(join(state, "research.sqlite3")), bindings = new BindingStore(join(state, "bindings.sqlite3")), native = new Map<string, any>(); let count = 0;
   const call = async (ref: string, args: any = {}) => {
     if (ref === "agents.self") return { ...identity, kind: "root", local: true, stale: false };
     if (ref === "schema.status") return { mode: "off" };
+    if (ref === "agents.create") { const n = { ...identity, id: "actor", kind: "actor", scope: "project", runner: "pi", residency: "session", model: args.model, requirements: [{ ref: "agents.self" }], status: "running" }; native.set("actor", n); return n; }
+    if (ref === "agents.remove") { native.delete(args.id); return { removed: true }; }
+    if (ref === "agents.stop" && args.id === "actor") { native.get("actor").status = "stopped"; return { id: args.id, kind: "actor", scope: "project", status: "stopped", local: true }; }
+    if (ref === "agents.status" && args.id === "actor") return { id: args.id, kind: "actor", scope: "project", status: "stopped", local: true };
+    if (ref === "agents.ask") { const d = args.data, nodes = d.nodes;
+      const kind = nodes.length ? "dispatch" : "propose", payload = nodes.length ? { nodeId: "one", attemptId: "one" } : { nodeId: "one", type: "hypothesis", parentId: null, title: "one", rationale: "WRITE GOOD", sourceRefs: [] };
+      return { actorId: args.id, direction: "out", action: "silent", runId: "activation", data: { version: 2, runId: d.runId, materialId: d.materialId, epoch: d.epoch, revision: d.revision, commandId: d.commandId, kind, payload, expectedEvidence: [], estimatedBudget: { attempts: kind === "dispatch" ? 1 : 0, evaluatorCalls: 0 }, rationale: "fixture" } };
+    }
     if (ref === "agents.spawn") {
       const id = `native-${++count}`;
       if (args.task.includes("bounded material worker")) {
@@ -33,24 +43,129 @@ async function fixture(t: test.TestContext, options: { failedMetric?: boolean; r
         execFileSync("git", ["add", "."], { cwd: args.cwd }); execFileSync("git", ["-c", "user.name=worker", "-c", "user.email=worker@example.invalid", "commit", "--allow-empty", "-m", "worker"], { cwd: args.cwd, stdio: "ignore" });
       }
       const text = args.task.includes("CANDIDATE_SNAPSHOT_GOOD") || (options.tasks && args.task.includes("fixed task 1")) || (options.repeats && [...native.values()].filter(n => n.cwd === args.cwd).length % (2 * options.repeats) === 0) ? "GOOD" : "BAD";
-      const n = { id, cwd: args.cwd, model: args.model, runner: "pi", transport: "process", status: "completed", text }; native.set(id, n); if (options.loss && !args.task.includes("bounded material worker")) throw new Error("accepted evaluator spawn reply lost"); return n;
+      const worker = args.task.includes("bounded material worker");
+      const n = { id, cwd: args.cwd, model: args.model, runner: "pi", transport: "process", status: worker && options.workerFailure ? "failed" : "completed", text, ...(worker ? { value: { sentinel: "ARBOR_WORKER_RESULT_V1", attemptId: /Attempt: (\S+)/.exec(args.task)![1], observations: "settled", paths: ["prompt"], limitations: "fixture" } } : {}) }; native.set(id, n); if (worker && options.workerLoss) throw new Error("accepted worker spawn reply lost"); if (options.loss && !args.task.includes("bounded material worker")) throw new Error("accepted evaluator spawn reply lost"); return n;
     }
     if (ref === "agents.wait" || ref === "agents.status" || ref === "agents.stop") return native.get(args.id);
-    if (ref === "agents.members") return [...native.values()].map(n => ({ ...n, ...identity, id: n.id, kind: "agent", local: true, stale: false }));
+    if (ref === "agents.members") return [...native.values()].map(n => ({ ...n, ...identity, id: n.id, kind: n.kind ?? "agent", local: true, stale: false }));
     throw new Error(`Unexpected public ref ${ref}`);
   };
   const owner = new OwnerExecution(call, bindings, "arbor.owner", "g1", store), catalog = new EvaluatorCatalog([], { id: "view", digest: "view", semanticDigest: "view", bindings: {} }, async () => { throw new Error("No provider"); });
   const evaluator = new EvaluationEngine(owner, store, state, catalog), service = new ResearchService(owner, store, state, profile, evaluator);
   const context = { cwd, extensionContext: { sessionManager: { getSessionId: () => "session" }, isProjectTrusted: () => true, model: { provider: "fake", id: "worker" }, modelRegistry: { getAvailable: () => [{ provider: "fake", id: "worker" }, { provider: "fake", id: "subject" }] }, hasUI: true, ui: { select: async () => "Approve research choice" } } } as unknown as FabricInvocationContext;
   const invoke = async (name: string, payload: any, commandId = `${name}-${count}-${store.get("run")?.revision}`) => service.invoke(name, { ...store.binding(store.get("run")!, commandId), ...(name === "review" ? { decisionId: payload } : name === "export" ? { format: "json" } : name === "control" ? { action: payload } : { payload }) }, context) as Promise<any>;
-  t.after(() => service.close());
+  t.after(async () => { if(options.workerLoss) await assert.rejects(service.close(), /settlement/); else await service.close(); });
   const before = await readFile(join(cwd, ".git/index")), refs = git("show-ref");
-  await service.invoke("start", { runId: "run", overrides: { execution: "material", material: { mutablePaths: ["prompt", "other"], evaluationInputs: ["check"] }, objective: { unit: "points", ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, evaluator: { kind: definition.kind, definition: join(root, "definition.json") }, roleTools: { executor: ["read", "write", "bash"] }, search: { mode: options.review ? "review" : "auto" } } }, context);
-  if (options.command) await invoke("evaluate", { attemptId: "baseline", evaluationId: "initial" });
+  await service.invoke("start", { runId: "run", overrides: { execution: options.research ? "research" : "material", ...(options.limits ? { limits: options.limits } : {}), material: { mutablePaths: ["prompt", "other"], evaluationInputs: ["check"] }, objective: { unit: "points", ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, evaluator: { kind: definition.kind, definition: join(root, "definition.json") }, roleTools: { executor: ["read", "write", "bash"] }, search: { mode: options.review ? "review" : "auto" } } }, context);
+  if (options.command && !options.research) await invoke("evaluate", { attemptId: "baseline", evaluationId: "initial" });
   const candidate = async (id: string, task = "WRITE GOOD") => { await invoke("propose", { nodeId: id, type: "hypothesis", parentId: null, title: id, rationale: task, sourceRefs: [] }); await invoke("dispatch", { nodeId: id, attemptId: id }); await invoke("evaluate", { attemptId: id, evaluationId: `eval-${id}` }); };
   const keep = (id: string) => invoke("decide", { decisionId: `keep-${id}`, nodeId: id, decision: "keep", evidenceIds: [`eval-${id}`] });
-  return { native, root, cwd, state, store, service, owner, evaluator, invoke, candidate, keep, before, refs, git, context };
+  return { native, root, cwd, state, store, bindings, service, owner, evaluator, invoke, candidate, keep, before, refs, git, context };
 }
+test('PR6 reviewer lost worker reply preserves uncertainty through failed actor cleanup', async t => {
+ const f = await fixture(t, { research: true, command: true, workerLoss: true });
+ await f.service.invoke('runResearch', { ...f.store.binding(f.store.get('run')!, 'autonomous') }, f.context);
+ assert.equal(f.bindings.get('material-run-one')!.state, 'cleanup_pending');
+ assert.equal(f.store.get('run')!.state, 'cleanup_pending'); assert.equal(f.store.get('run')!.active, 1);
+});
+test('PR6 reviewer equal-tree attempts retain exact evaluation and decided evidence', async t => {
+ // Production deliberately strips ambient GIT_* variables. Exercise the real
+ // freeze, then canonicalize only commit metadata at this test's workspace seam.
+ const freeze = Workspace.prototype.freeze;
+ t.mock.method(Workspace.prototype, 'freeze', async function(this: Workspace, ...args: Parameters<typeof freeze>) {
+  const frozen = await freeze.apply(this, args), repository = args[0].repository;
+  const tree = gitText(repository, ['rev-parse', `${frozen.oid}^{tree}`]).trim();
+  const oid = gitBytes(repository, ['-c','user.name=Arbor','-c','user.email=arbor@localhost','commit-tree',tree,'-p',frozen.parent,'-m','Arbor exact material'], undefined, {GIT_AUTHOR_DATE:'2001-01-01T00:00:00Z',GIT_COMMITTER_DATE:'2001-01-01T00:00:00Z'}).toString().trim();
+  gitText(repository, ['update-ref', `refs/arbor/candidates/${frozen.id}/${oid}`, oid]);
+  return {...frozen, oid};
+ });
+ const f = await fixture(t); await f.candidate('one');
+ await f.invoke('decide', { decisionId:'discard-one',nodeId:'one',decision:'discard',evidenceIds:['eval-one'] });
+ const original = researchFacts(f.store.projection('run')!).outcomes[0];
+ await f.invoke('propose',{nodeId:'two',type:'hypothesis',parentId:null,title:'two',rationale:'WRITE GOOD',sourceRefs:[]});
+ await f.invoke('dispatch',{nodeId:'two',attemptId:'two'});
+ const before = researchFacts(f.store.projection('run')!); assert.equal(before.outcomes[1]!.evaluationId,null);
+ await f.invoke('evaluate',{attemptId:'two',evaluationId:'eval-two'});
+ assert.equal(f.store.get('run')!.material!.candidates[0]!.oid,f.store.get('run')!.material!.candidates[1]!.oid);
+ assert.deepEqual(researchFacts(f.store.projection('run')!).outcomes[0],original);
+ assert.equal(original!.comparedIncumbent,f.store.evaluation('run','eval-one')!.snapshots.baseline.oid);
+ const saved=f.store.evaluation('run','eval-one')!;assert.throws(()=>f.store.saveEvaluation({...saved,attemptId:'two'}),/Immutable/);
+ assert.throws(()=>f.store.saveEvaluation({...saved,validity:'invalid'}),/immutable/);
+ await f.invoke('evaluate',{attemptId:'one',evaluationId:'later-one'});
+ assert.deepEqual(researchFacts(f.store.projection('run')!).outcomes[0],original);
+ assert.equal(researchFacts(f.store.projection('run')!).outcomes[1]!.evaluationId,'eval-two');
+});
+test('PR6 Main unlinked legacy evaluation cannot authorize an exact-attempt keep', async t => {
+ const f = await fixture(t); await f.candidate('one');
+ const original = f.store.evaluation('run','eval-one')!;
+ f.store.saveEvaluation({...original,id:'legacy-unlinked',attemptId:null});
+ const result = await f.invoke('decide',{decisionId:'legacy-keep',nodeId:'one',decision:'keep',evidenceIds:['legacy-unlinked']});
+ assert.equal(result.status,'blocked'); assert.match(result.reason,/exact attempt/);
+ assert.equal(f.store.get('run')!.material!.incumbent,f.store.get('run')!.material!.capture.baseline);
+ // The owning-Pi command must select this attempt, not the newest equal-OID legacy record.
+ const execute = new Function('tools', `return (async()=>{${commandProgram(researchCommand('keep','run one'))}})()`);
+ const receipt = await execute({call:({ref,args}:{ref:string;args:Record<string,unknown>})=>f.service.invoke(ref.slice('arbor.'.length),args,f.context)});
+ assert.equal(receipt.status,'applied');
+ assert.equal((f.store.projection('run')!.decisions as Array<{status:string}>).at(-1)!.status,'measured-keep');
+});
+test('PR6 reviewer settled failed evidence survives authorized generation rebind without rewrite', async t => {
+ const f = await fixture(t,{workerFailure:true});
+ await f.invoke('propose',{nodeId:'one',type:'hypothesis',parentId:null,title:'one',rationale:'WRITE GOOD',sourceRefs:[]});
+ await assert.rejects(f.invoke('dispatch',{nodeId:'one',attemptId:'one'}),/failed/);
+ const a=f.store.attempt('run','one')!, evidence=structuredClone(f.store.projection('run')!.artifact_refs);
+ await f.invoke('control','pause');f.store.rebindEvaluationRun(f.store.binding(f.store.get('run')!,'rebind'),f.store.get('run')!.owner,'arbor.owner','g2');
+ const c=f.store.binding(f.store.get('run')!,'discard');
+ assert.equal(f.store.research('decide',c,{decisionId:'discard',nodeId:'one',decision:'discard',evidenceIds:[a.evidenceId]},'g2').status,'applied');
+ assert.deepEqual(f.store.attempt('run','one'),a);assert.deepEqual(f.store.projection('run')!.artifact_refs,evidence);
+});
+test('PR6 reviewer cumulative command check output blocks every subsequent native check',async t=>{
+ const f=await fixture(t,{research:true,command:true,limits:{artifactBytes:100000},checks:["console.log('x'.repeat(60000));","throw new Error('must not dispatch second check')"]});
+ await f.service.invoke('runResearch',{...f.store.binding(f.store.get('run')!,'autonomous')},f.context);
+ const e=f.store.evaluations('run')[0]!;assert.equal(e.invocations.length,1);assert.equal(e.invocations[0]!.native!.checkResults!.length,1);assert.equal(e.state,'INTERRUPTED');assert.equal(f.native.size,0);
+});
+test('PR6 reviewer actual local output stops second invocation and actor at cumulative admission', async t => {
+ const f=await fixture(t,{research:true,command:true,limits:{artifactBytes:100000},output:"console.log('x'.repeat(60000));"});
+ await f.service.invoke('runResearch',{...f.store.binding(f.store.get('run')!,'autonomous')},f.context);
+ const e=f.store.evaluations('run')[0]!;assert.equal(e.invocations.length,1);assert.ok(e.invocations[0]!.native!.text.length>60000);
+ assert.equal(f.bindings.get('material-run-one'),undefined);assert.equal(f.native.size,0);
+});
+test("PR6 production dispatch and resume refuse damaged operational bundle before reservations or evaluation", async t => {
+  const f = await fixture(t), ref = f.store.get("run")!.spec.roleBundle!;
+  await f.invoke("propose", { nodeId: "one", type: "hypothesis", parentId: null, title: "one", rationale: "WRITE GOOD", sourceRefs: [] });
+  const path = join(ref.directory, "roles/executor.md"), original = await readFile(path, "utf8");
+  await writeFile(path, "generic replacement"); const before = f.store.projection("run"), nativeCount = f.native.size;
+  await assert.rejects(f.invoke("dispatch", { nodeId: "one", attemptId: "one" }), /Operational role content identity/);
+  assert.deepEqual(f.store.projection("run"), before); assert.equal(f.native.size, nativeCount);
+  await writeFile(path, original); await f.invoke("control", "pause");
+  const phase = join(ref.directory, "references/evidence-interpretation.md"), saved = await readFile(phase, "utf8");
+  await writeFile(phase, "incompatible phase"); const paused = f.store.projection("run");
+  await assert.rejects(f.invoke("control", "resume"), /Operational role content identity/);
+  assert.deepEqual(f.store.projection("run"), paused); assert.equal(f.native.size, nativeCount);
+  await writeFile(phase, saved); assert.equal((await f.invoke("control", "resume")).status, "applied");
+  await f.invoke("dispatch", { nodeId: "one", attemptId: "one" });
+  const binding = f.bindings.get("material-run-one")!, invocation = binding.roleInvocations![0]!;
+  assert.equal(invocation.bundleId, ref.id); assert.equal(invocation.ref, "agents.spawn"); assert.equal(invocation.nativeId, f.store.attempt("run", "one")!.nativeId);
+  assert.equal(invocation.instructionsId, f.store.get("run")!.spec.roles.executor.instructionsId); assert.equal(invocation.model, "fake/worker");
+  assert.deepEqual(invocation.tools, ["read", "write", "bash"]); assert.deepEqual(invocation.requires, []); assert.equal(invocation.extensions, false);
+  assert.equal(invocation.resultContract, "native-terminal-unscored-text");
+  const poisoned = structuredClone(binding); poisoned.roleInvocations![0]!.model = "fake/rewritten";
+  assert.throws(() => f.bindings.save(poisoned), /attribution cannot be rewritten/); assert.deepEqual(f.bindings.get(binding.spec.runId), binding);
+});
+test('PR6 public role revision is quiescent, stale-safe and append-only without measurement rewrite',async t=>{
+ const f=await fixture(t);await f.candidate('one');
+ const spec=f.store.get('run')!.spec,prior=f.bindings.get('material-run-one')!;
+ const revise=(commandId:string)=>f.service.invoke('reviseRoles',{...f.store.binding(f.store.get('run')!,commandId)},f.context);
+ await assert.rejects(revise('busy-role'),/quiescent paused/);
+ await f.invoke('control','pause');const command=f.store.binding(f.store.get('run')!,'role-change');
+ const receipt=await f.service.invoke('reviseRoles',{...command},f.context);
+ assert.deepEqual(await f.service.invoke('reviseRoles',{...command},f.context),receipt);
+ await assert.rejects(f.service.invoke('reviseRoles',{...command,commandId:'stale-role'},f.context),/Stale/);
+ await assert.rejects(f.service.invoke('reviseRoles',{...f.store.binding(f.store.get('run')!,'forged-role'),approved:true},f.context),/unknown field/);
+ assert.deepEqual(f.store.get('run')!.spec,spec);assert.deepEqual(f.bindings.get('material-run-one'),prior);
+ await f.invoke('control','resume');await f.candidate('two');const next=f.bindings.get('material-run-two')!;
+ assert.notEqual(next.roleInvocations![0]!.roleBindingId,prior.roleInvocations![0]!.roleBindingId);
+ assert.deepEqual(f.bindings.get('material-run-one'),prior);assert.equal(f.store.evaluation('run','eval-two')!.specId,spec.identity);
+});
 test("PR5 product refuses transitive escaping baseline before evaluator dispatch", async t => {
   await assert.rejects(fixture(t, { links: true }), /symlink.*escapes/);
 });

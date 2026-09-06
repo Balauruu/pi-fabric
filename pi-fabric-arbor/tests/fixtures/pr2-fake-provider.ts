@@ -35,6 +35,28 @@ export default function fake(pi: ExtensionAPI) {
         trace("actor.restrictions", textOf(context.messages.at(-1)));
         trace("actor.observed", { data, tools: context.tools?.map(t => t.name) ?? [] });
         if (data.version === 2) {
+          const bootstrap = context.systemPrompt ?? "";
+          trace("actor.bootstrap", { coordinator: bootstrap.includes("ARBOR_COORDINATOR_V1"), sentinel: bootstrap.includes("ARBOR_OPERATIONAL_BOOTSTRAP_V1"), strategy: user.includes("ARBOR_RESEARCH_STRATEGY_V1"), evidence: user.includes("ARBOR_EVIDENCE_INTERPRETATION_V1"), model: `${model.provider}/${model.id}` });
+          if (!bootstrap.includes("ARBOR_COORDINATOR_V1") || !user.includes("ARBOR_RESEARCH_STRATEGY_V1")) throw new Error("Required operational bootstrap not actually received by actor");
+        }
+        if (data.research) {
+          const p:any={version:2,runId:data.runId,materialId:data.materialId,epoch:data.epoch,revision:data.revision,commandId:data.commandId,expectedEvidence:[],estimatedBudget:{attempts:0,evaluatorCalls:0},rationale:'Choose from the owner current incumbent and independently measured facts; fixture inference only'};
+          const latest=data.attempts.at(-1), fact=data.recentFacts.at(-1), evidence=data.evidence.find((e:any)=>e.id===fact?.evaluationId), decided=data.decisions.find((d:any)=>d.nodeId===latest?.nodeId && ['keep','discard'].includes(d.decision));
+          const n=data.attempts.length+1, pending=data.nodes.find((n:any)=>n.type==='hypothesis'&&!data.attempts.some((a:any)=>a.nodeId===n.nodeId));
+          if(data.objective.description.includes('PR6_REQUEST_REVIEW') && data.nodes.length && !data.decisions.length){p.kind='decide';p.payload={decisionId:'native-review',nodeId:'direction',decision:'request_review',evidenceIds:[]};}
+          else if(!data.nodes.length){p.kind='propose';p.payload={nodeId:'direction',type:'direction',parentId:null,title:'Improve exact subject behavior',rationale:'Compare independently graded behavior, preserve earlier correct behavior',sourceRefs:[]};}
+          else if(pending){p.kind='dispatch';p.payload={nodeId:pending.nodeId,attemptId:pending.nodeId};p.estimatedBudget.attempts=1;}
+          else if(latest && latest.state!=='completed' && !decided){p.kind='decide';p.payload={decisionId:'decision-'+latest.id,nodeId:latest.nodeId,decision:'discard',evidenceIds:[latest.evidenceId]};p.expectedEvidence=[latest.evidenceId];}
+          else if(latest && latest.state!=='completed' && !data.ancestors.some((l:any)=>l.nodeId===latest.nodeId)){p.kind='distill';p.payload={lessonId:'lesson-'+latest.id,nodeId:latest.nodeId,insight:'Native worker failed the result contract; no score is available',limitations:'Infrastructure failure does not reject the scientific direction',evidenceIds:[latest.evidenceId]};p.expectedEvidence=[latest.evidenceId];}
+          else if(latest && latest.state==='completed'&&!evidence){p.kind='evaluate';p.payload={attemptId:latest.id,evaluationId:'eval-'+latest.id};p.estimatedBudget.evaluatorCalls=data.budgets.evaluationCapacity;}
+          else if(latest && latest.state==='completed'&&!decided){const analysis=JSON.parse(evidence.analysis);const gain=evidence.validity==='valid'&&analysis.wins>analysis.losses&&analysis.wins>0;p.kind='decide';p.payload={decisionId:'decision-'+latest.id,nodeId:latest.nodeId,decision:gain?'keep':'discard',evidenceIds:[evidence.id]};p.expectedEvidence=[evidence.id];}
+          else if(latest && latest.state==='completed'&&!data.ancestors.some((l:any)=>l.nodeId===latest.nodeId)){p.kind='distill';p.payload={lessonId:'lesson-'+latest.id,nodeId:latest.nodeId,insight:fact.outcome==='kept'?'This exact material passed independent checks and improved the incumbent':fact.outcome==='failed-check'?'The changed behavior failed required checks; apparent scalar improvement is not a keep':'This valid comparison did not improve the current incumbent',limitations:'Local deterministic tasks only; no causal or transfer claim. Recheck on new material.',evidenceIds:[evidence.id]};p.expectedEvidence=[evidence.id];}
+          else if(n<=4){p.kind='propose';p.payload={nodeId:'h'+n,type:'hypothesis',parentId:'direction',title:'Test bounded alternative '+n,rationale:'PR6_LEVEL='+n+'; edit only the assigned subject path and test the exact frozen material',sourceRefs:[]};}
+          else {p.kind='decide';p.payload={decisionId:'research-done',nodeId:null,decision:'stop',evidenceIds:[]};}
+          trace('research.proposal',{kind:p.kind,payload:p.payload,revision:p.revision,incumbent:data.currentIncumbent});
+          return stream(model,[{type:'text',text:JSON.stringify({action:'silent',data:p})}],options);
+        }
+        if (data.version === 2) {
           const node = data.nodes[0], attempt = data.attempts[0];
           const proposal: Record<string, any> = { version: 2, runId: data.runId, materialId: data.materialId, epoch: data.epoch, revision: data.revision, commandId: data.commandId, expectedEvidence: [], estimatedBudget: { attempts: 0, evaluatorCalls: 0 }, rationale: "Local deterministic observation, never a score" };
           if (!node) { proposal.kind = "propose"; proposal.payload = { nodeId: "native-hypothesis", type: "hypothesis", parentId: null, title: "Inspect fixed instructions", rationale: "Inspect material.txt without edits", sourceRefs: [] }; }

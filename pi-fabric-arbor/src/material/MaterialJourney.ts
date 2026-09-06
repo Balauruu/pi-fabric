@@ -5,6 +5,7 @@ import type { EvaluationEngine } from "../evaluators/EvaluationEngine.js";
 import { verifyMaterial } from "../evaluators/material.js";
 import { digest, type BoundCommand } from "../research/contracts.js";
 import type { Receipt, ResearchStore } from "../research/ResearchStore.js";
+import { requireNativeAdmission } from '../research/policy.js';
 import { Workspace, gitText } from "./Workspace.js";
 /** Owner-local bounded material operations. Research policy/role loop remains PR6. */
 export class MaterialJourney {
@@ -25,7 +26,10 @@ export class MaterialJourney {
     if (!m.pending) this.store.check(run, command);
     await workspace.verify(m.capture); context.signal?.throwIfAborted();
     if (this.draining) throw new Error("Material generation retired");
+    if(run.spec.config.execution==='research' && ['dispatch','evaluate'].includes(name)) await requireNativeAdmission(this.store,run.id);
     if (name === "dispatch") {
+      await this.owner.verifyRoles(run.id);
+      context.signal?.throwIfAborted(); if (this.draining) throw new Error("Material generation retired before role admission");
       const receipt = this.store.research("dispatch", command, payload, generation);
       const candidate = await workspace.materialize(m.capture, payload.attemptId, m.incumbent);
       this.store.materialCandidate(this.store.binding(this.store.get(run.id)!, `workspace-${payload.attemptId}`), generation, candidate);
@@ -63,7 +67,7 @@ export class MaterialJourney {
         target = combined.oid!;
       } else if (m.incumbent !== m.capture.baseline) throw new Error("Initial baseline identity cannot replace current incumbent");
       await workspace.checkScope(m.capture, target);
-      const e = await this.evaluator.evaluate(run.id, payload.evaluationId, context.signal, payload.purpose ?? "candidate", { baseline: workspace.reference(m.capture, m.incumbent), candidate: workspace.reference(m.capture, target) });
+      const e = await this.evaluator.evaluate(run.id, payload.evaluationId, context.signal, payload.purpose ?? "candidate", { baseline: workspace.reference(m.capture, m.incumbent), candidate: workspace.reference(m.capture, target) }, attempt?.id ?? null);
       if (target === m.capture.baseline && e.state === "completed" && e.validity === "valid" && !this.store.get(run.id)!.material!.baselineEvaluation) this.store.materialBaseline(run.id, generation, e.id);
       return this.store.evaluationReceipt(command, generation, "evaluate", payload, e.state === "completed" ? "applied" : "blocked", e.error);
     }

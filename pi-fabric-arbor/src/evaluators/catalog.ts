@@ -28,11 +28,13 @@ export class EvaluatorCatalog {
     if (binding.descriptorHash !== entry.descriptorHash) throw new Error("Effective evaluator descriptor mismatch; inspect schemas/risk/effects and explicitly rebind catalog");
     return canonical(binding);
   }
-  async evaluate(ref: string, args: Record<string, unknown>): Promise<{ native: NativeEvidence; measurement: string | null }> {
+  async evaluate(ref: string, args: Record<string, unknown>, beforeDispatch?: () => Promise<void>): Promise<{ native: NativeEvidence; measurement: string | null }> {
     this.binding(ref); validate(providerInputSchema(), args);
     const request = bindRequest(args), expected = request.expected;
     const descriptor = await request.accept(Promise.resolve(this.describe?.(ref)));
     if (!descriptor || canonical(descriptor.inputSchema) !== canonical(providerInputSchema()) || canonical(descriptor.outputSchema) !== canonical(providerOutputSchema()) || descriptor.risk !== "execute" || descriptor.effect?.kind !== "emission" || descriptor.effect.ordering !== "ordered") throw new Error("Effective evaluator input/output/risk/effect descriptor incompatible");
+    // Descriptor discovery can await arbitrarily. Admit at the actual effect boundary.
+    await beforeDispatch?.(); request.check();
     const value = await request.accept(this.call(ref, request.args)); validate(providerOutputSchema(), value);
     const r = value as any, snapshot = expected.snapshot as any;
     if (r.evaluationId !== expected.evaluationId || r.invocationId !== expected.invocationId || r.snapshotId !== snapshot.id || r.native.cwd !== snapshot.directory) throw new Error("Provider result provenance mismatch");

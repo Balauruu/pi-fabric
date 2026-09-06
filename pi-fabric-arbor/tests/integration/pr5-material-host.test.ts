@@ -34,7 +34,7 @@ async function host(program: string, options: { installed?: boolean; nonGit?: bo
   await writeFile(join(cwd, "arbor.config.json"), JSON.stringify({ execution: "material", material: { mutablePaths: ["prompt"], evaluationInputs: ["check"], selectedUntracked: ["selected"] }, evaluator: { kind: definition.kind, definition: join(root, "definition.json") }, objective: { unit: "points", ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, roleTools: { executor: ["read", "bash"] }, limits: { evaluatorCalls: 20, activeMs: 300000 } }));
   await writeFile(join(cwd, ".pi/fabric.json"), JSON.stringify({ configVersion: 4, fullCodeMode: true, executor: { timeoutMs: 180000, maxTimeoutMs: 240000 }, approvals: { read: "allow", write: "allow", execute: "allow", network: "deny", agent: "allow" }, agents: { enabled: true, model: "arbor-pr2-fake/deterministic", runner: "pi", thinking: "off", transport: "process", timeoutMs: 30000, extensions: true, defaultTools: [], maxConcurrent: 2, maxPerExecution: 32, maxDepth: 1, retainRuns: true, notifyOnComplete: true, sessionExport: false }, components: [{ id: "arbor", component: "arbor", config: { stateDirectory: join(root, "state") } }], mesh: { enabled: true, actorScope: "project", root: join(root, "mesh") }, ui: { enabled: false }, schema: { mode: "off" } }));
   const env = { ...process.env }; for (const key of Object.keys(env)) if (key.startsWith("PI_") || key.startsWith("ARBOR_")) delete env[key];
-  Object.assign(env, { HOME: join(root, "home"), PI_CODING_AGENT_DIR: profile, PI_OFFLINE: "1", PI_SKIP_VERSION_CHECK: "1", ARBOR_PR2_TRACE: trace, ARBOR_PR2_PROGRAM: helpers + program, ARBOR_PR2_HOLD: options.hold ?? "" });
+  Object.assign(env, { HOME: join(root, "home"), PI_CODING_AGENT_DIR: profile, PI_OFFLINE: "1", PI_SKIP_VERSION_CHECK: "1", ARBOR_PR2_TRACE: trace, ARBOR_PR2_PROGRAM: `const installedPackageRoot=${JSON.stringify(app)};` + helpers + program, ARBOR_PR2_HOLD: options.hold ?? "" });
   const manifest = JSON.parse(await readFile(join(modules, "pi-fabric/package.json"), "utf8"));
   const pending = exec(join(modules, ".bin/pi"), ["--approve", "--offline", "--no-session", "--no-skills", "--no-prompt-templates", "--no-themes", "--provider", "arbor-pr2-fake", "--model", "deterministic", "--thinking", "off", "-e", resolve(modules, "pi-fabric", manifest.exports["."].import), "-e", fakePath, "--mode", "json", "-p", "Execute deterministic PR5 material gate"], { cwd, env, timeout: 210000, maxBuffer: 8 * 1048576 }); pending.child.stdin?.end();
   let failure: ExecFileException | undefined;
@@ -78,8 +78,21 @@ test("PR5 installed native owner writes/commits/stages only candidate, evaluator
   const h = await host(`${start}${candidate}${keep}const exported=await act('export',{},'export');const p=await get();return JSON.stringify({kept,exported,p});`, { installed: true }); t.after(() => h.store.close());
   assert.equal(h.value.kept.status, "applied", h.root); const e = h.store.evaluation("material", "candidate")!; assert.deepEqual(e.invocations.map(i => i.score), ["0", "1"]);
   assert.ok(h.events.some(e => e.event === "material.worker" && e.data.didTool)); assert.ok(h.events.filter(e => e.event === "material.subject").every(e => e.data.tools.length === 0));
+  const workers = h.events.filter(e => e.event === "material.worker");
+  assert.ok(workers.every(e => e.data.text.includes("ARBOR_OPERATIONAL_BOOTSTRAP_V1") && e.data.text.includes("ARBOR_EXECUTOR_V1")));
+  assert.ok(workers.every(e => e.data.tools.includes("bash") && !e.data.tools.includes("fabric_exec")));
+  assert.ok(h.value.p.run.spec.roleBundle.directory.startsWith(join(h.root, "state")));
   const exported = JSON.parse(await readFile(h.value.exported.value.path, "utf8")); assert.match(exported.materialDelta.patch, /worker staged/); assert.doesNotMatch(exported.materialDelta.patch, /USER STAGED|source committed/);
   assert.equal(h.value.p.run.material.pending, null); assert.equal(h.events.filter(e => e.event === "main.inference").length, 2);
+});
+test("PR6 installed package role change then real reload/resume preserves worker bootstrap; new incompatible start blocks", { timeout: 270000 }, async t => {
+  const h = await host(`${start}const original=(await get()).run.spec.roleBundle;await pi.write({path:installedPackageRoot+'/skills/fabric-arbor/roles/executor.md',text:'INCOMPATIBLE_PACKAGE_UPDATE'});await act('control','pause','pause-role');await components.reload({id:'arbor'});await act('control','resume','resume-role');${candidate}${keep}let blocked;try{await tools.call({ref:'arbor.start',args:{runId:'incompatible-new-run'}})}catch(e){blocked=String(e)}return JSON.stringify({kept,original,blocked,missing:await tools.call({ref:'arbor.inspect',args:{runId:'incompatible-new-run'}}),p:await get()});`, { installed: true }); t.after(() => h.store.close());
+  assert.equal(h.value.kept.status, "applied", h.root); assert.deepEqual(h.value.p.run.spec.roleBundle, h.value.original);
+  assert.match(h.value.blocked, /incompatible bootstrap.*executor/); assert.equal(h.value.missing, null);
+  const workers = h.events.filter(e => e.event === "material.worker"); assert.ok(workers.length > 0);
+  assert.ok(workers.every(e => e.data.text.includes("ARBOR_EXECUTOR_V1") && !e.data.text.includes("INCOMPATIBLE_PACKAGE_UPDATE")));
+  assert.equal(h.value.p.attempts.length, 1); assert.deepEqual(h.store.evaluation("material", "candidate")!.invocations.map(i => i.score), ["0", "1"]);
+  assert.equal(h.events.filter(e => e.event === "main.inference").length, 2);
 });
 test("PR5 native non-Git input uses owned repo and command metric before failure cannot win", { timeout: 240000 }, async t => {
   const h = await host(`${start}await act('evaluate',{attemptId:'baseline',evaluationId:'initial'},'initial-eval');${candidate}${keep}return JSON.stringify({kept,p:await get()});`, { nonGit: true, command: true, failedMetric: true }); t.after(() => h.store.close());

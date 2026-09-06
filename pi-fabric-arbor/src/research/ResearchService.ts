@@ -3,10 +3,12 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "nod
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import type { FabricInvocationContext } from "pi-fabric/protocol";
 import { OwnerExecution } from "../managed/OwnerExecution.js";
+import { RoleBundle } from "../managed/RoleBundle.js";
 import { object, type NativeOwner } from "../managed/contracts.js";
 import { RESEARCH_ACTIONS, canonical, digest, validate, type BoundCommand, type ResearchAction, type Schema } from "./contracts.js";
 import { configFile, resolveSpec } from "./spec.js";
 import { ResearchStore, type Receipt } from "./ResearchStore.js";
+import { ownedArtifactBytes, nativeAdmission, evaluationCapacity, researchFacts } from './policy.js';
 import { MaterialJourney } from "../material/MaterialJourney.js";
 import type { MaterialState } from "../material/contracts.js";
 import type { EvaluationEngine } from "../evaluators/EvaluationEngine.js";
@@ -17,6 +19,7 @@ async function canonicalDestination(path: string): Promise<string> {
 }
 
 export class ResearchService {
+  #researchRuns = new Set<string>();
   #starts = new Map<string, { hash: string; pending: Promise<unknown> }>();
   #reviews = new Map<string, { hash: string; pending: Promise<unknown> }>();
   #draining = false;
@@ -36,7 +39,9 @@ export class ResearchService {
     const identity = await this.owner.identity(context);
     if (this.#draining) throw new Error("Arbor research generation is draining");
     context.signal?.throwIfAborted();
-    if (name === "start") return this.#start(args, context, identity);
+    if (name === 'start') return this.#start(args, context, identity);
+    if (name === 'runResearch') return this.#runResearch(args,context,identity);
+    if(name==='control' && args.action==='resume' && this.store.get(args.runId)?.spec.config.execution==='research')throw new Error('Autonomous resume requires execute-policy arbor.runResearch; no unchecked command evaluation');
     if (((name === "control" && args.action === "resume") || (name === "evaluate" && args.payload?.resume === true)) && ["evaluate", "material"].includes(this.store.get(args.runId)?.spec.config.execution ?? "")) {
       if (!this.evaluator) throw new Error("Packaged evaluator unavailable");
       const command: BoundCommand = { runId: args.runId, materialId: args.materialId, epoch: args.epoch, revision: args.revision, commandId: args.commandId };
@@ -46,6 +51,7 @@ export class ResearchService {
       const action = name === "evaluate" ? "evaluate" as const : "control" as const;
       const payload = name === "evaluate" ? args.payload : { action: "resume", instruction: null };
       const duplicate = this.store.receipt(command, action, payload); if (duplicate) return duplicate;
+      await this.owner.verifyRoles(bound.id, true);
       await this.evaluator.resume(command, identity, context.signal);
       const reconciled = this.store.get(args.runId)!;
       if (reconciled.material && !reconciled.material.baselineEvaluation) {
@@ -57,7 +63,19 @@ export class ResearchService {
     }
     const run = this.store.authorize(args.runId, identity, this.owner.generation);
     const command: BoundCommand = { runId: args.runId, materialId: args.materialId, epoch: args.epoch, revision: args.revision, commandId: args.commandId };
-    if (run.material && ["dispatch", "collect", "evaluate", "decide"].includes(name)) return this.material.invoke(name, command, args.payload, context);
+    if(name==='reviseRoles'){
+      const duplicate=this.store.receipt(command,name,{});if(duplicate)return duplicate;
+      this.store.check(run,command);
+      if(this.#researchRuns.has(run.id)||this.owner.busyResearch(run.id)||run.state!=='paused'||run.active||run.pendingDecisionId||run.material?.pending)throw new Error('Role revision requires quiescent paused owner');
+      await this.owner.verifyRoles(run.id,true);
+      const bundles=new RoleBundle(join(this.stateDirectory,'runs',run.id,'roles'));
+      const bundle=await bundles.freeze(run.spec.config.limits.artifactBytes,run.spec.source.root);
+      if(await ownedArtifactBytes(this.store,run.id)>=run.spec.config.limits.artifactBytes)throw new Error('Role revision cumulative artifact budget exhausted; prior binding preserved');
+      const coordinatorId=(await bundles.load(bundle,'coordinator',[])).instructionsId, executorId=(await bundles.load(bundle,'executor',[])).instructionsId;
+      context.signal?.throwIfAborted();if(this.#draining)throw new Error('Role revision generation retired');
+      return this.store.reviseRoles(command,this.owner.generation,{revision:run.revision+1,commandId:command.commandId,bundle,coordinatorId,executorId});
+    }
+    if (run.material && ['dispatch', 'collect', 'evaluate', 'decide'].includes(name)) return this.material.invoke(name, command, args.payload, context);
     if (name === "control") {
       const receipt = this.store.control(command, this.owner.generation, args.action, args.instruction);
       if (run.material && args.action === "cancel") {
@@ -123,17 +141,23 @@ export class ResearchService {
       const [profile, project] = await Promise.all([configFile(join(this.profileDirectory, "arbor.defaults.json")), configFile(join(context.cwd, "arbor.config.json"))]);
       const model = context.extensionContext.model;
       const spec = await resolveSpec(context.cwd, profile, project, object(args.overrides ?? {}), model ? `${model.provider}/${model.id}` : undefined);
-      if (["evaluate", "material"].includes(spec.config.execution)) {
+      if (["evaluate", "material", "research"].includes(spec.config.execution)) {
         if (!this.evaluator) throw new Error("Packaged evaluator unavailable");
         for (const key of (spec.evaluation!.kind === "agent-suite" ? [spec.evaluation!.subject.model, spec.evaluation!.judge?.model].filter(Boolean) : [])) if (!context.extensionContext.modelRegistry.getAvailable().some(m => `${m.provider}/${m.id}` === key)) throw new Error(`Unavailable exact evaluation model ${key}`);
         if (object(await this.owner.call("schema.status", {})).mode === "enforce") throw new Error("Native evaluation unavailable in Schema enforce; policy unchanged");
       }
-      if (spec.config.execution === "inspect") for (const role of ["coordinator", "executor"] as const) if (!context.extensionContext.modelRegistry.getAvailable().some(model => `${model.provider}/${model.id}` === spec.roles[role].model)) throw new Error(`Unavailable exact ${role} model`);
+      if (['inspect','research'].includes(spec.config.execution)) for (const role of ["coordinator", "executor"] as const) if (!context.extensionContext.modelRegistry.getAvailable().some(model => `${model.provider}/${model.id}` === spec.roles[role].model)) throw new Error(`Unavailable exact ${role} model`);
       const fromMaterial = relative(spec.source.root, await canonicalDestination(resolve(this.stateDirectory)));
       if (!fromMaterial || (fromMaterial !== ".." && !fromMaterial.startsWith(`..${sep}`) && !isAbsolute(fromMaterial))) throw new Error("Arbor state must live outside mutable material");
       context.signal?.throwIfAborted(); if (this.#draining) throw new Error("Generation retired during spec resolution");
+      if (["inspect", "material", "research"].includes(spec.config.execution)) {
+        const bundles = new RoleBundle(join(this.stateDirectory, "runs", args.runId, "roles"));
+        spec.roleBundle = await bundles.freeze(spec.config.limits.artifactBytes, spec.source.root);
+        for (const role of ["coordinator", "executor"] as const) spec.roles[role].instructionsId = (await bundles.load(spec.roleBundle, role, [])).instructionsId;
+        const { identity: _identity, ...body } = spec; spec.identity = digest(body);
+      }
       let material: MaterialState | undefined;
-      if (spec.config.execution === "material") {
+      if (['material','research'].includes(spec.config.execution)) {
         if (!spec.roles.executor.model || !context.extensionContext.modelRegistry.getAvailable().some(m => `${m.provider}/${m.id}` === spec.roles.executor.model)) throw new Error("Select available exact material worker model");
         const workspace = this.material.workspace(args.runId), capture = await workspace.capture(spec.config.material);
         context.signal?.throwIfAborted(); if (this.#draining) throw new Error("Capture interrupted; owned artifacts retained");
@@ -147,7 +171,7 @@ export class ResearchService {
       // Direct command effects require the execute-risk evaluate action. The Pi
       // start command composes start -> evaluate through normal Fabric policy.
       if (spec.config.execution === "evaluate" && spec.evaluation!.kind !== "command") await this.evaluator!.evaluate(args.runId, "evaluation-initial", context.signal);
-      if (material && spec.evaluation!.kind !== "command") await this.material.invoke("evaluate", this.store.binding(this.store.get(args.runId)!, "initial-material-evaluation"), { attemptId: "baseline", evaluationId: "evaluation-initial" }, context);
+      if (material && spec.config.execution !== 'research' && spec.evaluation!.kind !== "command") await this.material.invoke("evaluate", this.store.binding(this.store.get(args.runId)!, "initial-material-evaluation"), { attemptId: "baseline", evaluationId: "evaluation-initial" }, context);
       if (spec.config.execution === "inspect") {
         if (!spec.source.oid) { this.store.settle(args.runId, this.owner.generation, "paused", "blocked", "Non-Git native capture unavailable until PR5; resolved specification retained"); }
         else {
@@ -163,6 +187,33 @@ export class ResearchService {
     })();
     this.#starts.set(args.runId, { hash, pending });
     try { return await pending; } catch (error) { this.#starts.delete(args.runId); throw error; }
+  }
+  async #runResearch(args: Record<string,any>, context: FabricInvocationContext, identity: NativeOwner): Promise<unknown> {
+    const run=this.store.get(args.runId);if(!run?.material || run.spec.config.execution!=='research')throw new Error('Select explicit research execution');
+    if(canonical(run.owner)!==canonical(identity))throw new Error('Different native owning Pi root/host/identity');
+    if(this.#researchRuns.has(run.id))throw new Error('Research boundary occupied');
+    this.store.check(run,args as BoundCommand);
+    if(!this.evaluator)throw new Error('Evaluator unavailable');
+    this.#researchRuns.add(run.id);
+    try{
+      await this.owner.verifyRoles(run.id,true);
+      if(args.resume){
+        if(this.owner.busyResearch(run.id)||run.active||run.material.pending||run.pendingDecisionId||run.state!=='paused')throw new Error('Research resume requires quiescent paused owner; ambiguous work is retained');
+        await this.evaluator.resume(args as BoundCommand,identity,context.signal);
+      }else{this.store.authorize(run.id,identity,this.owner.generation);if(run.execution!=='not-started'||!['ready','running'].includes(run.state))throw new Error('Research requires explicit resume, not replay');}
+      const current=this.store.get(run.id)!;
+      const projection=this.store.projection(run.id)!;
+      const {reason}=await nativeAdmission(this.store,run.id);
+      const admission=reason ?? (!current.material!.baselineEvaluation && researchFacts(projection).evaluatorCalls+evaluationCapacity(projection)>current.spec.config.limits.evaluatorCalls?'evaluator-budget':null);
+      if(admission){this.store.settle(run.id,this.owner.generation,'paused',`research-stop:${admission}`,null,`admission-${current.revision}`);return this.store.projection(run.id);}
+      if(!current.material!.baselineEvaluation)await this.material.invoke('evaluate',this.store.binding(current,'research-baseline'),{attemptId:'baseline',evaluationId:'evaluation-initial'},context);
+      const measured=this.store.get(run.id)!;
+      if(['interrupted','cleanup_pending'].includes(measured.state))return this.store.projection(run.id);
+      if(!measured.material!.baselineEvaluation){this.store.settle(run.id,this.owner.generation,'paused','research-stop:invalid-baseline',null,`baseline-block-${measured.revision}`);return this.store.projection(run.id);}
+      if(!['ready','running'].includes(measured.state))return this.store.projection(run.id);
+      await this.owner.runResearch(run.id,this.material,context);
+      return this.store.projection(run.id);
+    }finally{this.#researchRuns.delete(run.id);}
   }
   async #export(command: BoundCommand): Promise<Receipt> {
     const duplicate = this.store.receipt(command, "export", { format: "json" }); if (duplicate) return duplicate;

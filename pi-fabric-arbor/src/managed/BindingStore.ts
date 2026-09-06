@@ -2,12 +2,14 @@ import { existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { ExecutionSpec, NativeOwner, Terminal } from "./contracts.js";
+import type { RoleInvocation } from "./RoleBundle.js";
 
 export interface Binding {
   version: 1; spec: ExecutionSpec; owner: NativeOwner; componentId: string; generation: string; revision: number;
   state: "running" | "completed" | "failed" | "cancelled" | "interrupted" | "cleanup_pending";
   dispatches: Array<{ kind: "actor" | "agent"; name: string; nativeId?: string }>;
   actors: string[]; workers: Array<{ id: string; cwd: string; oid: string; task: string; status?: Terminal }>;
+  roleInvocations?: RoleInvocation[];
   error?: string;
 }
 /** PR2 native linkage only. PR3 owns the future transactional research schema. */
@@ -43,6 +45,13 @@ export class BindingStore {
     return binding;
   }
   save(binding: Binding): void {
+    const previous = this.get(binding.spec.runId);
+    for (const [index, prior] of (previous?.roleInvocations ?? []).entries()) {
+      const next = binding.roleInvocations?.[index];
+      if (!next) throw new Error("Prior operational invocation attribution cannot be removed");
+      const { nativeId: oldNative, ...oldBody } = prior, { nativeId: newNative, ...newBody } = next;
+      if (JSON.stringify(oldBody) !== JSON.stringify(newBody) || (oldNative !== undefined && newNative !== oldNative)) throw new Error("Prior operational invocation attribution cannot be rewritten");
+    }
     const result = this.#open().prepare("UPDATE execution_bindings SET revision=?, value=? WHERE id=? AND generation=? AND revision<=?")
       .run(binding.revision, JSON.stringify(binding), binding.spec.runId, binding.generation, binding.revision);
     if (result.changes !== 1) throw new Error("Stale generation cannot write execution binding");

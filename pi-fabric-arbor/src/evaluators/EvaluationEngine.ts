@@ -10,6 +10,7 @@ import { invocationId, nativeSuccess, type EvaluationRecord, type Invocation, ty
 import { freezeMaterial, subjectBootstrap, verifyMaterial } from "./material.js";
 import { analyze, commandRun, parseMetric, units } from "./measurement.js";
 import type { EvaluatorCatalog } from "./catalog.js";
+import { requireNativeAdmission, NativeAdmissionError } from "../research/policy.js";
 import { Workspace } from "../material/Workspace.js";
 const exec = promisify(execFile);
 /** Finite admitted evaluation, not a research loop or alternative child runtime. */
@@ -17,13 +18,14 @@ export class EvaluationEngine {
   #active = new Map<string, { id: string; purpose: string; promise: Promise<EvaluationRecord>; abort: AbortController }>();
   #draining = false;
   constructor(readonly owner: OwnerExecution, readonly store: ResearchStore, readonly stateDirectory: string, readonly catalog: EvaluatorCatalog) {}
-  async evaluate(runId: string, id: string, signal?: AbortSignal, purpose: "candidate" | "feedback" | "recheck" = "candidate", pair?: { baseline: MaterialRef; candidate: MaterialRef }): Promise<EvaluationRecord> {
+  async evaluate(runId: string, id: string, signal?: AbortSignal, purpose: "candidate" | "feedback" | "recheck" = "candidate", pair?: { baseline: MaterialRef; candidate: MaterialRef }, attemptId: string | null = null): Promise<EvaluationRecord> {
     if (this.#draining) throw new Error("Evaluator generation draining");
     const active = this.#active.get(runId); if (active) { if (active.id !== id || active.purpose !== purpose) throw new Error("Run evaluator capacity occupied"); return active.promise; }
     if (this.#active.size >= 128) throw new Error("Evaluator active-run capacity exhausted");
     const frozen = this.store.get(runId)!; const { identity, ...body } = frozen.spec;
     if (identity !== digest(body)) throw new Error("Frozen resolved spec identity changed");
     const existing = this.store.evaluation(runId, id);
+    if (existing && (existing.attemptId ?? null) !== attemptId) throw new Error("Evaluation ID bound to different exact attempt");
     if (pair && existing && (canonical(pair.baseline) !== canonical(existing.definition.baseline) || canonical(pair.candidate) !== canonical(existing.definition.candidate))) throw new Error("Evaluation ID bound to different exact material pair");
     if (existing && existing.purpose !== purpose) throw new Error("Conflicting evaluation invocation purpose for stable ID");
     if (existing?.state === "completed") return existing;
@@ -31,11 +33,11 @@ export class EvaluationEngine {
     this.store.beginEvaluation(runId, this.owner.generation);
     const abort = new AbortController(), onAbort = () => abort.abort();
     signal?.addEventListener("abort", onAbort, { once: true }); if (signal?.aborted) abort.abort();
-    const promise = this.#execute(runId, id, abort.signal, purpose, existing, pair);
+    const promise = this.#execute(runId, id, abort.signal, purpose, existing, pair, attemptId);
     this.#active.set(runId, { id, purpose, promise, abort });
     try { return await promise; } finally { signal?.removeEventListener("abort", onAbort); this.#active.delete(runId); }
   }
-  async #execute(runId: string, id: string, signal: AbortSignal, purpose: "candidate" | "feedback" | "recheck", saved?: EvaluationRecord, pair?: { baseline: MaterialRef; candidate: MaterialRef }): Promise<EvaluationRecord> {
+  async #execute(runId: string, id: string, signal: AbortSignal, purpose: "candidate" | "feedback" | "recheck", saved?: EvaluationRecord, pair?: { baseline: MaterialRef; candidate: MaterialRef }, attemptId: string | null = null): Promise<EvaluationRecord> {
     const run = this.store.get(runId)!;
     const definition = saved?.definition ?? (run.spec.evaluation ? { ...structuredClone(run.spec.evaluation), ...structuredClone(pair ?? {}) } : null);
     if (!definition) throw new Error("Frozen evaluator definition unavailable; no caller score accepted");
@@ -45,7 +47,7 @@ export class EvaluationEngine {
         signal.throwIfAborted();
         const output = join(this.stateDirectory, "runs", runId, "material", ...(run.material ? [id] : []));
         const baseline = await freezeMaterial(definition.baseline, output), candidate = await freezeMaterial(definition.candidate, output);
-        e = { id, runId, purpose, epoch: run.epoch, specId: run.spec.identity, generation: this.owner.generation, ownerBinding: digest(run.owner), definition, definitionId: digest(definition), snapshots: { baseline, candidate }, catalogId: this.catalog.id,
+        e = { id, runId, attemptId, purpose, epoch: run.epoch, specId: run.spec.identity, generation: this.owner.generation, ownerBinding: digest(run.owner), definition, definitionId: digest(definition), snapshots: { baseline, candidate }, catalogId: this.catalog.id,
           providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null, bindings: [{ generation: this.owner.generation, componentId: this.owner.componentId, catalogId: this.catalog.id, providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null }], state: "running", invocations: [], analysis: null, quality: { required: run.spec.config.objective.qualityVetoes, passed: false, limitedValidation: definition.kind === "command" && definition.command!.checks.length === 0 }, validity: "pending", incumbentDecision: run.material ? "separate-owned-decision" : "not-evaluated-PR5", error: null };
         this.store.saveEvaluation(e);
       }
@@ -55,7 +57,6 @@ export class EvaluationEngine {
           signal.throwIfAborted();
           const current = this.store.get(runId)!;
           if (current.state === "paused") throw new Error("Paused at evaluation dispatch boundary");
-          if (current.activeMs + (current.activeSince === null ? 0 : Date.now() - current.activeSince) >= current.spec.config.limits.activeMs) throw new Error("Saved active-time dispatch budget exhausted");
           const kind = retry ? "retry" : purpose === "candidate" ? condition : purpose;
           const invocation = await this.#invocation(e, condition, task.id, repeat, kind, parent, task.prompt, signal);
           if (!invocation.valid && retry < definition.retries) { parent = invocation.id; continue; }
@@ -65,7 +66,7 @@ export class EvaluationEngine {
       signal.throwIfAborted();
       if (e.invocations.some(i => i.state !== "ingested")) throw new Error("Evaluation completion requires every invocation ingested");
       e.analysis = analyze(e, run.spec.config.objective.direction);
-      e.quality.passed = e.quality.required.every(v => v === "no-native-failures" ? e!.invocations.every(i => i.valid) : e!.invocations.every(i => i.valid && i.score === "1"));
+      e.quality.passed = e.quality.required.every(v => v === 'no-native-failures' ? e!.invocations.every(i => i.valid) : v === 'preserve-baseline-correct' ? e!.invocations.filter(i => i.condition === 'baseline' && i.role !== 'judge' && i.valid && i.score === '1').every(i => e!.invocations.some(c => c.condition === 'candidate' && c.role !== 'judge' && c.taskId === i.taskId && c.repeat === i.repeat && c.valid && c.score === '1')) : e!.invocations.every(i => i.valid && i.score === '1'));
       e.validity = e.invocations.every(i => i.valid) && e.quality.passed ? "valid" : "invalid";
       e.state = "completed"; this.store.saveEvaluation(e);
       await this.#artifact(e).catch(error => { e!.error = `Derived artifact unavailable: ${String(error)}`.slice(0, 4096); this.store.saveEvaluation(e!); });
@@ -76,7 +77,7 @@ export class EvaluationEngine {
       e.state = signal.aborted || this.store.get(runId)!.state === "paused" || e.invocations.some(i => i.state !== "ingested") ? "INTERRUPTED" : "blocked";
       e.error = String(error).slice(0, 4096); this.store.saveEvaluation(e);
       await this.#artifact(e).catch(() => undefined);
-      this.store.settle(runId, this.owner.generation, this.store.get(runId)!.state === "paused" ? "paused" : "interrupted", e.state, e.error, `interrupted-${id}-${run.revision}`);
+      this.store.settle(runId, this.owner.generation, this.store.get(runId)!.state === "paused" ? "paused" : "interrupted", error instanceof NativeAdmissionError ? `research-stop:${error.reason}` : e.state, e.error, `interrupted-${id}-${run.revision}`);
       return e;
     }
   }
@@ -95,6 +96,7 @@ export class EvaluationEngine {
       model: judge ? e.definition.judge!.model : e.definition.subject.model, tools: judge ? [] : e.definition.subject.tools, runner: "pi", transport: "process", thinking: "off", extensions: false, recursive: false, residency: "session", cwd: snapshot.directory };
     if (i && i.requestId !== digest({ definitionId: e.definitionId, request, purpose, parentId })) throw new Error("Immutable subject/judge request binding changed");
     if (i?.state === "ingested") return i;
+    if (!i?.native) await requireNativeAdmission(this.store, e.runId, e);
     if (!i) {
       i = { id, condition, taskId, repeat, purpose, parentId, snapshotId: snapshot.id, requestId: digest({ definitionId: e.definitionId, request, purpose, parentId }), role: judge ? "judge" : e.definition.kind === "agent-suite" ? "subject" : e.definition.kind, model: typeof request.model === "string" ? request.model : null, tools: Array.isArray(request.tools) ? structuredClone(request.tools) as string[] : [], bootstrapId: digest(request.task ?? request), nativeId: null, state: "reserved", native: null, valid: false, score: null, reason: null };
       e.invocations.push(i);
@@ -103,22 +105,28 @@ export class EvaluationEngine {
     await verifyMaterial(snapshot);
     if (!i.native) {
       if (i.state !== "reserved") throw new Error("Unobservable launch/attachment gap; no duplicate dispatch");
+      await requireNativeAdmission(this.store, e.runId, e); signal.throwIfAborted();
       if (e.definition.kind === "agent-suite" || judge) await this.owner.evaluationSubject(e, i, request, signal);
       else {
-        i.state = "launching"; this.store.saveEvaluation(e);
         if (e.definition.kind === "command") {
+          i.state = "launching"; this.store.saveEvaluation(e);
           const command = e.definition.command!;
           i.native = await commandRun(command.argv, snapshot.directory, e.definition.deadlineMs, signal);
           i.nativeId = i.native.id;
           i.native.checkResults = [];
           for (const check of command.checks) {
             if (!nativeSuccess(i.native)) break;
+            await requireNativeAdmission(this.store, e.runId, e); signal.throwIfAborted();
             const result = await commandRun(check, snapshot.directory, e.definition.deadlineMs, signal);
             i.native.checks.push(nativeSuccess(result)); i.native.checkResults.push(result);
           }
         } else {
           await mkdir(join(this.stateDirectory, "runs", e.runId, "evaluations", e.id), { recursive: true });
-          const result = await this.catalog.evaluate(e.definition.providerAction!, { snapshot: { id: snapshot.id, directory: snapshot.directory, oid: snapshot.oid }, specification: canonical(e.definition), outputDirectory: join(this.stateDirectory, "runs", e.runId, "evaluations", e.id), evaluationId: e.id, invocationId: i.id });
+          const result = await this.catalog.evaluate(e.definition.providerAction!, { snapshot: { id: snapshot.id, directory: snapshot.directory, oid: snapshot.oid }, specification: canonical(e.definition), outputDirectory: join(this.stateDirectory, "runs", e.runId, "evaluations", e.id), evaluationId: e.id, invocationId: i.id }, async () => {
+            await requireNativeAdmission(this.store, e.runId, e); signal.throwIfAborted();
+            if (this.#draining) throw new Error("Evaluator retired before provider dispatch");
+            i!.state = "launching"; this.store.saveEvaluation(e);
+          });
           i.native = result.native; i.score = result.measurement;
         }
         i.nativeId = i.native.id; i.state = "native-complete"; this.store.saveEvaluation(e);
@@ -180,7 +188,7 @@ export class EvaluationEngine {
       const e = old; e.generation = this.owner.generation; e.state = "running"; e.error = null;
       e.providerBinding = e.definition.providerAction ? this.catalog.binding(e.definition.providerAction) : null;
       if (e.bindings.at(-1)?.generation !== this.owner.generation) { if (e.bindings.length >= 128) throw new Error("Evaluation binding-history limit reached; new measurement required"); e.bindings.push({ generation: this.owner.generation, componentId: this.owner.componentId, catalogId: this.catalog.id, providerBinding: e.providerBinding }); }
-      this.store.saveEvaluation(e); await this.evaluate(run.id, e.id, signal, e.purpose);
+      this.store.saveEvaluation(e); await this.evaluate(run.id, e.id, signal, e.purpose, undefined, e.attemptId ?? null);
     }
   }
   async cancel(runId: string): Promise<void> { const active = this.#active.get(runId); active?.abort.abort(); await active?.promise; }

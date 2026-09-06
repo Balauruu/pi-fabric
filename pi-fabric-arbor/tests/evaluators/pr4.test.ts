@@ -113,6 +113,23 @@ test("PR4 repeated trajectories remain within-task samples rather than independe
   const f = await engineFixture(t, { repeats: 3 }); const e = await f.engine.evaluate("run", "repeats");
   assert.equal(e.invocations.length, 12); assert.equal(e.analysis!.tasks.length, 2); assert.equal(e.analysis!.wins, 2); assert.deepEqual(e.analysis!.range, ["1", "1"]);
 });
+test('PR6 Main provider descriptor await cannot bypass final native admission', async t => {
+ const f = await materialFixture(); f.definition.kind='provider'; f.definition.providerAction='fake.evaluate';
+ await writeFile(join(f.root,'definition.json'),JSON.stringify(f.definition));
+ const spec=await resolveSpec(f.source,{},{},{execution:'evaluate',evaluator:{kind:'provider',definition:join(f.root,'definition.json')}},'fake/coordinator');
+ const store=new ResearchStore(join(f.root,'state/research.sqlite3')), bindings=new BindingStore(join(f.root,'state/bindings.sqlite3'));
+ store.create({id:'run',spec,requestHash:'request',owner:identity,componentId:'arbor.owner',generation:'g1',epoch:'epoch-1',revision:0,state:'ready',attemptsUsed:0,active:0,createdAt:1,activeMs:0,activeSince:null,steering:[],pendingDecisionId:null,execution:'not-started',error:null});
+ const entry={ref:'fake.evaluate',descriptorHash:'a'.repeat(64)}, view={id:'v',digest:'v',semanticDigest:'v',bindings:{[entry.ref]:{ref:entry.ref,provider:'fake',providerBindingId:'one',generation:1,descriptorHash:entry.descriptorHash}}};
+ let calls=0; const now=Date.now();
+ const catalog=new EvaluatorCatalog([entry],view,async()=>{calls++;throw new Error('must not invoke after descriptor exhausts budget');},async()=>{
+  t.mock.method(Date,'now',()=>now+spec.config.limits.activeMs+1000);
+  return {name:'evaluate',description:'fixture',inputSchema:providerInputSchema(),outputSchema:providerOutputSchema(),risk:'execute',effect:{kind:'emission',ordering:'ordered'}};
+ });
+ const owner=new OwnerExecution(async()=>{throw new Error('No agent expected');},bindings,'arbor.owner','g1',store), engine=new EvaluationEngine(owner,store,join(f.root,'state'),catalog);
+ t.after(async()=>{await engine.dispose();store.close();bindings.close();});
+ const e=await engine.evaluate('run','late-provider');
+ assert.equal(calls,0);assert.match(e.error!,/active-time-budget/);assert.equal(e.invocations[0]!.state,'reserved');
+});
 test("PR4 strict metric parser and owned commands cover exit/check/timeout/unit/ambiguity", async () => {
   assert.equal(parseMetric("ARBOR_METRIC -2.50 ms\n", "ms"), "-2.5");
   for (const text of ["", "ARBOR_METRIC 2 ms\nARBOR_METRIC 3 ms", "ARBOR_METRIC 2 seconds", "ARBOR_METRIC NaN ms"]) assert.throws(() => parseMetric(text, "ms"));

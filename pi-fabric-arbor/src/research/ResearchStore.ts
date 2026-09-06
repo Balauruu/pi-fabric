@@ -7,8 +7,11 @@ import type { ResolvedSpec } from "./spec.js";
 import { evaluationSummary, type EvaluationRecord } from "../evaluators/contracts.js";
 import type { MaterialState } from "../material/contracts.js";
 import type { Candidate } from "../material/Workspace.js";
+import { evaluationCapacity } from './policy.js';
 import { acceptance } from "../material/acceptance.js";
 export interface ResearchRun {
+  generationHistory?: string[];
+  roleRevisions?: Array<{ revision: number; commandId: string; bundle: import("../managed/RoleBundle.js").RoleBundleRef; coordinatorId: string; executorId: string }>;
   material?: MaterialState;
   id: string; spec: ResolvedSpec; requestHash: string; owner: NativeOwner; componentId: string; generation: string;
   epoch: string; revision: number; state: "ready" | "running" | "paused" | "awaiting_review" | "completed" | "cancelled" | "interrupted" | "cleanup_pending" | "failed";
@@ -79,7 +82,7 @@ export class ResearchStore {
         && ref.nativeId === attempt.nativeId && ref.digest === attempt.nativeDigest && ref.status === attempt.state
         && ref.materialId === attempt.materialId && attempt.materialId === run.spec.source.materialId
         && ref.epoch === attempt.epoch && attempt.epoch === run.epoch
-        && ref.generation === attempt.generation && attempt.generation === run.generation;
+        && ref.generation === attempt.generation && (attempt.generation === run.generation || !!run.generationHistory?.includes(attempt.generation));
     });
   }
   #save(db: DatabaseSync, run: ResearchRun): void { const result = db.prepare("UPDATE runs SET revision=?,value=? WHERE id=? AND generation=? AND revision=?").run(run.revision, canonical(run), run.id, run.generation, run.revision - 1); if (result.changes !== 1) throw new Error("Stale generation/revision cannot write research facts"); }
@@ -94,7 +97,7 @@ export class ResearchStore {
   }
   beginEvaluation(runId: string, generation: string): void {
     this.#transaction(db => {
-      const run = this.#run(db, runId); if (!run || run.generation !== generation || !["evaluate", "material"].includes(run.spec.config.execution)) throw new Error("Evaluation generation unavailable");
+      const run = this.#run(db, runId); if (!run || run.generation !== generation || !["evaluate", "material", "research"].includes(run.spec.config.execution)) throw new Error("Evaluation generation unavailable");
       if (run.material && (run.active !== 0 || run.material.pending || run.pendingDecisionId)) throw new Error("Writers/integration/review must settle before evaluation");
       if (["paused", "cancelled", "cleanup_pending", "interrupted"].includes(run.state)) throw new Error("Evaluation requires explicit resume");
       if (run.activeSince === null) { run.activeSince = Date.now(); run.revision++; this.#save(db, run); }
@@ -107,7 +110,12 @@ export class ResearchStore {
     this.#transaction(db => {
       const run = this.#run(db, e.runId); if (!run || run.generation !== e.generation || run.spec.identity !== e.specId || run.epoch !== e.epoch || digest(run.owner) !== e.ownerBinding) throw new Error("Stale evaluation owner/spec/epoch binding");
       const previous = this.#row<EvaluationRecord>(db, "evaluations", run.id, e.id);
-      if (previous && (previous.purpose !== e.purpose || previous.definitionId !== e.definitionId || canonical(previous.snapshots) !== canonical(e.snapshots) || previous.invocations.length > e.invocations.length || previous.bindings.some((binding, i) => canonical(binding) !== canonical(e.bindings[i])))) throw new Error("Immutable evaluation identity changed");
+      if (e.attemptId) {
+        const attempt=this.#row<Attempt>(db,'attempts',run.id,e.attemptId);
+        if(!run.material || !attempt?.nativeDigest || attempt.state!=='completed' || attempt.materialId!==run.spec.source.materialId || attempt.epoch!==run.epoch)throw new Error('Evaluation requires exact settled attempt binding');
+      }
+      if(previous?.state==='completed' && canonical({state:previous.state,validity:previous.validity,quality:previous.quality,analysis:previous.analysis})!==canonical({state:e.state,validity:e.validity,quality:e.quality,analysis:e.analysis}))throw new Error('Completed evaluation outcome is immutable');
+      if (previous && ((previous.attemptId ?? null) !== (e.attemptId ?? null) || previous.purpose !== e.purpose || previous.definitionId !== e.definitionId || canonical(previous.snapshots) !== canonical(e.snapshots) || previous.invocations.length > e.invocations.length || previous.bindings.some((binding, i) => canonical(binding) !== canonical(e.bindings[i])))) throw new Error("Immutable evaluation identity changed");
       for (const prior of previous?.invocations ?? []) {
         const next = e.invocations.find(i => i.id === prior.id);
         if (!next || next.requestId !== prior.requestId || (prior.nativeId && prior.nativeId !== next.nativeId) || (prior.native && canonical(prior.native) !== canonical(next.native)) || (prior.state === "ingested" && canonical(prior) !== canonical(next))) throw new Error("Conflicting native invocation or terminal replay");
@@ -121,7 +129,7 @@ export class ResearchStore {
   }
   evaluationReceipt(command: BoundCommand, generation: string, action: "control" | "evaluate", payload: unknown, status: Receipt["status"], reason: string | null): Receipt {
     return this.#transaction(db => {
-      const run = this.#run(db, command.runId); if (!run || run.generation !== generation || !["evaluate", "material"].includes(run.spec.config.execution) || run.epoch !== command.epoch || run.spec.source.materialId !== command.materialId) throw new Error("Stale evaluation receipt binding");
+      const run = this.#run(db, command.runId); if (!run || run.generation !== generation || !["evaluate", "material", "research"].includes(run.spec.config.execution) || run.epoch !== command.epoch || run.spec.source.materialId !== command.materialId) throw new Error("Stale evaluation receipt binding");
       const hash = digest({ command, action, payload }), old = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", run.id, command.commandId);
       if (old) { if (old.hash !== hash) throw new Error("Conflicting duplicate evaluation control"); return old.receipt; }
       run.revision++;
@@ -137,14 +145,21 @@ export class ResearchStore {
   rebindEvaluationRun(command: BoundCommand, owner: NativeOwner, componentId: string, generation: string): void {
     this.#transaction(db => {
       const run = this.#run(db, command.runId); if (!run) throw new Error("Unknown evaluation run"); this.check(run, command);
-      if (canonical(run.owner) !== canonical(owner) || run.componentId !== componentId || !["evaluate", "material"].includes(run.spec.config.execution) || run.active !== 0) throw new Error("Immutable native owner/component/evaluation binding mismatch");
+      if (canonical(run.owner) !== canonical(owner) || run.componentId !== componentId || !["evaluate", "material", "research"].includes(run.spec.config.execution) || run.active !== 0) throw new Error("Immutable native owner/component/evaluation binding mismatch");
       if (run.material && ["cancelled", "completed", "failed"].includes(run.state)) throw new Error("Terminal material run cannot resume; start a new run");
       if (run.material && (run.pendingDecisionId || run.material.pending)) throw new Error("Pending integration/research review must settle before resume");
-      const oldGeneration = run.generation; run.generation = generation; run.revision++;
+      const oldGeneration = run.generation;
+      if (generation !== oldGeneration) {
+        const history = [...new Set([...(run.generationHistory ?? []), oldGeneration])];
+        if (history.length > 128) throw new Error('Run generation-history capacity exhausted');
+        run.generationHistory = history;
+      }
+      run.generation = generation; run.revision++;
       if (run.material?.pending) run.material.pending.revision = run.revision;
       if ((run.material && run.state === "paused") || this.#rows<EvaluationRecord>(db, "evaluations", run.id).some(e => e.state !== "completed")) { run.state = "ready"; run.activeSince ??= Date.now(); }
       if (db.prepare("UPDATE runs SET revision=?,generation=?,value=? WHERE id=? AND generation=? AND revision=?").run(run.revision, generation, canonical(run), run.id, oldGeneration, command.revision).changes !== 1) throw new Error("Stale reconciliation");
-      for (const e of this.#rows<EvaluationRecord>(db, "evaluations", run.id)) { e.generation = generation; this.#put(db, "evaluations", run.id, e.id, e); }
+      // Completed records retain their original provenance. Incomplete records
+      // append an explicit evaluator binding when reconciled by EvaluationEngine.
     });
   }
   create(run: ResearchRun): ResearchRun {
@@ -248,7 +263,7 @@ export class ResearchStore {
   validateProposal(value: unknown, runId: string): Proposal {
     validate(ACTOR_PROPOSAL_SCHEMA, value); const proposal = value as Proposal, run = this.get(runId)!;
     this.check(run, proposal);
-    if (proposal.estimatedBudget.attempts !== (proposal.kind === "dispatch" ? 1 : 0) || proposal.estimatedBudget.evaluatorCalls !== (proposal.kind === "evaluate" ? 1 : 0)) throw new Error("Proposal budget estimate does not match action");
+    if (proposal.estimatedBudget.attempts !== (proposal.kind === "dispatch" ? 1 : 0) || proposal.estimatedBudget.evaluatorCalls !== (proposal.kind === 'evaluate' ? run.spec.config.execution==='research' ? evaluationCapacity(this.projection(runId)!) : 1 : 0)) throw new Error("Proposal budget estimate does not match action");
     if (!this.#read(db => this.#evidence(db, run, proposal.expectedEvidence), false)) throw new Error("Proposal expects invalid or unknown native evidence");
     return structuredClone(proposal);
   }
@@ -325,7 +340,7 @@ export class ResearchStore {
     this.#commit(this.binding(run, settlementId), generation, "settlement", { state, execution, error }, (db, current) => {
       // Finalize only the unchanged choice at successful native quiescence. An
       // intervening control/result/dialog remains stale; never rebase it here.
-      if (current.state === "awaiting_review" && current.pendingDecisionId && state === "completed" && error === null && current.active === 0) {
+      if (current.state === "awaiting_review" && current.pendingDecisionId && (state === "completed" || (state === "paused" && current.spec.config.execution === "research")) && error === null && current.active === 0) {
         const decision = this.#row<Record<string, any>>(db, "decisions", runId, current.pendingDecisionId);
         if (decision?.status === "pending" && decision.revision === current.revision && decision.materialId === current.spec.source.materialId && decision.epoch === current.epoch) {
           decision.revision = current.revision + 1;
@@ -333,8 +348,14 @@ export class ResearchStore {
         }
       }
       if (!["paused", "awaiting_review"].includes(current.state) || ["cancelled", "cleanup_pending", "interrupted", "failed"].includes(state)) current.state = state;
-      if (current.activeSince !== null) { current.activeMs += Date.now() - current.activeSince; current.activeSince = null; }
+      if (current.activeSince !== null && !(current.spec.config.execution === "research" && execution === "native-evaluation-completed; incumbent-not-decided" && !["paused", "awaiting_review"].includes(current.state))) { current.activeMs += Date.now() - current.activeSince; current.activeSince = null; }
       current.execution = execution; current.error = error; return {};
+    });
+  }
+  reviseRoles(command: BoundCommand, generation: string, revision: NonNullable<ResearchRun["roleRevisions"]>[number]): Receipt {
+    return this.#commit(command, generation, "reviseRoles", {}, (_db, run) => {
+      if (run.state !== "paused" || run.active || run.pendingDecisionId || run.material?.pending || (run.roleRevisions?.length ?? 0) >= 16) throw new Error("Role revision requires quiescent paused owner with no pending review/integration");
+      run.roleRevisions = [...(run.roleRevisions ?? []), { ...revision, revision: run.revision + 1, commandId: command.commandId }]; return {};
     });
   }
   materialCandidate(command: BoundCommand, generation: string, candidate: Candidate): void {
@@ -364,6 +385,7 @@ export class ResearchStore {
       if (!m || !attempt || attempt.state !== "completed" || !attempt.nativeDigest || !candidate?.oid || !e || run.active || !m.baselineEvaluation || ["cancelled", "cleanup_pending", "interrupted", "failed"].includes(run.state)) return { status: "blocked", reason: "Settled candidate and exact evaluation required" };
       const selected = this.#row<Record<string, any>>(db, "nodes", run.id, payload.nodeId);
       if (!selected || selected.pruned) return { status: "blocked", reason: "Discarded/pruned candidate cannot win" };
+      if(e.attemptId!==attempt.id)return {status:'blocked',reason:'Evaluation must belong to this exact attempt; unlinked historical evidence cannot authorize keep'};
       const reason = acceptance(run, e, candidate.oid); if (reason !== "eligible") return { status: "blocked", reason };
       if (run.pendingDecisionId) return { status: "blocked", reason: "Pending review is not approval" };
       if (run.spec.config.search.mode === "review") {
