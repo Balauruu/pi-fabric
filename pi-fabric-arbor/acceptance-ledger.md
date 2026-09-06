@@ -1,8 +1,28 @@
 # Acceptance ledger
 
+## V2 deep-refactor checkpoint - revised owner-local PR0 gate PASS
+
+The 2026-09-05 generic owner-forwarding/host-callback blocker is **SUPERSEDED** by the approved owner-local architecture. On 2026-09-06, the revised source-loaded Pi/Fabric lane passed 11 host/seam tests on Pi 0.85.1 and Fabric 0.83.0. In addition to the earlier actor/worker ordering, cleanup, reload, role, evaluator, and interrupted-ingestion coverage, the lane now rejects every explicit contradictory or unknown `routed`/`local` discriminator for actor and agent stop results; authorizes the native run binding before entering cancellation drain; durably links actual returned actor/worker IDs to the native owner and snapshot/evaluation provenance; and proves owner-loss safety by exiting the original disposable Pi host, attempting recovery from a second native root, observing the recorded public handle absent, and blocking without redispatch or journal change.
+
+**PR0 passes.** This is a PR0 falsification-gate verdict, not production completion and not acceptance of any complete A01-A30 item by PR0 alone. Same-host public-handle invalidation is unavailable in this harness and remains unverified; the executed proof is owner-host loss with second-root denial. Remote stop remains out of scope. Exact observed and unverified boundaries and commands are recorded in [docs/pr0-owner-local-evidence.md](docs/pr0-owner-local-evidence.md). `npm run test:pr0:plan` is text-only and makes no behavioral acceptance claim.
+
+## V2 deep-refactor checkpoint - repaired PR1 source-only package PASS
+
+The PR1 review repair replaced the missing emitted fingerprint-oracle digest path with the digest exported by the actually loaded oracle source. The original direct independent-oracle implementation is preserved without adding subprocess or IPC machinery; the declared source loader resolves its module, and 100 dirty-checkout equality trials, mutation quarantine, signatures, and digest assertions remain intact. Legacy release Web component characterization now derives its hashed bundle in memory from source assets rather than requiring emitted Web files.
+
+Normal `npm test` and `npm run check` run 5/5 package/install tests plus the named 92/92 `test:source:retained` lane. The retained lane covers all model arithmetic/state/schema, Git fingerprint/workspace/promotion, persistence/artifacts, dispatch/outbox/report/cleanup/fault recovery, report completeness, command concurrency, evaluator parsing, fixture flow, and component/provider characterization directly from TypeScript source. Both no-emit checks pass. The clean install still packs 25 source/document assets, observes reload, one public skill, read-only CLI/assets, no research side effect, and no emitted fallback.
+
+Every clean-install subprocess strips inherited `PI_*` values. The Pi fixture receives only isolated `PI_CODING_AGENT_DIR`, `PI_OFFLINE`, and `PI_SKIP_VERSION_CHECK` settings, so shared session, mesh, actor, owner, provider, model, and configuration identities cannot leak into it. Superseded v1 certificate/admission/containment/writable-Web suites are precisely listed as historical in [docs/pr1-source-install-evidence.md](docs/pr1-source-install-evidence.md); they are neither active gates nor claimed passes.
+
+The 11-test PR0 host lane was not rerun: this repair did not touch its source, fixture, or integration tests, and the touched legacy fingerprint/Web paths are outside its execution path. Exact commands, counts, boundaries, and that coverage choice are recorded in the evidence document.
+
+**Acceptance status:** A01 PASS for the repaired source extension/CLI/tests/assets/reload and normal retained-source lanes. A30 is PARTIAL: independent package assets and declared dependency resolution pass; PR12 research-view reuse remains pending. The PR1 portions of A17 and A22 prove only present read-only surfaces and one-skill packaging, not the later shared projection, operations, or complete journeys. PR2 is next. No PR2+ production behavior is accepted.
+
+The records below describe the legacy v1 Phase 7 implementation only. They are not evidence for any other A01-A30 v2 acceptance item.
+
 Updated 2026-09-03 after the Phase 7 implementation and retained acceptance run. Claims apply only to the exact certified package, host, platform, tools, sources, and content-addressed evidence. Any verifier drift invalidates the claim.
 
-> **Current remediation state: ADMITTED for the exact active host.** Separate complete B0/B1 matrices certify `pi-fabric@0.76.2 || pi-fabric@0.77.0`. On the current exact `0.77.0` payload, all B0-B12 and Phase 4-7 artifacts verify, the signed Phase 7 verdict has `passed: true` with unresolved predicates `[]`, the final distribution inventory verifies, and both `productionCertified` and `realAgentsEnabled` are true. This remains fail-closed evidence, not forward compatibility: any changed input or untested release removes admission.
+> **Historical 2026-09-03 remediation state: ADMITTED for that exact host and source.** Separate complete B0/B1 matrices certified `pi-fabric@0.76.2 || pi-fabric@0.77.0`. On that exact `0.77.0` payload, all B0-B12 and Phase 4-7 artifacts verified, the signed Phase 7 verdict had `passed: true` with unresolved predicates `[]`, the final distribution inventory verified, and both `productionCertified` and `realAgentsEnabled` were true. Subsequent source-only work changed certified inputs, so this is no longer current admission and is not a v2 gate.
 
 ## Production gates B0-B12
 

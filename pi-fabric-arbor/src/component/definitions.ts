@@ -22,6 +22,10 @@ export interface ArborWebComponentConfigV1 {
 }
 
 export interface ArborWebComponentFactoryOptionsV1 { onStarted?(address: DetachedMonitorServerAddressV1): void }
+export interface ArborRuntimeComponentFactoryOptionsV1 {
+  requires?: FabricComponentDefinition<ArborRuntimeComponentConfigV1>["requires"];
+  onProvided?(lease: ReturnType<FabricComponentContext["provide"]>, context: FabricComponentContext): void;
+}
 
 export function createArborWebComponent(options: ArborWebComponentFactoryOptionsV1 = {}): FabricComponentDefinition<ArborWebComponentConfigV1> {
   return Object.freeze({
@@ -71,18 +75,22 @@ export function createArborWebComponent(options: ArborWebComponentFactoryOptions
 
 export const ARBOR_WEB_COMPONENT_V1 = createArborWebComponent();
 
-export function createArborRuntimeComponent(providerFactory: () => FabricProvider): FabricComponentDefinition<ArborRuntimeComponentConfigV1> {
+export function createArborRuntimeComponent(
+  providerFactory: (context: FabricComponentContext) => FabricProvider,
+  options: ArborRuntimeComponentFactoryOptionsV1 = {},
+): FabricComponentDefinition<ArborRuntimeComponentConfigV1> {
   return Object.freeze({
     name: "arbor-runtime",
     description: "Supervised Arbor provider lifecycle. It never autonomously dispatches Fabric children.",
-    requires: [],
+    requires: Object.freeze([...(options.requires ?? [])]),
     provides: [{ provider: "arbor" }],
     guarantee: "managed",
     async activate(context: FabricComponentContext, config: ArborRuntimeComponentConfigV1) {
       if (config.version !== 1) throw new ArborError("VALIDATION_FAILED", "arbor-runtime config version must be 1");
       if (!config.enabled) return;
       if (context.signal.aborted) throw new ArborError("INDETERMINATE", "arbor-runtime activation was cancelled");
-      context.provide(providerFactory());
+      const lease = context.provide(providerFactory(context));
+      options.onProvided?.(lease, context);
     },
   });
 }

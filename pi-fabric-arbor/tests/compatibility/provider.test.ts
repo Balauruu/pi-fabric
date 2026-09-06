@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { rm } from "node:fs/promises";
 import test from "node:test";
-import extension from "../../src/extension.js";
+import extension from "../../src/legacy/extension-v1.js";
 import { createFixtureContract } from "../../src/fixtures/driver.js";
 import { createArborProvider } from "../../src/public/provider.js";
 import { assertJsonSchema } from "../../src/schemas/validate.js";
@@ -26,7 +26,7 @@ test("fixture provider supports discovery, closed start, and inspect through app
   } finally { await rm(fixture.root, { recursive: true, force: true }); }
 });
 
-test("package extension registers and discovers supervised components without a duplicate host-owned provider lifetime", async () => {
+test("historical v1 extension registers and discovers supervised components without a duplicate host-owned provider lifetime", async () => {
   const events: Array<{ name: string; payload: unknown }> = []; const listeners = new Map<string, (payload: unknown) => void>();
   extension({ events: { emit(name, payload) { events.push({ name, payload }); }, on(name, listener) { listeners.set(name, listener); } } });
   assert.deepEqual(events.map((entry) => entry.name), ["pi-fabric:component:register:v1", "pi-fabric:component:register:v1"]);

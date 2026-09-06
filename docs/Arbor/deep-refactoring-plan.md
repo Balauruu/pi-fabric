@@ -1,12 +1,12 @@
 # Deep-refactoring plan for pi-fabric-arbor
 
-Status: implementation plan, not an implemented or validated refactor.
+Status: approved architecture revision and implementation plan; not a completed refactor. The revised owner-local PR0 falsification gate and repaired PR1 source-only package/install plus retained-characterization gate pass on local deterministic lanes recorded in `pi-fabric-arbor/acceptance-ledger.md`. PR2 is now the next unimplemented dependency; PR2-PR13 and all acceptance work beyond A01 plus the package half of A30 remain outstanding.
 
-This document supersedes the previous proposal. It incorporates the responsibility review, consolidates the upstream skill suite, makes the web UI strictly read-only, and removes the profile-local benchmarking-skill dependency. It retains the agreed usability, measurement, source-loading, and simplification goals. The scope of this task is revising the plan only; all implementation and acceptance claims below remain planned unless explicitly identified as prior evidence.
+This document supersedes the previous proposal. It incorporates the responsibility review, keeps CLI and web strictly read-only, consolidates the upstream skill suite, and removes the profile-local benchmarking-skill dependency. It retains the agreed usability, measurement, source-loading, and simplification goals. This is the authoritative implementation plan. Requirements remain unverified unless the acceptance ledger records executed evidence; updating architecture text alone does not satisfy a milestone.
 
 ## 1. Decision and scope
 
-Build a source-loaded Pi package whose **managed Fabric component `arbor` exposes deterministic experiment operations and whose persistent Fabric actor owns research coordination**. Use short-lived Fabric agents for individual experiments. Keep a small transactional research store and Git/artifact workspace layer; do not implement a second agent runtime, persistent coordinator loop, mailbox, or participant registry.
+Build a source-loaded Pi package whose **managed Fabric component `arbor`, running in the owning Pi host, owns operational services and deterministic bounded dispatch/collection while a persistent Fabric actor chooses research direction by returning structured proposals**. Use short-lived Fabric agents for individual experiments. Keep a small transactional research store and Git/artifact workspace layer; do not implement a second agent runtime, persistent coordinator loop, mailbox, or participant registry.
 
 The product optimizes **versioned research material**, not just code. First-class material includes agent instructions, skills, tool-use policies, harness configurations, workflows, prompt templates, data-generation recipes, and ordinary programs. Agent improvement is a release requirement, including an actual independently scored end-to-end journey.
 
@@ -18,7 +18,7 @@ The product optimizes **versioned research material**, not just code. First-clas
 | Practical parallel candidates | Include bounded independent candidate waves, initially concurrency 1 or 2. Reuse Fabric dispatch and isolated workspaces; serialize measurements where resources interfere. | PR7 and A12 |
 | Agent improvement and broader research | Material/evaluator contracts are domain-neutral. Ship an agent-improvement preset and example alongside code optimization. | PR4, PR6, PR11 and A03 |
 | Remove disproportionate safeguards | No Bubblewrap/hardened isolation, process-group/Linux-unit machinery, or loopback/CSRF/origin/bounded-web-input safeguard project. | Removal map and A19 |
-| Actor-led coordination | One persistent Pi-runner actor per active run. Fabric owns actor history, delivery, lifecycle, and child execution. | PR0, PR2, PR6 |
+| Actor-led research policy | One persistent Pi-runner actor per active run proposes research direction; the managed owner validates and executes bounded work. Fabric owns actor history and child execution. | PR0, PR2, PR6 |
 | Integrate research capabilities | Every non-deferred item in the earlier research table is required delivery, even when its activation is optional per run. | Complete matrix in section 9 |
 | Consider a Fabric component | Choose a managed `arbor` component plus actor, not component versus actor. Their responsibilities differ. | Architecture decision and lifecycle PoC |
 | Licensing not a concern | No licensing investigation, certification, approval workflow, or delivery gate. Leave existing notices alone. | No licensing workstream |
@@ -38,7 +38,7 @@ The product optimizes **versioned research material**, not just code. First-clas
 
 ### 1.3 What remains deliberately small
 
-One logical managed Arbor service with an explicit operational owner per run, one research coordinator actor per run, one experiment store, two initial evaluator adapters, one workspace abstraction, and one shared presentation model. Component registrations are host-local, not a cross-process singleton. Ship one public skill and three internal role documents, not eleven local skills. A preset is data plus instructions, not another orchestrator. Research features can be disabled in a run without removing them from the delivery scope. The web UI only observes saved projections and artifacts; Pi commands/tools and an explicitly attached CLI submit controls. Agent-suite evaluation ships with Arbor and has no dependency on `skills/agent-benchmarking`.
+One logical managed Arbor service in the existing owning Pi host, one research coordinator actor per run, one experiment store, two initial evaluator adapters, one workspace abstraction, and one shared presentation model. Component registrations are host-local, not a cross-process singleton. Ship one public skill and three internal role documents, not eleven local skills. A preset is data plus instructions, not another orchestrator. Research features can be disabled in a run without removing them from the delivery scope. The web UI and CLI only observe saved projections and existing artifacts; only the owning Pi session submits controls, reviews, apply/undo, or export generation. Agent-suite evaluation ships with Arbor and has no dependency on `skills/agent-benchmarking`.
 
 ## 2. Evidence and current-state diagnosis
 
@@ -76,7 +76,7 @@ Earlier temporary probes confirmed the release rejection, zero-threshold tie beh
 
 The [paper](https://arxiv.org/pdf/2606.11926), sections 3 and 4, formulates autonomous optimization as mutable material, an objective, and development/held-out evaluators. Its hypothesis tree binds a hypothesis, distilled insight, and executable metadata. A long-lived coordinator maintains global strategy; short-lived executors test fixed hypotheses. Backpropagation is semantic abstraction, not numerical MCTS reward propagation.
 
-This is a direct fit for a Fabric actor. A deterministic application `while` loop that asks fresh workers what to do would duplicate the long-lived coordination machinery already available in Fabric.
+This is a direct fit for a Fabric actor. A deterministic application loop that invents research policy would duplicate the actor. A narrow owner-local dispatcher may, however, validate one actor proposal, launch a bounded wave through Fabric, await owned results, collect facts, and ask the same actor again with fresh observations. It is application control flow, not a second scheduler or reasoning engine.
 
 The [showcase](https://ruc-nlpir.github.io/Arbor/) includes BrowseComp agent/harness improvement. The inspected bundled BrowseComp tree contains changes to candidate generation, verification, parallel agents, and a judge that can search and propose another answer. It also records practical shortcomings: noisy small dev samples, a held-out timeout that was too short, missing cross-run lesson reuse, and hypotheses placed at the wrong abstraction level.
 
@@ -106,7 +106,7 @@ Source discrepancies matter: native merge thresholds can be advisory; MCP can ac
 
 ### 3.1 Public surface
 
-Proposed Pi commands:
+Proposed owning-Pi commands:
 
 ```text
 /arbor setup
@@ -125,7 +125,7 @@ Proposed Pi commands:
 /arbor doctor
 ```
 
-`/arbor` opens the current Pi dashboard or a launch card. Four product-facing facade operations support Pi commands/tools and an explicitly attached CLI:
+`/arbor` opens the current Pi dashboard or a launch card. Four product-facing facade operations are exposed through the owning Pi session:
 
 ```text
 arbor.start(spec)
@@ -134,11 +134,11 @@ arbor.control(command)
 arbor.export(request)
 ```
 
-These are product facade operations, not a fixed limit on registered provider actions. Keep read-only inspection separate from effectful operations. The PR3 action manifest must enumerate command mappings, exact refs, schemas, caller classes, risk and effect metadata. Split review approval, source apply and undo into narrowly scoped routes where necessary; an umbrella `arbor.control` descriptor must not understate the most consequential operation it accepts. Actors receive research actions, not human-approval or original-source-apply authority. All mutation entrypoints preserve the applicable host-policy path instead of calling an unchecked service implementation directly.
+These are product facade operations, not a fixed limit on registered provider actions. Keep read-only inspection separate from effectful operations. The PR3 action manifest must enumerate command mappings, exact refs, schemas, caller classes, risk and effect metadata. Split review approval, source apply and undo into narrowly scoped routes where necessary; an umbrella `arbor.control` descriptor must not understate the most consequential operation it accepts. The actor receives observations and returns proposals; it receives no Arbor mutation, review, apply, or approval capability. All mutation entrypoints preserve the owning Pi host-policy path instead of calling an unchecked service implementation directly.
 
-The browser is a strictly read-only monitor: projections, logs, diffs, replay and retrieval of already-generated exports only. It has no start, setup, steer, pause, resume, cancel, keep/discard, approval, apply/undo, export-generation or other mutation endpoint. Absence is enforced server-side as well as in the UI; hiding buttons is insufficient. Generate exports through Pi or the attached CLI.
+The CLI is strictly read-only in attached and offline modes. It may inspect projections, replay, and retrieve existing artifacts or exports. It has no setup, start, resume, steer, pause, cancel, keep/discard, review, apply/undo, export-generation, or other mutation command, and introduces no attachment transport. The browser has the same read-only boundary. Absence is enforced in schemas, routing, help text, and UI; hiding controls is insufficient. Only the owning Pi session generates exports.
 
-A separate small set of actor-facing research operations is described in section 4. They express research actions, not low-level leases, heartbeat, or reconciliation steps for the model to assemble.
+A separate small set of owner-only research operations and closed actor-proposal schemas is described in section 4. The actor proposes research actions; it does not assemble low-level leases, heartbeats, reconciliation, or mutations.
 
 ### 3.2 Nine user journeys
 
@@ -147,10 +147,10 @@ A separate small set of actor-facing research operations is described in section
 | 1. Start from current material | Resolve the project/material root and capture its current state. Dirty files are supported without asking the user to stash or commit. Non-code material is equally valid. |
 | 2. Choose objective and evaluation | Show material, mutable scope, development evaluator, optional held-out evaluator, metric direction/unit, checks or quality vetoes, model, and limits. Ask only for missing consequential choices. |
 | 3. Measure the baseline | Execute the selected evaluator on the initial material before launching candidate-producing executors. This may run agent tasks and graders, not a coding benchmark command. An invalid baseline blocks scored search. |
-| 4. Run useful research | The actor observes evidence, proposes/selects hypotheses, dispatches executors, absorbs results, updates insights, and continues within budget. No manual driver protocol. |
+| 4. Run useful research | The actor observes owner-supplied evidence and proposes hypotheses/directions. The owner validates proposals, dispatches executors, collects results, commits insights/decisions, and sends a bounded next `agents.ask` with fresh observations. No manual driver protocol. |
 | 5. Inspect evidence | Show baseline, incumbent, candidates, deltas, uncertainty, hypotheses, lineage, changed material, logs, failures, and stop reason. Drill into one candidate in one selection. |
 | 6. Keep or discard | Keeping updates Arbor's owned incumbent, not the original checkout. Failed/discarded candidates retain a patch and evidence for the current format. Apply to the source is separate. |
-| 7. Control and resume | Steering changes subsequent work; pause stops new dispatch; cancel stops active owned work; resume reconstructs from persisted research facts and Fabric participant observations. |
+| 7. Control and resume | Owning-Pi steering changes subsequent work; pause stops new dispatch; cancel stops active owned work; resume reconstructs from persisted research facts and Fabric participant observations. CLI and web remain read-only. |
 | 8. Reuse lessons | Retrieve source-linked prior v2 lessons as hypotheses to recheck, including negative findings and applicability limits. Do not silently turn recalled claims into facts. |
 | 9. Update normally | Reload source after Pi/Fabric updates. Doctor explains missing capabilities. No build, exact-release recertification, or historical migration ceremony. |
 
@@ -193,28 +193,33 @@ Timeouts are domain-specific. A two-minute shell benchmark default must not beco
 ### 4.1 Chosen shape
 
 ```text
-Pi commands/tools + attached CLI
-                 | product facade / policy-aware controls
-                 v
-       owner-host managed Arbor service <--- child-local Arbor forwarding surface
-       namespace: arbor                                  ^
-          |         |          |                          | research operations
-          v         v          v                          |
-     ResearchStore Workspace Evaluators         Fabric coordinator actor
-     SQLite/files  Git/artifacts command/agent    strategy, hypotheses, interpretation
-          |                    |
-          |                    +--> Fabric-owned short-lived executors/subjects
-          |                         launched under the intended long-lived owner
+Owning Pi commands/tools
+          | policy-aware product facade
           v
-     immutable/shared read projections ---> Pi/CLI inspection
+managed Arbor owner in the existing Pi host
+  captures component context.call; activation returns before operations begin
           |
-          +---> read-only web monitor: tree, evidence, replay, existing artifacts
+          +--> ResearchStore / Workspace / Evaluators
+          |
+          +--> context.call("agents.create" | "agents.ask" |
+                           "agents.spawn" | "agents.wait" | "agents.stop", ...)
+                         exact refs declared in component requires
+                              |
+                              +--> persistent Pi research actor
+                              |      structured proposal only
+                              |
+                              +--> bounded short-lived executors/subjects
 
-Worker completion ---> coordinator mailbox (explicit target)
-Run terminal state ---> owner-host deterministic cleanup (public seam to prove in PR0)
+owner-held wait promises ---> deterministic collection and fresh observations
+                                      |
+                                      +--> next bounded agents.ask
+
+saved read projections/artifacts ---> Pi, read-only CLI, read-only web
 ```
 
-**The actor is the sole research-policy coordinator.** Deterministic operations validate and record facts, reserve capacity, run bounded domain work, and perform integration. They do not decide the next hypothesis or run an independent autonomous search loop.
+**The actor is the sole research-policy decision producer.** It chooses research direction and returns a structured proposal in an `agents.ask` response. The owner is the sole operational and domain-transition authority: it validates proposal shape, run/material/revision bindings, remaining budgets, policy, and review boundaries before committing or dispatching anything. Deterministic operations record facts, reserve capacity, run bounded domain work, collect settled results, and perform integration. They do not invent the next hypothesis or run an independent reasoning engine.
+
+The owner's dispatcher is an explicitly permitted narrow application mechanism. One bounded cycle asks the actor, validates and commits the proposal, spawns at most the configured wave, immediately owns the resulting `agents.wait` promises, collects settled results, then optionally sends one subsequent `agents.ask` with fresh observations. It has no idle polling, autonomous hypothesis generation, generic remote-provider invocation, queue broker, daemon, participant registry, or replacement execution runtime.
 
 ### 4.2 Why component plus actor
 
@@ -224,69 +229,87 @@ Choose `guarantee: "managed"`. Git changes, external evaluation, and spawned wor
 
 Register the definition using public `pi-fabric/protocol` component registration/discovery events. Provide `arbor` through `context.provide`. Add one declarative enabled component entry using the documented configuration shape, preserving unrelated configuration. Definition name, configured instance ID, provider namespace, and run actor ID are separate identities even if the first three use the label `arbor`.
 
-Activation determines whether this host owns operational services or publishes a forwarding/read surface, then registers the corresponding resources and disposer. It does not run experiments, create a coordinator that needs its own unpublished provider, wait for child readiness, or call supervisor lifecycle operations from inside activation/teardown. Start the actor through `arbor.start` after the component is active. Passive/child activation must not reopen an execution owner or assume authority to stop another host's work.
+Activation opens owner-local services, captures the managed `FabricComponentContext` call seam, stages the `arbor` provider, and registers generation-scoped cleanup. It does not call Fabric operations, run experiments, create an actor, or wait for child readiness while activation is in progress. The provider becomes callable only after activation commits and returns. A later owning-Pi `arbor.start` invocation begins the bounded dispatcher, which calls only refs named in the component's exact `requires` through captured `context.call(ref, args)`.
 
-#### Cross-process service ownership
+#### Owner-local execution
 
-Choose an owner-host service, not independent full Arbor runtimes in every actor process. The run binding records the native Fabric root/owner identity and a domain revision. Fabric remains authoritative for participant existence, ownership and routing; the binding is not a new lease or participant registry. The designated owner holds evaluator handles, in-flight launches and run-owned subscriptions. SQLite owns transactional research facts, but does not make native handles portable.
+Choose the managed component instance in the existing Pi host as the operational owner. Obtain the intrinsic root, owner-host, and owner-identity fields through the declared public `agents.self` action from captured post-activation `context.call`; process IDs, session labels, and constructed names are not owner identities. The immutable run binding records those native identities, component instance and generation, initial material ID/canonical roots/Git OIDs, grade/evaluation policy, and a domain revision. A replacement generation under the same proven owner requires explicit reconciliation; a different valid material, cwd, OID, policy, root, host, or owner identity is not a resume. Fabric remains authoritative for participants and execution. The binding is not a lease, transport, broker, or second participant registry. The owner holds evaluator handles, spawn results, in-flight `agents.ask` calls, and `agents.wait` promises. SQLite owns transactional research facts but does not make handles portable.
 
-The same `arbor` descriptors loaded in an actor child provide capability compatibility, not access to the parent's service object. Child calls must reach the designated owner through a bounded request/acknowledgement adapter over a documented public host/transport seam. No private registry/context import, custom agent runtime or polling coordinator is allowed. PR0 must identify and exercise the exact seam, including cancellation and caller/policy propagation; this document does not assert that a general remote-provider invocation API already exists. If the installed public surface cannot support it, block implementation and propose the smallest generic Fabric hook before proceeding.
+The actor never invokes `arbor.*` mutations and does not need a child-local copy of the owner service. It receives bounded observations in `agents.ask` and returns a proposal in `FabricActorMessage.data` (or the agreed directive envelope). Arbor validates the closed proposal schema and every current run/material/revision/budget/policy binding. Invalid, stale, self-approving, or over-budget proposals are rejected without domain mutation; the next owner action is deterministic policy, not actor authority.
 
-Launch candidate workers and evaluator work under the intended owner, not an incidental actor-activation host whose shutdown could stop them. End a coordinator activation while its worker is still running and prove that the worker survives, completion reaches the coordinator, and the next activation continues research without Main choosing the next step. A second Pi host may inspect or route controls, but must not duplicate dispatch or cleanup. Owner loss blocks new effects until explicit reconciliation/resume establishes a valid binding.
+Launch candidate workers and evaluator work from the owning component through `context.call("agents.spawn", request)`. After the actor's proposal activation has returned, start and retain `context.call("agents.wait", { id })` promises for every owned worker. Worker execution may therefore continue after the preceding actor activation ends. Once waits settle, the owner collects exact results and may issue a bounded subsequent `context.call("agents.ask", ...)` with fresh observations. PR0 must prove this ordering and continuation through the real public seams; documentation and type availability do not prove it. No Main inference, idle status polling, lifecycle-mailbox trick, or model-authored continuation drives the cycle.
 
-Pi controls use the same policy-aware owner service. CLI mutations require an acknowledged live-host attachment through the proven public seam; offline CLI mode is read-only. The web reader can use a consistent store projection or saved artifact without launching a Fabric host. Browser requests never submit control intentions, create actors or generate exports. Successful browser reads are not evidence that owner invocation works.
+Only the owning Pi session may start, control, review, apply, undo, or generate an export. Another Pi host, the CLI, and the web may inspect consistent saved projections and existing artifacts but cannot route or attach mutations. Owner loss blocks new effects until the owning session performs explicit reconciliation/resume; no new attachment transport is added.
+
+The implementation must use the public schemas exactly rather than inferred convenience fields:
+
+| Call | Exact request/result boundary used by Arbor |
+|---|---|
+| `FabricComponentContext.call` | `call(ref: string, args?: Record<string, unknown>): Promise<unknown>`; every called ref is present in `FabricComponentDefinition.requires` and every unknown result is validated before use |
+| `agents.self` | Closed `{}`; returns the intrinsic `FabricParticipantInfo` used for the immutable native owner/root/host binding |
+| `agents.members` | Closed `{ scope?, kinds?, includeStale? }`; used only at explicit identity/terminal proof boundaries, not as an idle poller or Arbor participant registry |
+| `agents.status` | Closed `{ id: string }`; point-in-time native-handle observation used for explicit recovery and terminal correlation |
+| `agents.create` | Closed request with required `name` and `instructions`; Arbor sets supported `scope`, `runner`, `delivery`, `responseMode`, `triggerTurn`, `tools`, `extensions`, and only justified optional fields. There is no actor `schema` field. |
+| `agents.ask` | `{ id, message, data?, model?, thinking? }`, required `id` and `message`, no additional properties; returns a `FabricActorMessage`, whose `data` proposal is Arbor-validated |
+| `agents.spawn` | `FabricAgentRequest` with required `task` and only documented `name`, `runner`, `transport`, `model`, `persona`, `thinking`, `tools`, `timeoutMs`, `extensions`, `recursive`, `cwd`, `worktree`, `residency`, and `schema` fields |
+| `agents.wait` / `agents.stop` | Closed `{ id: string }`; wait returns the settled agent result. Only a local, exact-target, terminal stop result confirms owner-local cleanup. Every mesh-shaped stop result, including `queued: true`/`acknowledged: true`, is non-terminal and therefore ambiguous for Arbor cleanup. |
+| `agents.remove` | Closed `{ id: string, scope? }`; removes an already-settled local coordinator where the owner-local path supports it, and its `{ removed: true }` result is validated |
+
+If PR0 needs `agents.status`, `agents.remove`, or another action, add that exact ref to `requires`, document its closed schema in the PR0 manifest, and test why it is necessary. Do not use `agents.tell`, subscription delivery, or generic `tools.call` for the owner cycle.
 
 ### 4.3 Native responsibilities, not replacements
 
 | Need | Use | Do not build |
 |---|---|---|
-| Persistent reasoning | `agents.create`, `agents.tell`, Fabric actor history | Custom conversation persistence or coordinator daemon |
-| Individual executions | Public `agents.spawn`, `status`, `wait`, `stop`, `list` | Pi SDK worker runtime in parallel with Fabric |
-| Completion routing | `agents.subscribe` to the coordinator participant; separate proven public host seam for deterministic cleanup | Treating a participant subscription as a JavaScript callback, model-authored polling, or bespoke broker |
-| Cross-participant signaling | Fabric participant routing/mesh topics where needed | Second participant registry or distributed queue |
-| Capability lifetime | Managed component and exact `requires` | Global prepared-provider pointer and readiness certificates |
+| Persistent reasoning | `agents.create`, bounded `agents.ask`, Fabric actor history | Custom conversation persistence or coordinator daemon |
+| Individual executions | Public `agents.spawn`, `agents.wait`, and `agents.stop` through captured managed `context.call` | Pi SDK worker runtime in parallel with Fabric |
+| Completion collection | Owner-held `agents.wait` promises, separate from actor outbox and later `agents.ask` activations | Participant mailbox as a JavaScript callback, model-authored polling, or bespoke broker |
+| Cross-participant state | Fabric's existing participant ownership and actor mailbox | Second participant registry, owner transport, or distributed queue |
+| Capability lifetime | Managed component, captured context, and exact `requires` | Global prepared-provider pointer and readiness certificates |
 | Research facts | Small transactional store | Full Fabric actor/run transcript mirror |
 | Evidence recall | Structured lesson index; optional `memory.recall`/expand for source retrieval | Treating `state` as scratch storage or memory as score authority |
 | Compaction | Fabric/Pi actor compaction plus re-observation from store | Custom context-compression engine |
-| Finite helper batches | Native workflow/parallel primitives when appropriate | One permanent QuickJS invocation pretending to survive turns |
+| Finite helper batches | Owner-bounded `Promise.all` over a fixed admitted wave and its wait promises | Fabric workflow scheduler or one permanent QuickJS invocation pretending to survive turns |
 
-SQLite is retained for **domain transactions**, not as an alternative Fabric execution store. An attempt/evaluation/incumbent decision needs one atomic commit. Mesh is appropriate for notification and routing; duplicating the same authoritative tree in mesh and SQLite is not. A mesh-only redesign is not necessary to adopt actors and would add a persistence rewrite without a demonstrated benefit here.
+SQLite is retained for **domain transactions**, not as an alternative Fabric execution store. An attempt/evaluation/incumbent decision needs one atomic commit. Fabric's actor mailbox remains native infrastructure, but Arbor does not use mesh notification or subscription routing to drive collection. Duplicating the authoritative tree in mesh and SQLite is forbidden; a mesh redesign would add a second authority without benefit.
 
 ### 4.4 Actor contract
 
 - One actor per active run, with stable run-to-actor linkage in the store.
-- Pi runner, because the coordinator must call Fabric/provider operations itself.
+- Pi runner for persistent research reasoning. The actor does not execute Arbor operations or approve its own proposals.
 - Project scope for the live definition; session residency by default. **Project scope is not host-surviving execution.**
-- Keep actor input, actor output to Main and deterministic host cleanup separate. Actor `delivery`/`triggerTurn` configures output delivery to Main, not continuation of the actor itself. Default routine output to mailbox-only; any user-facing triggered notification is an explicit policy choice, not an extra research coordinator. Avoid subscriptions to every host turn.
-- Exact `requires` for the actor's Arbor operations and optional source tools only when enabled. Tool availability and dependency commitments must both be tested in the actual child.
-- Initial message contains the run ID and instruction to observe the store, not an entire copied history.
-- Start/resume and Pi/attached-CLI steering/review decisions enqueue messages through supported actor routing. Subscribe to worker lifecycle with `to` explicitly set to the coordinator participant, never rely on the default Main target. Choose the subscription delivery/trigger policy independently from the actor outbox policy. Coalesce notifications where supported; event duplication must not duplicate domain transitions. Suppress or deliberately account for detached-spawn convenience notifications so they do not create an unintended Main reasoning loop.
-- End an activation after a bounded wave or pending external work. Do not continuously reason while nothing changed.
+- Use a response contract whose structured proposal is carried in the blocking `agents.ask` result. Actor outbox delivery and `triggerTurn` are not continuation mechanisms; routine delivery remains mailbox-only and must not trigger Main.
+- Give the actor no Arbor mutation `requires`. Optional read-only source capabilities are allowed only when explicitly enabled and tested; the owner still supplies authoritative observations and validates every proposal.
+- Initial and subsequent asks contain bounded current facts, run/material/revision identities, remaining budget, allowed proposal kinds, and the required closed result shape, not an entire copied history.
+- Start/resume and owning-Pi steering/review changes are committed by the owner. The owner sends them as fresh observations in a later ask; CLI and web cannot enqueue them.
+- End every actor activation by returning a proposal or a bounded blocked/stop recommendation. Do not continuously reason while nothing changed.
 
 Fabric `agents.stop` stops an actor; it is not merely a pause command. Ordinary Arbor pause records a dispatch boundary and lets the current actor activation settle. If cancellation/reload stopped the actor, resume can create a replacement and re-ground it from the tree. Do not promise that telling a stopped actor restarts it or that the private transcript is required for recovery.
 
-Successful completion also has an explicit lifecycle boundary: commit terminal research state and summary references, let the current actor activation return, then finalize owned resources outside that activation. `agents.subscribe` delivers to participants; it is not a JavaScript callback-registration API. PR0 must identify and prove the public lifecycle observation/host callback seam used by the deterministic owner handler, separately from the worker-to-coordinator mailbox route. If that seam is unavailable, report the missing generic capability rather than treating another LLM turn as deterministic cleanup.
+Successful completion has an explicit settlement boundary while the owning Pi host remains live. The owner first awaits the actual `agents.ask` activation and every owned `agents.wait` promise outside actor activation, collects terminal evidence, and commits terminal research state and summary references. It then stops/removes the idle coordinator through public operations as applicable, awaits those results, and uses public participant observation to verify zero live run-owned actors/workers without relying on whole-host teardown. Actor outbox delivery, actor continuation, and worker completion are three distinct concepts; none substitutes for owned promise settlement.
 
-Retire per-worker subscriptions when terminal evidence is ingested; stop/remove the idle run coordinator through public APIs. Do not stop an actor synchronously from the provider call it is awaiting. Late notifications read terminal state and become no-ops. Cleanup failure is recorded separately and does not reopen research or erase results. Owner teardown retries unfinished owned cleanup; child/passive teardown never stops another owner's work. Native historical worker records need not be purged or duplicated. Test successful, failed, cancelled and duplicate-terminal paths, including zero live run-owned actors/subscriptions after successful cleanup and no extra Main research inference.
+Do not stop an actor synchronously from the `agents.ask` call it is servicing. Track actor creation before dispatch, as well as every launch, ask, wait, and stop promise. Cancellation and managed-component disposal mark the generation draining, reject new dispatch, settle late create/launch results, stop every late local handle before any ask or collection, and await every dynamically created stop plus the owned asks/waits. A false, unknown, mismatched, malformed, or mesh-shaped stop response is ambiguous. Remote stop transport and cross-owner cleanup are outside the owner-local execution scope. If ownership, local terminal proof, or terminal outcome remains uncertain, record cleanup pending/interrupted and retain workspaces/evidence. Keep generation-owned storage alive until retained calls and disposal settle; never close it while an old-generation wait or collection can still use it. Native historical worker records need not be purged or duplicated. Test successful, failed, cancelled, timeout, duplicate-terminal, and disposal paths, including zero live run-owned work after confirmed cleanup and no extra Main research inference. PR0 must genuinely prove the relevant ask/wait/cancellation ordering before later PRs rely on it.
 
 Durable residency is a separate opt-in only if the entire selected provider/evaluator/workspace path is available in Fabric's resident host. Prove that path before advertising host-surviving runs. The default completion criterion is host-bound operation with honest interruption and resume, not a new daemon project.
 
-### 4.5 Actor-facing operations
+### 4.5 Owner research operations and actor proposals
 
-Keep six additional research actions, with shared schemas and explicit role guidance:
+Keep six deterministic research actions, with shared schemas and an owner-only mutation caller class:
 
 | Action | Responsibility |
 |---|---|
-| `arbor.propose` | Add typed direction/hypothesis nodes with parent links, rationale, and source references |
+| `arbor.propose` | Commit a validated typed direction/hypothesis proposal with parent links, rationale, and source references |
 | `arbor.dispatch` | Reserve an attempt/capacity, materialize its workspace, launch one hypothesis executor, and attach the native handle |
-| `arbor.collect` | Reconcile native terminal evidence and freeze returned material; record failure/partial status honestly |
+| `arbor.collect` | Reconcile an owned wait result and freeze returned material; record failure/partial status honestly |
 | `arbor.evaluate` | Execute the selected evaluator on an exact snapshot and persist its result; never accept a supplied scalar as an evaluation |
-| `arbor.distill` | Store evidence-linked leaf/ancestor insights with revision checks |
-| `arbor.decide` | Validate keep/prune/review/continue/stop decisions against current facts and measurement policy |
+| `arbor.distill` | Store validated evidence-linked leaf/ancestor insights with revision checks |
+| `arbor.decide` | Validate keep/prune/review/continue/stop proposals against current facts and measurement policy |
 
-The actor also reads `arbor.inspect`. A review decision from `arbor.decide` requests or observes a pending review; it cannot approve itself. User-facing keep/discard routes through the same decision rules and does not bypass failed evaluation. Source apply/undo and human approvals stay outside the coordinator's committed action set. A manual unverified selection, if supported, is explicitly labeled and never becomes a measured win.
+These are owner-controlled application boundaries, not capabilities granted to the actor. A proposal names one allowed kind and includes the current run, material, measurement epoch, revision, expected evidence, estimated budget use, rationale, and action-specific payload. The owning service validates the closed schema and current facts before invoking the corresponding local domain operation. It may reject, normalize only explicitly permitted defaults, or ask again with a bounded validation error; it never treats prose or actor identity as authorization.
 
-These names are proposed application APIs, not existing Fabric built-ins. Mechanically test registration, schemas, descriptor effects, and actor dependencies. Keep lease IDs, internal operation journals, and worker ownership reconciliation behind these interfaces.
+A review proposal from `arbor.decide` can request review but cannot approve it. User-facing keep/discard routes through the same decision rules and does not bypass failed evaluation. Source apply/undo, export generation, and human approvals stay in the owning Pi caller class. A manual unverified selection, if supported, is explicitly labeled and never becomes a measured win.
+
+These names are proposed application APIs, not existing Fabric built-ins. Mechanically test registration, schemas, descriptor effects, caller restrictions, and the absence of these refs from the actor commitment. Keep lease IDs, internal operation journals, and worker ownership reconciliation behind these interfaces.
 
 ### 4.6 Deep modules
 
@@ -297,9 +320,9 @@ These names are proposed application APIs, not existing Fabric built-ins. Mechan
 | ResearchStore | load/commit/control/events | Revision checks, atomic reservations, compact events and evidence references |
 | Workspace | capture/materialize/freeze/restore/export/apply | Dirty snapshots, immutable identities, per-candidate isolation and integration |
 | Evaluator | evaluate(snapshot, spec, signal) | Execution, parsing/grading, repetitions, native evidence and validity |
-| Fabric execution adapter | launch/observe/stop | Explicit role/request assembly, owner-host forwarding, native handle adaptation, participant notification versus deterministic cleanup, and deadlines |
+| Fabric execution adapter | ask/launch/wait/stop | Explicit role/request assembly, captured component `context.call`, exact Fabric refs, native handle adaptation, owned promise settlement, and deadlines |
 | Lessons | retrieve/distill/export | Applicability, provenance, deduplication and bounded context selection |
-| Presentation | projection; Pi/attached-CLI control receipt | Shared factual views; web has read-only projections and existing artifacts, never control submission or experiment authority |
+| Presentation | projection; owning-Pi control receipt | Shared factual views; CLI/web have read-only projections and existing artifacts, never control submission or experiment authority |
 
 Do not create a port for every function. Do not retain `RunEngine.run()` as another owner of the research loop.
 
@@ -365,14 +388,14 @@ Candidate prompts, skills and agent configurations belong to the subject-agent e
 
 ### 5.1 Hypothesis-tree refinement
 
-The actor follows:
+The actor-owner cycle follows:
 
-1. **Observe:** current incumbent, active frontier, recent evidence, ancestor insights, constraints, controls, and remaining budget.
-2. **Ideate:** propose a small set of falsifiable hypotheses under a direction, incorporating grounded sources and negative findings when available.
-3. **Select:** choose pending executable leaves, balancing exploration and exploitation. Record a short reason; no invented UCT/MCTS policy claim.
-4. **Dispatch:** launch independent bounded executors. Each receives one fixed hypothesis, base snapshot, ancestor insights, mutable scope, and evaluation contract.
-5. **Backpropagate:** collect factual results, distinguish interpretations, and update affected ancestor insights serially against current revisions.
-6. **Decide:** continue, refine, prune, request review, attempt validated promotion, or stop.
+1. **Observe:** the owner sends the current incumbent, active frontier, recent evidence, ancestor insights, constraints, controls, revisions, and remaining budget in a bounded `agents.ask`.
+2. **Ideate:** the actor proposes a small set of falsifiable hypotheses or a direction, incorporating grounded sources and negative findings when available.
+3. **Select:** the actor chooses pending executable leaves, balancing exploration and exploitation, and returns a structured reason; no invented UCT/MCTS policy claim.
+4. **Validate and dispatch:** the owner validates the proposal and, if admissible, launches independent bounded executors. Each receives one fixed hypothesis, base snapshot, ancestor insights, mutable scope, and evaluation contract.
+5. **Collect and backpropagate:** the owner awaits its worker promises, records factual results, validates proposed interpretations, and updates affected ancestor insights serially against current revisions.
+6. **Decide:** after fresh observations, the actor proposes continue, refine, prune, request review, validated promotion, or stop; the owner validates and commits the transition.
 
 The store validates topology and state transitions. It can enforce `direction` versus `hypothesis`, parent existence, depth, and leaf-only dispatch. It cannot prove that prose is scientifically abstract or causally correct. Good examples and review supplement structural validation.
 
@@ -410,9 +433,9 @@ Record retry/continuation lineage and charge each invocation. If the artifact or
 - **Review:** require approval before promotion/apply at configured boundaries.
 - **Collaborative:** pause for a specific unresolved research choice while preserving current work.
 
-Approval timeout does not silently approve. Show `awaiting_review` and the pending decision. These modes share the same facts and Pi/attached-CLI controls; they are not separate engines. The read-only browser may display the pending decision but cannot answer it.
+Approval timeout does not silently approve. Show `awaiting_review` and the pending decision. These modes share the same facts and owning-Pi controls; they are not separate engines. The read-only CLI and browser may display the pending decision but cannot answer it.
 
-Fabric permissions authorize effects such as writes, execution and delegation. Arbor review authorizes a particular research transition. Neither substitutes for the other. Persist the pending decision identity, exact material/epoch/revision, authenticated owner-route provenance and actual user response from Pi or the attached CLI. Reject stale responses and caller-supplied approval booleans without that receipt. Keep the approval route outside actor/worker capabilities; `arbor.decide` cannot self-approve. An Arbor approval does not bypass Fabric deny/ask/Schema policy. Skills explain choices; deterministic code enforces the saved review requirement.
+Fabric permissions authorize effects such as writes, execution and delegation. Arbor review authorizes a particular research transition. Neither substitutes for the other. Persist the pending decision identity, exact material/epoch/revision, owning-Pi provenance and actual user response from that Pi session. Reject stale responses and caller-supplied approval booleans without that receipt. Keep the approval route outside actor/worker capabilities; `arbor.decide` cannot self-approve. An Arbor approval does not bypass Fabric deny/ask/Schema policy. Skills explain choices; deterministic code enforces the saved review requirement.
 
 ### 5.5 Convergence and pruning
 
@@ -562,15 +585,15 @@ Use Git CAS for owned ref updates. Export is always available when direct apply 
 
 ### 7.4 Controls and lifecycle
 
-- **Steer:** persist an instruction and notify the actor. Immediate worker steering is optional and must use public supported routing.
+- **Steer:** the owning Pi persists an instruction; the owner includes it in the next bounded `agents.ask` observation. Immediate worker steering is optional and must use an exact declared public action.
 - **Pause:** stop new dispatch; finish the currently admitted boundary, then show paused.
 - **Cancel:** stop scheduling immediately, invoke public stop for owned actors/workers, cancel evaluator handles, await actual outcomes.
 - **Cancelled:** tracked owned work is settled.
 - **Cleanup pending/interrupted:** ownership or termination is unresolved; do not claim completed cancellation or delete its workspace.
 
-Use native Fabric lifecycle subscriptions for terminal events. Subscribe and then check status to close the finish-before-subscribe race. On resume, reconcile known IDs even if an event was lost. Duplicate delivery is harmless because terminal ingestion is idempotent.
+Use owner-held `agents.wait` promises for worker terminal results. Create the wait immediately after a successful spawn and persist the native handle before admitting further work. On resume, reconcile known IDs through the same public agent operations before deciding whether another wait or stop is safe. Duplicate observations are harmless because terminal ingestion is idempotent. Do not add lifecycle callbacks or use actor/mailbox delivery as a substitute for promise settlement.
 
-Fabric retires the live provider binding before dependent withdrawal and inverses; Arbor must not prescribe a conflicting retire-last order. Mark the owner service draining and reject new launches, settle in-flight launch results, stop tracked owned work through public APIs, and record interruption/cleanup status. Already committed views may retain the retiring generation. Keep storage and supporting resources needed by those calls valid until provider `close()` runs after the applicable retainers/in-flight calls release. Avoid double-closing shared resources; register cleanup ownership during activation and prove idempotent generation-aware disposal. Do not depend on adding lifecycle registrations afterward. Child/passive component disposal releases only local forwarding/read resources and never cancels another owner's work. The deterministic terminal cleanup bridge described in section 4.4 must be proven independently of participant mailbox delivery.
+Fabric retires the live provider binding before dependent withdrawal and inverses; Arbor must not prescribe a conflicting retire-last order. Mark the owner service draining and reject new launches, settle in-flight launch results, stop tracked owned work through public APIs, and record interruption/cleanup status. Already committed views may retain the retiring generation. Keep storage and supporting resources needed by those calls valid until provider `close()` runs after the applicable retainers/in-flight calls release. Avoid double-closing shared resources; register cleanup ownership during activation and prove idempotent generation-aware disposal. Do not depend on adding lifecycle registrations afterward. Managed owner disposal releases only its generation's resources after owned asks, waits, stops, and collection settle. Read-only clients own no execution resources. The settlement path described in section 4.4 must be proven independently of actor outbox delivery or later actor activation.
 
 Process groups, Linux process units, resistant-descendant containment, and sandbox certification are **not** an Arbor implementation requirement. Use ordinary cancellation for directly owned evaluator processes and the selected Fabric runtime's supported stop contract. Do not promise arbitrary descendant termination. If a workload cannot be stopped through supported ownership handles, report the limitation instead of adding the removed subsystem.
 
@@ -581,7 +604,7 @@ Persist an operation ID, run/attempt identity, expected predecessor, intended ta
 Mandatory reconciliation points:
 
 1. Attempt reserved but no spawn yet.
-2. Spawn returned remotely but handle attachment was interrupted.
+2. Native spawn returned but handle attachment was interrupted.
 3. Worker interrupted with partial material.
 4. Worker finished but material not frozen.
 5. Material frozen but evaluation not completed.
@@ -590,7 +613,7 @@ Mandatory reconciliation points:
 8. Original-source application partially completed.
 9. Cancellation/reload interrupted cleanup.
 
-Use native IDs and recorded attempt identity to recover known work. If the spawn/attachment gap cannot be resolved, block that attempt rather than duplicate possibly active execution. For Git, adopt the exact target if already present, retry only from the expected predecessor, and block any other state. Report generation is retryable derived work and never prevents an otherwise valid run from settling.
+Use native IDs and recorded attempt identity to recover known work. Persist consequential owner/evaluation facts before ingestion. Interrupted ingestion returns `INTERRUPTED` and exits; explicit resume reconstructs the owner after reload, validates the immutable owner/material/policy/OID/native binding, re-observes the native handle with public operations, and idempotently ingests without spawning again. If the native handle or spawn/attachment gap cannot be observed, block that attempt rather than duplicate possibly active execution. For Git, adopt the exact target if already present, retry only from the expected predecessor, and block any other state. Report generation is retryable derived work and never prevents an otherwise valid run from settling.
 
 ## 8. Source-only packaging and compatibility
 
@@ -600,7 +623,7 @@ Use native IDs and recorded attempt identity to recover known work. If the spawn
 |---|---|
 | Package entrypoints/exports | Supported source `.ts` entries; delete obsolete subpath exports |
 | Pi registration | Source extension and skill paths |
-| CLI | Small handwritten `.mjs` launcher using `tsx/esm/api` to load TypeScript |
+| CLI | Strictly read-only handwritten `.mjs` launcher using `tsx/esm/api` to load TypeScript; inspection/replay/existing artifacts only |
 | Imports | Consistent source imports with strict no-emit typechecking |
 | Tests | Source execution through `tsx`; no `.test-dist` |
 | Web assets | Serve existing JS/CSS/HTML directly; stable asset URLs |
@@ -614,15 +637,15 @@ Prove package loading, CLI help, tests, assets, and source-edit visibility with 
 
 Publish `pi-fabric-arbor` as an independent Pi extension package, not a Fabric-core feature or fork. Its manifest loads the source extension and the single public `fabric-arbor` skill. Package the three internal role documents, conditional references, presets, evaluators, examples and read-only web assets. Declare Pi/Fabric peer requirements and actual runtime dependencies; do not depend on this profile's directory layout or unrelated skills.
 
-The extension owns Pi commands, setup/doctor, component registration, owner routing and research-specific presentation. The managed component publishes Arbor's deterministic domain operations. Fabric owns the generic agent/actor/participant runtime, permissions, capability lifecycle, operational activity and compaction. Model-specific guidance is optional advice, not an Arbor role loader. A missing generic host-forwarding or completion seam is an explicit PR0 blocker and possible narrowly scoped upstream API proposal, not permission to import Fabric internals.
+The extension owns Pi commands, setup/doctor, component registration, owner-local dispatch/collection and research-specific presentation. The managed component publishes Arbor's deterministic domain operations. Fabric owns the generic agent/actor/participant runtime, permissions, capability lifecycle, operational activity and compaction. Model-specific guidance is optional advice, not an Arbor role loader. PR0 uses only the existing managed `context.call` and `agents.create`/`ask`/`spawn`/`wait`/`stop` seams. No Fabric API change, private import, or generic provider-forwarding mechanism is permitted.
 
-A clean temporary install must demonstrate independent package loading, built-in command and agent-suite evaluation, explicit component configuration, and read-only browser inspection without any profile-local skill. CLI writes require a live-host connection through the proved public seam; do not start a replacement SDK runtime to make offline commands appear successful.
+A clean temporary install must demonstrate independent package loading, built-in command and agent-suite evaluation, explicit component configuration, and read-only CLI/browser inspection without any profile-local skill. The CLI has no write mode or live-owner attachment; do not start a replacement SDK runtime or add a transport.
 
 ### 8.3 Compatibility without admission
 
 Keep declared dependency floors, actual tested versions, and lockfile resolutions separate. The earlier inspected targets were Node >=24, Pi >=0.84.4, and Fabric >=0.83.0; these are proposed initial test targets, not assertions about when APIs first appeared or permanent runtime allowlists. Confirm the exact floors during implementation.
 
-Use public component/provider registration, source loading, actors, spawn/status/stop/list, lifecycle subscription and model selection interfaces. Capability availability and argument semantics matter; a newer release label alone never rejects startup.
+Use public component/provider registration, source loading, and exact `agents.create`/`ask`/`spawn`/`wait`/`stop` interfaces, adding status/removal only when PR0 proves a need. Capability availability and argument semantics matter; a newer release label alone never rejects startup.
 
 Doctor remains accessible when the component cannot activate. It distinguishes installed, configured, enabled, available, and behaviorally tested. Missing optional search/held-out support affects only selected features. Missing actor/provider capabilities or incompatible Schema enforce mode produce a concrete blocker; never silently disable host policy or switch to another orchestrator.
 
@@ -657,7 +680,7 @@ Resolve the chosen active Pi model explicitly when no Arbor override exists. Do 
 | Parallel execution | Earlier Defer overridden by requested practical parallelism | PR7 |
 | Partial executor resume | Required; exact partial artifact continuation | PR8 |
 | Held-out validation | Required implementation, optional activation | PR9 |
-| Interaction modes | Required auto/direction/review/collaborative boundaries through Pi/attached CLI; browser observes pending decisions only | PR8, PR12 |
+| Interaction modes | Required auto/direction/review/collaborative boundaries through owning Pi; CLI/browser observe pending decisions only | PR8, PR12 |
 | Literature search | Required integration, optional activation | PR10 |
 | Grounded ideation | Required visited-source evidence and hypothesis links | PR10 |
 | Novelty assessment | Remains deferred | No new novelty subsystem |
@@ -667,7 +690,7 @@ Resolve the chosen active Pi model explicitly when no Arbor override exists. Do 
 | Configuration precedence | Required frozen resolved spec and provenance | PR3 |
 | Benchmark scaffolding | Required optional preparation workflow; scaffold is unvalidated until run | PR11 |
 | Benchmark zoo/example packs | Required packaged/documented integration examples | PR11 |
-| Rich web/replay/export | Required read-only monitor/replay and retrieval of existing exports; export generation is Pi/attached-CLI only | PR12 |
+| Rich web/replay/export | Required read-only CLI/web monitor/replay and retrieval of existing exports; export generation is owning-Pi only | PR12 |
 
 ### 9.3 Former optional follow-up PRs are included
 
@@ -699,12 +722,12 @@ Retain ordinary schemas, command exit validation, exact material/evidence identi
 |---|---|
 | `package.json`, lockfile, TS configs, `bin/` | Source exports/runtime/tests; one thin launcher; remove certificate binaries and prepack build |
 | `src/extension.ts` | Pi commands/tools, component registration/discovery, setup/doctor; no hidden readiness pointer |
-| `src/component/definitions.ts` | Managed owner/forwarding publication, definition-time exact dependencies, retained-resource lifetime and local-only cleanup; no research loop in activation |
+| `src/component/definitions.ts` | Managed owner publication, captured post-activation `context.call`, definition-time exact agent dependencies, bounded dispatcher, owned-wait settlement and retained-resource lifetime; no Fabric call or research work during activation |
 | `src/application/ProductionAdmission.ts` | Delete |
 | `src/application/ProductionComposition.ts` | Replace with explicit small service composition |
 | `src/application/ArborApplication.ts` | Replace with experiment service and finite research operations; no v1 reducer translation |
-| `src/public/`, `src/schemas/` | Four facade and six research operations with one shared schema source; an explicit granular provider-action manifest for risk, caller classes, review/apply routes and read-only browser queries |
-| `src/driver/` | Replace admitted driver with native Fabric execution adapter, explicit owner-host forwarding, role/request assembly, actor bindings and separate notification/cleanup routes; no profile runtime |
+| `src/public/`, `src/schemas/` | Four facade and six owner research operations with one shared schema source; closed actor-proposal schemas and a granular provider-action manifest for risk, caller classes, review/apply routes and read-only CLI/browser queries |
+| `src/driver/` | Replace admitted driver with owner-local Fabric execution adapter using captured `context.call`, exact `agents.*` refs, role/request assembly, actor bindings, owned waits and settlement; no profile runtime or forwarding transport |
 | `src/adapters/interfaces.ts` | Reduce to actual workspace/evaluator/execution seams |
 | `src/domain/decimal.ts` | Retain arithmetic; fix tie/current-incumbent decision behavior |
 | `src/domain/types.ts`, state machines | Fresh run/node/attempt/evaluation domain; remove legacy protocol types |
@@ -727,23 +750,27 @@ Retain ordinary schemas, command exit validation, exact material/evidence identi
 | README, scoped `AGENTS.md`, docs, acceptance ledger | Authoritative v2 commands/architecture and observed-vs-planned evidence |
 | `dist/`, `.test-dist/`, certification payload packaging | Remove from active product and shipped contents |
 
-New actor/research code must not import Fabric `dist` chunks, reconstruct internal execution contexts, launch its own Pi SDK sessions, or invent unsupported provider methods. The component uses the supported host API; actor guests use native Fabric proxies.
+New actor/research code must not import Fabric `dist` chunks, reconstruct internal execution contexts, launch its own Pi SDK sessions, or invent unsupported provider methods. The component uses the supported host API; the proposal actor receives no Arbor mutation proxy.
 
 ## 11. Implementation backlog and dependency order
 
-All PRs below are required for the agreed scope. Intermediate milestones are useful development checkpoints, not permission to declare completion before research/UI integration ships. Effort ranges are rough focused maintainer-days, not commitments; re-estimate after PR0 resolves the owner-host and deterministic completion seams and the independent agent-suite proof. Any required upstream generic API change is an explicit prerequisite, not hidden inside these estimates.
+All PRs below are required for the agreed scope. Intermediate milestones are useful development checkpoints, not permission to declare completion before research/UI integration ships. Effort ranges are rough focused maintainer-days, not commitments; re-estimate after PR0 proves the owner-local ask/spawn/wait settlement sequence and the independent agent-suite path. No Fabric API change is in scope.
 
 ### PR0. Falsify actor/component and evaluator integration first
 
 **Dependencies:** none. **Effort:** 2-3 days.
 
-Create a source-loaded test component, local fake model/provider, disposable material, one persistent coordinator and two bounded executor activations. Identify the exact public seams for owner-host request/acknowledgement, cancellation/policy propagation and deterministic terminal cleanup. Record native owner/root identities across Main, actor child, executor, passive Pi host and attached CLI. End the coordinator activation before its worker completes; prove the worker survives, completion reaches the explicit coordinator mailbox, and another activation continues research without Main choosing the next step. Prove passive/child teardown cannot stop owner work.
+Create a source-loaded managed test component, local fake model/provider, disposable material, one persistent Pi coordinator actor, and two bounded executor activations. Declare exact `requires` for the public operations used (`agents.self`, `agents.members`, `agents.status`, `agents.create`, `agents.ask`, `agents.spawn`, `agents.wait`, `agents.stop`, and `agents.remove`, plus only any other directly exercised ref). Capture `context.call` during activation, publish the fixture provider, and begin no Fabric operation until activation has committed and returned.
 
-Exercise idle-host continuation, child capability commitment, subscriptions versus host cleanup, pause, stop, generation replacement and re-grounded resume. Verify explicit role loading with an instruction sentinel, packaged references from a worktree and effective tools/result schema; missing mandatory files block before spawn. Separately prove Arbor's own agent-suite fixture over public Fabric calls, baseline/candidate snapshot loading, independent deterministic grading and interrupted evaluation recovery. It must run without profile-local benchmarking skills or their environments. Test optional evaluator catalog binding/change with an unrelated built-in-evaluator run.
+From an owning-Pi call, bind the native owner through `agents.self`, send bounded observations with `agents.ask`; require a structured research proposal, reject stale/schema-invalid/self-approving/over-budget variants, then spawn a bounded worker wave. Start and retain `agents.wait` promises immediately. Prove the proposal activation has ended while its workers continue, waits settle independently of actor outbox delivery, collection commits exact native results, and a subsequent bounded `agents.ask` receives fresh observations without Main inference. Exercise pause, deterministic create-held/ask-held/late-spawn cancellation and reload barriers, false and mesh-shaped stop results, generation replacement, retained storage lifetime and explicit re-grounded resume. Component cancellation/disposal must reject new work, stop every late local handle it can, await every dynamically created stop and actual owned create/ask/run settlement, and retain artifacts when cleanup is uncertain.
 
-**Acceptance:** only public APIs; no internal imports, certificates, emitted output, custom coordinator loop, profile-skill dependency or paid model required. Worker ownership survives actor-turn boundaries, notification delivery does not create a Main research loop, and deterministic terminal cleanup runs outside the actor. A stopped actor is replaced correctly when needed. Retained-generation calls do not observe closed storage and replacement cannot admit stale writes. Evaluation completion cannot be confused with adoption.
+Verify explicit role loading with an instruction sentinel, packaged references from a worktree and effective tools/result shape; missing mandatory files and phase references block before spawn. Absence of child Arbor refs is valid authority minimization: prove they are not exposed and cannot resolve, rather than claiming a reachable Arbor authorization guard rejected them. Separately prove the actor cannot spawn through its actually present Fabric surface and that a second root cannot control the bound run. Prove Arbor's own agent-suite fixture over the same public owner path, baseline/candidate snapshot loading, independent deterministic grading and durable interrupted evaluation recovery across owner reconstruction. It must run without profile-local benchmarking skills or their environments. Test optional evaluator catalog binding/change with an unrelated built-in-evaluator run.
 
-**Risk/response:** a matching child descriptor is not proof of owner invocation. If public owner forwarding, deterministic lifecycle observation or correct resource lifetime is unavailable, stop and document the smallest required generic Fabric API change before production implementation. Do not substitute private imports, a new message broker, a custom engine or SDK runtime. Host-surviving residency remains optional and needs a separate successful proof of the whole path.
+**Acceptance:** only existing public APIs and exact documented schemas; no Fabric API additions, internal imports, certificates, emitted output, generic remote-provider invocation, lifecycle callback, custom coordinator loop, profile-skill dependency or paid model required. Ask/spawn/wait ordering is observed, not inferred. Worker execution survives the preceding actor activation, no actor/worker gets Arbor mutation authority, no notification creates a Main research loop, and terminal cleanup awaits real owned settlement outside actor activation. A stopped actor is replaced correctly when needed. Retained-generation calls do not observe closed storage and replacement cannot admit stale writes. Evaluation completion cannot be confused with adoption.
+
+**Risk/response:** type presence or a matching descriptor is not E2E proof. If captured post-activation `context.call`, actor proposal return, owned waits, cancellation, or resource lifetime fails in the real boundary, PR0 remains unverified and PR1-PR13 stay blocked. Fix Arbor's use of the existing seams or revise the plan; do not add Fabric APIs, use private imports, introduce a broker, or launch a replacement SDK runtime. Host-surviving residency remains optional and needs a separate successful proof of the whole path.
+
+**Executed checkpoint:** the revised PR0 gate passes as recorded in `pi-fabric-arbor/docs/pr0-owner-local-evidence.md`. PR0's optional-evaluator scope is definition-time catalog binding/change and two-run blast-radius behavior. Clean source-only installation belongs to PR1; the production owner/store and full missing/mismatched descriptor plus invalid-result evaluator matrix belong to PR2-PR4; partial in-progress material continuation belongs to PR8. None is a cyclic PR0 blocker.
 
 ### PR1. Source-only package and test path
 
@@ -751,15 +778,17 @@ Exercise idle-host continuation, child capability commitment, subscriptions vers
 
 Change exports, imports, launcher, TS checking, tests, web asset loading, package contents and scripts. Delete mandatory build/prepack paths.
 
-**Acceptance:** clean temporary install loads the independent source extension, CLI and read-only browser assets with `dist`/`.test-dist` absent. Package-loading tests exercise fixture skill/role assets under the intended layout; production role behavior lands in PR6/PR10 and the public entrypoint in PR12. No profile-local skill or copied benchmarking helper is available to the fixture. A source sentinel edit appears after reload; no generated runtime is needed.
+**Acceptance:** clean temporary install loads the independent source extension, strictly read-only CLI and read-only browser assets with `dist`/`.test-dist` absent. Package-loading tests exercise fixture skill/role assets under the intended layout; production role behavior lands in PR6/PR10 and the public entrypoint in PR12. No profile-local skill or copied benchmarking helper is available to the fixture. A source sentinel edit appears after reload; no generated runtime is needed.
 
 **Risk/response:** path/loader assumptions. Fix the source path, not a parallel permanent build fallback.
+
+**Executed checkpoint:** the repaired PR1 gate passes as recorded in `pi-fabric-arbor/docs/pr1-source-install-evidence.md`. A clean packed install loaded through Pi with inherited `PI_*` identity/configuration removed, discovered exactly one Arbor skill, resolved all internal roles/references/Web assets, observed an installed source sentinel change after actual Pi reload, launched no inference or research, and rejected every CLI mutation without changing fixture bytes. Normal `npm test`/`check` include a named 92-test source characterization lane covering retained model, Git, persistence/artifact, recovery/report, concurrency, evaluator-parser, fixture-flow, and component/provider assertions with no emitted path. Superseded v1 certificate/admission/containment/writable-Web suites remain precisely listed historical tests pending PR13 and are not active gates or claimed passes. This accepts A01 and the package half of A30 only; production component/doctor behavior starts in PR2 and full presentation remains PR12.
 
 ### PR2. Real managed component and actor binding
 
 **Dependencies:** PR1. **Effort:** 2-3 days.
 
-Replace admission/composition; register the managed `arbor` owner/forwarding component/provider; implement setup/doctor and definition-time exact dependencies. Implement the PR0-proven host routing and cleanup seams, native owner binding and retained-resource disposal. Add actor creation/reuse after provider activation, explicit coordinator-targeted subscriptions and a separate outbox policy. Registration never starts research or grants a passive host cleanup ownership.
+Replace admission/composition; register the managed owner-local `arbor` component/provider; implement setup/doctor and definition-time exact `agents.*` dependencies. Implement the PR0-proven post-activation captured-context adapter, bounded dispatcher, native owner binding, owned ask/wait settlement and retained-resource disposal. Add actor creation/reuse only from an owning-Pi call after provider activation, with a passive outbox policy. Registration never starts research.
 
 **Acceptance:** available capabilities activate without certificates; missing required refs give actionable diagnostics; no duplicate coordinator from reload/discovery; normal registration does not start research.
 
@@ -769,9 +798,9 @@ Replace admission/composition; register the managed `arbor` owner/forwarding com
 
 **Dependencies:** PR2. **Effort:** 2-4 days.
 
-Implement the fresh schema, domain-neutral spec, configuration precedence, four product facade operations, six research operations, transactions, control receipts and compact events. Publish the exact provider-action manifest with schemas, per-action risk/effects, caller classes and command mappings; narrower review/apply/undo routes may add refs without expanding the product facade. Keep human-approval routes outside actor/worker capabilities. The browser schema contains reads only. No legacy schema support.
+Implement the fresh schema, domain-neutral spec, configuration precedence, four product facade operations, six research operations, transactions, control receipts and compact events. Publish the exact provider-action manifest with schemas, per-action risk/effects, caller classes and command mappings; narrower review/apply/undo routes may add refs without expanding the product facade. Keep human-approval routes outside actor/worker capabilities. CLI and browser schemas contain reads only. No legacy schema support.
 
-**Acceptance:** duplicate controls/results do not duplicate effects; stale revisions cannot overwrite; budgets reserve atomically; source/model identities and origins are recorded. Actor self-approval and stale user receipts fail, effect risk is not understated by a facade, and Pi/attached-CLI mutations preserve the required host-policy path. No browser mutation route exists.
+**Acceptance:** duplicate controls/results do not duplicate effects; stale revisions cannot overwrite; budgets reserve atomically; source/model identities and origins are recorded. Actor self-approval and stale user receipts fail, effect risk is not understated by a facade, and only owning-Pi mutations preserve the required host-policy path. No CLI or browser mutation route exists.
 
 **Risk/response:** state ambiguity. Add crash/reopen and transaction tests now; no second mesh authority.
 
@@ -779,7 +808,7 @@ Implement the fresh schema, domain-neutral spec, configuration precedence, four 
 
 **Dependencies:** PR3. **Effort:** 3-5 days.
 
-Implement the packaged command and Arbor-owned agent-suite adapters over the existing Fabric execution adapter. Freeze evaluation definitions, task pairing/order and grading policy; implement metric parsing, deterministic grading, optional bounded judges, failure-inclusive analysis and quality vetoes. Account for exploratory evaluator feedback, retries and rechecks. Distinguish coordinator/executor/subject roles. Implement the finite optional provider catalog and lightweight preset contracts without profile-skill dependencies.
+Implement the packaged command and Arbor-owned agent-suite adapters over the existing Fabric execution adapter. Freeze evaluation definitions, task pairing/order and grading policy; implement metric parsing, deterministic grading, optional bounded judges, failure-inclusive analysis and quality vetoes. Account for exploratory evaluator feedback, retries and rechecks. Distinguish coordinator/executor/subject roles. Implement the finite optional provider catalog and lightweight preset contracts without profile-skill dependencies, including the complete missing/mismatched descriptor and invalid-result rejection matrix.
 
 **Acceptance:** a clean install evaluates a prompt-only candidate on fixed tasks using public Fabric execution and independent deterministic grading. Failed native execution never becomes a score; interrupted evaluation reconciles without duplicate dispatch. Candidate loading, pairing, task-level uncertainty and failure inclusion have direct oracle tests. Every scored feedback/retry/judge invocation is charged. Missing optional providers do not block built-in evaluation, and catalog changes follow the explicit maintenance/reload protocol. Command parsing covers direction/units/failures.
 
@@ -799,7 +828,7 @@ Implement source-preserving capture, per-candidate workspaces, freeze/restore, e
 
 **Dependencies:** PR2-PR5. **Effort:** 3-5 days.
 
-Implement the single consolidated coordinator role, its conditional strategy/evidence procedures and the executor role, with explicit request assembly, frozen bundles and invocation provenance from section 4.7. Integrate merge/evaluation interpretation and resume explanation into the coordinator; keep grading, eligibility, recovery and factual reporting in code. Implement observe/ideate/select/dispatch/collect/evaluate/distill/decide behavior, within-run lessons and stop rules. Dispatch mechanics stay in the owner service; worker instructions remain hypothesis-bound. Ship foundational role procedures here, not as a late PR12 documentation task.
+Implement the single consolidated coordinator role, its conditional strategy/evidence procedures and the executor role, with explicit request assembly, frozen bundles and invocation provenance from section 4.7. The coordinator returns structured proposals and never calls owner Arbor mutations or approves itself. Integrate merge/evaluation interpretation and resume explanation into its proposal guidance; keep validation, grading, eligibility, dispatch, collection, recovery and factual reporting in owner code. Implement the bounded observe/ask/validate/dispatch/wait/collect/ask behavior, within-run lessons and stop rules. Worker instructions remain hypothesis-bound. Ship foundational role procedures here, not as a late PR12 documentation task.
 
 **Acceptance:** two actual end-to-end fixtures: code optimization and agent-instruction improvement. Each performs baseline, improvement, valid non-improvement, failed check, and further improvement with the correct incumbent. No fixture driver shortcut or user-sequenced loop. Verify explicit role loading, operational-versus-subject skill-name/path collisions, and stable role instructions after package updates or recorded explicit role changes on resume.
 
@@ -819,9 +848,9 @@ Implement typed tree/refinement, exploration/exploitation policy, two-candidate 
 
 **Dependencies:** PR5-PR7. **Effort:** 3-6 days.
 
-Connect Pi/attached-CLI pause/steer/cancel/review, native stop/subscriptions, partial material continuation, consequential operation journal, keep/export/apply/undo and component reload recovery. Record user review receipts against exact material/revisions; preserve separate Fabric permissions. Reject mutation attempts from offline CLI and keep the browser read-only. Prove owner/passive teardown and generation-retained storage lifetimes.
+Connect owning-Pi pause/steer/cancel/review, native stop/owned waits, partial material continuation, consequential operation journal, keep/export/apply/undo and component reload recovery. Record user review receipts against exact material/revisions; preserve separate Fabric permissions. Reject every CLI mutation in every mode and keep the browser read-only. Prove cancellation/disposal and generation-retained storage lifetimes.
 
-**Acceptance:** crash-point suite; one-command current-format resume; original source preserved; control receipt differs from completion; no worker relaunch across ambiguous attachment; interrupted cleanup visible.
+**Acceptance:** crash-point suite; one-command current-format owning-Pi resume; original source preserved; control receipt differs from completion; no worker relaunch across ambiguous spawn-handle persistence; interrupted cleanup visible. CLI help and dispatch reject every mutating verb in every mode.
 
 **Risk/response:** ownership and partial source writes. Preserve artifacts and block ambiguous operations; never guess PIDs or undo later user edits.
 
@@ -859,13 +888,13 @@ Ship code and agent-improvement examples, a data/recipe-oriented example, resear
 
 **Dependencies:** PR6-PR11. **Effort:** 3-5 days.
 
-Implement Arbor-specific hypothesis/incumbent/evidence/uncertainty views, candidate diffs, Pi launch/intake/review controls, attached-CLI commands, reports and export generation. Reuse Fabric's participant topology, worker logs, execution status and operational controls; emit generic provider activity updates where sufficient instead of building another worker dashboard. Any Arbor status widget summarizes research facts only.
+Implement Arbor-specific hypothesis/incumbent/evidence/uncertainty views, candidate diffs, owning-Pi launch/intake/review controls, strictly read-only CLI inspection/replay/existing-artifact commands, reports and owning-Pi export generation. Reuse Fabric's participant topology, worker logs, execution status and operational controls; emit generic provider activity updates where sufficient instead of building another worker dashboard. Any Arbor status widget summarizes research facts only.
 
 The browser serves read-only projections, tree/table/diff/log views, SSE/replay and already-generated artifacts. Remove all legacy browser control forms, mutation/intent handlers and export-generation routes, including mutations disguised as reads. Implement the one rewritten public skill; document the three role assets and conditional references already delivered in PR6/PR10. Do not defer role loading to this UI milestone.
 
-**Acceptance:** Pi/CLI/web reads agree on authoritative revision; only Pi/attached-CLI controls show queued/applied/blocked receipts. Browser requests and replay leave research/control rows, workspace refs and export inventory unchanged; attempted mutations are rejected and no side-effectful GET path exists. Browser displays pending review without answering it. Existing artifact retrieval performs no export generation. Reuse native participant/log controls without duplicate ownership state. Exercise all nine journeys through their permitted surfaces.
+**Acceptance:** Pi/CLI/web reads agree on authoritative revision; only owning-Pi controls show queued/applied/blocked receipts. CLI/browser requests and replay leave research/control rows, workspace refs and export inventory unchanged; every CLI mutating verb and browser mutation is absent or rejected, and no side-effectful read path exists. CLI/browser display pending review without answering it. Existing artifact retrieval performs no export generation. Reuse native participant/log controls without duplicate ownership state. Exercise all nine journeys through their permitted surfaces.
 
-**Risk/response:** second-state or second-dashboard creep. Presentation owns no research truth. Pi/attached CLI submit commands; web only reads projections/artifacts. Read-only contract tests are required, but no browser security-hardening workstream is added.
+**Risk/response:** second-state or second-dashboard creep. Presentation owns no research truth. Owning Pi submits commands; CLI/web only read projections/artifacts. Read-only contract tests are required, but no browser security-hardening workstream is added.
 
 ### PR13. Hard cut-over deletion and documentation
 
@@ -883,34 +912,34 @@ These are planned checks. Documentation/source inspection and earlier isolated p
 
 | ID | Concrete required proof |
 |---|---|
-| A01 | Source extension, CLI, tests, assets and reload work with emitted directories absent |
-| A02 | Managed component and persistent actor run through public interfaces; no custom coordinator loop or private imports |
+| A01 | Source extension, strictly read-only CLI, tests, assets and reload work with emitted directories absent |
+| A02 | Managed owner and persistent proposal actor run through captured post-activation `context.call` with exact public refs; no custom reasoning loop or private imports |
 | A03 | Agent improvement changes instructions/configuration and improves independently graded task outcomes through the actual product path |
 | A04 | Code optimization also runs end to end; non-Git material capture and data/recipe example work |
 | A05 | Invalid baseline, failed exit/check, timeout, ambiguous metric, and tie cannot become measured wins |
 | A06 | Candidate compares against current incumbent; maximize/minimize, zero/negative and threshold cases pass |
 | A07 | Dirty source index/content/untracked files survive start, failure, cancel, discard and export |
 | A08 | Staged and committed candidate rollback restores exact owned state; integration-generated material is re-evaluated |
-| A09 | Pi/attached-CLI pause, steer, cancel and partial resume match persisted semantics/budgets. Exercise Auto continuous progress, Direction approval before expansion, Review approval before promotion and Collaborative pause/resume; timeout never auto-approves. Browser only displays pending decisions. |
-| A10 | Spawn/attachment, evaluation/decision, ref/commit and partial-apply crash gaps reconcile or block without duplicate effects |
-| A11 | Component reload/dependency replacement settles tracked work and prevents stale writes; stopped actor is replaced correctly. Successful/failed/cancelled terminal cleanup leaves no live run-owned coordinator/subscriptions; duplicate/late notifications cannot restart work. |
+| A09 | Owning-Pi pause, steer, cancel and partial resume match persisted semantics/budgets. Exercise Auto continuous progress, Direction approval before expansion, Review approval before promotion and Collaborative pause/resume; timeout never auto-approves. CLI/browser only display pending decisions. |
+| A10 | Spawn/handle-persistence, evaluation/decision, ref/commit and partial-apply crash gaps reconcile or block without duplicate effects |
+| A11 | Component reload/dependency replacement settles tracked work and prevents stale writes; stopped actor is replaced correctly. Create is tracked before dispatch; successful/failed/cancelled cleanup awaits every owned create/ask/wait/stop promise, including stops created by late results, outside actor activation and leaves no confirmed live run-owned work while the owner host remains live. Only local exact-target terminal stop results confirm cleanup; every mesh-shaped/false/unknown/mismatched result remains cleanup pending with artifacts retained. Duplicate/late observations cannot restart work. |
 | A12 | Two parallel candidates have isolated material, atomic reservations, no insight overwrite, and serialized measurement where configured. In a controlled fixture with two independent one-second executor workloads, three warmed waves demonstrate actual overlap and median parallel wave time at most 80% of serial time; record setup/dispatch/collection overhead and environment. A failure triggers investigation, not an unsubstantiated practical-speedup claim. This fixture requires no paid model. |
 | A13 | Tree direction/leaf/depth rules, exploration, pruning and convergence work without treating prose quality as proven |
 | A14 | Held-out loss blocks validated promotion; dev-only labels and adaptive test-use counts are accurate |
 | A15 | Literature grounding, negative lesson reuse, experience distillation and trajectory export retain factual provenance |
 | A16 | Presets, benchmark scaffolding and runnable example packs are integrated; the external evaluator-provider fixture passes definition-time binding/discovery/schema/precedence/execution/result-validation tests. A missing optional action does not disable built-in evaluation. Catalog changes require maintenance/rebinding; two-run tests expose replacement blast radius without stale calls or silent reload. Illustrative assets are not reported as executed. |
-| A17 | Pi, CLI and read-only web/replay agree on state/evidence/failure/uncertainty and stop reason. Browser has no mutation forms/endpoints or control-intent writes, cannot approve or generate exports, and cannot mutate via GET. Read/replay/artifact retrieval leaves research/control records, workspace refs and export inventory unchanged. Pi/attached CLI alone submit controls. |
+| A17 | Pi, strictly read-only CLI, and read-only web/replay agree on state/evidence/failure/uncertainty and stop reason. CLI/browser have no mutation forms, commands, endpoints, attachment transport, or control-intent writes; they cannot setup/start/resume/control/review/apply/undo or generate exports. Read/replay/existing-artifact retrieval leaves research/control rows, workspace refs and export inventory unchanged. Only the owning Pi session mutates. |
 | A18 | Fresh install/cut-over needs no legacy history, certificates, compatibility bridge or migration |
 | A19 | Mechanical source/import/schema/UI scans confirm removed package-owned sandbox/process-group/web-safeguard and certification implementations are not retained in v2. No corresponding setup, hardening/certification tests, licensing workstreams or release gates are reintroduced. Ordinary read-only browser contract tests remain required under A17. Unrelated dependency defaults are not stripped. |
-| A20 | Arbor's packaged agent-suite adapter runs baseline/candidate tasks through public Fabric calls in a clean temporary install with no profile-local benchmarking skill, helper or environment. Independently graded outcomes use the exact candidate snapshot; interrupted/partial evaluations reconcile without duplicate dispatch. Native execution, evaluation validity, analysis interpretation and incumbent decisions stay distinct. Selected unsupported methods block honestly. |
+| A20 | Arbor's packaged agent-suite adapter runs baseline/candidate tasks through public Fabric calls in a clean temporary install with no profile-local benchmarking skill, helper or environment. Independently graded outcomes use the exact candidate snapshot; interrupted/partial evaluations persist native completion before ingestion, return `INTERRUPTED`, reconstruct the owner after reload, and require explicit immutable-bound resume without duplicate dispatch. Unobservable native handles block honestly. Duplicate terminal observation is idempotent. Native execution, evaluation validity, analysis interpretation and incumbent decisions stay distinct. Selected unsupported methods block honestly. |
 | A21 | Attempt/evaluation limits include baseline, exploratory scored feedback, retries, rechecks, held-out and judge calls. Every authoritative evaluator invocation has a reserved ID/native result. Informal diagnostics cannot supply promotion scores and have declared separate limits; delayed/unknown usage is not presented as a hard enforced cost bound. |
-| A22 | Four product facade and six research operations are implemented; every registered provider ref, command mapping, schema, caller class, risk and effect is listed in the PR3 manifest, including any narrower review/apply/undo routes. Exactly one public `fabric-arbor` skill is discovered; coordinator/executor/literature documents and conditional references are packaged but not registered as skills. All eleven upstream skills have an explicit merge/delete/role disposition. Component configuration matches the derived definition. |
-| A23 | PR0/PR6: actual actor/child boundary exposes the resolved role instructions, effective tools/capabilities and result contract. Inspect the fake provider's received context and exercise an instruction sentinel; test required phase loading and reference resolution from a worktree. Missing bootstrap files block before spawn; missing phase references block that phase. Discovery-list presence alone is not proof. |
+| A22 | Four product facade and six owner research operations are implemented; every registered provider ref, command mapping, schema, caller class, risk and effect is listed in the PR3 manifest, including any narrower review/apply/undo routes. Actor proposal schemas are closed and Arbor mutation refs are absent from its commitment. Exactly one public `fabric-arbor` skill is discovered; coordinator/executor/literature documents and conditional references are packaged but not registered as skills. All eleven upstream skills have an explicit merge/delete/role disposition. Component configuration matches the derived definition. |
+| A23 | PR0/PR6: actual actor/child boundary exposes the resolved role instructions, effective tools/capabilities and result contract. Inspect the fake provider's received context and exercise an instruction/result sentinel; test required phase loading and reference resolution from a worktree. Missing bootstrap files block before spawn; missing phase references block that phase. Child Arbor refs intentionally remain unexposed and attempted invocation cannot resolve; do not publish a writable child provider merely to test a reachable auth guard. Discovery-list presence alone is not proof. |
 | A24 | PR6/PR8: resume after packaged role files change uses the recorded bundle; missing/incompatible bundles block clearly. Explicit role changes create attributable new bindings without rewriting prior attempt provenance. No credentials or duplicate transcripts enter role artifacts. |
 | A25 | PR4/PR6/PR10: a candidate skill with the same name/path as an operational role cannot replace coordinator/executor instructions. Separately prove the subject runner loads the candidate snapshot. Adapted search uses native execution and source-linked output without novelty classification or fallback state/runtime. These are trusted configuration tests, not containment claims. |
-| A26 | PR0/PR2: record actual native owner identities, route a child provider call to the designated owner, end the coordinator activation while its worker runs, and observe the next coordinator activation on completion with no Main research inference. Passive host/child disposal cannot stop owner work; owner loss and CLI attachment failures block new mutations without duplicate dispatch. |
-| A27 | PR0/PR3/PR8: participant-targeted subscriptions and deterministic owner cleanup use separately named, exercised public seams. Actor outbox settings do not masquerade as actor continuation; duplicate/detached notifications do not create a second coordinator. |
-| A28 | PR3/PR8: actor self-approval, forged/stale review flags and source-apply calls outside the allowed caller route are rejected. Real Pi/attached-CLI receipts bind to material/epoch/revision; Arbor review never bypasses Fabric permissions, and Fabric allow never substitutes for required research review. |
+| A26 | PR0/PR2: obtain and immutably record the native owning Pi root/host/owner identity through public `agents.self`, plus component instance/generation, material/cwd/OID/policy, actor, and worker identities; prove the managed component captures `context.call`, returns from activation before using it, and calls only exact declared `agents.*` requirements. A structured `agents.ask` proposal settles before owner-launched workers continue; owned waits collect them and a bounded later ask receives fresh observations with no Main inference. CLI has no mutation attachment. |
+| A27 | PR0/PR3/PR8: owner-held `agents.wait` promises, actor `agents.ask` responses, and actor outbox delivery are separately named and exercised. Terminal cleanup awaits real ask/run settlement outside actor activation; no lifecycle callback, participant subscription, detached notification, or actor outbox masquerades as collection or continuation. |
+| A28 | PR3/PR8: actor self-approval, forged/stale review flags and source-apply calls outside the owning-Pi route are rejected. Real owning-Pi receipts bind to material/epoch/revision; Arbor review never bypasses Fabric permissions, and Fabric allow never substitutes for required research review. |
 | A29 | PR0/PR2/PR8: a retained old-generation call has valid supporting storage until provider close; retirement precedes disposal, cleanup is idempotent and owner-scoped, and resource failures remain explicit without stale writes or double-close. |
 | A30 | PR1/PR12: independent package manifest/source install includes all runtime assets and declared dependencies without profile-path imports. Arbor research views reuse Fabric participant/log/activity facilities rather than maintaining another operational dashboard or writable execution-state mirror. |
 
@@ -920,7 +949,7 @@ These are planned checks. Documentation/source inspection and earlier isolated p
 2. Real filesystem/Git tests in disposable material directories.
 3. Full application with deterministic executors and graders, not a replacement fixture engine.
 4. Actual Fabric component/actor/child process boundary against a local fake model/provider.
-5. Pi/attached-CLI control journeys plus strictly read-only browser/replay/artifact journeys against the same store/projection; assert browser reads cause no research mutations.
+5. Owning-Pi control journeys plus strictly read-only CLI/browser/replay/existing-artifact journeys against the same store/projection; assert all CLI/browser reads cause no research mutations and all attempted CLI mutations are absent or rejected.
 6. Only then a separately budgeted real-model pilot for code and agent improvement.
 
 No paid optimization campaign is authorized by writing this plan. Comparative quality claims require a separate controlled benchmark, not passing structural tests or agreement among reviewers.
@@ -935,7 +964,7 @@ No paid optimization campaign is authorized by writing this plan. Comparative qu
 - Resume uses one command; actor re-observation is automatic.
 - Acknowledgment is prompt and distinct from completed controls.
 - Routine owned test workloads stop promptly; unsupported cleanup is labeled, not concealed by a generic cancelled status.
-- No model-authored status polling while idle; no duplicate coordinator/worker transcript storage.
+- No model-authored or owner idle status polling; owner-held waits are bounded and no duplicate coordinator/worker transcript storage exists.
 - Report generation failure does not erase or reopen an otherwise completed experiment.
 
 ## 13. Cut-over and deletion policy
@@ -944,7 +973,7 @@ This is a **hard cut-over**, not a migration project.
 
 1. Land fresh source entrypoints and the new application path with its tests.
 2. Use a fresh state namespace/schema for new runs. Do not interpret v1 rows, certificates, or effect journals as current facts.
-3. Remove old public mutations, CLI commands, exports, admission code, readers and bridges. No v1 compatibility error protocol is required beyond ordinary unknown-command/action diagnostics.
+3. Remove old public mutations, mutating CLI commands, generated-export entrypoints, admission code, readers and bridges. Retain only the new read-only CLI inspection/replay/existing-artifact surface. No v1 compatibility error protocol is required beyond ordinary unknown-command/action diagnostics.
 4. Delete obsolete shipped code/assets and test-only certification payloads once their replacements pass.
 5. Leave existing user runtime data, keys, artifacts and unrelated uncommitted changes untouched. Their preservation on disk is not a promise of v2 inspectability. Delete actual user data only under explicit separate cleanup authorization.
 6. Do not scan/import all historic runs, build a legacy archive/export tool, or retain private repositories merely to satisfy a nonexistent migration acceptance check.
@@ -959,13 +988,13 @@ The existing deleted `docs/Arbor/authoritative-native-pi-fabric-arbor-plan.md` i
 
 | Risk | Evidence boundary and response |
 |---|---|
-| Child provider availability is mistaken for owner invocation | PR0 must prove the public forwarding seam, native owner identity and worker survival beyond the coordinator activation; matching descriptors alone are insufficient |
+| Public type availability is mistaken for working owner execution | PR0 must prove post-activation captured `context.call`, exact requirements, proposal validation, worker survival beyond the preceding actor activation, owned waits and the next bounded ask; declarations alone are insufficient |
 | Role discovery/loading differs in a child or after reload | Explicit packaged bootstrap and preserved run bundles; prove reference resolution, effective capabilities, resume behavior and operational/subject collisions in PR0/PR6 |
-| Lifecycle deadlock/stale generation | Name and prove the public deterministic cleanup seam separately from participant subscriptions; keep retained-call resources valid until provider close and test owner/passive disposal |
+| Settlement deadlock/stale generation | Prove owned ask/wait/stop settlement outside actor activation; keep retained-call resources valid through component disposal and test cancellation plus ambiguous outcomes |
 | Independent agent-suite evaluation expands into a second runtime/statistics platform | Package a small adapter over public Fabric execution, fixed task/grade policy and tested analysis; no profile-local skill dependency, private lifecycle import or generic benchmark framework |
 | Optional evaluator changes retire shared Arbor dependencies | Bind finite optional refs in definition metadata, require explicit catalog maintenance/rebinding and test the two-run blast radius |
 | Human review is confused with effect permission | Separate user receipts and actor capabilities from Fabric approvals; test both gates and stale/forged decisions |
-| Browser or CLI accidentally creates another owner | Browser is read-only; CLI mutations require live-owner acknowledgement. Prove routes and reject missing-owner mutation attempts |
+| Browser or CLI accidentally creates another owner | Both are strictly read-only; prove mutation commands/routes and attachment transport are absent while owning Pi remains the sole mutation path |
 | Cost and shorter timeouts | Native telemetry and timeout semantics do not imply hard Arbor budgets; use deadlines/stop and honest accounting |
 | Parallel evaluation interference | Separate implementation concurrency from measurement concurrency and compare overhead |
 | Agent-score noise and repeated held-out use | Prespecified task pairing/analysis, explicit inconclusive state and test-use reporting |
@@ -975,15 +1004,15 @@ The existing deleted `docs/Arbor/authoritative-native-pi-fabric-arbor-plan.md` i
 
 ### 14.2 First five implementation tasks
 
-1. Prove owner-host forwarding, worker survival across actor activations, distinct mailbox/cleanup routes and the independent native agent-suite fixture.
+1. Prove the owner-local post-activation `context.call` sequence: structured `agents.ask` proposal, validation, `agents.spawn`, owned `agents.wait`, collection, fresh subsequent ask, cancellation/disposal settlement, and the independent native agent-suite fixture.
 2. Convert package, tests, launcher and assets to source-only execution.
-3. Remove admission and establish the managed owner/forwarding component, definition-time exact dependencies and retained-resource cleanup.
+3. Remove admission and establish the managed owner-local component, definition-time exact `agents.*` dependencies, bounded dispatcher and retained-resource cleanup.
 4. Implement the fresh domain-neutral spec/store and small action surface.
 5. Implement material/evaluator paths, including prompt-only agent improvement, before building a code-only vertical slice.
 
 ### 14.3 Definition of complete
 
-The refactor is complete only when the acceptance ledger passes, both code and independently graded agent-improvement journeys work through actual actor/component execution without a profile-local benchmarking dependency, and owner continuity/cleanup are proven. Every non-deferred research feature and O1-O3 is integrated; one public skill and the consolidated role assets ship; source work is preserved; Pi/attached-CLI controls and recovery are truthful; the browser is strictly read-only; and the old architecture is absent from runtime/package/docs.
+The refactor is complete only when the acceptance ledger passes, both code and independently graded agent-improvement journeys work through actual actor/component execution without a profile-local benchmarking dependency, and owner-local ask/spawn/wait continuity plus cleanup are proven. Every non-deferred research feature and O1-O3 is integrated; one public skill and the consolidated role assets ship; source work is preserved; owning-Pi controls and recovery are truthful; CLI/web are strictly read-only; and the old architecture is absent from runtime/package/docs.
 
 Optional per-run features remain optional to use, not optional to deliver. The finish line is a usable actor-led research system with measured evidence, not another certification milestone, a paper-score reproduction, or a legacy migration.
 
@@ -1030,4 +1059,4 @@ Within this profile's installed `npm/node_modules/pi-fabric/`:
 
 Authoring guidance consulted: `skills/create-fabric-skill/SKILL.md` and `references/mechanism-selection.md`, plus Fabric execution/workflow guidance. They support selecting native mechanisms for actual lifecycle needs, not layering user-only skills as runtime routers.
 
-Pi source extension/package loading is documented in the installed Pi `docs/extensions.md` and `docs/packages.md`; `docs/skills.md` documents discovery versus explicit loading, reference paths and skill-name collisions. The profile-local benchmarking-skill integration from the earlier plan is superseded, not a product dependency or acceptance authority. Arbor's packaged agent-suite contract in section 6.2, public Fabric execution interfaces and its own declared grading/analysis tests govern evaluation implementation. Section 4.2/PR0 must identify and prove any additional public owner-forwarding and deterministic lifecycle seam before implementation proceeds.
+Pi source extension/package loading is documented in the installed Pi `docs/extensions.md` and `docs/packages.md`; `docs/skills.md` documents discovery versus explicit loading, reference paths and skill-name collisions. The profile-local benchmarking-skill integration from the earlier plan is superseded, not a product dependency or acceptance authority. Arbor's packaged agent-suite contract in section 6.2, public Fabric execution interfaces and its own declared grading/analysis tests govern evaluation implementation. Section 4.2/PR0 must prove the existing public managed-component and agents seams end to end before implementation proceeds; no additional Fabric API or transport is permitted.

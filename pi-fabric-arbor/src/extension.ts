@@ -1,44 +1,53 @@
-import {
-  FABRIC_COMPONENT_DISCOVER_EVENT,
-  FABRIC_COMPONENT_REGISTER_EVENT,
-  type FabricComponentDiscovery,
-  type FabricComponentRegistration,
-} from "pi-fabric";
-import { ARBOR_WEB_COMPONENT_V1, createArborRuntimeComponent } from "./component/definitions.js";
-import { createCertificationBlockedProvider } from "./public/provider.js";
-import { createActionDescriptors } from "./public/descriptors.js";
-import { FIXTURE_SCHEMAS_V1 } from "./schemas/catalog.js";
-import { resolvePreparedProductionProviderV1 } from "./application/ProductionComposition.js";
+import { ARBOR_PACKAGED_ASSETS, getArborAvailability } from "./package-layout.js";
 
-interface PiEventHost {
-  events: {
-    emit(event: string, payload: unknown): void;
-    on(event: string, listener: (payload: unknown) => void): void;
+interface ArborCommandContext {
+  ui: {
+    notify(message: string, type?: "info" | "warning" | "error"): void;
   };
 }
 
-/**
- * Registers both supervised definitions through pi-fabric's public eager and
- * discovery protocols. The Arbor provider is published only by arbor-runtime
- * through context.provide(), so no duplicate host-owned provider lifetime exists.
- * The discovery-only provider still rejects invocation until a production
- * composition supplies every independently verified startup gate and adapter.
- */
-export default function piFabricArbor(pi: PiEventHost): void {
-  const components = [
-    createArborRuntimeComponent(() => {
-      const prepared = resolvePreparedProductionProviderV1();
-      return prepared.provider ?? createCertificationBlockedProvider({ descriptors: createActionDescriptors(FIXTURE_SCHEMAS_V1), reason: prepared.blockers.length ? prepared.blockers.join("; ") : "graduated production admission is absent" });
-    }),
-    ARBOR_WEB_COMPONENT_V1,
-  ] as const;
-  for (const component of components) {
-    const registration: FabricComponentRegistration = { version: 1, component, overwrite: true };
-    pi.events.emit(FABRIC_COMPONENT_REGISTER_EVENT, registration);
-  }
-  pi.events.on(FABRIC_COMPONENT_DISCOVER_EVENT, (payload) => {
-    const discovery = payload as FabricComponentDiscovery;
-    if (discovery?.version !== 1 || typeof discovery.register !== "function") return;
-    for (const component of components) discovery.register(component, { overwrite: true });
+interface PiExtensionHost {
+  registerCommand(name: string, command: {
+    description: string;
+    handler(args: string, context: ArborCommandContext): void | Promise<void>;
+  }): void;
+}
+
+const MUTATING_WORDS = new Set([
+  "setup", "start", "pause", "resume", "cancel", "steer", "keep", "discard",
+  "review", "apply", "undo", "undo-apply", "export", "generate", "authorize", "certify", "serve",
+]);
+
+function availabilityText(): string {
+  const value = getArborAvailability();
+  return [
+    `pi-fabric-arbor ${value.version} (${value.sourceSentinel})`,
+    `extension: ${value.extension}`,
+    `CLI: ${value.cli}; Web: ${value.web}`,
+    `research: ${value.research}`,
+    `component: ${value.component}`,
+    "PR1 provides packaging inspection only. Setup/doctor and research operations are not implemented until later PRs.",
+  ].join("\n");
+}
+
+export default function piFabricArbor(pi: PiExtensionHost): void {
+  pi.registerCommand("arbor", {
+    description: "Inspect source-loaded Arbor package availability (PR1 is read-only)",
+    handler: (rawArgs, context) => {
+      const args = rawArgs.trim().split(/\s+/u).filter(Boolean);
+      const operation = args[0] ?? "availability";
+      if (MUTATING_WORDS.has(operation)) {
+        throw new Error(`Arbor PR1 is read-only; '${operation}' is available only from the owning Pi surface after its later implementation.`);
+      }
+      if (operation === "availability" && args.length === 1) {
+        context.ui.notify(availabilityText(), "info");
+        return;
+      }
+      if (operation === "assets" && args.length === 1) {
+        context.ui.notify(Object.entries(ARBOR_PACKAGED_ASSETS).map(([id, path]) => `${id}: ${path}`).join("\n"), "info");
+        return;
+      }
+      throw new Error("Usage: /arbor [availability|assets]. PR1 exposes no setup, doctor, research, review, apply, export-generation, or attachment command.");
+    },
   });
 }

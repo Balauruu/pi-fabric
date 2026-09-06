@@ -1,71 +1,87 @@
-# Consumer installation and Pi activation
+# Source-only installation and availability
 
-`pi-fabric-arbor` is a Pi package containing an extension and the `fabric-arbor` skill. Pi packages execute with the user's full OS authority. Review the package, its license/notice inventory, and its retained certificates before installation.
+PR1 packages `pi-fabric-arbor` as an independent Pi extension with no emitted runtime. Pi packages execute with the user's OS authority, so review the source before installation.
 
-## Requirements and support envelope
+## Requirements
 
 - Node.js 24 or newer.
-- Pi with project trust enabled for project-local package resources.
-- One exact certified pi-fabric release: `0.76.2 || 0.77.0`, with that release's retained package and host evidence.
-- Linux, Git, user namespaces, and Bubblewrap matching the retained certificates for production admission.
+- A trusted Pi project for project-local resources.
+- Declared peer `pi-fabric >=0.83.0 <0.84.0`.
+- Declared runtime dependency `tsx@4.23.13` for the standalone source CLI.
 
-The current sibling Pi host is the exactly certified `pi-fabric@0.77.0`; the retained active chain reports `productionCertified: true` and `realAgentsEnabled: true`. Support is a finite evidence-backed set, not an open-ended compatibility range: `0.76.2` and `0.77.0` each require their own matching B0/B1 payload, host-runtime, approval, and integration artifacts. Any other version or changed payload remains blocked; never copy or substitute another release's certificate.
+The retained PR1 E2E uses Node 26.7.0, Pi 0.85.1, and Fabric 0.83.0. These distinguish tested versions from broader availability claims.
 
 ## Install
 
-After npm publication, install a pinned release globally:
+Published package:
 
 ```sh
 pi install npm:pi-fabric-arbor@0.1.0
 ```
 
-For a trusted project-local installation:
-
-```sh
-cd /path/to/project
-pi install -l npm:pi-fabric-arbor@0.1.0
-```
-
-For a reviewed local checkout or unpacked tarball:
+Reviewed local source:
 
 ```sh
 pi install /absolute/path/to/pi-fabric-arbor
-# or, from a project, pi install -l ./vendor/pi-fabric-arbor
 ```
 
-A relative local path is resolved against the settings file that records it. Pi installs npm packages under its package store and local path packages remain in place.
+For project scope, add `-l` while inside the trusted project. Use `pi list` to inspect the configured source and `pi config` to enable the package extension and public skill. Restart Pi after first activation or use `/reload` after source changes.
 
-## Activate and verify discovery
+The package manifest points directly to:
 
-1. Run `pi list` and confirm the expected pinned source.
-2. Run `pi config` or `pi config -l`. Enable both `dist/src/extension.js` and `skills/fabric-arbor/SKILL.md` for the intended scope.
-3. Trust the project with `/trust` if project-local settings are required, then restart Pi. `/reload` can reload an already trusted package after configuration changes.
-4. Inspect Pi/Fabric discovery and the production-admission result before invoking anything. The extension registers `arbor-runtime` and `arbor-web`; the runtime may deliberately provide a blocked provider.
-5. Invoke `/skill:fabric-arbor` for guided setup. The skill must check installation, component activation, action discovery, and admission first. It must not assume any `arbor.*` action exists.
+```text
+extension: ./src/extension.ts
+skill:     ./skills/fabric-arbor/SKILL.md
+```
 
-A discovered action is not proof that production execution is admitted. Require all B0-B12 evidence, the release and graduation gates, exact distribution bytes, and `realAgentsEnabled: true`.
+No build, prepack hook, release hash generation, certificate generation, `dist/`, or `.test-dist/` is required.
 
-## Minimal detached Web use
+## Verify current availability
 
-Detached Web can operate against an authority database even when production execution is blocked:
+Inside Pi:
+
+```text
+/arbor availability
+/arbor assets
+```
+
+Outside Pi:
 
 ```sh
-pi-fabric-arbor serve --database /absolute/state/arbor.sqlite3 \
-  --artifact-root /absolute/state/artifacts --host 127.0.0.1 --port 0
+pi-fabric-arbor availability
+pi-fabric-arbor assets
 ```
 
-Open only the one-time loopback bootstrap URL emitted on stdout. The browser removes the fragment synchronously before exchange. Web is read/query/stream/inbox-only and cannot drive agents, authorize, sign, evaluate held-out input, clean resources, or move Git refs.
+A correct PR1 installation reports:
 
-See [administrator-guide.md](administrator-guide.md) for durable configuration and [schema-reference.md](schema-reference.md) for public contracts.
+```text
+extension: source-loaded
+CLI: read-only
+Web: read-only-assets
+research: unavailable-until-pr2-plus
+component: not-registered-by-pr1
+```
 
-## Uninstall without deleting user data
+Exactly one package skill, `/skill:fabric-arbor`, is discovered. Files under `skills/fabric-arbor/roles/` and `skills/fabric-arbor/references/` are internal assets and must not appear as skills or agents.
 
-Disable the package in `pi config`, stop `arbor-runtime` and `arbor-web`, then remove the package registration:
+## Read-only boundary
+
+The CLI may inspect a bounded existing file, replay existing JSONL, retrieve an existing regular artifact beneath an explicit root, or read a packaged asset. It cannot attach to a live owner or setup/start/control/review/apply/undo/generate exports. The packaged browser assets contain no forms, transport, request code, or mutation path. PR1 does not start a Web server.
+
+Setup and doctor belong to PR2. Production role assembly belongs to PR6/PR10, and full research presentation belongs to PR12. Do not use old v1 certificates, binaries, providers, or intent APIs as v2 substitutes.
+
+## Update and uninstall
+
+A package source update becomes visible after Pi reload; no compilation step is involved. For a source checkout, `npm test` and `npm run check` execute the clean package/install cases and the named retained TypeScript characterization lane without `dist/` or `.test-dist/`. The retained lane covers model arithmetic/state/schema, Git noninterference/workspaces/promotion, persistence/artifacts, recovery and reports, command concurrency, evaluator parsing, and component/provider behavior.
+
+The clean-install harness removes every inherited `PI_*` variable from npm, CLI, import, and Pi fixture subprocesses. Its Pi process receives only fixture-local `PI_CODING_AGENT_DIR`, `PI_OFFLINE=1`, and `PI_SKIP_VERSION_CHECK=1`; shared session, mesh, provider, model, and configuration identities are not inherited.
+
+Superseded v1 certificate/admission, containment, authorization/promotion, Phase 7, retention, and writable-Web suites are historical pending PR13, not active certification gates. Their exact disposition is recorded in `docs/pr1-source-install-evidence.md`; no pass is implied for those excluded suites.
 
 ```sh
 pi remove npm:pi-fabric-arbor
-# project-local installation:
+# or project scope
 pi remove -l npm:pi-fabric-arbor
 ```
 
-This removes package registration and package-store code. It does not authorize deletion of authority databases, reports, artifacts, private repositories, operator keys, principal configuration, backups, or certificates stored outside the package directory. Keep those roots, or export and delete them later under the retention and cleanup procedure. Never point a state root inside Pi's package installation directory.
+Removing package registration does not authorize deletion of existing user databases, reports, artifacts, keys, workspaces, or certification evidence. PR1 does not scan, migrate, or remove those paths.
