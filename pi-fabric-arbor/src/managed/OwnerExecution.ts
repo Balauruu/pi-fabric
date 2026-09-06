@@ -3,11 +3,14 @@ import { realpath } from "node:fs/promises";
 import { promisify } from "node:util";
 import type { FabricInvocationContext } from "pi-fabric/protocol";
 import { BindingStore, type Binding } from "./BindingStore.js";
+import { ResearchStore, type Receipt } from "../research/ResearchStore.js";
+import { ACTOR_PROPOSAL_SCHEMA, type BoundCommand } from "../research/contracts.js";
+import { COORDINATOR_INSTRUCTIONS, EXECUTOR_INSTRUCTIONS } from "../research/spec.js";
 import { executionSpec, nativeOwner, object, proposal, localStop, text, TERMINAL, type ExecutionSpec, type NativeOwner, type OwnerCall, type OwnerRef, type Target, type Terminal } from "./contracts.js";
 
 const exec = promisify(execFile);
 interface Run {
-  binding: Binding; draining: boolean; ambiguous: boolean; reason?: string;
+  binding: Binding; research: boolean; draining: boolean; ambiguous: boolean; reason?: string;
   pending: Set<Promise<unknown>>; targets: Map<string, Target>; stops: Map<string, Promise<void>>;
   operation?: Promise<Binding>; drain?: Promise<void>;
 }
@@ -19,7 +22,9 @@ export class OwnerExecution {
   #admission: Promise<unknown> = Promise.resolve();
   #draining = false;
   #disposed: Promise<void> | undefined;
-  constructor(readonly call: OwnerCall, readonly store: BindingStore, readonly componentId: string, readonly generation: string) {}
+  constructor(readonly call: OwnerCall, readonly store: BindingStore, readonly componentId: string, readonly generation: string, readonly research?: ResearchStore) {}
+
+  async identity(context: FabricInvocationContext): Promise<NativeOwner> { const owner = await this.#owner(context); context.signal?.throwIfAborted(); this.#admit(); return owner; }
 
   async #owner(context: FabricInvocationContext): Promise<NativeOwner> {
     const owner = nativeOwner(await this.call("agents.self", {}));
@@ -50,7 +55,7 @@ export class OwnerExecution {
     const { stdout } = await exec("git", ["rev-parse", "HEAD"], { cwd: path, timeout: 10_000, maxBuffer: 8192 });
     if (path !== spec.cwd || stdout.trim() !== spec.oid) throw new Error("Material canonical cwd/Git OID binding changed");
   }
-  async start(args: Record<string, unknown>, context: FabricInvocationContext): Promise<Binding> {
+  async start(args: Record<string, unknown>, context: FabricInvocationContext, research = false): Promise<Binding> {
     const model = context.extensionContext.model;
     const spec = executionSpec(args, model ? `${model.provider}/${model.id}` : undefined);
     const owner = await this.#owner(context);
@@ -69,13 +74,14 @@ export class OwnerExecution {
       // This check must precede binding persistence and all run-owned effects.
       context.signal?.throwIfAborted();
       this.#admit();
+      if (research && !["ready", "running"].includes(this.research!.get(spec.runId)!.state)) throw new Error("Research control superseded native admission; no dispatch");
       const existing = this.#runs.get(spec.runId);
       if (!existing && this.#runs.size >= 128) throw new Error("Arbor generation binding limit reached; settle and reload before new bindings");
       const binding = existing?.binding ?? this.store.bind({ version: 1, spec, owner, componentId: this.componentId, generation: this.generation, revision: 0, state: "running", dispatches: [], actors: [], workers: [] });
       if (JSON.stringify(binding.owner) !== JSON.stringify(owner)) throw new Error("Different native owning Pi root/host/identity; no attachment or adoption");
       if (JSON.stringify(binding.spec) !== JSON.stringify(spec)) throw new Error("Immutable run material/cwd/OID/policy/model/budget binding changed");
       if (binding.componentId !== this.componentId || binding.generation !== this.generation) throw new Error("Replacement generation requires explicit reconciliation; PR2 does not redispatch retained bindings");
-      const run: Run = existing ?? { binding, draining: false, ambiguous: false, pending: new Set(), targets: new Map(), stops: new Map() };
+      const run: Run = existing ?? { binding, research, draining: false, ambiguous: false, pending: new Set(), targets: new Map(), stops: new Map() };
       abort = () => { void this.#drain(run, "cancelled").catch(() => undefined); };
       context.signal?.addEventListener("abort", abort, { once: true });
       if (context.signal?.aborted) abort();
@@ -114,7 +120,7 @@ export class OwnerExecution {
       b.dispatches.push(dispatch); this.store.save(b);
       const raw = object(await this.#call(run, "agents.create", {
         name: dispatch.name,
-        instructions: "You are Arbor's proposal-only coordinator. Choose a bounded wave from owner observations or stop. Never approve, mutate Arbor, or dispatch. Return a silent directive with data matching the supplied closed contract. No scores are authoritative.",
+        instructions: run.research ? COORDINATOR_INSTRUCTIONS : "You are Arbor's proposal-only coordinator. Choose a bounded wave from owner observations or stop. Never approve, mutate Arbor, or dispatch. Return a silent directive with data matching the supplied closed contract. No scores are authoritative.",
         scope: "project", runner: "pi", transport: "process", residency: "session", model: spec.model,
         thinking: "off", delivery: "mailbox", responseMode: "directive", triggerTurn: false, tools: ["fabric_exec"], extensions: true, requires: ["agents.self"],
       }));
@@ -123,7 +129,8 @@ export class OwnerExecution {
       dispatch.nativeId = actorId; b.actors.push(actorId); this.store.save(b);
       if (raw.scope !== "project" || raw.runner !== "pi" || raw.residency !== "session" || !Array.isArray(raw.requirements) || raw.requirements.length !== 1 || object(raw.requirements[0]).ref !== "agents.self") throw new Error("Native coordinator capability/ownership contract mismatch");
       if (run.draining || this.#draining) { await this.#stop(run, run.targets.get(actorId)!); throw new Error("Late create settled during drain"); }
-      for (let wave = 0; wave <= spec.maxWaves; wave++) {
+      if (run.research) await this.#researchCycle(run, actorId);
+      else for (let wave = 0; wave <= spec.maxWaves; wave++) {
         this.#admit(run);
         const message = object(await this.#call(run, "agents.ask", {
           id: actorId, message: "Return one silent directive with the closed proposal in data. Observations are authoritative; propose only.", model: spec.model, thinking: "off",
@@ -152,15 +159,55 @@ export class OwnerExecution {
       await this.#drain(run, run.reason ?? "completed");
       b.state = run.ambiguous ? "cleanup_pending" : run.reason === "cancelled" ? "cancelled" : run.reason === "completed" ? "completed" : run.reason === "failed" ? "failed" : "interrupted";
       this.store.save(b);
+      if (run.research) this.research!.settle(spec.runId, this.generation, b.state, "native-observation-settled; unscored", b.error ?? null);
     }
     return b;
   }
-  async #launch(run: Run, task: string): Promise<void> {
+  async #researchCycle(run: Run, actorId: string): Promise<void> {
+    const store = this.research!, runId = run.binding.spec.runId;
+    const maxTurns = store.get(runId)!.spec.config.search.maxActorTurns;
+    for (let turn = 0; turn < maxTurns; turn++) {
+      this.#admit(run);
+      const current = store.get(runId)!;
+      if (!["ready", "running"].includes(current.state)) break;
+      const projection = store.projection(runId)!;
+      const response = object(await this.#call(run, "agents.ask", {
+        id: actorId, message: "Return one silent directive with a closed v2 proposal. Only read-only observation work is available. No self-approval, scoring or Arbor calls.", model: current.spec.roles.coordinator.model, thinking: "off",
+        data: { version: 2, ...store.binding(current, `actor-${turn}`), objective: current.spec.config.objective, remainingAttempts: current.spec.config.limits.attempts - current.attemptsUsed,
+          nodes: projection.nodes, attempts: projection.attempts, evidence: projection.artifact_refs, steering: current.steering, contract: ACTOR_PROPOSAL_SCHEMA },
+      }));
+      this.#admit(run);
+      if (response.actorId !== actorId || response.direction !== "out" || response.action !== "silent" || typeof response.runId !== "string") throw new Error("Mismatched native actor response");
+      if (!["ready", "running"].includes(store.get(runId)!.state)) break; // pause/cancel boundary wins over the late ask
+      const proposal = store.validateProposal(response.data, runId);
+      const command: BoundCommand = { runId: proposal.runId, materialId: proposal.materialId, epoch: proposal.epoch, revision: proposal.revision, commandId: proposal.commandId };
+      if (proposal.kind === "dispatch") await this.dispatchResearch(command, proposal.payload);
+      else store.research(proposal.kind, command, proposal.payload, this.generation);
+      if (proposal.kind === "decide" && proposal.payload.decision === "stop") break;
+    }
+  }
+  async dispatchResearch(command: BoundCommand, payload: Record<string, any>): Promise<Receipt> {
+    this.#admit();
+    const run = this.#runs.get(command.runId);
+    if (!run?.research || !this.research) throw new Error("No live research execution binding; explicit resume/reconciliation required");
+    const duplicate = this.research.receipt(command, "dispatch", payload);
+    if (duplicate) return duplicate;
+    this.#admit(run);
+    await this.#verifySnapshot(run.binding.spec);
+    this.#admit(run);
+    const racedDuplicate = this.research.receipt(command, "dispatch", payload);
+    if (racedDuplicate) return racedDuplicate;
+    const receipt = this.research.research("dispatch", command, payload, this.generation);
+    const attempt = this.research.attempt(command.runId, payload.attemptId)!;
+    await this.#track(run, () => this.#launch(run, attempt.task, attempt.id));
+    return receipt;
+  }
+  async #launch(run: Run, task: string, attemptId?: string): Promise<void> {
     this.#admit(run);
     const b = run.binding, spec = b.spec;
     const dispatch: Binding["dispatches"][number] = { kind: "agent", name: `arbor-worker-${this.generation}-${b.dispatches.length}` };
     b.dispatches.push(dispatch); this.store.save(b);
-    const raw = object(await this.#call(run, "agents.spawn", { name: dispatch.name, task: `Arbor bounded executor. Do not spawn or mutate shared Arbor state. No self-grading. Inspect only.\nAssignment: ${task}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}`, runner: "pi", transport: "process", model: spec.model, thinking: "off", tools: ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" }));
+    const raw = object(await this.#call(run, "agents.spawn", { name: dispatch.name, task: `${EXECUTOR_INSTRUCTIONS}\nAssignment: ${task}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}`, runner: "pi", transport: "process", model: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.model : spec.model, thinking: "off", tools: ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" }));
     const id = text(raw.id, "native worker ID");
     const target: Target = { id, kind: "agent", cwd: spec.cwd };
     run.targets.set(id, target);
@@ -171,11 +218,13 @@ export class OwnerExecution {
     const worker: Binding["workers"][number] = { id, cwd: spec.cwd, oid: spec.oid, task };
     dispatch.nativeId = id; b.workers.push(worker); this.store.save(b);
     if (raw.cwd !== spec.cwd || raw.runner !== "pi" || raw.transport !== "process" || (raw.residency !== undefined && raw.residency !== "session")) throw new Error("Native worker identity/cwd mismatch");
+    if (attemptId) this.research!.native(spec.runId, attemptId, this.generation, { id, cwd: spec.cwd });
     if (run.draining || this.#draining) await this.#stop(run, target);
     const result = object(await waiting);
     if (result.id !== id || result.cwd !== spec.cwd || !TERMINAL.includes(result.status as Terminal)) throw new Error("Ambiguous native wait result");
     // Persist settlement facts while draining, never proposal/domain transitions.
     worker.status = result.status as Terminal; this.store.save(b);
+    if (attemptId) this.research!.native(spec.runId, attemptId, this.generation, { id, cwd: spec.cwd, status: worker.status });
     if (worker.status !== "completed" && !run.draining) throw new Error(`Worker ${id} ended ${worker.status}`);
   }
   async #members(run: Run): Promise<Record<string, unknown>[]> {

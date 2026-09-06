@@ -1,4 +1,5 @@
 import type { FabricActionDescriptor } from "pi-fabric/protocol";
+import { RESEARCH_ACTIONS } from "../research/contracts.js";
 
 export const ARBOR_OWNER_REFS = Object.freeze([
   "agents.self", "agents.members", "agents.status", "agents.create", "agents.ask",
@@ -63,8 +64,9 @@ export const EXECUTION_SCHEMA = { type: "object", additionalProperties: false,
   required: ["runId", "materialId", "cwd", "oid", "policyId", "objective"],
   properties: { runId: str(), materialId: str(), cwd: str(4096), oid: { ...str(64), pattern: "^(?:[a-f0-9]{40}|[a-f0-9]{64})$" }, policyId: str(), objective: str(4096), model: str(), maxWaves: { type: "integer", enum: [1, 2] }, concurrency: { type: "integer", enum: [1, 2] } } };
 export const RUN_QUERY = { type: "object", additionalProperties: false, required: ["runId"], properties: { runId: str() } };
-export const ARBOR_ACTIONS: FabricActionDescriptor[] = [
-  { name: "start", description: "Owner-only bounded execution binding (PR2 substrate, not scored research). Actor proposes; owner launches and waits. Repeated identical requests are idempotent.", inputSchema: EXECUTION_SCHEMA, risk: "agent", effect: { kind: "emission", resources: ["arbor:execution"], ordering: "ordered" } },
-  { name: "inspect", description: "Read a retained execution binding and settlement facts; never starts work or exports.", inputSchema: RUN_QUERY, risk: "read", effect: { kind: "none", ordering: "commutative" } },
-  { name: "cancel", description: "Owning Pi only: stop owned native work and await real settlement; ambiguity retains evidence.", inputSchema: RUN_QUERY, risk: "agent", effect: { kind: "emission", resources: ["arbor:execution"], ordering: "ordered" } },
+export const SUBSTRATE_ACTIONS: FabricActionDescriptor[] = [
+  { name: "substrateStart", description: "Owner-only bounded execution binding (PR2 substrate, not scored research). Actor proposes; owner launches and waits. Repeated identical requests are idempotent.", inputSchema: EXECUTION_SCHEMA, risk: "agent", effect: { kind: "emission", resources: ["arbor:execution"], ordering: "ordered" } },
+  { name: "substrateInspect", description: "Read a retained execution binding and settlement facts; never starts work or exports.", inputSchema: RUN_QUERY, risk: "read", effect: { kind: "none", ordering: "commutative" } },
+  { name: "substrateCancel", description: "Owning Pi only: stop owned native work and await real settlement; ambiguity retains evidence.", inputSchema: RUN_QUERY, risk: "agent", effect: { kind: "emission", resources: ["arbor:execution"], ordering: "ordered" } },
 ];
+export const ARBOR_ACTIONS: FabricActionDescriptor[] = [...RESEARCH_ACTIONS, ...SUBSTRATE_ACTIONS];

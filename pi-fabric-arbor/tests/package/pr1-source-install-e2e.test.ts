@@ -118,6 +118,7 @@ test("clean packed install source-loads in Pi, reloads edited source, and stays 
   for (const path of [
     "bin/pi-fabric-arbor.mjs", "src/extension.ts", "src/package.ts", "src/package-layout.ts",
     "src/cli/read-only.ts", "src/web/SourceWebAssets.ts", "skills/fabric-arbor/SKILL.md",
+    "src/research/contracts.ts", "src/research/spec.ts", "src/research/ResearchStore.ts", "src/research/ResearchService.ts", "src/research/commands.ts", "docs/pr3-action-manifest.json", "docs/pr3-interface-evidence.md",
     "skills/fabric-arbor/roles/coordinator.md", "skills/fabric-arbor/roles/executor.md",
     "skills/fabric-arbor/roles/literature.md", "web/read-only/index.html", "web/read-only/app.js", "web/read-only/app.css",
   ]) assert.ok(inventory.includes(path), `pack inventory omitted ${path}`);
@@ -188,7 +189,7 @@ test("clean packed install source-loads in Pi, reloads edited source, and stays 
     assert.equal(JSON.parse(secondNotice.message).extension, "source-loaded");
 
     const rejected = await rpc.request({ type: "prompt", message: "/arbor start" });
-    await rpc.waitFor((record) => record.type === "extension_error" && /read-only/u.test(record.error ?? ""), rejected.start);
+    await rpc.waitFor((record) => record.type === "extension_ui_request" && record.method === "notify" && /research unavailable; no action submitted/u.test(record.message ?? ""), rejected.start);
     assert.equal(rpc.records.some((record) => record.type === "agent_start"), false, "registration or Arbor commands launched inference");
   } finally {
     await rpc.close();

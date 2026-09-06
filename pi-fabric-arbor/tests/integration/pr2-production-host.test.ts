@@ -86,13 +86,13 @@ test("production extension in real Pi/Fabric host: exact schemas, passive regist
     const component = await components.status({id:"arbor.owner"});
     const before = await agents.members({scope:"local",kinds:["actor","agent"]});
     const schemas = await Promise.all(${JSON.stringify(ARBOR_OWNER_REFS)}.map(ref => tools.describe({ref})));
-    const first = await tools.call({ref:"arbor.start",args:${JSON.stringify(spec)}});
-    const duplicate = await tools.call({ref:"arbor.start",args:${JSON.stringify(spec)}});
+    const first = await tools.call({ref:"arbor.substrateStart",args:${JSON.stringify(spec)}});
+    const duplicate = await tools.call({ref:"arbor.substrateStart",args:${JSON.stringify(spec)}});
     const native = await agents.self();
     const remaining = await agents.members({scope:"local",kinds:["actor","agent"]});
     await components.reload({id:"arbor"});
-    const retained = await tools.call({ref:"arbor.inspect",args:{runId:"native-run"}});
-    let rejected = ""; try { await tools.call({ref:"arbor.start",args:${JSON.stringify(spec)}}); } catch(e) { rejected = String(e); }
+    const retained = await tools.call({ref:"arbor.substrateInspect",args:{runId:"native-run"}});
+    let rejected = ""; try { await tools.call({ref:"arbor.substrateStart",args:${JSON.stringify(spec)}}); } catch(e) { rejected = String(e); }
     return JSON.stringify({component,before,schemas,first,duplicate,native,remaining,retained,rejected});`);
   let result: any; try { result = JSON.parse(h.text); } catch { assert.fail(`${h.root}: ${h.text}`); }
   assert.equal(result.component.state, "active"); assert.deepEqual(result.component.requirements, [...ARBOR_OWNER_REFS].sort());
@@ -119,9 +119,9 @@ test("production extension in real Pi/Fabric host: exact schemas, passive regist
 
 for (const hold of ["agents.create", "agents.ask", "agents.spawn"] as const) test(`real production cancellation settles held ${hold} without late dispatch`, { timeout: 180000 }, async () => {
   const h = await host(`cancel-${hold.split(".")[1]}`, spec => `
-    const active = tools.call({ref:"arbor.start",args:${JSON.stringify(spec)}});
+    const active = tools.call({ref:"arbor.substrateStart",args:${JSON.stringify(spec)}});
     await tools.call({ref:"pr2fixture.ready",args:{}});
-    const cancel = tools.call({ref:"arbor.cancel",args:{runId:"native-run"}});
+    const cancel = tools.call({ref:"arbor.substrateCancel",args:{runId:"native-run"}});
     await tools.call({ref:"pr2fixture.release",args:{}});
     const [result,cancelled] = await Promise.all([active,cancel]);
     const members = await agents.members({scope:"local",kinds:["actor","agent"]});
@@ -137,12 +137,12 @@ for (const hold of ["agents.create", "agents.ask", "agents.spawn"] as const) tes
 
 test("real retirement during an unreturned native create records ambiguity, retains binding and never restarts", { timeout: 180000 }, async () => {
   const h = await host("reload-create", spec => `
-    const active = tools.call({ref:"arbor.start",args:${JSON.stringify(spec)}});
+    const active = tools.call({ref:"arbor.substrateStart",args:${JSON.stringify(spec)}});
     await tools.call({ref:"pr2fixture.ready",args:{}});
     const reload = components.reload({id:"arbor"});
     await tools.call({ref:"pr2fixture.release",args:{}});
     const [result,loaded] = await Promise.all([active,reload]);
-    const retained = await tools.call({ref:"arbor.inspect",args:{runId:"native-run"}});
+    const retained = await tools.call({ref:"arbor.substrateInspect",args:{runId:"native-run"}});
     const members = await agents.members({scope:"local",kinds:["actor","agent"]});
     return JSON.stringify({result,retained,loaded,members});`, "agents.create");
   const value = JSON.parse(h.text);
@@ -180,10 +180,10 @@ test("real production doctor/setup remain usable with disabled native capabiliti
 });
 
 test("second real native root cannot adopt retained binding or mutate its journal", { timeout: 180000 }, async () => {
-  const h = await host("second-root", spec => `return JSON.stringify(await tools.call({ref:"arbor.start",args:${JSON.stringify({ ...spec, maxWaves: 1 })}}));`);
+  const h = await host("second-root", spec => `return JSON.stringify(await tools.call({ref:"arbor.substrateStart",args:${JSON.stringify({ ...spec, maxWaves: 1 })}}));`);
   const binding = JSON.parse(h.text); assert.equal(binding.state, "completed");
   const path = join(h.root, "state/execution-bindings.sqlite3"), before = await readFile(path);
-  const program = `const native = await agents.self(); let denied = ""; try { await tools.call({ref:"arbor.start",args:${JSON.stringify({ ...h.spec, maxWaves: 1 })}}); } catch(e) { denied = String(e); } return JSON.stringify({native,denied});`;
+  const program = `const native = await agents.self(); let denied = ""; try { await tools.call({ref:"arbor.substrateStart",args:${JSON.stringify({ ...h.spec, maxWaves: 1 })}}); } catch(e) { denied = String(e); } return JSON.stringify({native,denied});`;
   const pending = exec(PI, ["--approve", "--offline", "--no-session", "--no-skills", "--no-prompt-templates", "--no-themes", "--mode", "json", "--provider", "arbor-pr2-fake", "--model", "deterministic", "--thinking", "off", "-e", FABRIC, "-p", "Run second-root denial"], { cwd: h.cwd, env: { ...h.env, ARBOR_PR2_PROGRAM: program }, timeout: 60000, maxBuffer: 4 * 1024 * 1024 });
   pending.child.stdin?.end();
   const output = await successfulHostExit(pending, join(h.root, "second-host-output.txt"));

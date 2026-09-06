@@ -31,9 +31,20 @@ export default function fake(pi: ExtensionAPI) {
       const user = textOf([...context.messages].reverse().find(m => m.role === "user"));
       if (context.systemPrompt?.includes("proposal-only coordinator")) {
         const envelope = JSON.parse(user.slice(user.indexOf("{"))); const data = envelope.payload.data;
-        if (context.messages.at(-1)?.role !== "toolResult") return stream(model, [{ type: "toolCall", id: `actor-denial-${data.revision}`, name: "fabric_exec", arguments: { code: 'const errors=[]; try { await agents.spawn({task:"forbidden dispatch",tools:[]}); errors.push("UNEXPECTED_SUCCESS"); } catch(e) { errors.push(String(e)); } try { await tools.call({ref:"arbor.cancel",args:{runId:"native-run"}}); errors.push("UNEXPECTED_SUCCESS"); } catch(e) { errors.push(String(e)); } return errors;' } }], options);
+        if (context.messages.at(-1)?.role !== "toolResult") return stream(model, [{ type: "toolCall", id: `actor-denial-${data.revision}`, name: "fabric_exec", arguments: { code: 'const errors=[]; try { await agents.spawn({task:"forbidden dispatch",tools:[]}); errors.push("UNEXPECTED_SUCCESS"); } catch(e) { errors.push(String(e)); } try { await tools.call({ref:"arbor.review",args:{runId:"research",materialId:"material",epoch:"epoch-1",revision:0,commandId:"actor-approve",decisionId:"review"}}); errors.push("UNEXPECTED_SUCCESS"); } catch(e) { errors.push(String(e)); } return errors;' } }], options);
         trace("actor.restrictions", textOf(context.messages.at(-1)));
         trace("actor.observed", { data, tools: context.tools?.map(t => t.name) ?? [] });
+        if (data.version === 2) {
+          const node = data.nodes[0], attempt = data.attempts[0];
+          const proposal: Record<string, any> = { version: 2, runId: data.runId, materialId: data.materialId, epoch: data.epoch, revision: data.revision, commandId: data.commandId, expectedEvidence: [], estimatedBudget: { attempts: 0, evaluatorCalls: 0 }, rationale: "Local deterministic observation, never a score" };
+          if (!node) { proposal.kind = "propose"; proposal.payload = { nodeId: "native-hypothesis", type: "hypothesis", parentId: null, title: "Inspect fixed instructions", rationale: "Inspect material.txt without edits", sourceRefs: [] }; }
+          else if (!attempt) { proposal.kind = "dispatch"; proposal.estimatedBudget.attempts = 1; proposal.payload = { nodeId: node.nodeId, attemptId: "native-attempt" }; }
+          else { proposal.kind = "decide"; proposal.payload = { decisionId: "native-stop", nodeId: null, decision: "stop", evidenceIds: data.evidence.map((e: any) => e.id) }; proposal.expectedEvidence = proposal.payload.evidenceIds; }
+          if (attempt && process.env.ARBOR_PR3_CHOICE === "request-review") { proposal.payload = { ...proposal.payload, decisionId: "native-review", nodeId: node.nodeId, decision: "request_review" }; }
+          if (process.env.ARBOR_PR3_INVALID === "self-approval") proposal.approved = true;
+          if (process.env.ARBOR_PR3_INVALID === "stale") proposal.revision++;
+          return stream(model, [{ type: "text", text: JSON.stringify({ action: "silent", data: proposal }) }], options);
+        }
         return stream(model, [{ type: "text", text: JSON.stringify({ action: "silent", data: { version: 1, kind: data.remainingWaves ? "wave" : "stop", runId: data.runId, materialId: data.materialId, policyId: data.policyId, revision: data.revision, tasks: data.remainingWaves ? ["Inspect the fixed material"] : [] } }) }], options);
       }
       if (user.includes("Arbor bounded executor")) {
@@ -47,7 +58,7 @@ export default function fake(pi: ExtensionAPI) {
         trace("main.result", textOf(context.messages.at(-1)));
         return stream(model, [{ type: "text", text: "ARBOR_PR2_HOST_COMPLETE" }], options);
       }
-      return stream(model, [{ type: "toolCall", id: "pr2-root-call", name: "fabric_exec", arguments: { code: process.env.ARBOR_PR2_PROGRAM!, timeoutMs: 120000 } }], options);
+      return stream(model, [{ type: "toolCall", id: "pr2-root-call", name: "fabric_exec", arguments: { code: user.includes("ARBOR_COMMAND_PROGRAM=") ? JSON.parse(user.slice(user.indexOf("ARBOR_COMMAND_PROGRAM=") + "ARBOR_COMMAND_PROGRAM=".length)) : process.env.ARBOR_PR2_PROGRAM!, timeoutMs: 120000 } }], options);
     },
   });
   // Test-only middleware observes real public results. It does not dispatch work.

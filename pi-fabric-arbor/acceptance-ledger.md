@@ -1,5 +1,15 @@
 # Acceptance ledger
 
+## V2 deep-refactor checkpoint - PR3 final adversarial verification PASS
+
+The scoped transactional interface and four prior independent-review repairs were independently verified. Native actor review survives successful quiescent settlement; intervening controls and old dialogs remain stale. Approved-direction dispatch, immutable evidence/export provenance and terminal-before-attach monotonicity pass. Final review found one additional stale-approval defect: renewed review/rejection retained an old direction approval. It now revokes prior admission on request and persists the actual response; old receipt replay cannot restore admission. Both guarded modes, reopen and real RPC approve/reject regressions pass after retained red runs.
+
+**Final executed gates:** `npm run check` passes both no-emit checks and **142/142** tests (5 package/install + 92 retained-source + 20 PR2 + 25 PR3). `npm run test:pr3:e2e` passes **20/20**, with **22 clean exits (16 print, 6 RPC)**. Original exit guards, useful deferred review and fingerprint assertions remain intact. Source/manifest/pack audit passes: **16 public refs, 10 owner requirements, 38 assets, 11 active modules / 58 imports**. Lock metadata and retained source selection are unchanged.
+
+**Scope remains partial:** no scored research, candidate snapshots, evaluator/apply implementation, PR8 native resume, or PR4+ production acceptance. Schema enforce remains unavailable; its exact host failure and zero-side-effect command probe are limitation tests, not compatibility. No Fabric runtime/API change. PR2 native was inspected, not rerun: final repairs affect only PR3 research-store admission, not PR2 execution/exit; earlier PR3 diagnostic route changes already had the historical 8/8 native gate. All 20 PR2 source tests passed again.
+
+Exact commands, red/green logs, native traces and boundaries are in [docs/pr3-interface-evidence.md](docs/pr3-interface-evidence.md). Final verification authorizes the PR3 milestone checkpoint. PR4 is next; PR4-PR13 remain outstanding. Earlier checkpoints below are historical and superseded only within this bounded scope.
+
 ## V2 deep-refactor checkpoint - PR2 managed execution substrate
 
 The production `src/managed/` owner now replaces the active source facade's PR1-only limitation. Registration remains passive. Setup/doctor, exact definition-time public dependencies, captured post-activation calls, native owning root/host/identity binding, proposal-only persistent actor, bounded worker dispatch/owned waits and retained provider storage are implemented. CLI/browser remain read-only and there is no legacy admission/certificate dependency.

@@ -61,8 +61,8 @@ test("source extension registration is passive and only declares managed compone
   assert.equal(definitions.length, 1);
   const messages: string[] = [];
   await registrations[0]!.command.handler("availability", { hasUI: true, ui: { notify(message: string) { messages.push(message); } } });
-  assert.match(messages[0]!, /native-execution-substrate-only/u);
-  await assert.rejects(async () => registrations[0]!.command.handler("start", { ui: { notify() {} } }), /owning Pi Fabric/u);
+  assert.match(messages[0]!, /transactional-research-observation-only/u);
+  await assert.rejects(async () => registrations[0]!.command.handler("start", { ui: { notify() {} } }), /owning Pi project/u);
 });
 
 test("all declared skill, role, reference, and read-only Web assets resolve from source", async () => {
@@ -98,6 +98,10 @@ test("CLI reads existing inputs, rejects every mutation verb, and changes no fix
     const result = runCli([command]);
     assert.equal(result.status, 2, `${command} unexpectedly succeeded`);
     assert.match(result.stderr, /strictly read-only/u);
+    for (const mode of ["attached", "offline"]) {
+      const modeResult = runCli([command, "--mode", mode]);
+      assert.equal(modeResult.status, 2); assert.match(modeResult.stderr, /strictly read-only/u);
+    }
   }
   assert.equal(await fingerprint(root), before);
 });

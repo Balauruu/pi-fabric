@@ -1,0 +1,6 @@
+import { writeFileSync } from 'node:fs';
+import { ACTION_MANIFEST, ACTOR_PROPOSAL_SCHEMA } from '../../src/research/contracts.js';
+import { SUBSTRATE_ACTIONS, ARBOR_OWNER_REFS } from '../../src/managed/contracts.js';
+const manifest = { version: 2, facade: ['arbor.start','arbor.inspect','arbor.control','arbor.export'], research: ['arbor.propose','arbor.dispatch','arbor.collect','arbor.evaluate','arbor.distill','arbor.decide'], ownerRequires: ARBOR_OWNER_REFS, actorRequires: ['agents.self'], actorProposalSchema: ACTOR_PROPOSAL_SCHEMA, configuration: { component: 'arbor', id: 'arbor', config: { stateDirectory: 'absolute path outside material' } }, commandsWithoutProvider: { setup: 'owning Pi configuration only', doctor: 'read-only diagnostics', availability: 'read-only package status', assets: 'read-only packaged assets' }, cli: 'read-only; no attachment in any mode', browser: 'read-only assets/projections; no mutation routes', actions: [...ACTION_MANIFEST, ...SUBSTRATE_ACTIONS.map(a => ({ref: `arbor.${a.name}`, caller: a.risk === 'read' ? 'reader' : 'owning-Pi-diagnostic', commands: [], actorCommitment: false, ...a}))] };
+writeFileSync('docs/pr3-action-manifest.json', JSON.stringify(manifest, null, 2)+'\n');
+console.log(`Manifest: ${manifest.actions.length} actions; ${Buffer.byteLength(JSON.stringify(manifest))} compact bytes`);

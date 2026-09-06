@@ -36,7 +36,7 @@ export interface ArborAvailability {
   extension: "source-loaded";
   cli: "read-only";
   web: "read-only-assets";
-  research: "native-execution-substrate-only";
+  research: "transactional-research-observation-only";
   component: "managed-definition; setup-and-reload-to-enable";
 }
 
@@ -47,7 +47,7 @@ export function getArborAvailability(): ArborAvailability {
     extension: "source-loaded",
     cli: "read-only",
     web: "read-only-assets",
-    research: "native-execution-substrate-only",
+    research: "transactional-research-observation-only",
     component: "managed-definition; setup-and-reload-to-enable",
   });
 }

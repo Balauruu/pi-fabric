@@ -176,7 +176,7 @@ test("production definition is passive and declares exact requirements; provider
   let provider!: FabricProvider; const disposers: Array<() => unknown> = []; let calls = 0;
   await def.activate({ id: "arbor.owner", signal: new AbortController().signal, call() { calls++; throw new Error("activation call"); }, provide(p: FabricProvider) { provider = p; }, defer(d: () => unknown) { disposers.push(d); } } as unknown as FabricComponentContext, { stateDirectory: resolve(".runtime/pr2-unused") });
   assert.equal(calls, 0); assert.equal(existsSync(resolve(".runtime/pr2-unused")), false);
-  assert.deepEqual((await provider.list({}, context())).map(d => d.name), ["start", "inspect", "cancel"]);
+  assert.deepEqual((await provider.list({}, context())).map(d => d.name), ["start", "inspect", "control", "export", "propose", "dispatch", "collect", "evaluate", "distill", "decide", "review", "apply", "undoApply", "substrateStart", "substrateInspect", "substrateCancel"]);
   for (const dispose of disposers.reverse()) await dispose();
   assert.equal(await provider.invoke("inspect", { runId: "absent" }, context()), null);
   await provider.close!(); await provider.close!();
