@@ -12,6 +12,7 @@ import { bindRequest, immutableCopy, EvaluationBindingError } from "../evaluator
 import type { EvaluationRecord, Invocation, NativeEvidence } from "../evaluators/contracts.js";
 const exec = promisify(execFile);
 interface Run {
+  material?: { runId: string; attemptId: string; cwd: string; oid: string };
   binding: Binding; research: boolean; draining: boolean; ambiguous: boolean; reason?: string;
   pending: Set<Promise<unknown>>; targets: Map<string, Target>; stops: Map<string, Promise<void>>;
   operation?: Promise<Binding>; drain?: Promise<void>;
@@ -270,6 +271,39 @@ export class OwnerExecution {
       if (proposal.kind === "decide" && proposal.payload.decision === "stop") break;
     }
   }
+  /** PR5 single admitted material invocation. No actor strategy or PR6 autonomous loop. */
+  async dispatchMaterial(runId: string, attemptId: string, context: FabricInvocationContext): Promise<void> {
+    this.#admit(); const research = this.research!, saved = research.get(runId)!, candidate = saved.material!.candidates.find(c => c.id === attemptId)!;
+    const attempt = research.attempt(runId, attemptId)!; if (!candidate || attempt.state !== "reserved") throw new Error("Reserved owned candidate required; ambiguous work never redispatched");
+    const owner = await this.#owner(context);
+    const nativeRunId = `material-${runId}-${attemptId}`;
+    if (this.#runs.has(nativeRunId) || this.store.get(nativeRunId)) throw new Error("Existing material invocation requires reconciliation, not redispatch");
+    const spec = executionSpec({ runId: nativeRunId, materialId: saved.spec.source.materialId, cwd: candidate.directory, oid: candidate.parent, policyId: saved.spec.identity, objective: saved.spec.config.objective.description, model: saved.spec.roles.executor.model, maxWaves: 1, concurrency: 1 });
+    await this.#verifySnapshot(spec); this.#admit(); context.signal?.throwIfAborted();
+    if (object(await this.call("schema.status", {})).mode === "enforce") throw new Error("Native material delegation unavailable in Schema enforce; policy unchanged");
+    this.#admit(); context.signal?.throwIfAborted();
+    const current = research.authorize(runId, owner, this.generation);
+    if (!["ready", "running"].includes(current.state)) throw new Error("Control superseded material dispatch");
+    const binding = this.store.bind({ version: 1, spec, owner, componentId: this.componentId, generation: this.generation, revision: 0, state: "running", dispatches: [], actors: [], workers: [] });
+    const run: Run = { binding, research: true, material: { runId, attemptId, cwd: candidate.directory, oid: candidate.parent }, draining: false, ambiguous: false, pending: new Set(), targets: new Map(), stops: new Map() };
+    this.#runs.set(nativeRunId, run);
+    const abort = () => { void this.#drain(run, "cancelled").catch(() => undefined); }; context.signal?.addEventListener("abort", abort, { once: true });
+    run.operation = (async () => {
+      try { await this.#track(run, () => this.#launch(run, `${attempt.task}\nMutable paths: ${JSON.stringify(saved.spec.config.material.mutablePaths)}`, attemptId)); }
+      catch (e) { binding.error = String(e); binding.state = "failed"; throw e; }
+      finally { await this.#drain(run, "completed"); binding.state = run.ambiguous ? "cleanup_pending" : run.reason === "cancelled" ? "cancelled" : binding.error ? "failed" : "completed"; this.store.save(binding); }
+      return binding;
+    })();
+    try { await run.operation; if (binding.state === "cleanup_pending") throw new Error("Material native cleanup remains ambiguous; workspace retained"); } finally {
+      if (binding.state === "cleanup_pending") research.settle(runId, this.generation, "cleanup_pending", "material-cleanup-pending", binding.error ?? "Ambiguous native settlement", `material-cleanup-${attemptId}`);
+      context.signal?.removeEventListener("abort", abort);
+    }
+  }
+  async cancelMaterial(runId: string): Promise<boolean> {
+    const runs = [...this.#runs.values()].filter(r => r.material?.runId === runId);
+    await Promise.all(runs.map(r => this.#drain(r, "cancelled"))); await Promise.allSettled(runs.map(r => r.operation));
+    return runs.every(r => !r.ambiguous);
+  }
   async dispatchResearch(command: BoundCommand, payload: Record<string, any>): Promise<Receipt> {
     this.#admit();
     const run = this.#runs.get(command.runId);
@@ -288,26 +322,31 @@ export class OwnerExecution {
   }
   async #launch(run: Run, task: string, attemptId?: string): Promise<void> {
     this.#admit(run);
-    const b = run.binding, spec = b.spec;
+    const b = run.binding, spec = run.material ? { ...b.spec, runId: run.material.runId, cwd: run.material.cwd, oid: run.material.oid } : b.spec;
     const dispatch: Binding["dispatches"][number] = { kind: "agent", name: `arbor-worker-${this.generation}-${b.dispatches.length}` };
     b.dispatches.push(dispatch); this.store.save(b);
-    const raw = object(await this.#call(run, "agents.spawn", { name: dispatch.name, task: `${EXECUTOR_INSTRUCTIONS}\nAssignment: ${task}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}`, runner: "pi", transport: "process", model: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.model : spec.model, thinking: "off", tools: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.tools : ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" }));
+    const request = bindRequest({ name: dispatch.name, task: `${run.material ? "Arbor bounded material worker. Edit only assigned mutable paths in this owned worktree. Never touch original source or shared state. Do not self-grade or delegate. Return when all writers have settled." : EXECUTOR_INSTRUCTIONS}\nAssignment: ${task}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}`, runner: "pi", transport: "process", model: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.model : spec.model, thinking: "off", tools: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.tools : ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" });
+    const raw = object(immutableCopy(await this.#call(run, "agents.spawn", request.args)));
     const id = text(raw.id, "native worker ID");
     const target: Target = { id, kind: "agent", cwd: spec.cwd };
     run.targets.set(id, target);
     // Own wait immediately, before persistence or another async boundary. This
     // suppresses detached Main notification even when the spawn result is late.
-    const waiting = this.#call(run, "agents.wait", { id });
+    const wait = bindRequest({ id });
+    const waiting = wait.accept(this.#call(run, "agents.wait", wait.args));
     void waiting.catch(() => undefined);
     const worker: Binding["workers"][number] = { id, cwd: spec.cwd, oid: spec.oid, task };
     dispatch.nativeId = id; b.workers.push(worker); this.store.save(b);
+    request.check();
+    if (run.material && raw.model !== request.expected.model) throw new Error("Exact material worker model mismatch");
     if (raw.cwd !== spec.cwd || raw.runner !== "pi" || raw.transport !== "process" || (raw.residency !== undefined && raw.residency !== "session")) throw new Error("Native worker identity/cwd mismatch");
     if (attemptId) this.research!.native(spec.runId, attemptId, this.generation, { id, cwd: spec.cwd });
     if (run.draining || this.#draining) await this.#stop(run, target);
-    const result = object(await waiting);
+    const result = object(await waiting); request.check(); wait.check();
+    if (run.material && result.model !== request.expected.model) throw new Error("Exact material worker result model mismatch");
     if (result.id !== id || result.cwd !== spec.cwd || !TERMINAL.includes(result.status as Terminal)) throw new Error("Ambiguous native wait result");
     // Persist settlement facts while draining, never proposal/domain transitions.
-    worker.status = result.status as Terminal; this.store.save(b);
+    worker.status = run.material && (result.error || (result.exitCode !== undefined && result.exitCode !== null && result.exitCode !== 0)) ? "failed" : result.status as Terminal; this.store.save(b);
     if (attemptId) this.research!.native(spec.runId, attemptId, this.generation, { id, cwd: spec.cwd, status: worker.status });
     if (worker.status !== "completed" && !run.draining) throw new Error(`Worker ${id} ended ${worker.status}`);
   }

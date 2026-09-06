@@ -2,7 +2,7 @@
 
 `pi-fabric-arbor` is an independent, source-loaded Pi add-on for the Arbor v2 replacement described by the repository plan at `docs/Arbor/deep-refactoring-plan.md`.
 
-## Current checkpoint: PR4 exact-material evaluators, independent scoped verification PASS
+## Current checkpoint: PR5 owned material, independent scoped verification PASS
 
 - Pi loads `src/extension.ts` directly. No build, `dist/`, or `.test-dist/` is required.
 - Registration declares passive managed component metadata. It never starts inference, creates an actor or opens research storage.
@@ -14,13 +14,31 @@
 - Exactly one public skill, `fabric-arbor`, is registered. Packaged role/procedure assembly remains PR6/PR10 work.
 - CLI and stable source Web assets remain strictly read-only, with no live-owner attachment or Web server.
 
-PR4 adds packaged command, native agent-suite and finite configured-provider evaluation over **an explicitly supplied pair of committed material references**. It freezes the task/grade definition, explicitly loads subject prompt/skill bytes, charges every invocation and retains native evidence before grading. Native execution, evaluation validity, quality gates, descriptive analysis and the still-unimplemented incumbent decision are separate fields.
+PR4 adds packaged command, native agent-suite and finite configured-provider evaluation over **an explicitly supplied pair of committed material references**. It freezes the task/grade definition, explicitly loads subject prompt/skill bytes, charges every invocation and retains native evidence before grading. Native execution, evaluation validity, quality gates, descriptive analysis and incumbent decisions are separate facts.
 
-This is **not autonomous scored research**. Default `inspect` execution still uses the preserved PR3 proposal actor and read-only executors. PR4 `evaluate` is a deterministic exact-material seam, not dirty capture, candidate generation, incumbent adoption or source apply. These remain PR5+. Full partial-material continuation remains PR8. Read-only JSON exports include evaluation summaries; detailed derived records live at `runs/RUN/evaluations/EVALUATION.json`. See [PR4 evidence and precise acceptance scopes](docs/pr4-evaluator-evidence.md).
+This is **not autonomous scored research**. Default `inspect` execution still uses the preserved PR3 proposal actor and read-only executors. PR4 `evaluate` preserves its explicit committed-pair behavior. PR5 `material` adds dirty capture, isolated native worker invocations, exact candidate evaluation and owned incumbent adoption. PR6 role assembly/autonomous research and PR8 source apply/undo/partial-worker continuation remain pending. Read-only JSON exports include evaluation summaries; detailed derived records live at `runs/RUN/evaluations/EVALUATION.json`. See [PR4 evidence and precise acceptance scopes](docs/pr4-evaluator-evidence.md).
 
 `/arbor start` submits an exact action through the ordinary owning-Pi model/Fabric path, not an unchecked service call. `/arbor show RUN`, controls, review and exports use the same path. Submission is not a durable receipt or completion. [Commands/configuration](docs/consumer-installation.md), [exact action/schema manifest](docs/pr3-action-manifest.json) and [PR3 evidence/limitations](docs/pr3-interface-evidence.md) describe the boundaries.
 
 Schema enforce remains unavailable for this external delegation path. Commands explain the inactive owner without inference. The installed host also exhibits an earlier `Missing: extensions` initialization failure under enforce; that is retained as a limitation, not claimed as a successful exact-reference guard test.
+
+## PR5 dirty material and owned incumbent
+
+In the owning Pi, select `execution: "material"`, a frozen evaluator definition, exact `material.mutablePaths` and `material.evaluationInputs` (file/directory prefixes, not globs), and `material.selectedUntracked`. Writable worker tools must be explicitly configured through `roleTools.executor`; `inspect` remains read-only. For capture definitions, use the canonical source root and `oid: "capture"` in both material refs. Start replaces those placeholders with the full captured tree and persists the resolved definition.
+
+```text
+/arbor start {"runId":"owned-material","overrides":{"execution":"material","material":{"mutablePaths":["prompt.md"],"evaluationInputs":["checks"],"selectedUntracked":[]},"roleTools":{"executor":["read","write","edit","bash"]},"evaluator":{"kind":"agent-suite","definition":"/absolute/evaluation.json"}}}
+```
+
+Start captures and evaluates the baseline (command evaluation still enters through the separate execute-policy action). The owning-Pi `arbor.propose` / `arbor.dispatch` operations admit **one explicit hypothesis-bound native worker**, then wait, freeze its exact material and restore its worktree. `arbor.evaluate` accepts `{attemptId, evaluationId}` and never a caller score. This is the production material journey, not the future automatic actor-led loop. `/arbor keep RUN NODE` selects matching current-incumbent evidence; review mode requires a real `arbor.review` dialog for a pending choice naming that exact evaluation before keep.
+
+- Original root/OID, owned repository/baseline/candidate and protected evaluation-input identity are distinct. Git sources capture current indexed paths' working bytes without refreshing or writing the original index. A staged deletion left on disk is untracked and excluded unless selected. Ignored selections are refused; non-Git roots use an external owned repository and Git ignore rules without initializing source.
+- Modes, symlinks, binary bytes, deletions and NUL-delimited filenames are preserved. Two inventories compare content/stat/index identity to detect concurrent changes. Unresolved merge stages, submodules, sparse/skip-worktree cases, special files, invalid paths and over-bound captures are refused. Capture is limited to 4096 files / 16 MiB; UTF-8 filenames are required.
+- Candidate worktrees start detached. Only settled native writers can freeze; worker commits/staging and rejected partial trees remain reachable under owned refs. Restore returns owned worktrees to their exact detached parent. No source apply or automatic artifact cleanup occurs.
+- Evaluators read separate whole-tree snapshots, including protected inputs. Added/changed evaluation files invalidate exactness; evaluators that write into their input tree are currently unsupported. Escaping evaluation symlinks and non-UTF-8 link targets are refused; owned capture retains raw link bytes without normalization. Trusted worktrees are not containment, and arbitrary background descendants are not guaranteed stopped.
+- A keep requires valid native/check/task evidence for the exact candidate/spec/epoch against the **current incumbent**. BigInt decimal gain must be strictly positive and meet the saved threshold. Relative gain uses incumbent magnitude (`0.01` means 1%); zero denominators are inconclusive and require an absolute policy. Ties never win. Command spread at least as large as observed gain, or mixed paired-task gains/losses, is inconclusive. A separately charged `recheck` may supply fresh evidence; no significance claim is made.
+- Changed integration material is re-evaluated through the production evaluator. SQLite records integration intent before Git CAS, then commits the incumbent/decision together. An interrupted keep retains the intent; exact replay adopts an already-present target, retries only the predecessor and refuses another ref value. Replay is proven in the still-current owner after durable intent survives a store reopen. A pending integration intent after generation replacement remains blocked; generalized reconciliation is PR8. Ambiguous launch/cleanup blocks rather than redispatching.
+- Export generation is owner-only and embeds `captured baseline -> owned incumbent`, not `source HEAD -> candidate`. Thus the patch excludes the user's pre-existing dirty work. CLI/browser only retrieve existing exports. See [PR5 evidence, exact gates and limitations](docs/pr5-material-evidence.md).
 
 ## Exact-material evaluation
 
@@ -43,7 +61,7 @@ The [packaged deterministic example](examples/pr4-agent-improvement/README.md) c
 - Paired task summaries include failures and an observed delta range. Repeats are grouped within tasks, not counted as independent tasks. This is descriptive evidence, not a confidence interval or statistical superiority. Unsupported analysis methods, contradictory aggregation/repeat policy and unknown quality vetoes block selection. Supported quality vetoes are `no-native-failures` and, for agent suites, `all-tasks-correct`.
 - Interruption returns `INTERRUPTED`. Explicit resume checks the saved native owner, component, source cwd/OID, epoch, definition, catalog and snapshot/request identities. Known subject and judge native completions are re-observed and ingested idempotently; infrastructure failures are not invalid grades, and completion requires every invocation ingested. Unknown/ambiguous launches are not retried. Native/provider requests use detached immutable expected bindings, with mutation checks across awaits; poisoned execution requires a new measurement rather than resume. When retirement lost the deadline receipt, recovered execution stays invalid rather than guessing it succeeded within the deadline.
 
-Authoritative feedback uses `arbor.evaluate` with the current run binding and `payload: {attemptId: "exact-material", evaluationId: "unique-id", purpose: "feedback"}` (or `recheck`). This evaluates the saved exact pair, never an arbitrary worker-supplied scalar or changed cwd. Candidate freezing and executor-scoped feedback on new material arrive with PR5/PR6.
+Authoritative feedback uses `arbor.evaluate` with the current run binding and `payload: {attemptId: "exact-material", evaluationId: "unique-id", purpose: "feedback"}` (or `recheck`). This evaluates the saved exact pair, never an arbitrary worker-supplied scalar or changed cwd. In PR5 material mode, use the settled attempt ID instead of `exact-material`; each evaluation freezes the current-incumbent/selected-candidate pair. Worker-initiated feedback and autonomous selection remain PR6.
 
 ### Optional evaluator catalog and presets
 
@@ -105,14 +123,15 @@ npm run check
 npm run test:pr2:e2e
 npm run test:pr3:e2e
 npm run test:pr4:e2e
+npm run test:pr5:e2e
 npm run test:pr1
 npm run test:source:retained
 npm pack --ignore-scripts --json
 ```
 
-Normal `npm test` and `npm run check` retain the five package/install cases and 92 source-characterization cases, and include the managed PR2, transactional PR3 and PR4 evaluator source tests. Both typechecks are no-emit. The source-loaded fingerprint oracle and legacy source Web characterization remain unchanged.
+Normal `npm test` and `npm run check` retain the five package/install cases and 92 source-characterization cases, and include the managed PR2, transactional PR3, PR4 evaluator and PR5 material source tests. Both typechecks are no-emit. The source-loaded fingerprint oracle and legacy source Web characterization remain unchanged.
 
-The separate PR2 host lane loads the production extension through real Pi/Fabric. Native processes, actor asks, worker waits and reload are real; inference is deterministic local fixture code, including a loopback model for extension-free workers. All dependencies resolve from this app's `node_modules`. Disposable profiles strip inherited `PI_*`/`ARBOR_*` values and retain host traces under `.runtime/pr2-host/`, `.runtime/pr3-host/` and `.runtime/pr4-host/`. No paid model or dataset download is used.
+The separate PR2 host lane loads the production extension through real Pi/Fabric. Native processes, actor asks, worker waits and reload are real; inference is deterministic local fixture code, including a loopback model for extension-free workers. All dependencies resolve from this app's `node_modules`. Disposable profiles strip inherited `PI_*`/`ARBOR_*` values and retain host traces under `.runtime/pr2-host/`, `.runtime/pr3-host/`, `.runtime/pr4-host/` and `.runtime/pr5-host/`. No paid model or dataset download is used.
 
 See [PR2 evidence and limitations](docs/pr2-managed-owner-evidence.md), [PR1 source-install evidence](docs/pr1-source-install-evidence.md) and [PR0 owner-local evidence](docs/pr0-owner-local-evidence.md). The separate `npm run test:pr0:e2e` lane was not rerun for PR2: its source/fixtures remain unchanged, while the new lane exercises production code rather than the probe.
 

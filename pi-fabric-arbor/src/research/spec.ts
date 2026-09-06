@@ -16,11 +16,11 @@ export interface Config {
   roleTools: { coordinator: string[]; executor: string[] };
   search: { maxDepth: number; maxChildren: number; concurrency: number; maxActorTurns: number; mode: string };
   limits: { attempts: number; evaluatorCalls: number; activeMs: number; artifactBytes: number; tokenCeiling: number | null; costCeiling: string | null };
-  sourceRefs: string[]; preset: string | null; execution: "inspect" | "deferred" | "evaluate";
+  sourceRefs: string[]; preset: string | null; execution: "inspect" | "deferred" | "evaluate" | "material";
 }
 export interface ResolvedSpec {
   version: 2; config: Config; evaluation: EvaluationDefinition | null; origins: Record<string, string>; identity: string;
-  source: { root: string; oid: string | null; materialId: string; capture: "source-reference-not-candidate-snapshot" };
+  source: { root: string; oid: string | null; materialId: string; capture: "source-reference-not-candidate-snapshot" | "owned-snapshot" };
   roles: Record<"coordinator" | "executor" | "subject", { model: string | null; origin: string; instructionsId: string | null; tools: string[]; requires: string[]; resultContract: string }>;
   enforcement: { attempts: "transactional"; evaluatorCalls: "transactional"; activeTime: "dispatch-admission"; tokens: "observational"; cost: "observational"; artifacts: "export-admission" };
 }
@@ -57,6 +57,7 @@ export async function resolveSpec(cwd: string, profile: Record<string, unknown>,
   for (const field of ["mutablePaths", "evaluationInputs", "selectedUntracked"] as const) {
     for (const path of config.material[field]) if (isAbsolute(path) || path.split(/[\\/]/u).includes("..") || !relative(config.material.root, join(config.material.root, path))) throw new Error(`material.${field}: expected a relative child path`);
   }
+  if (config.execution !== "material" && config.roleTools.executor.some(t => !["read", "grep", "find", "ls"].includes(t))) throw new Error("Writable executor tools require explicit material execution; inspect stays read-only");
   if (config.objective.minimumGain.startsWith("-") || config.limits.costCeiling?.startsWith("-")) throw new Error("Gain and cost ceiling must be nonnegative exact decimals");
   for (const role of ["coordinator", "executor"] as const) if (config.roles[role] === null) { config.roles[role] = activeModel ?? null; origins[`roles.${role}`] = activeModel ? "active-Pi-model" : "unknown"; }
   if (config.execution === "inspect" && (!config.roles.coordinator || !config.roles.executor)) throw new Error("Select exact available coordinator/executor models; unknown is not an executable identity");
@@ -69,7 +70,7 @@ export async function resolveSpec(cwd: string, profile: Record<string, unknown>,
     subject: { model: config.roles.subject, origin: origins["roles.subject"]!, instructionsId: null, tools: [], requires: [], resultContract: "unavailable-PR4" },
   };
   let evaluation: EvaluationDefinition | null = null;
-  if (config.execution === "evaluate") {
+  if (config.execution === "evaluate" || config.execution === "material") {
     const path = isAbsolute(config.evaluator.definition) ? config.evaluator.definition : join(cwd, config.evaluator.definition);
     const bytes = await readFile(path, "utf8"); if (bytes.length > 65536) throw new Error("Evaluation definition exceeds bound");
     evaluation = validateDefinition(JSON.parse(bytes));

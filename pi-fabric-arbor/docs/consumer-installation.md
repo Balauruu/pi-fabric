@@ -23,7 +23,7 @@ Setup atomically merges one enabled `{id:"arbor", component:"arbor"}` entry into
 
 Doctor distinguishes installed, configured, enabled, observed and tested capabilities. An active component does not prove enabled inference: disabled Fabric agents retain descriptors. An unavailable owner causes research commands to report diagnostics without submitting inference. Schema enforce is unsupported for this delegation path; the installed host's additional `Missing: extensions` startup failure is recorded in [PR3 evidence](pr3-interface-evidence.md). Arbor does not downgrade policy or patch Fabric.
 
-## PR3 owning-Pi commands
+## Owning-Pi commands
 
 ```text
 /arbor start
@@ -43,11 +43,11 @@ Doctor distinguishes installed, configured, enabled, observed and tested capabil
 
 A command submits an exact allowlisted action request through Pi's normal model/Fabric tool path. It does not invoke an unchecked service, bypass Fabric permissions or introduce a transport. The request can be queued behind the current Pi turn. Submission is **not** a durable control receipt or completion. Controls resolve the saved revision before submission and can still be rejected if it changes. Programmatic owning-Pi callers can use the exact schemas for explicit idempotency keys.
 
-`start` resolves and stores a fresh spec, then by default runs a bounded proposal-only actor and **read-only native observation attempts**. `overrides.execution:"deferred"` saves configuration without inference. Non-Git configuration is accepted, but native capture remains blocked pending PR5. Source references are not frozen candidate snapshots. Five attempts, concurrency one and eight actor turns are admission bounds, not a promise to exhaust the attempt budget.
+`start` resolves and stores a fresh spec, then by default runs a bounded proposal-only actor and **read-only native observation attempts**. `overrides.execution:"deferred"` saves configuration without inference. `execution: "evaluate"` runs a frozen committed pair. `execution: "material"` captures dirty Git or non-Git input in an external owned repository, measures its baseline and permits explicit native candidate dispatch/evaluation/keep. See [PR5 material configuration and limits](../README.md#pr5-dirty-material-and-owned-incumbent). Only `material` mode captures source bytes; observation source references are not snapshots. Five attempts, concurrency one and eight actor turns are admission bounds, not a promise to exhaust the attempt budget.
 
-Pause stops new dispatch at the current boundary. Steering is stored for the next ask. Cancellation receipts are queued acknowledgments, while inspection records actual terminal cleanup. Native stopped-actor/partial-material resume is explicitly unavailable until PR8. Deferred configuration resume uses the saved spec without re-reading defaults. Unknown owners/generations and ambiguous handles never cause redispatch.
+Pause stops new dispatch at the current boundary; it cannot mask interrupted or cleanup-pending material work. Terminal material runs cannot be reopened by pause/resume; start a new run instead. Quiescent paused material runs resume explicitly, with command evaluation remaining on the execute-policy route. Steering is stored for the next ask. Cancellation receipts are queued acknowledgments, while inspection records actual terminal cleanup. Native stopped-actor/partial-material resume is explicitly unavailable until PR8. Deferred configuration resume uses the saved spec without re-reading defaults. Unknown owners/generations and ambiguous handles never cause redispatch.
 
-Review opens an actual owning-Pi user dialog **after** Fabric permission. It binds the answer to the exact pending decision, source reference, epoch, revision and native session. Supplied approval booleans/receipts are invalid; dismissal/timeout never approves. This only approves a research choice, never a measured win or source write. Keeping remains blocked without evaluator evidence. Apply/undo return concrete unavailable receipts until workspace/preimage reconciliation ships. Export currently generates an idempotent **unscored JSON projection**, not a complete research report.
+Review opens an actual owning-Pi user dialog **after** Fabric permission. It binds the answer to the exact pending decision, source reference, epoch, revision and native session. Supplied approval booleans/receipts are invalid; dismissal/timeout never approves. This only approves a research choice, never a measured win or source write. Keeping remains blocked without evaluator evidence. Apply/undo return concrete unavailable receipts until workspace/preimage reconciliation ships. Export generates an idempotent JSON projection, plus a captured-baseline-to-incumbent patch in material mode. It is not a complete autonomous research report.
 
 ## Configuration and exact public contracts
 
@@ -70,7 +70,7 @@ await tools.call({ ref: "arbor.inspect", args: { runId: "inspection-1" } });
 
 The PR2 lifecycle substrate has explicit diagnostic names `arbor.substrateStart`, `arbor.substrateInspect`, `arbor.substrateCancel`, all listed in the manifest. Their original bounded execution arguments are not a legacy v1 reader or a fallback for product research. Diagnostic routes cannot control research runs. Their lifecycle assertions remain active in the PR2 gate.
 
-The coordinator commits only `agents.self`; it cannot dispatch workers or resolve Arbor mutation refs. Workers use native read/grep/find/ls, `recursive:false`, `extensions:false`. Their selected model must work without extension-only registration, for example through a built-in or `models.json` provider. Main availability does not prove child availability. Native failure is never a score.
+The coordinator commits only `agents.self`; it cannot dispatch workers or resolve Arbor mutation refs. Observation workers use native read/grep/find/ls. Material workers may use explicitly configured write/edit/bash tools in isolated owned worktrees. Both use `recursive:false`, `extensions:false`. Their selected model must work without extension-only registration, for example through a built-in or `models.json` provider. Main availability does not prove child availability. Native failure is never a score.
 
 ## Review and evidence boundaries
 
@@ -82,6 +82,6 @@ Native evidence has an immutable identity and explicit attempt/material/epoch/ge
 
 Exactly one public `fabric-arbor` skill is packaged; internal role/reference files are not separately discovered skills. The standalone CLI only supports availability/assets/asset and existing-file inspect/replay/artifact retrieval. Every mutation verb is rejected in attached/offline modes; no attachment transport exists. Browser assets remain static and read-only, with no server, mutation forms or routes. Reads never generate exports.
 
-Reload source updates with `/reload`. `npm run check` includes package/install, retained source, PR2 and PR3 source tests. Run `npm run test:pr2:e2e` and `npm run test:pr3:e2e` for actual Pi/Fabric fake-model gates. See [PR3 evidence](pr3-interface-evidence.md) for exact passing scope and outstanding work.
+Reload source updates with `/reload`. `npm run check` includes package/install, retained source and PR2-PR5 source tests. Run `npm run test:pr2:e2e`, `npm run test:pr3:e2e`, `npm run test:pr4:e2e` and `npm run test:pr5:e2e` for actual Pi/Fabric local-model gates. See [PR3 evidence](pr3-interface-evidence.md) for exact passing scope and outstanding work.
 
 Removing the package does not authorize deletion of databases, reports, artifacts, keys, workspaces or historical evidence. No legacy history is imported or migrated.

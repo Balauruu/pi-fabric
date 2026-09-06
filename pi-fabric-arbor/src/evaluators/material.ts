@@ -4,10 +4,12 @@ import { dirname, isAbsolute, join, relative, sep } from "node:path";
 import { promisify } from "node:util";
 import { digest } from "../research/contracts.js";
 import type { MaterialRef, Snapshot } from "./contracts.js";
+import { freezeTree, verifyTree } from "../material/evaluation.js";
 const exec = promisify(execFile);
 function child(path: string): void { if (!path || isAbsolute(path) || path.split(/[\\/]/u).some(p => p === ".." || p === "." || !p)) throw new Error("Expected exact relative material file"); }
 /** PR4 seam: selected regular UTF-8 files at a full committed OID, NOT dirty capture. */
 export async function freezeMaterial(ref: MaterialRef, output: string): Promise<Snapshot> {
+  if (ref.format === "git-tree") return freezeTree(ref, output);
   const root = await realpath(ref.root);
   if (root !== ref.root) throw new Error("Material root must be canonical");
   const rel = relative(root, output); if (!rel || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel))) throw new Error("Evaluation output must be outside source material");
@@ -37,6 +39,7 @@ export async function freezeMaterial(ref: MaterialRef, output: string): Promise<
   await verifyMaterial(snapshot); return snapshot;
 }
 export async function verifyMaterial(s: Snapshot): Promise<void> {
+  if (s.format === "git-tree") return verifyTree(s);
   if (await realpath(s.root) !== s.root || await realpath(s.directory) !== s.directory || `snapshot-${digest({ root: s.root, oid: s.oid, contents: s.contents, executable: s.executable })}` !== s.id) throw new Error("Snapshot immutable identity changed");
   if (new Set(s.files).size !== s.files.length || Object.keys(s.contents).length !== s.files.length || Object.keys(s.executable).length !== s.files.length || s.files.some(path => !Object.hasOwn(s.contents, path) || !Object.hasOwn(s.executable, path))) throw new Error("Snapshot selected-file coverage changed");
   for (const [path, text] of Object.entries(s.contents)) {

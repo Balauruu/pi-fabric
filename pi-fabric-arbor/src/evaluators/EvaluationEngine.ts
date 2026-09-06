@@ -6,43 +6,47 @@ import type { OwnerExecution } from "../managed/OwnerExecution.js";
 import type { NativeOwner } from "../managed/contracts.js";
 import type { ResearchStore } from "../research/ResearchStore.js";
 import { canonical, digest, type BoundCommand } from "../research/contracts.js";
-import { invocationId, nativeSuccess, type EvaluationRecord, type Invocation } from "./contracts.js";
+import { invocationId, nativeSuccess, type EvaluationRecord, type Invocation, type MaterialRef } from "./contracts.js";
 import { freezeMaterial, subjectBootstrap, verifyMaterial } from "./material.js";
 import { analyze, commandRun, parseMetric, units } from "./measurement.js";
 import type { EvaluatorCatalog } from "./catalog.js";
+import { Workspace } from "../material/Workspace.js";
 const exec = promisify(execFile);
 /** Finite admitted evaluation, not a research loop or alternative child runtime. */
 export class EvaluationEngine {
   #active = new Map<string, { id: string; purpose: string; promise: Promise<EvaluationRecord>; abort: AbortController }>();
   #draining = false;
   constructor(readonly owner: OwnerExecution, readonly store: ResearchStore, readonly stateDirectory: string, readonly catalog: EvaluatorCatalog) {}
-  async evaluate(runId: string, id: string, signal?: AbortSignal, purpose: "candidate" | "feedback" | "recheck" = "candidate"): Promise<EvaluationRecord> {
+  async evaluate(runId: string, id: string, signal?: AbortSignal, purpose: "candidate" | "feedback" | "recheck" = "candidate", pair?: { baseline: MaterialRef; candidate: MaterialRef }): Promise<EvaluationRecord> {
     if (this.#draining) throw new Error("Evaluator generation draining");
     const active = this.#active.get(runId); if (active) { if (active.id !== id || active.purpose !== purpose) throw new Error("Run evaluator capacity occupied"); return active.promise; }
     if (this.#active.size >= 128) throw new Error("Evaluator active-run capacity exhausted");
+    const frozen = this.store.get(runId)!; const { identity, ...body } = frozen.spec;
+    if (identity !== digest(body)) throw new Error("Frozen resolved spec identity changed");
     const existing = this.store.evaluation(runId, id);
+    if (pair && existing && (canonical(pair.baseline) !== canonical(existing.definition.baseline) || canonical(pair.candidate) !== canonical(existing.definition.candidate))) throw new Error("Evaluation ID bound to different exact material pair");
     if (existing && existing.purpose !== purpose) throw new Error("Conflicting evaluation invocation purpose for stable ID");
     if (existing?.state === "completed") return existing;
     if (existing && existing.state !== "running") throw new Error("Evaluation requires explicit immutable-bound resume");
     this.store.beginEvaluation(runId, this.owner.generation);
     const abort = new AbortController(), onAbort = () => abort.abort();
     signal?.addEventListener("abort", onAbort, { once: true }); if (signal?.aborted) abort.abort();
-    const promise = this.#execute(runId, id, abort.signal, purpose, existing);
+    const promise = this.#execute(runId, id, abort.signal, purpose, existing, pair);
     this.#active.set(runId, { id, purpose, promise, abort });
     try { return await promise; } finally { signal?.removeEventListener("abort", onAbort); this.#active.delete(runId); }
   }
-  async #execute(runId: string, id: string, signal: AbortSignal, purpose: "candidate" | "feedback" | "recheck", saved?: EvaluationRecord): Promise<EvaluationRecord> {
+  async #execute(runId: string, id: string, signal: AbortSignal, purpose: "candidate" | "feedback" | "recheck", saved?: EvaluationRecord, pair?: { baseline: MaterialRef; candidate: MaterialRef }): Promise<EvaluationRecord> {
     const run = this.store.get(runId)!;
-    const definition = run.spec.evaluation;
+    const definition = saved?.definition ?? (run.spec.evaluation ? { ...structuredClone(run.spec.evaluation), ...structuredClone(pair ?? {}) } : null);
     if (!definition) throw new Error("Frozen evaluator definition unavailable; no caller score accepted");
     let e = saved;
     try {
       if (!e) {
         signal.throwIfAborted();
-        const output = join(this.stateDirectory, "runs", runId, "material");
+        const output = join(this.stateDirectory, "runs", runId, "material", ...(run.material ? [id] : []));
         const baseline = await freezeMaterial(definition.baseline, output), candidate = await freezeMaterial(definition.candidate, output);
         e = { id, runId, purpose, epoch: run.epoch, specId: run.spec.identity, generation: this.owner.generation, ownerBinding: digest(run.owner), definition, definitionId: digest(definition), snapshots: { baseline, candidate }, catalogId: this.catalog.id,
-          providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null, bindings: [{ generation: this.owner.generation, componentId: this.owner.componentId, catalogId: this.catalog.id, providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null }], state: "running", invocations: [], analysis: null, quality: { required: run.spec.config.objective.qualityVetoes, passed: false, limitedValidation: definition.kind === "command" && definition.command!.checks.length === 0 }, validity: "pending", incumbentDecision: "not-evaluated-PR5", error: null };
+          providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null, bindings: [{ generation: this.owner.generation, componentId: this.owner.componentId, catalogId: this.catalog.id, providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null }], state: "running", invocations: [], analysis: null, quality: { required: run.spec.config.objective.qualityVetoes, passed: false, limitedValidation: definition.kind === "command" && definition.command!.checks.length === 0 }, validity: "pending", incumbentDecision: run.material ? "separate-owned-decision" : "not-evaluated-PR5", error: null };
         this.store.saveEvaluation(e);
       }
       for (const task of definition.tasks) for (let repeat = 0; repeat < definition.repeats; repeat++) for (const condition of ["baseline", "candidate"] as const) {
@@ -65,7 +69,7 @@ export class EvaluationEngine {
       e.validity = e.invocations.every(i => i.valid) && e.quality.passed ? "valid" : "invalid";
       e.state = "completed"; this.store.saveEvaluation(e);
       await this.#artifact(e).catch(error => { e!.error = `Derived artifact unavailable: ${String(error)}`.slice(0, 4096); this.store.saveEvaluation(e!); });
-      this.store.settle(runId, this.owner.generation, "completed", "native-evaluation-completed; incumbent-not-decided", null, `eval-${id}`);
+      this.store.settle(runId, this.owner.generation, run.material ? "ready" : "completed", "native-evaluation-completed; incumbent-not-decided", null, `eval-${id}`);
       return e;
     } catch (error) {
       if (!e) throw error;
@@ -156,12 +160,13 @@ export class EvaluationEngine {
     if (this.#active.has(command.runId) || this.#draining) throw new Error("Resume requires quiescent evaluation boundary");
     const run = this.store.get(command.runId)!; this.store.check(run, command);
     if (canonical(owner) !== canonical(run.owner)) throw new Error("Different native owning Pi root/host/identity");
-    if (await realpath(run.spec.source.root) !== run.spec.source.root || (await exec("git", ["rev-parse", "HEAD"], { cwd: run.spec.source.root })).stdout.trim() !== run.spec.source.oid) throw new Error("Immutable source cwd/OID changed");
+    if (run.material) await new Workspace(join(this.stateDirectory, "runs", run.id, "workspace")).verify(run.material.capture);
+    else if (await realpath(run.spec.source.root) !== run.spec.source.root || (await exec("git", ["rev-parse", "HEAD"], { cwd: run.spec.source.root })).stdout.trim() !== run.spec.source.oid) throw new Error("Immutable source cwd/OID changed");
     const { identity: specId, ...specBody } = run.spec;
     if (specId !== digest(specBody)) throw new Error("Frozen resolved spec identity changed");
     const records = this.store.evaluations(run.id);
     for (const e of records) {
-      if (e.definitionId !== digest(e.definition) || e.specId !== run.spec.identity || e.definitionId !== digest(run.spec.evaluation) || e.catalogId !== this.catalog.id) throw new Error("Immutable evaluator/catalog identity changed; explicit new measurement required");
+      if (e.definitionId !== digest(e.definition) || e.specId !== run.spec.identity || canonical({ ...e.definition, ...(run.material ? { baseline: run.spec.evaluation!.baseline, candidate: run.spec.evaluation!.candidate } : {}) }) !== canonical(run.spec.evaluation) || e.catalogId !== this.catalog.id) throw new Error("Immutable evaluator/catalog identity changed; explicit new measurement required");
       if (e.definition.providerAction) this.catalog.binding(e.definition.providerAction);
       await verifyMaterial(e.snapshots.baseline); await verifyMaterial(e.snapshots.candidate);
       for (const i of e.invocations) if (i.state !== "ingested") {

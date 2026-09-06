@@ -33,7 +33,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 64,
-            "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
           },
           "files": {
             "type": "array",
@@ -42,8 +42,14 @@
               "minLength": 1,
               "maxLength": 4096
             },
-            "maxItems": 128,
+            "maxItems": 4096,
             "minItems": 1
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "git-tree"
+            ]
           }
         },
         "required": [
@@ -65,7 +71,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 64,
-            "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
           },
           "files": {
             "type": "array",
@@ -74,8 +80,14 @@
               "minLength": 1,
               "maxLength": 4096
             },
-            "maxItems": 128,
+            "maxItems": 4096,
             "minItems": 1
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "git-tree"
+            ]
           }
         },
         "required": [
@@ -1610,10 +1622,13 @@
                         "read",
                         "grep",
                         "find",
-                        "ls"
+                        "ls",
+                        "write",
+                        "edit",
+                        "bash"
                       ]
                     },
-                    "maxItems": 4,
+                    "maxItems": 7,
                     "minItems": 0
                   }
                 },
@@ -1734,7 +1749,8 @@
                 "enum": [
                   "inspect",
                   "deferred",
-                  "evaluate"
+                  "evaluate",
+                  "material"
                 ]
               }
             },
@@ -1755,6 +1771,232 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "material": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "capture": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 96,
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                          },
+                          "root": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096
+                          },
+                          "mutablePaths": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          },
+                          "evaluationInputs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          },
+                          "selectedUntracked": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          },
+                          "repository": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096
+                          },
+                          "baseline": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          },
+                          "originalOid": {
+                            "oneOf": [
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "evaluationInputId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          },
+                          "files": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "root",
+                          "mutablePaths",
+                          "evaluationInputs",
+                          "selectedUntracked",
+                          "repository",
+                          "baseline",
+                          "originalOid",
+                          "evaluationInputId",
+                          "files"
+                        ]
+                      },
+                      "incumbent": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "baselineEvaluation": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 96,
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "candidates": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 96,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                            },
+                            "directory": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "parent": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64
+                            },
+                            "oid": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 64
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "directory",
+                            "parent",
+                            "oid"
+                          ]
+                        },
+                        "maxItems": 100,
+                        "minItems": 0
+                      },
+                      "pending": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "commandId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "decisionId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "evaluationId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "expected": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              "target": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              "revision": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1000000
+                              }
+                            },
+                            "required": [
+                              "commandId",
+                              "decisionId",
+                              "evaluationId",
+                              "expected",
+                              "target",
+                              "revision"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "capture",
+                      "incumbent",
+                      "baselineEvaluation",
+                      "candidates",
+                      "pending"
+                    ]
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -2022,10 +2264,13 @@
                                     "read",
                                     "grep",
                                     "find",
-                                    "ls"
+                                    "ls",
+                                    "write",
+                                    "edit",
+                                    "bash"
                                   ]
                                 },
-                                "maxItems": 4,
+                                "maxItems": 7,
                                 "minItems": 0
                               }
                             },
@@ -2162,7 +2407,8 @@
                             "enum": [
                               "inspect",
                               "deferred",
-                              "evaluate"
+                              "evaluate",
+                              "material"
                             ]
                           }
                         },
@@ -2214,7 +2460,7 @@
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 64,
-                                    "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                                    "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
                                   },
                                   "files": {
                                     "type": "array",
@@ -2223,8 +2469,14 @@
                                       "minLength": 1,
                                       "maxLength": 4096
                                     },
-                                    "maxItems": 128,
+                                    "maxItems": 4096,
                                     "minItems": 1
+                                  },
+                                  "format": {
+                                    "type": "string",
+                                    "enum": [
+                                      "git-tree"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -2246,7 +2498,7 @@
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 64,
-                                    "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                                    "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
                                   },
                                   "files": {
                                     "type": "array",
@@ -2255,8 +2507,14 @@
                                       "minLength": 1,
                                       "maxLength": 4096
                                     },
-                                    "maxItems": 128,
+                                    "maxItems": 4096,
                                     "minItems": 1
+                                  },
+                                  "format": {
+                                    "type": "string",
+                                    "enum": [
+                                      "git-tree"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -2735,7 +2993,8 @@
                           "capture": {
                             "type": "string",
                             "enum": [
-                              "source-reference-not-candidate-snapshot"
+                              "source-reference-not-candidate-snapshot",
+                              "owned-snapshot"
                             ]
                           }
                         },
@@ -3407,6 +3666,27 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "epoch": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "specId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "baselineOid": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "candidateOid": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
                     "id": {
                       "type": "string",
                       "minLength": 1,
@@ -3720,7 +4000,8 @@
                     "incumbentDecision": {
                       "type": "string",
                       "enum": [
-                        "not-evaluated-PR5"
+                        "not-evaluated-PR5",
+                        "separate-owned-decision"
                       ]
                     },
                     "error": {
@@ -3737,6 +4018,10 @@
                     }
                   },
                   "required": [
+                    "epoch",
+                    "specId",
+                    "baselineOid",
+                    "candidateOid",
                     "id",
                     "purpose",
                     "state",
@@ -4324,7 +4609,7 @@
         ],
         "ordering": "ordered"
       },
-      "description": "Owning Pi: freeze a run; inspect native observations or evaluate an explicit exact-material pair. No candidate editing, incumbent adoption or source apply."
+      "description": "Owning Pi: freeze a run; inspect read-only observations, evaluate committed pairs, or capture dirty material in an owned repository. Material workers require explicit dispatch. No autonomous research or source apply."
     },
     {
       "ref": "arbor.inspect",
@@ -4359,6 +4644,232 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "material": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "capture": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 96,
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                          },
+                          "root": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096
+                          },
+                          "mutablePaths": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          },
+                          "evaluationInputs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          },
+                          "selectedUntracked": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          },
+                          "repository": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096
+                          },
+                          "baseline": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          },
+                          "originalOid": {
+                            "oneOf": [
+                              {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "evaluationInputId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          },
+                          "files": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "maxItems": 4096,
+                            "minItems": 0
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "root",
+                          "mutablePaths",
+                          "evaluationInputs",
+                          "selectedUntracked",
+                          "repository",
+                          "baseline",
+                          "originalOid",
+                          "evaluationInputId",
+                          "files"
+                        ]
+                      },
+                      "incumbent": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "baselineEvaluation": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 96,
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "candidates": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 96,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                            },
+                            "directory": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "parent": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 64
+                            },
+                            "oid": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 64
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "directory",
+                            "parent",
+                            "oid"
+                          ]
+                        },
+                        "maxItems": 100,
+                        "minItems": 0
+                      },
+                      "pending": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "commandId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "decisionId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "evaluationId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "expected": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              "target": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              "revision": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1000000
+                              }
+                            },
+                            "required": [
+                              "commandId",
+                              "decisionId",
+                              "evaluationId",
+                              "expected",
+                              "target",
+                              "revision"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "capture",
+                      "incumbent",
+                      "baselineEvaluation",
+                      "candidates",
+                      "pending"
+                    ]
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -4626,10 +5137,13 @@
                                     "read",
                                     "grep",
                                     "find",
-                                    "ls"
+                                    "ls",
+                                    "write",
+                                    "edit",
+                                    "bash"
                                   ]
                                 },
-                                "maxItems": 4,
+                                "maxItems": 7,
                                 "minItems": 0
                               }
                             },
@@ -4766,7 +5280,8 @@
                             "enum": [
                               "inspect",
                               "deferred",
-                              "evaluate"
+                              "evaluate",
+                              "material"
                             ]
                           }
                         },
@@ -4818,7 +5333,7 @@
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 64,
-                                    "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                                    "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
                                   },
                                   "files": {
                                     "type": "array",
@@ -4827,8 +5342,14 @@
                                       "minLength": 1,
                                       "maxLength": 4096
                                     },
-                                    "maxItems": 128,
+                                    "maxItems": 4096,
                                     "minItems": 1
+                                  },
+                                  "format": {
+                                    "type": "string",
+                                    "enum": [
+                                      "git-tree"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -4850,7 +5371,7 @@
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 64,
-                                    "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                                    "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
                                   },
                                   "files": {
                                     "type": "array",
@@ -4859,8 +5380,14 @@
                                       "minLength": 1,
                                       "maxLength": 4096
                                     },
-                                    "maxItems": 128,
+                                    "maxItems": 4096,
                                     "minItems": 1
+                                  },
+                                  "format": {
+                                    "type": "string",
+                                    "enum": [
+                                      "git-tree"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -5339,7 +5866,8 @@
                           "capture": {
                             "type": "string",
                             "enum": [
-                              "source-reference-not-candidate-snapshot"
+                              "source-reference-not-candidate-snapshot",
+                              "owned-snapshot"
                             ]
                           }
                         },
@@ -6011,6 +6539,27 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "epoch": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "specId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "baselineOid": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "candidateOid": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
                     "id": {
                       "type": "string",
                       "minLength": 1,
@@ -6324,7 +6873,8 @@
                     "incumbentDecision": {
                       "type": "string",
                       "enum": [
-                        "not-evaluated-PR5"
+                        "not-evaluated-PR5",
+                        "separate-owned-decision"
                       ]
                     },
                     "error": {
@@ -6341,6 +6891,10 @@
                     }
                   },
                   "required": [
+                    "epoch",
+                    "specId",
+                    "baselineOid",
+                    "candidateOid",
                     "id",
                     "purpose",
                     "state",
@@ -7763,7 +8317,7 @@
         ],
         "ordering": "ordered"
       },
-      "description": "Owning Pi: generate an unscored JSON research projection artifact idempotently. Never writes source material."
+      "description": "Owning Pi: generate a JSON projection and, for owned material, captured-baseline to incumbent patch idempotently. Never writes source material."
     },
     {
       "ref": "arbor.propose",
@@ -10416,7 +10970,7 @@
       },
       "risk": "write",
       "effect": {
-        "kind": "transactional",
+        "kind": "emission",
         "resources": [
           "arbor:research"
         ],
@@ -10834,7 +11388,7 @@
         ],
         "ordering": "ordered"
       },
-      "description": "Owning Pi UI only: request actual user response to exact pending decision after host permission. No supplied approval or receipt accepted; no measured keep/apply."
+      "description": "Owning Pi UI only: request actual user response to exact pending decision after host permission. No supplied approval or receipt accepted. Exact evaluation review cannot bypass measured keep rules or authorize source apply."
     },
     {
       "ref": "arbor.apply",
