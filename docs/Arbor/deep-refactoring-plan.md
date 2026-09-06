@@ -1,6 +1,6 @@
 # Deep-refactoring plan for pi-fabric-arbor
 
-Status: approved architecture revision and implementation plan; not a completed refactor. The revised owner-local PR0 falsification gate and repaired PR1 source-only package/install plus retained-characterization gate pass on local deterministic lanes recorded in `pi-fabric-arbor/acceptance-ledger.md`. PR2 is now the next unimplemented dependency; PR2-PR13 and all acceptance work beyond A01 plus the package half of A30 remain outstanding.
+Status: approved architecture revision and implementation plan; not a completed refactor. The revised owner-local PR0 gate, repaired PR1 source-only package/retained-characterization gate, and reviewed PR2 bounded managed execution substrate PASS on local deterministic lanes recorded in `pi-fabric-arbor/acceptance-ledger.md`. PR2 accepts A02/A26 only within that bounded substrate; broader A11/A29 remain PARTIAL. A01 and previously accepted read-only/package portions of A17/A22/A30 are preserved. PR3 is the next unimplemented dependency; PR3-PR13 and broader research/product acceptance remain outstanding.
 
 This document supersedes the previous proposal. It incorporates the responsibility review, keeps CLI and web strictly read-only, consolidates the upstream skill suite, and removes the profile-local benchmarking-skill dependency. It retains the agreed usability, measurement, source-loading, and simplification goals. This is the authoritative implementation plan. Requirements remain unverified unless the acceptance ledger records executed evidence; updating architecture text alone does not satisfy a milestone.
 
@@ -793,6 +793,8 @@ Replace admission/composition; register the managed owner-local `arbor` componen
 **Acceptance:** available capabilities activate without certificates; missing required refs give actionable diagnostics; no duplicate coordinator from reload/discovery; normal registration does not start research.
 
 **Risk/response:** stale generation or lifecycle races. Keep doctor/inspection available and launch no work when binding is unresolved.
+
+**Executed checkpoint:** reviewed PR2 bounded managed execution substrate PASS as recorded in `pi-fabric-arbor/docs/pr2-managed-owner-evidence.md`. `npm run check` passes both no-emit checks and 117 tests (5 package/install + 92 retained-source + 20 managed); `npm run test:pr2:e2e` passes 8 tests, including explicit clean print-host exits and the subprocess exit-guard regression. Production registration is passive; native owner binding, exact post-activation calls, proposal-only actor, bounded dispatch/owned waits, setup/doctor and second-root denial are exercised. A02/A26 pass only for this substrate. Broader A11/A29 remain PARTIAL: unreturned-create retirement retains `cleanup_pending`, stopped-actor replacement/resume and full dependency/resource-fault recovery are not accepted. PR3 is next; PR3-PR13 remain outstanding. No dependent implementation is included in this checkpoint.
 
 ### PR3. Fresh run specification, store, and public interface
 

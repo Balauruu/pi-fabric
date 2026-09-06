@@ -175,7 +175,7 @@ test("clean packed install source-loads in Pi, reloads edited source, and stays 
 
     const first = await rpc.request({ type: "prompt", message: "/arbor availability" });
     const firstNotice = await rpc.waitFor((record) => record.type === "extension_ui_request" && record.method === "notify" && record.message?.includes("pr1-source-a"), first.start);
-    assert.match(firstNotice.message, /component: not-registered-by-pr1/u);
+    assert.match(firstNotice.message, /managed-definition; setup-and-reload-to-enable/u);
 
     const layoutPath = join(installed, "src/package-layout.ts");
     const source = await readFile(layoutPath, "utf8");
@@ -185,7 +185,7 @@ test("clean packed install source-loads in Pi, reloads edited source, and stays 
     assert.equal(reload.response.success, true);
     const second = await rpc.request({ type: "prompt", message: "/arbor availability" });
     const secondNotice = await rpc.waitFor((record) => record.type === "extension_ui_request" && record.method === "notify" && record.message?.includes("pr1-source-b"), second.start);
-    assert.match(secondNotice.message, /extension: source-loaded/u);
+    assert.equal(JSON.parse(secondNotice.message).extension, "source-loaded");
 
     const rejected = await rpc.request({ type: "prompt", message: "/arbor start" });
     await rpc.waitFor((record) => record.type === "extension_error" && /read-only/u.test(record.error ?? ""), rejected.start);

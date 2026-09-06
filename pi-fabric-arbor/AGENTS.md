@@ -2,7 +2,7 @@
 
 ## V2 replacement work
 
-- Follow `../docs/Arbor/deep-refactoring-plan.md` for the v2 replacement. The owner-local PR0 gate is recorded in `acceptance-ledger.md`; textual checks never substitute for its E2E lane. The revised PR0 falsification gate and repaired PR1 source-install/source-characterization gate pass; PR2 is the next unimplemented dependency. PR1 accepts A01's source-package lane and only the package half of A30; fixture evidence never accepts later production requirements.
+- Follow `../docs/Arbor/deep-refactoring-plan.md` for the v2 replacement. The owner-local PR0 gate is recorded in `acceptance-ledger.md`; textual checks never substitute for its E2E lane. Use `src/managed/` for the production owner execution path and `npm run test:pr2:e2e` for its real-host gate; the PR0 probe is not the production driver. Keep broader acceptance and observed limitations in the ledger, never infer later production acceptance from fixture results.
 - Keep `npm run test:source:retained` source-executed and included in normal `npm test`/`npm run check`. It must retain the named model, Git, persistence/artifact, recovery/report, concurrency, evaluator-parser, and component/provider assertions without emitted paths. Superseded v1 certificate/admission/containment/writable-Web suites remain historical, not active gates, until PR13.
 - The managed Arbor component in the owning Pi host owns operational services and deterministic bounded dispatch/collection. Use captured post-activation `FabricComponentContext.call` only for exact declared public Fabric refs.
 - The persistent Pi actor chooses research direction through structured `agents.ask` proposals. It cannot mutate Arbor services, approve itself, dispatch workers, or commit domain transitions.

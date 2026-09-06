@@ -1,5 +1,17 @@
 # Acceptance ledger
 
+## V2 deep-refactor checkpoint - PR2 managed execution substrate
+
+The production `src/managed/` owner now replaces the active source facade's PR1-only limitation. Registration remains passive. Setup/doctor, exact definition-time public dependencies, captured post-activation calls, native owning root/host/identity binding, proposal-only persistent actor, bounded worker dispatch/owned waits and retained provider storage are implemented. CLI/browser remain read-only and there is no legacy admission/certificate dependency.
+
+**Scoped PR2 gates PASS:** normal `npm run check` passes both no-emit checks and 5 package/install + 92 retained-source + 20 managed tests (117 total); `npm run test:pr2:e2e` passes 8 tests (seven real Pi/Fabric host scenarios plus the subprocess exit-guard regression), with explicit successful print-host exit checks. The source-only package contains 31 assets including the new owner modules. Tests use app-local dependencies, isolated profiles and deterministic local inference, not paid models or a replacement execution driver.
+
+**Acceptance boundaries:** A02 and A26 pass for the bounded PR2 execution substrate. Broader A11/A29 remain PARTIAL. Real cancellation settles held create/ask/spawn, while an unreturned create revoked during retirement is honestly `cleanup_pending`: its idle native actor remains until host exit, with dispatch provenance retained and no automatic redispatch. Retained storage/close faults and genuinely missing requirement diagnostics include explicitly labeled lifecycle-seam evidence. Disabled-agent doctor/setup and second-native-root journal-preserving denial are real-host evidence. Full stopped-actor replacement, partial resume/reconciliation and the broader lease/resource fault matrix remain later work.
+
+A01 and the previously accepted read-only/package portions of A17/A22/A30 remain preserved; this does not accept scoring, complete product journeys, operational role assembly or later research views. Current actor commitments exclude Arbor mutations; workers are extension-free so those refs are absent, not merely exposed behind an auth guard.
+
+Exact commands, retained trace locations, source links and limitations are in [docs/pr2-managed-owner-evidence.md](docs/pr2-managed-owner-evidence.md). PR3 is next; PR3-PR13 remain outstanding. The checkpoint records below are historical evidence, superseded only within this stated PR2 scope.
+
 ## V2 deep-refactor checkpoint - revised owner-local PR0 gate PASS
 
 The 2026-09-05 generic owner-forwarding/host-callback blocker is **SUPERSEDED** by the approved owner-local architecture. On 2026-09-06, the revised source-loaded Pi/Fabric lane passed 11 host/seam tests on Pi 0.85.1 and Fabric 0.83.0. In addition to the earlier actor/worker ordering, cleanup, reload, role, evaluator, and interrupted-ingestion coverage, the lane now rejects every explicit contradictory or unknown `routed`/`local` discriminator for actor and agent stop results; authorizes the native run binding before entering cancellation drain; durably links actual returned actor/worker IDs to the native owner and snapshot/evaluation provenance; and proves owner-loss safety by exiting the original disposable Pi host, attempting recovery from a second native root, observing the recorded public handle absent, and blocking without redispatch or journal change.
@@ -16,7 +28,7 @@ Every clean-install subprocess strips inherited `PI_*` values. The Pi fixture re
 
 The 11-test PR0 host lane was not rerun: this repair did not touch its source, fixture, or integration tests, and the touched legacy fingerprint/Web paths are outside its execution path. Exact commands, counts, boundaries, and that coverage choice are recorded in the evidence document.
 
-**Acceptance status:** A01 PASS for the repaired source extension/CLI/tests/assets/reload and normal retained-source lanes. A30 is PARTIAL: independent package assets and declared dependency resolution pass; PR12 research-view reuse remains pending. The PR1 portions of A17 and A22 prove only present read-only surfaces and one-skill packaging, not the later shared projection, operations, or complete journeys. PR2 is next. No PR2+ production behavior is accepted.
+**Acceptance status:** A01 PASS for the repaired source extension/CLI/tests/assets/reload and normal retained-source lanes. A30 is PARTIAL: independent package assets and declared dependency resolution pass; PR12 research-view reuse remains pending. The PR1 portions of A17 and A22 prove only present read-only surfaces and one-skill packaging, not the later shared projection, operations, or complete journeys. At the PR1 checkpoint, PR2 was next and no PR2+ production behavior was accepted; the scoped PR2 checkpoint above supersedes that historical status.
 
 The records below describe the legacy v1 Phase 7 implementation only. They are not evidence for any other A01-A30 v2 acceptance item.
 

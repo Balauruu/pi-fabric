@@ -1,87 +1,68 @@
 # Source-only installation and availability
 
-PR1 packages `pi-fabric-arbor` as an independent Pi extension with no emitted runtime. Pi packages execute with the user's OS authority, so review the source before installation.
+Pi packages execute with the user's OS authority. Review source before installation. The package requires Node 24+, peer `pi-fabric >=0.83.0 <0.84.0` and runtime `tsx@4.23.13`. Observed tests use Node 26.7.0, Pi 0.85.1 and Fabric 0.83.0.
 
-## Requirements
-
-- Node.js 24 or newer.
-- A trusted Pi project for project-local resources.
-- Declared peer `pi-fabric >=0.83.0 <0.84.0`.
-- Declared runtime dependency `tsx@4.23.13` for the standalone source CLI.
-
-The retained PR1 E2E uses Node 26.7.0, Pi 0.85.1, and Fabric 0.83.0. These distinguish tested versions from broader availability claims.
-
-## Install
-
-Published package:
-
-```sh
-pi install npm:pi-fabric-arbor@0.1.0
-```
-
-Reviewed local source:
+## Install and configure
 
 ```sh
 pi install /absolute/path/to/pi-fabric-arbor
+# After publication: pi install npm:pi-fabric-arbor@0.1.0
+pi list
+pi config
 ```
 
-For project scope, add `-l` while inside the trusted project. Use `pi list` to inspect the configured source and `pi config` to enable the package extension and public skill. Restart Pi after first activation or use `/reload` after source changes.
-
-The package manifest points directly to:
-
-```text
-extension: ./src/extension.ts
-skill:     ./skills/fabric-arbor/SKILL.md
-```
-
-No build, prepack hook, release hash generation, certificate generation, `dist/`, or `.test-dist/` is required.
-
-## Verify current availability
-
-Inside Pi:
+Use `-l` for project scope in a trusted project. Enable both package extensions in Pi. Registration is passive; it declares the `arbor` component but creates no actor or database. No build/prepack compilation or certificates are required.
 
 ```text
 /arbor availability
-/arbor assets
+/arbor setup
+/reload
+/arbor doctor
 ```
 
-Outside Pi:
+Setup atomically merges one enabled `{id:"arbor", component:"arbor"}` entry into the project's `.pi/fabric.json`. It preserves unrelated entries, inherits global component entries when no project array exists, and refuses duplicate/conflicting Arbor bindings. Default `stateDirectory` is beneath the active Pi profile's `arbor/<project-path-hash>/v2/`, not inside candidate material. Existing configured storage is preserved. No research starts.
 
-```sh
-pi-fabric-arbor availability
-pi-fabric-arbor assets
+Setup does not change agent, mesh, trust, Schema or approval policy. Enable native agents and project actors explicitly through Fabric configuration. Schema enforce blocks this delegation path; Arbor never silently downgrades it.
+
+Doctor distinguishes installed, configured, enabled, observed capabilities and tested behavior. Global/project values are configuration facts, not proof of effective runtime policy. Missing exact refs, waiting/failed owner lifecycle and disabled policies have actionable blockers. An active component can still have disabled runtime execution: Fabric 0.83.0 retains agent descriptors when `agents.enabled` is false. Doctor is not an inference test.
+
+## PR2 owner-only execution surface
+
+After activation, inspect schemas in the owning Pi Fabric session:
+
+```ts
+await tools.describe({ ref: "arbor.start" });
+await components.status({ id: "arbor.owner" });
 ```
 
-A correct PR1 installation reports:
+| Ref | Caller | Risk / effect |
+|---|---|---|
+| `arbor.start` | Live intrinsic owning Pi root | agent / ordered emission |
+| `arbor.cancel` | Same recorded native root/host/identity | agent / ordered emission |
+| `arbor.inspect` | Read-only committed provider caller | read / none |
 
-```text
-extension: source-loaded
-CLI: read-only
-Web: read-only-assets
-research: unavailable-until-pr2-plus
-component: not-registered-by-pr1
+`start` accepts a closed object with required `runId`, `materialId`, canonical Git `cwd`, exact `oid`, `policyId` and `objective`; optional `model` must be an exact available `provider/id`, otherwise the active Pi model is recorded. `maxWaves` and `concurrency` each default to 1 and allow only 1 or 2. This is a bounded inspect-only execution contract, not the future PR3 research specification or a scoring/review API. The generation retains at most 128 bindings.
+
+Workers have only native read/grep/find/ls tools, no recursion and no extensions, so Arbor/Fabric refs are absent. Their model must work without extension registration, such as a built-in or `models.json` provider. Extension-only model availability in Main is not proof of worker availability; failures remain failed execution, never scores. The coordinator uses a closed `agents.self` commitment and cannot resolve Arbor mutation or worker-dispatch refs.
+
+```ts
+// Explicitly chosen, existing material and policy only; do not copy placeholders.
+await tools.call({ ref: "arbor.start", args: {
+  runId: "inspection-1", materialId: "chosen-material",
+  cwd: "/canonical/chosen/git-material", oid: "<exact HEAD OID>",
+  policyId: "inspect-only-v1", objective: "Inspect this fixed material"
+} });
+await tools.call({ ref: "arbor.inspect", args: { runId: "inspection-1" } });
 ```
 
-Exactly one package skill, `/skill:fabric-arbor`, is discovered. Files under `skills/fabric-arbor/roles/` and `skills/fabric-arbor/references/` are internal assets and must not appear as skills or agents.
+Repeated identical starts in one generation return the same binding, without another actor. A replacement generation or another native root is blocked pending explicit reconciliation; PR2 provides no automatic resume/adoption. Cleanup uncertainty, including a revoked unreturned create handle, retains dispatch provenance as `cleanup_pending`. Never treat a queued/remote stop as local completion or delete retained evidence to clear it.
 
-## Read-only boundary
+## Read-only surfaces and updates
 
-The CLI may inspect a bounded existing file, replay existing JSONL, retrieve an existing regular artifact beneath an explicit root, or read a packaged asset. It cannot attach to a live owner or setup/start/control/review/apply/undo/generate exports. The packaged browser assets contain no forms, transport, request code, or mutation path. PR1 does not start a Web server.
+`/arbor availability` and `/arbor assets` remain available; `/arbor start` directs callers to the owning Fabric provider rather than executing a separate command path. Exactly one `/skill:fabric-arbor` is packaged. Roles and conditional references are internal assets, not additional skills or agents.
 
-Setup and doctor belong to PR2. Production role assembly belongs to PR6/PR10, and full research presentation belongs to PR12. Do not use old v1 certificates, binaries, providers, or intent APIs as v2 substitutes.
+The standalone CLI only supports availability/assets/asset and bounded existing-file inspect/replay/artifact retrieval. It cannot setup, attach, start, control, review, apply/undo or generate exports. Browser assets remain static and read-only, with no server.
 
-## Update and uninstall
+Reload source updates with `/reload`. `npm run check` runs package/install, retained source and managed tests with no emitted files; `npm run test:pr2:e2e` runs the separate real-host lane. See [PR2 evidence](pr2-managed-owner-evidence.md) for observed and unverified boundaries. Full research, operational role assembly and resume remain later PRs, not legacy v1 compatibility routes.
 
-A package source update becomes visible after Pi reload; no compilation step is involved. For a source checkout, `npm test` and `npm run check` execute the clean package/install cases and the named retained TypeScript characterization lane without `dist/` or `.test-dist/`. The retained lane covers model arithmetic/state/schema, Git noninterference/workspaces/promotion, persistence/artifacts, recovery and reports, command concurrency, evaluator parsing, and component/provider behavior.
-
-The clean-install harness removes every inherited `PI_*` variable from npm, CLI, import, and Pi fixture subprocesses. Its Pi process receives only fixture-local `PI_CODING_AGENT_DIR`, `PI_OFFLINE=1`, and `PI_SKIP_VERSION_CHECK=1`; shared session, mesh, provider, model, and configuration identities are not inherited.
-
-Superseded v1 certificate/admission, containment, authorization/promotion, Phase 7, retention, and writable-Web suites are historical pending PR13, not active certification gates. Their exact disposition is recorded in `docs/pr1-source-install-evidence.md`; no pass is implied for those excluded suites.
-
-```sh
-pi remove npm:pi-fabric-arbor
-# or project scope
-pi remove -l npm:pi-fabric-arbor
-```
-
-Removing package registration does not authorize deletion of existing user databases, reports, artifacts, keys, workspaces, or certification evidence. PR1 does not scan, migrate, or remove those paths.
+Remove registration with `pi remove npm:pi-fabric-arbor` (or `-l` for project scope). Removal does not authorize deletion of user databases, reports, artifacts, keys, workspaces or certification evidence.

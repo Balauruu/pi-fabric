@@ -53,14 +53,16 @@ test("active package manifest has only source exports, one read-only bin, and on
   assert.equal(manifest.files.some((path: string) => path.startsWith("certification/")), false);
 });
 
-test("source extension registration is passive and publishes no research surface", () => {
+test("source extension registration is passive and only declares managed component metadata", async () => {
   const registrations: Array<{ name: string; command: { handler(args: string, context: any): unknown } }> = [];
-  piFabricArbor({ registerCommand(name, command) { registrations.push({ name, command }); } });
+  const definitions: unknown[] = [];
+  await piFabricArbor({ events: { emit(_name: string, event: unknown) { definitions.push(event); }, on() {} }, registerCommand(name: string, command: any) { registrations.push({ name, command }); } } as any);
   assert.deepEqual(registrations.map((entry) => entry.name), ["arbor"]);
+  assert.equal(definitions.length, 1);
   const messages: string[] = [];
-  registrations[0]!.command.handler("availability", { ui: { notify(message: string) { messages.push(message); } } });
-  assert.match(messages[0]!, /research: unavailable-until-pr2-plus/u);
-  assert.throws(() => registrations[0]!.command.handler("start", { ui: { notify() {} } }), /read-only/u);
+  await registrations[0]!.command.handler("availability", { hasUI: true, ui: { notify(message: string) { messages.push(message); } } });
+  assert.match(messages[0]!, /native-execution-substrate-only/u);
+  await assert.rejects(async () => registrations[0]!.command.handler("start", { ui: { notify() {} } }), /owning Pi Fabric/u);
 });
 
 test("all declared skill, role, reference, and read-only Web assets resolve from source", async () => {
