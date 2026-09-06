@@ -4,7 +4,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { ArborError } from "../domain/errors.js";
 import { canonicalJson, digestCanonical, sha256 } from "../util/canonical.js";
 import { git, assertSafeRelativePath } from "./git-process.js";
-import { captureRepositoryFingerprintOracleV1 } from "./fingerprint-oracle.js";
+import { captureRepositoryFingerprintOracleV1, REPOSITORY_FINGERPRINT_ORACLE_TOOL_DIGEST_V1 } from "./fingerprint-oracle.js";
 
 export interface FingerprintFileV1 {
   path: string;
@@ -125,7 +125,7 @@ export interface FingerprintBoundaryMetadataV1 {
 const FINGERPRINT_SCHEMA = "pi-fabric-arbor.repository-fingerprint-manifest.v1";
 export const REPOSITORY_FINGERPRINT_SCHEMA_DIGEST_V1 = sha256(FINGERPRINT_SCHEMA);
 export const REPOSITORY_FINGERPRINT_TOOL_DIGEST_V1 = sha256(readFileSync(new URL(import.meta.url)));
-export const REPOSITORY_FINGERPRINT_ORACLE_DIGEST_V1 = sha256(readFileSync(new URL("./fingerprint-oracle.js", import.meta.url)));
+export const REPOSITORY_FINGERPRINT_ORACLE_DIGEST_V1 = REPOSITORY_FINGERPRINT_ORACLE_TOOL_DIGEST_V1;
 
 function output(name: string, bytes: Buffer): FingerprintCommandOutputV1 {
   return { name, bytes: bytes.byteLength, digest: sha256(bytes), base64: bytes.toString("base64") };
@@ -310,6 +310,7 @@ export class RepositoryFingerprinter {
 
 export class IndependentRepositoryFingerprintOracle {
   async capture(options: FingerprintCaptureOptionsV1): Promise<RepositoryFingerprintManifestV1> { return captureRepositoryFingerprintOracleV1(options); }
+
   async requireMatch(options: FingerprintCaptureOptionsV1, primary: RepositoryFingerprintManifestV1): Promise<string> {
     const oracle = await this.capture(options);
     const primaryDigest = digestCanonical(comparable(primary));

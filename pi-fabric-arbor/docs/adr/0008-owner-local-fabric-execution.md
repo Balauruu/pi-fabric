@@ -1,0 +1,11 @@
+# Keep Arbor execution owner-local and actor decisions proposal-only
+
+Arbor v2 uses the managed component in the owning Pi host to validate and commit domain transitions and to perform bounded public `agents.*` orchestration through captured post-activation `FabricComponentContext.call`. The persistent Pi actor chooses research direction only through structured proposals. CLI and web remain strictly read-only.
+
+The owner binds each run to the intrinsic root, owner-host, and owner-identity returned by public `agents.self`, plus the component generation, initial material/cwds/Git OIDs, and grading policy. A replacement generation requires explicit reconciliation under the same native owner. The binding keeps bounded provenance links for actual returned actor/worker IDs and their snapshot/evaluation identities, but no participant status or scheduling state; Fabric remains the participant authority. Durable interrupted ingestion stores only Arbor research/evaluation facts and native IDs, not a participant or transcript registry.
+
+Cleanup is deliberately owner-local. Cancellation verifies the immutable native owner binding before entering drain or mutating cancellation state. Only a target-validated local terminal `agents.stop` result can confirm termination. Any explicit contradictory or unknown `routed`/`local` discriminator, and any false, mismatched, malformed, or mesh-shaped response, remains ambiguous even when it says `queued: true` and `acknowledged: true`; message acknowledgement is not terminal evidence. Arbor adds no remote transport and promises no cross-owner cleanup.
+
+If the original owner host is lost, a different native root is blocked at owner authorization before native-handle lookup. Public status/member observations may then show the recorded participant absent, but absence does not authorize redispatch or mutable rebinding. Evidence and the immutable journal remain retained for explicit later policy.
+
+Child Arbor mutation refs remain intentionally unpublished. Evidence must distinguish “not exposed and cannot resolve” from rejection by a reachable Arbor authorization guard. The actor separately demonstrates that it cannot spawn through its actually present Fabric surface, and another root cannot control a run bound to the native owner.

@@ -1,4 +1,4 @@
-import { constants } from "node:fs";
+import { constants, existsSync } from "node:fs";
 import { lstat, open, readFile, realpath } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,21 +38,41 @@ function exactKeys(value: Record<string, unknown>, keys: readonly string[], labe
   if (Object.keys(value).sort().join("\0") !== [...keys].sort().join("\0")) throw new ArborError("EVIDENCE_INVALID", `${label} is not a closed object`);
 }
 
-async function safeRead(root: string, fileName: string, expectedBytes: number, expectedDigest: string): Promise<Uint8Array> {
+async function safeSourceRead(root: string, fileName: string): Promise<Uint8Array> {
   const path = resolve(root, fileName);
-  if (!path.startsWith(`${root}${sep}`)) throw new ArborError("EVIDENCE_INVALID", "Web asset escaped release root");
+  if (!path.startsWith(`${root}${sep}`)) throw new ArborError("EVIDENCE_INVALID", "Web asset escaped source root");
   const resolved = await realpath(path);
   if (resolved !== path || !resolved.startsWith(`${root}${sep}`)) throw new ArborError("EVIDENCE_INVALID", "Web asset realpath or symlink check failed");
   const stat = await lstat(path);
-  if (!stat.isFile() || stat.isSymbolicLink() || stat.size !== expectedBytes || stat.size > MAX_ASSET_BYTES) throw new ArborError("EVIDENCE_INVALID", "Web asset metadata is invalid");
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size < 1 || stat.size > MAX_ASSET_BYTES) throw new ArborError("EVIDENCE_INVALID", "Web asset metadata is invalid");
   const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
   try {
     const opened = await handle.stat();
-    if (!opened.isFile() || opened.size !== expectedBytes) throw new ArborError("EVIDENCE_INVALID", "Web asset changed during open");
-    const body = await handle.readFile();
-    if (sha256(body) !== expectedDigest) throw new ArborError("EVIDENCE_INVALID", "Web asset digest mismatch");
-    return body;
+    if (!opened.isFile() || opened.size !== stat.size) throw new ArborError("EVIDENCE_INVALID", "Web asset changed during open");
+    return await handle.readFile();
   } finally { await handle.close(); }
+}
+
+async function safeRead(root: string, fileName: string, expectedBytes: number, expectedDigest: string): Promise<Uint8Array> {
+  const body = await safeSourceRead(root, fileName);
+  if (body.byteLength !== expectedBytes || sha256(body) !== expectedDigest) throw new ArborError("EVIDENCE_INVALID", "Web asset digest mismatch");
+  return body;
+}
+
+async function loadSourceAssets(root: string): Promise<{ manifestDigest: string; assets: ReleaseWebAssetV1[] }> {
+  const javascript = await safeSourceRead(root, "app.js");
+  const styles = await safeSourceRead(root, "app.css");
+  const javascriptName = `app.${sha256(javascript).slice(0, 16)}.js`;
+  const stylesName = `app.${sha256(styles).slice(0, 16)}.css`;
+  const template = Buffer.from(await safeSourceRead(root, "index.html")).toString("utf8");
+  const index = Buffer.from(template.replaceAll("{{APP_JS}}", `/assets/${javascriptName}`).replaceAll("{{APP_CSS}}", `/assets/${stylesName}`), "utf8");
+  const assets: ReleaseWebAssetV1[] = [
+    { version: 1, logicalName: "index", fileName: "index.html", contentType: "text/html; charset=utf-8", digest: sha256(index), bytes: index.byteLength, body: index },
+    { version: 1, logicalName: "app", fileName: javascriptName, contentType: "text/javascript; charset=utf-8", digest: sha256(javascript), bytes: javascript.byteLength, body: javascript },
+    { version: 1, logicalName: "styles", fileName: stylesName, contentType: "text/css; charset=utf-8", digest: sha256(styles), bytes: styles.byteLength, body: styles },
+  ];
+  const manifest: AssetManifestV1 = { version: 1, build: "dependency-free", files: assets.map(({ logicalName, fileName, contentType, digest, bytes }) => ({ logicalName, fileName, contentType, digest, bytes })) };
+  return { manifestDigest: sha256(`${JSON.stringify(manifest)}\n`), assets };
 }
 
 export class ReleaseWebAssets {
@@ -72,7 +92,7 @@ export class ReleaseWebAssets {
   }
 
   static defaultRoot(): string {
-    return resolve(dirname(fileURLToPath(import.meta.url)), "../../../dist/web-assets");
+    return resolve(dirname(fileURLToPath(import.meta.url)), "../../web");
   }
 
   static async load(root = ReleaseWebAssets.defaultRoot()): Promise<ReleaseWebAssets> {
@@ -80,6 +100,10 @@ export class ReleaseWebAssets {
     const rootStat = await lstat(canonicalRoot);
     if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) throw new ArborError("EVIDENCE_INVALID", "Web asset root is not a regular directory");
     const manifestPath = join(canonicalRoot, "asset-manifest.v1.json");
+    if (!existsSync(manifestPath)) {
+      const source = await loadSourceAssets(canonicalRoot);
+      return new ReleaseWebAssets(canonicalRoot, source.manifestDigest, source.assets);
+    }
     const manifestRealpath = await realpath(manifestPath);
     if (manifestRealpath !== manifestPath || !manifestRealpath.startsWith(`${canonicalRoot}${sep}`)) throw new ArborError("EVIDENCE_INVALID", "Web asset manifest realpath check failed");
     const manifestStat = await lstat(manifestPath);

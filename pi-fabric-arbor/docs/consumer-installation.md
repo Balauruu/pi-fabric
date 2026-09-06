@@ -1,71 +1,88 @@
-# Consumer installation and Pi activation
+# Source-only installation and availability
 
-`pi-fabric-arbor` is a Pi package containing an extension and the `fabric-arbor` skill. Pi packages execute with the user's full OS authority. Review the package, its license/notice inventory, and its retained certificates before installation.
+Pi packages execute with the user's OS authority. Review source before installation. The package requires Node 24+, peer `pi-fabric >=0.83.0 <0.84.0` and runtime `tsx@4.23.13`. Tests use app-local locked dependencies. No build/prepack, certificates or profile-local helper skills are needed.
 
-## Requirements and support envelope
-
-- Node.js 24 or newer.
-- Pi with project trust enabled for project-local package resources.
-- One exact certified pi-fabric release: `0.76.2 || 0.77.0`, with that release's retained package and host evidence.
-- Linux, Git, user namespaces, and Bubblewrap matching the retained certificates for production admission.
-
-The current sibling Pi host is the exactly certified `pi-fabric@0.77.0`; the retained active chain reports `productionCertified: true` and `realAgentsEnabled: true`. Support is a finite evidence-backed set, not an open-ended compatibility range: `0.76.2` and `0.77.0` each require their own matching B0/B1 payload, host-runtime, approval, and integration artifacts. Any other version or changed payload remains blocked; never copy or substitute another release's certificate.
-
-## Install
-
-After npm publication, install a pinned release globally:
-
-```sh
-pi install npm:pi-fabric-arbor@0.1.0
-```
-
-For a trusted project-local installation:
-
-```sh
-cd /path/to/project
-pi install -l npm:pi-fabric-arbor@0.1.0
-```
-
-For a reviewed local checkout or unpacked tarball:
+## Install and configure
 
 ```sh
 pi install /absolute/path/to/pi-fabric-arbor
-# or, from a project, pi install -l ./vendor/pi-fabric-arbor
+# After publication: pi install npm:pi-fabric-arbor@0.1.0
+pi list
+pi config
 ```
 
-A relative local path is resolved against the settings file that records it. Pi installs npm packages under its package store and local path packages remain in place.
+Enable both package extensions in a trusted Pi project. Registration is passive: no actor, inference or database.
 
-## Activate and verify discovery
-
-1. Run `pi list` and confirm the expected pinned source.
-2. Run `pi config` or `pi config -l`. Enable both `dist/src/extension.js` and `skills/fabric-arbor/SKILL.md` for the intended scope.
-3. Trust the project with `/trust` if project-local settings are required, then restart Pi. `/reload` can reload an already trusted package after configuration changes.
-4. Inspect Pi/Fabric discovery and the production-admission result before invoking anything. The extension registers `arbor-runtime` and `arbor-web`; the runtime may deliberately provide a blocked provider.
-5. Invoke `/skill:fabric-arbor` for guided setup. The skill must check installation, component activation, action discovery, and admission first. It must not assume any `arbor.*` action exists.
-
-A discovered action is not proof that production execution is admitted. Require all B0-B12 evidence, the release and graduation gates, exact distribution bytes, and `realAgentsEnabled: true`.
-
-## Minimal detached Web use
-
-Detached Web can operate against an authority database even when production execution is blocked:
-
-```sh
-pi-fabric-arbor serve --database /absolute/state/arbor.sqlite3 \
-  --artifact-root /absolute/state/artifacts --host 127.0.0.1 --port 0
+```text
+/arbor setup
+/reload
+/arbor doctor
 ```
 
-Open only the one-time loopback bootstrap URL emitted on stdout. The browser removes the fragment synchronously before exchange. Web is read/query/stream/inbox-only and cannot drive agents, authorize, sign, evaluate held-out input, clean resources, or move Git refs.
+Setup atomically merges one enabled `{id:"arbor", component:"arbor"}` entry into `.pi/fabric.json`, preserving unrelated/inherited entries and rejecting conflicts. The default state directory is `<active-Pi-profile>/arbor/<project-path-hash>/v2/`, outside material. It does not alter agents, mesh, trust, approvals or Schema policy.
 
-See [administrator-guide.md](administrator-guide.md) for durable configuration and [schema-reference.md](schema-reference.md) for public contracts.
+Doctor distinguishes installed, configured, enabled, observed and tested capabilities. An active component does not prove enabled inference: disabled Fabric agents retain descriptors. An unavailable owner causes research commands to report diagnostics without submitting inference. Schema enforce is unsupported for this delegation path; the installed host's additional `Missing: extensions` startup failure is recorded in [PR3 evidence](pr3-interface-evidence.md). Arbor does not downgrade policy or patch Fabric.
 
-## Uninstall without deleting user data
+## Owning-Pi commands
 
-Disable the package in `pi config`, stop `arbor-runtime` and `arbor-web`, then remove the package registration:
-
-```sh
-pi remove npm:pi-fabric-arbor
-# project-local installation:
-pi remove -l npm:pi-fabric-arbor
+```text
+/arbor start
+/arbor start {"runId":"instructions-1","overrides":{"material":{"kind":"instructions","mutablePaths":["AGENTS.md"]},"objective":{"description":"Improve instruction clarity","direction":"maximize","unit":"quality"}}}
+/arbor show instructions-1
+/arbor pause instructions-1
+/arbor steer instructions-1 Inspect the constraints first
+/arbor resume instructions-1
+/arbor revise-roles instructions-1
+/arbor cancel instructions-1
+/arbor review instructions-1 DECISION_ID
+/arbor export instructions-1
+/arbor keep instructions-1 NODE_ID
+/arbor discard instructions-1 NODE_ID
+/arbor apply instructions-1 DECISION_ID
+/arbor undo-apply instructions-1 DECISION_ID
 ```
 
-This removes package registration and package-store code. It does not authorize deletion of authority databases, reports, artifacts, private repositories, operator keys, principal configuration, backups, or certificates stored outside the package directory. Keep those roots, or export and delete them later under the retention and cleanup procedure. Never point a state root inside Pi's package installation directory.
+A command submits an exact allowlisted action request through Pi's normal model/Fabric tool path. It does not invoke an unchecked service, bypass Fabric permissions or introduce a transport. The request can be queued behind the current Pi turn. Submission is **not** a durable control receipt or completion. Controls resolve the saved revision before submission and can still be rejected if it changes. Programmatic owning-Pi callers can use the exact schemas for explicit idempotency keys.
+
+`start` resolves and stores a fresh spec, then by default runs a bounded proposal-only actor and **read-only native observation attempts**. `overrides.execution:"deferred"` saves configuration without inference. `execution: "evaluate"` runs a frozen committed pair. `execution: "material"` captures dirty Git or non-Git input in an external owned repository, measures its baseline and permits explicit native candidate dispatch/evaluation/keep. See [PR5 material configuration and limits](../README.md#pr5-dirty-material-and-owned-incumbent). Both `material` and `research` capture source bytes; observation source references are not snapshots. Explicit `research` lets one persistent proposal actor select bounded operations through the same owner material/evaluator path. Its start command composes `arbor.start` then execute-risk `arbor.runResearch`; direct start freezes only. See [research controls and budgets](../README.md#pr6-autonomous-research-and-operational-roles). Five attempts, concurrency one and eight actor turns are admission bounds, not a promise to exhaust the attempt budget.
+
+Pause stops new dispatch at the current boundary; it cannot mask interrupted or cleanup-pending material work. Terminal material runs cannot be reopened by pause/resume; start a new run instead. Quiescent paused material runs resume explicitly, with command evaluation remaining on the execute-policy route. Steering is stored for the next ask. Cancellation receipts are queued acknowledgments, while inspection records actual terminal cleanup. Quiescent paused research resumes through execute-risk `arbor.runResearch`, replacing/re-grounding its stopped actor. Ambiguous or partial-worker continuation remains unavailable until PR8. Deferred configuration resume uses the saved spec without re-reading defaults. Unknown owners/generations and ambiguous handles never cause redispatch.
+
+Review opens an actual owning-Pi user dialog **after** Fabric permission. It binds the answer to the exact pending decision, source reference, epoch, revision and native session. Supplied approval booleans/receipts are invalid; dismissal/timeout never approves. This only approves a research choice, never a measured win or source write. Keeping remains blocked without evaluator evidence. Apply/undo return concrete unavailable receipts until workspace/preimage reconciliation ships. Export generates an idempotent JSON projection, plus a captured-baseline-to-incumbent patch in material mode. It is not a complete autonomous research report.
+
+## Configuration and exact public contracts
+
+New runs merge:
+
+```text
+built-in defaults < <active-Pi-profile>/arbor.defaults.json < <project>/arbor.config.json < start.overrides
+```
+
+Every file/override uses the same bounded closed configuration schema. The database saves effective values, per-field origins, canonical material root/Git OID when present, source-reference identity and distinct coordinator/executor/subject identities. Coordinator/executor models default to the actual active Pi model, not Fabric's unrelated worker default. Unknown subject identity remains null. Tools and capability requirements are recorded separately. Operational package roles are frozen outside candidate material and explicitly loaded into native requests. Ordinary package updates/resume use the saved bundle. At a quiescent pause, `revise-roles` records a new package-resolved role binding without changing the immutable measurement spec or prior invocation attribution.
+
+The four facade refs are `arbor.start`, `arbor.inspect`, `arbor.control`, `arbor.export`. The six owner research refs are `arbor.propose`, `arbor.dispatch`, `arbor.collect`, `arbor.evaluate`, `arbor.distill`, `arbor.decide`. Separate `arbor.review`, `arbor.apply`, `arbor.undoApply` and `arbor.reviseRoles` routes carry write risk; autonomous `arbor.runResearch` carries execute risk and actual native agent effects retain their managed policy checks. Exact input/output schemas, actor proposals, command mappings, caller classes, risks, effects and component requirements are in [the generated manifest](pr3-action-manifest.json). Runtime discovery is authoritative for effective host availability:
+
+```ts
+await tools.describe({ ref: "arbor.start" });
+await components.status({ id: "arbor.owner" });
+await tools.call({ ref: "arbor.start", args: { runId: "inspection-1" } });
+await tools.call({ ref: "arbor.inspect", args: { runId: "inspection-1" } });
+```
+
+The PR2 lifecycle substrate has explicit diagnostic names `arbor.substrateStart`, `arbor.substrateInspect`, `arbor.substrateCancel`, all listed in the manifest. Their original bounded execution arguments are not a legacy v1 reader or a fallback for product research. Diagnostic routes cannot control research runs. Their lifecycle assertions remain active in the PR2 gate.
+
+The coordinator commits only `agents.self`; it cannot dispatch workers or resolve Arbor mutation refs. Observation workers use native read/grep/find/ls. Material workers may use explicitly configured write/edit/bash tools in isolated owned worktrees. Both use `recursive:false`, `extensions:false`. Their selected model must work without extension-only registration, for example through a built-in or `models.json` provider. Main availability does not prove child availability. Native failure is never a score.
+
+## Review and evidence boundaries
+
+An actor's fresh review request is finalized at successful native settlement before the owning Pi reviews the settled revision. Approval and rejection come from the actual Pi dialog, not actor flags. Intervening controls or stale dialogs are still rejected. Requesting a new review revokes that node's prior admission immediately; rejection or dismissal never restores it, and replaying an older approval only returns its historical receipt. In `direction` and `collaborative` modes, executable hypotheses must have an approved, eligible parent direction at dispatch admission; an unreviewed root hypothesis cannot bypass that policy. Complete interaction-mode continuation/native resume remains PR8 work, not a promise of this bounded observation lane.
+
+Native evidence has an immutable identity and explicit attempt/material/epoch/generation/native provenance. JSON exports use a separate artifact identity even if their command ID matches evidence. Exports are never valid evidence inputs. Conflicting artifact inserts roll back, and late native attachment cannot turn a terminal attempt back into running. Existing runtime artifacts are retained, not rewritten or upgraded into evidence.
+
+## Read-only surfaces and updates
+
+Exactly one public `fabric-arbor` skill is packaged; internal role/reference files are not separately discovered skills. The standalone CLI only supports availability/assets/asset and existing-file inspect/replay/artifact retrieval. Every mutation verb is rejected in attached/offline modes; no attachment transport exists. Browser assets remain static and read-only, with no server, mutation forms or routes. Reads never generate exports.
+
+Reload source updates with `/reload`. `npm run check` includes package/install, retained source and PR2-PR6 source tests. Run `npm run test:pr2:e2e`, `npm run test:pr3:e2e`, `npm run test:pr4:e2e` `npm run test:pr5:e2e` and `npm run test:pr6:e2e` for actual Pi/Fabric local-model gates. [PR6 evidence](pr6-research-evidence.md) records both autonomous five-stage journeys and exact scope. See [PR3 evidence](pr3-interface-evidence.md) for exact passing scope and outstanding work.
+
+Removing the package does not authorize deletion of databases, reports, artifacts, keys, workspaces or historical evidence. No legacy history is imported or migrated.
