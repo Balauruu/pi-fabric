@@ -15,8 +15,9 @@ export function validateNode(p:Projection, n:Pick<TreeNode,'nodeId'|'parentId'|'
  const path=n.parentId?ancestry(nodes,n.parentId):[],parent=path[0];
  if(path.some(n=>n.pruned))throw new Error('Parent ancestry is pruned');
  if(parent?.type==='hypothesis'){
-  const a=p.attempts.find((a:any)=>a.nodeId===parent.nodeId);
-  if(n.type!=='hypothesis'||!a||!p.evaluations.some((e:any)=>e.attemptId===a.id&&e.state==='completed'&&e.validity==='valid'))throw new Error('Hypothesis refinement requires measured parent');
+  // A hypothesis may have an immutable failed original followed by a measured continuation.
+  const measured=p.attempts.some((a:any)=>a.nodeId===parent.nodeId&&p.evaluations.some((e:any)=>e.attemptId===a.id&&e.state==='completed'&&e.validity==='valid'));
+  if(n.type!=='hypothesis'||!measured)throw new Error('Hypothesis refinement requires measured parent');
  }
  const depth=parent?parent.depth+1:0;
  if(depth>s.maxDepth)throw new Error('Topology depth bound exceeded');

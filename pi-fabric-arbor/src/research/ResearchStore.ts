@@ -22,7 +22,7 @@ export interface ResearchRun {
   execution: string; error: string | null;
 }
 export interface Receipt { commandId: string; runId: string; revision: number; status: "applied" | "queued" | "blocked"; action: string; reason: string | null; value: unknown }
-export interface Attempt { slotReserved?: boolean; selection?: Selection; waveId?: string; parentIncumbent?: string; evaluationReservation?: number; id: string; nodeId: string; task: string; state: "reserved" | "running" | "completed" | "failed" | "stopped" | "timed_out"; nativeId: string | null; nativeDigest: string | null; evidenceId: string | null; model: string | null; materialId: string; epoch: string; generation: string }
+export interface Attempt { continuation?: { mode:"continue-partial"|"restart-parent"; previousAttemptId:string; rootAttemptId:string; sourceOid:string; summary:string }; slotReserved?: boolean; selection?: Selection; waveId?: string; parentIncumbent?: string; evaluationReservation?: number; id: string; nodeId: string; task: string; state: "reserved" | "running" | "completed" | "failed" | "stopped" | "timed_out"; nativeId: string | null; nativeDigest: string | null; evidenceId: string | null; model: string | null; materialId: string; epoch: string; generation: string }
 const TABLES = ["nodes", "attempts", "evaluations", "decisions", "operations", "controls", "events", "artifact_refs", "lessons"] as const;
 type Table = typeof TABLES[number];
 /** One fresh domain authority. No v1 reader, participant registry or transcripts.
@@ -145,6 +145,45 @@ export class ResearchStore {
       this.#save(db, run); return receipt;
     });
   }
+  rebindPendingReview(command:BoundCommand,owner:NativeOwner,componentId:string,generation:string,operation?:{action:'control'|'evaluate';payload:unknown}):Receipt|undefined {
+    return this.#transaction(db=>{
+      const run=this.#run(db,command.runId);if(!run)throw new Error('Unknown pending review run');this.check(run,command);
+      const {identity,...body}=run.spec;
+      if(!run.material||!['material','research'].includes(run.spec.config.execution)||identity!==digest(body)||canonical(run.owner)!==canonical(owner)||run.componentId!==componentId||run.active||run.material.pending||!run.pendingDecisionId||['cancelled','completed','failed'].includes(run.state)||this.#rows<EvaluationRecord>(db,'evaluations',run.id).some(e=>e.state!=='completed'))throw new Error('Immutable pending review recovery boundary mismatch');
+      const decision=this.#row<Record<string,any>>(db,'decisions',run.id,run.pendingDecisionId);
+      if(decision?.status!=='pending'||decision.userReceipt||decision.materialId!==command.materialId||decision.epoch!==command.epoch)throw new Error('Pending choice identity mismatch');
+      const old=run.generation;
+      if(old!==generation){const history=[...new Set([...(run.generationHistory??[]),old])];if(history.length>128)throw new Error('Generation history exhausted');run.generationHistory=history;}
+      run.generation=generation;run.revision++;run.state='awaiting_review';
+      if(run.activeSince!==null){run.activeMs+=Date.now()-run.activeSince;run.activeSince=null;}
+      decision.revision=run.revision;this.#put(db,'decisions',run.id,run.pendingDecisionId,decision);
+      if(db.prepare('UPDATE runs SET revision=?,generation=?,value=? WHERE id=? AND generation=? AND revision=?').run(run.revision,generation,canonical(run),run.id,old,command.revision).changes!==1)throw new Error('Stale review recovery generation');
+      const reason='Choice retained without approval or dispatch';
+      this.#put(db,'events',run.id,String(run.revision),{revision:run.revision,type:'pending-review-rebind',commandId:command.commandId,status:'queued',reason});
+      if(operation){
+        const hash=digest({command,action:operation.action,payload:operation.payload});
+        if(this.#row(db,'operations',run.id,command.commandId))throw new Error('Conflicting pending review recovery command');
+        const value={state:run.state,specId:run.spec.identity},receipt:Receipt={commandId:command.commandId,runId:run.id,revision:run.revision,status:'applied',action:operation.action,reason,value};
+        this.#put(db,'operations',run.id,command.commandId,{hash,receipt});
+        if(operation.action==='control')this.#put(db,'controls',run.id,command.commandId,{...command,action:'resume',instruction:null,status:'applied',value});
+        return receipt;
+      }
+
+    });
+  }
+  rebindRecovery(command:BoundCommand,owner:NativeOwner,componentId:string,generation:string):void {
+    this.#transaction(db=>{
+      const run=this.#run(db,command.runId);if(!run)throw new Error('Unknown recovery run');this.check(run,command);
+      const {identity,...body}=run.spec;
+      if(!run.material||identity!==digest(body)||canonical(run.owner)!==canonical(owner)||run.componentId!==componentId||run.pendingDecisionId||['cancelled','completed','failed'].includes(run.state))throw new Error('Immutable recovery owner/spec or terminal/review boundary mismatch');
+      const old=run.generation;if(old!==generation){const history=[...new Set([...(run.generationHistory??[]),old])];if(history.length>128)throw new Error('Generation history exhausted');run.generationHistory=history;}
+      run.generation=generation;run.revision++;if(run.state!=='cleanup_pending')run.state='interrupted';
+      if(run.activeSince!==null){run.activeMs+=Date.now()-run.activeSince;run.activeSince=null;}
+      if(run.material.pending)run.material.pending.revision=run.revision;
+      if(db.prepare('UPDATE runs SET revision=?,generation=?,value=? WHERE id=? AND generation=? AND revision=?').run(run.revision,generation,canonical(run),run.id,old,command.revision).changes!==1)throw new Error('Stale recovery generation');
+      this.#put(db,'events',run.id,String(run.revision),{revision:run.revision,type:'native-recovery-rebind',commandId:command.commandId,status:'queued',reason:null});
+    });
+  }
   rebindEvaluationRun(command: BoundCommand, owner: NativeOwner, componentId: string, generation: string): void {
     this.#transaction(db => {
       const run = this.#run(db, command.runId); if (!run) throw new Error("Unknown evaluation run"); this.check(run, command);
@@ -180,6 +219,17 @@ export class ResearchStore {
     if (run.generation !== generation) throw new Error("Replacement generation requires explicit reconciliation; no stale write or redispatch");
     return run;
   }
+  /** Source-only authority: retain the terminal research generation and all domain state.
+   * A fresh owning-Pi write command may reconcile its original source intent, not resume research. */
+  authorizeSource(runId:string,owner:NativeOwner,componentId:string,generation:string):ResearchRun {
+    const run=this.get(runId);if(!run)throw new Error('Unknown research run');
+    if(canonical(run.owner)!==canonical(owner))throw new Error('Different native owning Pi root/host/identity; no source attachment');
+    if(run.componentId!==componentId)throw new Error('Source component identity mismatch');
+    if(!['cancelled','completed','failed'].includes(run.state))return this.authorize(runId,owner,generation);
+    const {identity,...body}=run.spec;
+    if(identity!==digest(body)||!run.material||run.active||run.activeSince!==null||run.pendingDecisionId||run.material.pending||this.evaluations(runId).some(e=>e.state!=='completed'))throw new Error('Terminal source reconciliation requires immutable quiescent material/evaluation boundaries');
+    return run;
+  }
   binding(run: ResearchRun, commandId: string): BoundCommand { return { runId: run.id, materialId: run.spec.source.materialId, epoch: run.epoch, revision: run.revision, commandId }; }
   check(run: ResearchRun, command: BoundCommand): void {
     if (command.runId !== run.id || command.materialId !== run.spec.source.materialId || command.epoch !== run.epoch || command.revision !== run.revision) throw new Error("Stale run/material/epoch/revision binding");
@@ -191,15 +241,16 @@ export class ResearchStore {
       return old?.receipt;
     }, undefined);
   }
-  #commit(command: BoundCommand, generation: string, action: string, payload: unknown, change: (db: DatabaseSync, run: ResearchRun) => { status?: Receipt["status"]; reason?: string; value?: unknown }): Receipt {
+  #commit(command: BoundCommand, generation: string, action: string, payload: unknown, change: (db: DatabaseSync, run: ResearchRun) => { status?: Receipt["status"]; reason?: string; value?: unknown }, retainPending = false): Receipt {
     return this.#transaction(db => {
       const run = this.#run(db, command.runId); if (!run || run.generation !== generation) throw new Error("Unknown or stale generation");
       const hash = digest({ command, action, payload });
       const old = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", run.id, command.commandId);
       if (old) { if (old.hash !== hash) throw new Error("Conflicting duplicate command ID"); return old.receipt; }
       this.check(run, command);
-      if (run.material?.pending) throw new Error("Pending integration intent must reconcile before other mutations");
+      if (run.material?.pending && !retainPending) throw new Error("Pending integration intent must reconcile before other mutations");
       const result = change(db, run); run.revision++;
+      if(retainPending && run.material?.pending)run.material.pending.revision=run.revision;
       const receipt: Receipt = { commandId: command.commandId, runId: run.id, revision: run.revision, action, status: result.status ?? "applied", reason: result.reason ?? null, value: result.value ?? null };
       this.#put(db, "operations", run.id, command.commandId, { hash, receipt });
       this.#put(db, "events", run.id, String(run.revision), { revision: run.revision, type: action, commandId: command.commandId, status: receipt.status, reason: receipt.reason });
@@ -314,11 +365,11 @@ export class ResearchStore {
       const attempt = this.#row<Attempt>(db, "attempts", runId, attemptId);
       if (!attempt || result.cwd !== (current.material?.candidates.find(c => c.id === attemptId)?.directory ?? current.spec.source.root) || (attempt.nativeId && attempt.nativeId !== result.id)) throw new Error("Native attempt identity mismatch");
       if (!terminal && (attempt.nativeDigest || TERMINAL.includes(attempt.state as Terminal))) throw new Error("Late attach cannot regress a terminal attempt");
-      if (attempt.materialId !== current.spec.source.materialId || attempt.epoch !== current.epoch || attempt.generation !== generation) throw new Error("Native attempt provenance mismatch");
+      if (attempt.materialId !== current.spec.source.materialId || attempt.epoch !== current.epoch || (attempt.generation !== generation && !current.generationHistory?.includes(attempt.generation))) throw new Error("Native attempt provenance mismatch");
       attempt.nativeId = result.id;
       if (terminal) {
         attempt.state = result.status!; attempt.nativeDigest = nativeDigest; attempt.evidenceId = `evidence-${digest(attemptId).slice(0, 32)}`;
-        this.#artifact(db, runId, attempt.evidenceId, { id: attempt.evidenceId, kind: "native-evidence", attemptId, generation, nativeId: result.id, materialId: attempt.materialId, epoch: attempt.epoch, status: result.status, digest: nativeDigest, summary: (result.summary ?? "").slice(0, 1024), validation: "unscored-native-observation" });
+        this.#artifact(db, runId, attempt.evidenceId, { id: attempt.evidenceId, kind: "native-evidence", attemptId, generation: attempt.generation, nativeId: result.id, materialId: attempt.materialId, epoch: attempt.epoch, status: result.status, digest: nativeDigest, summary: (result.summary ?? "").slice(0, 1024), validation: "unscored-native-observation" });
         if(attempt.slotReserved!==false)current.active--; if(attempt.slotReserved!==undefined)attempt.slotReserved=false; if (current.active < 0) throw new Error("Capacity underflow");
       } else { attempt.state = "running"; }
       this.#put(db, "attempts", runId, attemptId, attempt); return { value: attempt };
@@ -356,6 +407,15 @@ export class ResearchStore {
     });
   }
   unavailable(command: BoundCommand, generation: string, action: string, payload: unknown, reason: string): Receipt { return this.#commit(command, generation, action, payload, () => ({ status: "blocked", reason })); }
+  sourceReceipt(command:BoundCommand,generation:string,action:'apply'|'undoApply',decisionId:string,path:string,contentDigest:string,error:string|null,owner:NativeOwner,componentId:string):Receipt {
+    const authorized=this.authorizeSource(command.runId,owner,componentId,generation);
+    // Current service retirement/UI checks precede this synchronous CAS. Do not renew
+    // the research generation or loosen any control/evaluator/dispatch generation guard.
+    return this.#commit(command,authorized.generation,action,{decisionId},(db,run)=>{
+      this.#artifact(db,run.id,`source-${digest(command.commandId)}`,{id:`source-${digest(command.commandId)}`,commandId:command.commandId,path,digest:contentDigest,kind:'source-operation'});
+      return {status:error?'blocked':'applied',...(error?{reason:error}:{}),value:{path,digest:contentDigest}};
+    });
+  }
   exported(command: BoundCommand, generation: string, path: string, contentDigest: string): Receipt {
     return this.#commit(command, generation, "export", { format: "json" }, (db, run) => {
       const id = `export-${digest(command.commandId)}`;
@@ -378,12 +438,28 @@ export class ResearchStore {
       if (!["paused", "awaiting_review"].includes(current.state) || ["cancelled", "cleanup_pending", "interrupted", "failed"].includes(state)) current.state = state;
       if (current.activeSince !== null && !(current.spec.config.execution === "research" && execution === "native-evaluation-completed; incumbent-not-decided" && !["paused", "awaiting_review"].includes(current.state))) { current.activeMs += Date.now() - current.activeSince; current.activeSince = null; }
       current.execution = execution; current.error = error; return {};
-    });
+    }, ["interrupted", "cleanup_pending"].includes(state)); // lifecycle fact, never permission to decide/control through an intent
   }
   reviseRoles(command: BoundCommand, generation: string, revision: NonNullable<ResearchRun["roleRevisions"]>[number]): Receipt {
     return this.#commit(command, generation, "reviseRoles", {}, (_db, run) => {
       if (run.state !== "paused" || run.active || run.pendingDecisionId || run.material?.pending || (run.roleRevisions?.length ?? 0) >= 16) throw new Error("Role revision requires quiescent paused owner with no pending review/integration");
       run.roleRevisions = [...(run.roleRevisions ?? []), { ...revision, revision: run.revision + 1, commandId: command.commandId }]; return {};
+    });
+  }
+  reserveContinuation(command:BoundCommand,generation:string,payload:Record<string,any>):Receipt {
+    return this.#commit(command,generation,'resumeAttempt',payload,(db,run)=>{
+      const m=run.material,prior=this.#row<Attempt>(db,'attempts',run.id,payload.attemptId),attempts=this.#rows<Attempt>(db,'attempts',run.id);
+      if(!m||!prior||!['failed','stopped','timed_out'].includes(prior.state)||run.active||run.pendingDecisionId||!['paused','ready'].includes(run.state))throw new Error('Continuation requires quiescent settled partial attempt, not ambiguous/live work');
+      if(attempts.some(a=>a.id===payload.newAttemptId||a.continuation?.previousAttemptId===prior.id))throw new Error('Continuation identity already reserved; no duplicate execution');
+      const nodes=this.#rows<any>(db,'nodes',run.id),path=ancestry(nodes,prior.nodeId);
+      if(path.some(n=>n.pruned)||nodes.some(n=>n.parentId===prior.nodeId)||(['direction','collaborative'].includes(run.spec.config.search.mode)&&path.some(n=>n.type==='direction'&&!n.reviewed)))throw new Error('Continuation hypothesis is no longer eligible/reviewed');
+      const partial=m.candidates.find(c=>c.id===prior.id);
+      const sourceOid=payload.mode==='continue-partial'?partial?.oid:partial?.parent??prior.parentIncumbent;
+      if(!sourceOid||(payload.mode==='continue-partial'&&!prior.nativeDigest))throw new Error('Exact settled partial artifact required; restart-parent is a distinct action');
+      const p={run,attempts,evaluations:this.#rows<EvaluationRecord>(db,'evaluations',run.id)},credits=evaluationCapacity(p);
+      if(run.attemptsUsed>=run.spec.config.limits.attempts||run.activeMs+(run.activeSince===null?0:Date.now()-run.activeSince)>=run.spec.config.limits.activeMs||p.evaluations.reduce((n,e)=>n+e.invocations.length,0)+reservedEvaluationCalls(attempts,p.evaluations)+credits>run.spec.config.limits.evaluatorCalls)throw new Error('Continuation invocation budget exhausted');
+      const attempt:Attempt={id:payload.newAttemptId,nodeId:prior.nodeId,task:prior.task,state:'reserved',nativeId:null,nativeDigest:null,evidenceId:null,model:run.spec.roles.executor.model,materialId:prior.materialId,epoch:prior.epoch,generation,slotReserved:true,parentIncumbent:m.incumbent,evaluationReservation:credits,waveId:command.commandId,continuation:{mode:payload.mode,previousAttemptId:prior.id,rootAttemptId:prior.continuation?.rootAttemptId??prior.id,sourceOid,summary:payload.summary}};
+      run.attemptsUsed++;run.active++;run.state='running';run.activeSince??=Date.now();this.#put(db,'attempts',run.id,attempt.id,attempt);return {value:attempt};
     });
   }
   recordWave(runId:string,generation:string,wave:WaveEvidence):void {
@@ -403,11 +479,11 @@ export class ResearchStore {
     });
   }
   /** Finalize a failed admitted command without ever replaying its effects. */
-  failMaterialDispatch(command: BoundCommand, payload: unknown, generation: string, errors: string[]): Receipt {
+  failMaterialDispatch(command: BoundCommand, payload: unknown, generation: string, errors: string[], action: 'dispatch'|'resumeAttempt' = 'dispatch'): Receipt {
     const reason=errors.join('; ');
     return this.#commit(this.binding(this.get(command.runId)!,`dispatch-failure-${digest(command.commandId).slice(0,32)}`),generation,'material-dispatch-failed',{commandId:command.commandId,errors},(db,run)=>{
       const saved=this.#row<{hash:string;receipt:Receipt}>(db,'operations',run.id,command.commandId);
-      if(!saved||saved.hash!==digest({command,action:'dispatch',payload}))throw new Error('Exact admitted dispatch receipt required');
+      if(!saved||saved.hash!==digest({command,action,payload}))throw new Error('Exact admitted dispatch receipt required');
       saved.receipt={...saved.receipt,revision:run.revision+1,status:'blocked',reason};
       this.#put(db,'operations',run.id,command.commandId,saved);run.error=reason;
       return {status:'blocked',reason,value:{commandId:command.commandId,errors}};
@@ -434,7 +510,8 @@ export class ResearchStore {
   prepareIntegration(command: BoundCommand, generation: string, payload: Record<string, any>): Receipt {
     return this.#commit(command, generation, "decide", payload, (db, run) => {
       const m = run.material!;
-      const attempt = this.#rows<Attempt>(db, "attempts", run.id).find(a => a.nodeId === payload.nodeId);
+      const linked = payload.evidenceIds.length === 1 ? this.#row<EvaluationRecord>(db,"evaluations",run.id,payload.evidenceIds[0]) : undefined;
+      const attempt = this.#rows<Attempt>(db, "attempts", run.id).find(a => a.nodeId === payload.nodeId && (!linked?.attemptId || a.id === linked.attemptId));
       const candidate = m?.candidates.find(c => c.id === attempt?.id);
       const e = payload.evidenceIds.length === 1 ? this.#row<EvaluationRecord>(db, "evaluations", run.id, payload.evidenceIds[0]) : undefined;
       if (!m || !attempt || attempt.state !== "completed" || !attempt.nativeDigest || !candidate?.oid || !e || run.active || !m.baselineEvaluation || ["cancelled", "cleanup_pending", "interrupted", "failed"].includes(run.state)) return { status: "blocked", reason: "Settled candidate and exact evaluation required" };

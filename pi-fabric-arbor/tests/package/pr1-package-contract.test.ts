@@ -94,7 +94,7 @@ test("CLI reads existing inputs, rejects every mutation verb, and changes no fix
   assert.equal(runCli(["artifact", "--root", join(root, "artifacts"), "--path", "existing.txt"]).stdout, "existing artifact\n");
   assert.equal(runCli(["asset", "coordinatorRole"]).status, 0);
 
-  for (const command of ["setup", "start", "pause", "resume", "cancel", "steer", "keep", "discard", "review", "apply", "undo", "undo-apply", "export", "generate", "serve", "authorize", "certify", "cleanup"]) {
+  for (const command of ["continue-partial", "restart-parent", "resumeAttempt", "runResearch", "revise-roles", "reviseRoles", "control", "propose", "dispatch", "collect", "evaluate", "decide", "distill", "undoApply", "setup", "start", "pause", "resume", "cancel", "steer", "keep", "discard", "review", "apply", "undo", "undo-apply", "export", "generate", "serve", "authorize", "certify", "cleanup"]) {
     const result = runCli([command]);
     assert.equal(result.status, 2, `${command} unexpectedly succeeded`);
     assert.match(result.stderr, /strictly read-only/u);

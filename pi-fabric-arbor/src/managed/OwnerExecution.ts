@@ -28,6 +28,8 @@ interface Run {
 export class OwnerExecution {
   #runs = new Map<string, Run>();
   #admission: Promise<unknown> = Promise.resolve();
+  #recoveries = new Set<Promise<unknown>>();
+  #reconciledOperations = new Set<Promise<unknown>>();
   #evaluations = new Map<Promise<unknown>, AbortController>();
   #draining = false;
   #disposed: Promise<void> | undefined;
@@ -114,6 +116,58 @@ export class OwnerExecution {
     }
   }
 
+  recoveryCompleted(runId:string):void {
+    // Explicit public observation + durable material reconciliation supersedes
+    // an already-settled operation rejection, never its original error/history.
+    const saved=this.research!.get(runId)!;
+    if(saved.generation!==this.generation||saved.active||saved.material?.pending)throw new Error('Recovery has not settled its durable native/material boundary');
+    for(const run of this.#runs.values())if((run.material?.runId===runId||run.journey?.runId===runId)&&run.operation&&!run.ambiguous){
+      if(run.material){const a=this.research!.attempt(runId,run.material.attemptId);if(!a?.nativeDigest&&!['stopped'].includes(a?.state??''))continue;}
+      this.#reconciledOperations.add(run.operation);
+    }
+  }
+  async observeRecovery(runId:string,context:FabricInvocationContext):Promise<Array<{attemptId:string;result:{id:string;cwd:string;status:Terminal;summary?:string}|null}>> {
+    this.#admit();const operation=this.#observeRecovery(runId,context);this.#recoveries.add(operation);
+    try{return await operation;}finally{this.#recoveries.delete(operation);}
+  }
+  async #observeRecovery(runId:string,context:FabricInvocationContext) {
+    const saved=this.research!.get(runId)!,owner=await this.identity(context);
+    if(JSON.stringify(saved.owner)!==JSON.stringify(owner)&&digest(saved.owner)!==digest(owner))throw new Error('Different native recovery owner');
+    if(saved.componentId!==this.componentId||this.busyResearch(runId))throw new Error('Recovery requires quiescent exact component owner');
+    const bindings=this.store.forMaterial(saved.spec.source.materialId,saved.spec.identity);
+    for(const b of bindings){
+      if(digest(b.owner)!==digest(owner)||b.componentId!==this.componentId)throw new Error('Native journal owner/component provenance mismatch');
+      if(b.dispatches.some(d=>!d.nativeId))throw new Error('Unobservable native spawn/create attachment gap; no duplicate execution');
+    }
+    const membersRaw=await this.call('agents.members',{scope:'project',kinds:['actor','agent'],includeStale:false});
+    if(!Array.isArray(membersRaw))throw new Error('Invalid native recovery observation');const members=membersRaw.map(object);
+    const owned=(id:string)=>{const p=members.find(p=>p.id===id);if(!p||p.local!==true||p.stale!==false||p.rootId!==owner.rootId||p.ownerHostId!==owner.ownerHostId||p.ownerIdentityId!==owner.ownerIdentityId)throw new Error('Unobservable or nonlocal native outcome; cleanup pending');return p;};
+    for(const b of bindings)for(const actorId of b.actors){
+      const member=members.find(p=>p.id===actorId);
+      if(!member&&['completed','cancelled','failed'].includes(b.state))continue; // original disposal already proved removal
+      owned(actorId);const status=await this.call('agents.status',{id:actorId});localStop(status,{id:actorId,kind:'actor'});
+    }
+    const observed:Array<{attemptId:string;result:{id:string;cwd:string;status:Terminal;summary?:string}|null}>=[];
+    for(const attempt of this.research!.projection(runId)!.attempts as import('../research/ResearchStore.js').Attempt[]){
+      this.#admit();context.signal?.throwIfAborted();
+      if(attempt.nativeDigest||['failed','stopped','timed_out'].includes(attempt.state))continue;
+      const b=bindings.find(b=>b.spec.runId===`material-${runId}-${attempt.id}`),candidate=saved.material!.candidates.find(c=>c.id===attempt.id);
+      if(!b?.dispatches.length){if(attempt.nativeId)throw new Error('Native handle lacks original dispatch provenance');observed.push({attemptId:attempt.id,result:null});continue;}
+      const id=attempt.nativeId??b.dispatches[0]!.nativeId!;const worker=b.workers.find(w=>w.id===id);
+      if(b.dispatches.length!==1||b.dispatches[0]!.nativeId!==id||!candidate||!worker||worker.cwd!==candidate.directory||b.spec.cwd!==candidate.directory||b.spec.oid!==candidate.parent)throw new Error('Exact native attempt/material lineage mismatch');
+      owned(id);const raw=object(immutableCopy(await this.call('agents.status',{id})));
+      if(raw.id!==id||raw.cwd!==candidate.directory||raw.model!==attempt.model||raw.runner!=='pi'||raw.transport!=='process'||!TERMINAL.includes(raw.status as Terminal))throw new Error('Native outcome unknown/live/mismatched; no relaunch or freeze');
+      const terminal=object(immutableCopy(await this.call('agents.wait',{id}))); // owned by this retained recovery promise, outside actor activation
+      if(terminal.id!==id||terminal.cwd!==raw.cwd||terminal.status!==raw.status||terminal.model!==raw.model||terminal.runner!=='pi'||terminal.transport!=='process')throw new Error('Native terminal observation changed during recovery');
+      let status=raw.status as Terminal,summary:string|undefined;
+      if(saved.spec.config.execution==='research'){
+        try{if(status==='completed'){validate(WORKER_RESULT_SCHEMA,terminal.value);if(object(terminal.value).attemptId!==attempt.id)throw new Error('Recovered worker report attempt mismatch');}summary=typeof terminal.error==='string'?terminal.error:JSON.stringify(terminal.value)??'No valid structured worker report';}catch(e){status='failed';summary=String(e);}
+      }
+      if(terminal.error||(terminal.exitCode!==undefined&&terminal.exitCode!==null&&terminal.exitCode!==0))status='failed';
+      observed.push({attemptId:attempt.id,result:{id,cwd:candidate.directory,status,...(summary?{summary}:{})}});
+    }
+    this.#admit();context.signal?.throwIfAborted();return observed;
+  }
   async verifyRoles(runId: string, resume = false): Promise<void> {
     const saved = this.research!.get(runId)!;
     if (!["inspect", "material", "research"].includes(saved.spec.config.execution)) return;
@@ -304,6 +358,7 @@ export class OwnerExecution {
     if(current.state==='interrupted')return 'interrupted';
     if(current.active || this.research!.evaluations(current.id).some(e=>e.state!=='completed'))return 'interrupted';
     if(['failed','cancelled'].includes(current.state))return current.state;
+    if(run.binding.state==='failed' && current.material)return 'interrupted';
     return run.binding.state==='completed'?'paused':run.binding.state;
   }
   async #journeyStop(run: Run): Promise<boolean> {
@@ -376,7 +431,7 @@ export class OwnerExecution {
     this.#runs.set(nativeRunId, run);
     const abort = () => { void this.#drain(run, "cancelled").catch(() => undefined); }; context.signal?.addEventListener("abort", abort, { once: true });
     run.operation = (async () => {
-      try { await this.#track(run, () => this.#launch(run, `${attempt.task}\nObjective: ${saved.spec.config.objective.description}\nMutable paths: ${JSON.stringify(saved.spec.config.material.mutablePaths)}\nDevelopment evaluation: ${JSON.stringify({kind:saved.spec.evaluation!.kind,definitionId:saved.spec.config.evaluator.identity,feedback:'unavailable; diagnostics non-authoritative',qualityVetoes:saved.spec.config.objective.qualityVetoes})}\nRelevant lessons: ${JSON.stringify((research.projection(runId)!.lessons as Array<{nodeId:string}>).slice(-8))}`, attemptId)); }
+      try { await this.#track(run, () => this.#launch(run, `${attempt.task}\n${attempt.continuation ? `Explicit ${attempt.continuation.mode}. Same hypothesis ${attempt.nodeId}. Prior invocation ${attempt.continuation.previousAttemptId}; lineage root ${attempt.continuation.rootAttemptId}; exact source ${attempt.continuation.sourceOid}. Continuation summary: ${attempt.continuation.summary}` : "New hypothesis invocation."}\nObjective: ${saved.spec.config.objective.description}\nMutable paths: ${JSON.stringify(saved.spec.config.material.mutablePaths)}\nDevelopment evaluation: ${JSON.stringify({kind:saved.spec.evaluation!.kind,definitionId:saved.spec.config.evaluator.identity,feedback:'unavailable; diagnostics non-authoritative',qualityVetoes:saved.spec.config.objective.qualityVetoes})}\nRelevant lessons: ${JSON.stringify((research.projection(runId)!.lessons as Array<{nodeId:string}>).slice(-8))}`, attemptId)); }
       catch (e) {
         binding.error = String(e); binding.state = "failed";
         // A persisted terminal worker failure is an operation outcome, not a
@@ -520,9 +575,11 @@ export class OwnerExecution {
       for (const controller of this.#evaluations.values()) controller.abort();
       await Promise.allSettled([...this.#evaluations.keys()]);
       await this.#admission;
+      await Promise.allSettled([...this.#recoveries]);
       await Promise.all([...this.#runs.values()].map(run => this.#drain(run, "interrupted")));
-      const settled = await Promise.allSettled([...this.#runs.values()].map(run => run.operation));
-      const failures = settled.filter(result => result.status === "rejected");
+      const operations=[...this.#runs.values()].map(run=>run.operation);
+      const settled = await Promise.allSettled(operations);
+      const failures = settled.filter((result,index): result is PromiseRejectedResult => result.status === "rejected" && !this.#reconciledOperations.has(operations[index]!));
       if (failures.length) throw new AggregateError(failures.map(result => result.reason), "Arbor owned settlement/storage failed; evidence retained");
     })();
     return this.#disposed;

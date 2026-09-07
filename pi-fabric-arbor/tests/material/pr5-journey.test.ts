@@ -16,7 +16,7 @@ import { commandProgram, researchCommand } from "../../src/research/commands.js"
 import { acceptance } from "../../src/material/acceptance.js";
 import { Workspace, gitBytes, gitText } from "../../src/material/Workspace.js";
 const identity = { id: "root", rootId: "root", ownerHostId: "host", ownerIdentityId: "identity", sessionId: "session" };
-async function fixture(t: test.TestContext, options: { search?: Record<string,number>; research?: boolean; workerLoss?: boolean; workerFailure?: boolean; output?: string; checks?: string[]; limits?: Record<string, number>; failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
+async function fixture(t: test.TestContext, options: { settlementFailure?: boolean; search?: Record<string,number>; research?: boolean; workerLoss?: boolean; workerFailure?: boolean; output?: string; checks?: string[]; limits?: Record<string, number>; failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
   const base = resolve(".runtime/pr5-journey"); await mkdir(base, { recursive: true }); const root = await mkdtemp(join(base, "case-")), cwd = join(root, "source"), state = join(root, "state"), profile = join(root, "profile"); await mkdir(cwd); await mkdir(profile);
   const git = (...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   git("init", "-b", "main"); git("config", "user.name", "PR5"); git("config", "user.email", "pr5@example.invalid");
@@ -55,7 +55,7 @@ async function fixture(t: test.TestContext, options: { search?: Record<string,nu
   const evaluator = new EvaluationEngine(owner, store, state, catalog), service = new ResearchService(owner, store, state, profile, evaluator);
   const context = { cwd, extensionContext: { sessionManager: { getSessionId: () => "session" }, isProjectTrusted: () => true, model: { provider: "fake", id: "worker" }, modelRegistry: { getAvailable: () => [{ provider: "fake", id: "worker" }, { provider: "fake", id: "subject" }] }, hasUI: true, ui: { select: async () => "Approve research choice" } } } as unknown as FabricInvocationContext;
   const invoke = async (name: string, payload: any, commandId = `${name}-${count}-${store.get("run")?.revision}`) => service.invoke(name, { ...store.binding(store.get("run")!, commandId), ...(name === "review" ? { decisionId: payload } : name === "export" ? { format: "json" } : name === "control" ? { action: payload } : { payload }) }, context) as Promise<any>;
-  t.after(async () => { if(options.workerLoss) await assert.rejects(service.close(), /settlement/); else await service.close(); });
+  t.after(async () => { if(options.workerLoss||options.settlementFailure) await assert.rejects(service.close(), /settlement/); else await service.close(); });
   const before = await readFile(join(cwd, ".git/index")), refs = git("show-ref");
   await service.invoke("start", { runId: "run", overrides: { execution: options.research ? "research" : "material", ...(options.limits ? { limits: options.limits } : {}), material: { mutablePaths: ["prompt", "other"], evaluationInputs: ["check"] }, objective: { unit: "points", ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, evaluator: { kind: definition.kind, definition: join(root, "definition.json") }, roleTools: { executor: ["read", "write", "bash"] }, search: { mode: options.review ? "review" : "auto", ...options.search } } }, context);
   if (options.command && !options.research) await invoke("evaluate", { attemptId: "baseline", evaluationId: "initial" });
@@ -63,6 +63,70 @@ async function fixture(t: test.TestContext, options: { search?: Record<string,nu
   const keep = (id: string) => invoke("decide", { decisionId: `keep-${id}`, nodeId: id, decision: "keep", evidenceIds: [`eval-${id}`] });
   return { native, root, cwd, state, store, bindings, service, owner, evaluator, invoke, candidate, keep, before, refs, git, context };
 }
+test('PR8 explicit same-owner reopen recovers known spawn attachment gap and freezes without duplicate native work',async t=>{
+ const f=await fixture(t,{command:true,settlementFailure:true});await f.invoke('propose',{nodeId:'one',type:'hypothesis',parentId:null,title:'one',rationale:'WRITE GOOD',sourceRefs:[]});
+ const ingest=f.store.native.bind(f.store);let lost=true;t.mock.method(f.store,'native',(...args:Parameters<typeof f.store.native>)=>{if(lost){lost=false;throw new Error('attachment persistence interrupted');}return ingest(...args);});
+ await assert.rejects(f.invoke('dispatch',{nodeId:'one',attemptId:'one'}),/attachment persistence/);const old=f.store.get('run')!,count=f.native.size;assert.equal(old.active,1);assert.equal(f.store.attempt('run','one')!.nativeId,null);await assert.rejects(f.service.close(),/settlement/);
+ const store=new ResearchStore(join(f.state,'research.sqlite3')),bindings=new BindingStore(join(f.state,'bindings.sqlite3')),owner=new OwnerExecution(f.owner.call,bindings,'arbor.owner','g2',store),catalog=new EvaluatorCatalog([],{id:'view',digest:'view',semanticDigest:'view',bindings:{}},async()=>{throw new Error('no provider');}),evaluator=new EvaluationEngine(owner,store,f.state,catalog),service=new ResearchService(owner,store,f.state,join(f.root,'profile'),evaluator);t.after(()=>service.close());
+ const args={...store.binding(store.get('run')!,'reopen'),payload:{attemptId:'exact-material',evaluationId:'initial',resume:true}};
+ const receipt=await service.invoke('evaluate',args,f.context) as any;assert.equal(receipt.status,'applied');assert.equal(f.native.size,count);assert.equal(store.get('run')!.active,0);assert.equal(store.attempt('run','one')!.state,'completed');assert.equal(store.attempt('run','one')!.generation,'g1');assert.ok(store.get('run')!.material!.candidates[0]!.oid);assert.deepEqual(store.get('run')!.spec,old.spec);assert.equal(store.get('run')!.epoch,old.epoch);assert.deepEqual(store.get('run')!.generationHistory,['g1']);
+});
+for(const mode of ['continue-partial','restart-parent'] as const)test(`PR8 ${mode} is a new charged same-hypothesis invocation with exact artifact lineage`,async t=>{
+ const f=await fixture(t,{workerFailure:true});await f.invoke('propose',{nodeId:'one',type:'hypothesis',parentId:null,title:'one',rationale:'WRITE GOOD',sourceRefs:[]});await assert.rejects(f.invoke('dispatch',{nodeId:'one',attemptId:'one'}));await f.invoke('control','pause');
+ const before=f.store.get('run')!,prior=f.store.attempt('run','one')!,partial=before.material!.candidates[0]!,nativeBefore=f.native.size;
+ const args={...f.store.binding(before,'continuation'),attemptId:'one',newAttemptId:'two',mode,summary:'Continue the same fixed hypothesis; preserve the completed partial edit and finish validation.'};
+ const result=await f.service.invoke('resumeAttempt',args,f.context) as any;assert.equal(result.status,'applied');
+ const after=f.store.get('run')!,next=f.store.attempt('run','two')!;assert.equal(after.state,'paused');assert.equal(after.execution,'partial-invocation-settled');assert.equal(after.attemptsUsed,before.attemptsUsed+1);assert.equal(f.native.size,nativeBefore+1);assert.deepEqual(after.spec,before.spec);assert.equal(after.epoch,before.epoch);assert.equal(after.material!.incumbent,before.material!.incumbent);assert.deepEqual(f.store.attempt('run','one'),prior);
+ assert.deepEqual(next.continuation,{mode,previousAttemptId:'one',rootAttemptId:'one',sourceOid:mode==='continue-partial'?partial.oid:partial.parent,summary:args.summary});assert.equal(next.nodeId,prior.nodeId);assert.equal(after.material!.candidates.find(c=>c.id==='two')!.parent,next.continuation!.sourceOid);
+ assert.deepEqual(await f.service.invoke('resumeAttempt',args,f.context),result);assert.equal(f.native.size,nativeBefore+1);assert.deepEqual(await readFile(join(f.cwd,'.git/index')),f.before);assert.equal(f.git('show-ref'),f.refs);
+ await f.invoke('control','cancel');const terminal=f.store.projection('run');await assert.rejects(f.service.invoke('resumeAttempt',{...f.store.binding(f.store.get('run')!,'after-terminal'),attemptId:'two',newAttemptId:'three',mode,summary:args.summary},f.context),/quiescent/);assert.deepEqual(f.store.projection('run'),terminal);assert.equal(f.native.size,nativeBefore+1);
+});
+test('PR8 cancel during continuation collection stays terminal after freeze and restore finish',async t=>{
+ const f=await fixture(t,{workerFailure:true});await f.invoke('propose',{nodeId:'one',type:'hypothesis',parentId:null,title:'one',rationale:'WRITE GOOD',sourceRefs:[]});await assert.rejects(f.invoke('dispatch',{nodeId:'one',attemptId:'one'}));await f.invoke('control','pause');
+ let entered!:()=>void,release!:()=>void;const ready=new Promise<void>(r=>entered=r),held=new Promise<void>(r=>release=r),freeze=Workspace.prototype.freeze;
+ t.mock.method(Workspace.prototype,'freeze',async function(this:Workspace,...args:Parameters<typeof freeze>){if(args[1].id==='two'){entered();await held;}return freeze.apply(this,args);});
+ const pending=f.service.invoke('resumeAttempt',{...f.store.binding(f.store.get('run')!,'cancelled-continuation'),attemptId:'one',newAttemptId:'two',mode:'restart-parent',summary:'Restart the same fixed hypothesis from its exact original parent.'},f.context);
+ try{await Promise.race([ready,pending.then(()=>{throw new Error('Collection barrier absent')})]);await f.invoke('control','cancel');assert.equal(f.store.get('run')!.state,'cancelled');}finally{release();await pending;}
+ const p=f.store.projection('run'),nativeBefore=f.native.size;assert.equal(f.store.get('run')!.state,'cancelled');assert.equal(f.store.get('run')!.execution,'material-cancelled');await assert.rejects(f.service.invoke('resumeAttempt',{...f.store.binding(f.store.get('run')!,'after-cancel'),attemptId:'two',newAttemptId:'three',mode:'restart-parent',summary:'Must not reopen cancelled research.'},f.context),/quiescent/);assert.deepEqual(f.store.projection('run'),p);assert.equal(f.native.size,nativeBefore);assert.deepEqual(await readFile(join(f.cwd,'.git/index')),f.before);assert.equal(f.git('show-ref'),f.refs);
+});
+for(const operation of ['refine','discard'] as const)test(`PR8 measured continuation ${operation} uses the settled continuation not the unlaunched original`,async t=>{
+ const f=await fixture(t,{command:true});await f.invoke('propose',{nodeId:'one',type:'hypothesis',parentId:null,title:'one',rationale:'WRITE GOOD',sourceRefs:[]});
+ const blocked=join(f.state,'runs/run/workspace/candidates/one');await mkdir(blocked,{recursive:true});await writeFile(join(blocked,'retained'),'pre-existing obstruction');await assert.rejects(f.invoke('dispatch',{nodeId:'one',attemptId:'one'}),/already exists|not empty/);await f.invoke('control','pause');
+ const prior=f.store.attempt('run','one')!;assert.equal(prior.state,'stopped');assert.equal(prior.nativeId,null);assert.equal(prior.nativeDigest,null);assert.equal(f.native.size,0);
+ await f.service.invoke('resumeAttempt',{...f.store.binding(f.store.get('run')!,'restart'),attemptId:'one',newAttemptId:'two',mode:'restart-parent',summary:'Retry the same hypothesis from its saved parent after proven prelaunch refusal.'},f.context);await f.invoke('evaluate',{attemptId:'exact-material',evaluationId:'initial',resume:true});await f.invoke('evaluate',{attemptId:'two',evaluationId:'eval-two'});
+ const next=f.store.attempt('run','two')!;assert.equal(next.state,'completed');assert.ok(next.nativeDigest);const nativeBefore=f.native.size;
+ const result=operation==='refine'?await f.invoke('propose',{nodeId:'child',type:'hypothesis',parentId:'one',title:'Refine measured continuation',rationale:'Keep exact linked parent evidence',sourceRefs:[]}):await f.invoke('decide',{decisionId:'discard-two',nodeId:'one',decision:'discard',evidenceIds:['eval-two']});
+ assert.equal(result.status,'applied');assert.deepEqual(f.store.attempt('run','one'),prior);assert.deepEqual(f.store.attempt('run','two'),next);assert.equal(f.native.size,nativeBefore);assert.equal(await readFile(join(blocked,'retained'),'utf8'),'pre-existing obstruction');assert.deepEqual(await readFile(join(f.cwd,'.git/index')),f.before);assert.equal(f.git('show-ref'),f.refs);
+});
+for(const research of [true,false])test(`PR8 pending ${research?'research':'material'} review rebind preserves choice and rejects an already-open old-generation dialog`,async t=>{
+ const f=await fixture(t,{research,command:true});await f.invoke('propose',{nodeId:'one',type:'hypothesis',parentId:null,title:'one',rationale:'WRITE GOOD',sourceRefs:[]});await f.invoke('decide',{decisionId:'choice',nodeId:'one',decision:'request_review',evidenceIds:[]});
+ let release!:(value:string)=>void,seen!:()=>void;const ready=new Promise<void>(r=>seen=r);f.context.extensionContext.ui.select=async()=>{seen();return new Promise<string>(r=>release=r);};
+ const pending=f.invoke('review','choice','held-review');const settled=pending.then(()=>null,error=>error);await ready;
+ const before=f.store.projection('run')!,beforeRun=f.store.get('run')!,command=f.store.binding(beforeRun,'reconcile-review');
+ assert.throws(()=>f.store.rebindPendingReview(command,{...identity,ownerHostId:'outside'},f.owner.componentId,'g2'),/boundary/);assert.throws(()=>f.store.rebindPendingReview(command,identity,'other','g2'),/boundary/);assert.deepEqual(f.store.projection('run'),before);
+ try{f.store.rebindPendingReview(command,identity,f.owner.componentId,'g2');}finally{release('Approve research choice');await settled;}assert.match(String(await settled),/generation|Stale/);
+ const after=f.store.projection('run')!,afterRun=f.store.get('run')!;assert.equal(afterRun.state,'awaiting_review');assert.equal(afterRun.pendingDecisionId,'choice');assert.deepEqual(afterRun.spec,beforeRun.spec);assert.deepEqual(after.attempts,before.attempts);assert.deepEqual(after.evaluations,before.evaluations);assert.equal((after.decisions as any[])[0].status,'pending');assert.equal((after.decisions as any[])[0].userReceipt,undefined);
+ assert.throws(()=>f.store.rebindPendingReview(command,identity,f.owner.componentId,'g3'),/Stale/);
+ const fresh=f.store.binding(f.store.get('run')!,'new-review');assert.equal(f.store.review(fresh,'g2','choice','Reject research choice',identity).status,'applied');assert.equal(f.store.get('run')!.pendingDecisionId,null);assert.equal((f.store.projection('run')!.nodes as any[])[0].reviewed,false);
+});
+test('PR8 apply/undo owner service requires genuine current UI selection and keeps source receipts separate from review',async t=>{
+ const f=await fixture(t,{command:true});await f.candidate('one');await f.keep('one');await f.invoke('control','pause');
+ const run=f.store.get('run')!,args={...f.store.binding(run,'source-apply'),decisionId:'keep-one'};
+ await assert.rejects(f.service.invoke('apply',{...args,approved:true},f.context),/unknown field/);
+ const saved=f.context.extensionContext.ui.select;f.context.extensionContext.ui.select=async()=>undefined;
+ await assert.rejects(f.service.invoke('apply',args,f.context),/dismissed|timed out/);assert.equal(await readFile(join(f.cwd,'prompt'),'utf8'),'BASELINE_SNAPSHOT_BAD');
+ f.context.extensionContext.ui.select=async(_title,options)=>options[0];const applied=await f.service.invoke('apply',args,f.context) as any;assert.equal(applied.status,'applied');assert.equal(await readFile(join(f.cwd,'prompt'),'utf8'),'CANDIDATE_SNAPSHOT_GOOD');
+ const undone=await f.service.invoke('undoApply',{...f.store.binding(f.store.get('run')!,'source-undo'),decisionId:'source-apply'},f.context) as any;assert.equal(undone.status,'applied');assert.equal(await readFile(join(f.cwd,'prompt'),'utf8'),'BASELINE_SNAPSHOT_BAD');assert.deepEqual(await readFile(join(f.cwd,'.git/index')),f.before);f.context.extensionContext.ui.select=saved;
+});
+test('PR8 stale source dialog and concurrent duplicate apply cannot rebase approval or overwrite completed journal',async t=>{
+ const f=await fixture(t,{command:true});await f.candidate('one');await f.keep('one');await f.invoke('control','pause');const old={...f.store.binding(f.store.get('run')!,'stale-source'),decisionId:'keep-one'};
+ f.context.extensionContext.ui.select=async()=>{await f.service.invoke('control',{...f.store.binding(f.store.get('run')!,'during-ui'),action:'steer',instruction:'Preserve newer owner direction'},f.context);return 'Apply exact source delta';};
+ await assert.rejects(f.service.invoke('apply',old,f.context),/Stale/);assert.equal(await readFile(join(f.cwd,'prompt'),'utf8'),'BASELINE_SNAPSHOT_BAD');
+ let release!:()=>void,seen!:()=>void,calls=0;const ready=new Promise<void>(r=>seen=r),held=new Promise<void>(r=>release=r);f.context.extensionContext.ui.select=async()=>{calls++;seen();await held;return 'Apply exact source delta';};const args={...f.store.binding(f.store.get('run')!,'single-source'),decisionId:'keep-one'};
+ const a=f.service.invoke('apply',args,f.context);await ready;const b=f.service.invoke('apply',args,f.context);await assert.rejects(f.service.invoke('apply',{...args,decisionId:'other'},f.context),/Conflicting duplicate/);release();const [one,two]=await Promise.all([a,b]);assert.deepEqual(one,two);assert.equal(calls,1);
+ const journal=JSON.parse(await readFile(join(f.state,'runs/run/workspace/source-operations/single-source.json'),'utf8'));assert.equal(journal.state,'applied');assert.equal(journal.intent.binding.response,'Apply exact source delta');assert.equal(journal.intent.binding.revision,args.revision);assert.deepEqual(journal.intent.binding.owner,f.store.get('run')!.owner);
+ f.context.extensionContext.ui.select=async()=> 'Undo exact source delta';const undoProgram=commandProgram(researchCommand('undo-apply','run single-source'));const undone=await new Function('tools',`return(async()=>{${undoProgram}})()`)({call:({ref,args}:any)=>f.service.invoke(ref.slice(6),args,f.context)});assert.equal(undone.status,'applied');assert.equal(await readFile(join(f.cwd,'prompt'),'utf8'),'BASELINE_SNAPSHOT_BAD');assert.deepEqual(await readFile(join(f.cwd,'.git/index')),f.before);
+});
 test('PR6 reviewer lost worker reply preserves uncertainty through failed actor cleanup', async t => {
  const f = await fixture(t, { research: true, command: true, workerLoss: true });
  await f.service.invoke('runResearch', { ...f.store.binding(f.store.get('run')!, 'autonomous') }, f.context);
@@ -204,7 +268,7 @@ test("PR5 material cancellation retains unresolved evaluator launch and snapshot
   const e = f.store.evaluations("run")[0]!; assert.equal(e.invocations[0]!.state, "launching"); assert.equal(e.invocations[0]!.nativeId, null); assert.equal(f.native.size, 1);
   assert.equal(f.store.get("run")!.state, "cleanup_pending"); assert.equal(await readFile(join(e.snapshots.baseline.directory, "prompt"), "utf8"), "BASELINE_SNAPSHOT_BAD");
   const retained = f.store.projection("run"); await assert.rejects(f.invoke("control", "pause"), /Unresolved material/); assert.deepEqual(f.store.projection("run"), retained);
-  await assert.rejects(f.invoke("control", "resume"), /[Uu]nknown|[Uu]nobservable/); assert.equal(f.native.size, 1);
+  await assert.rejects(f.invoke("control", "resume"), /[Uu]nknown|[Uu]nobservable/); assert.equal(f.native.size, 1); assert.deepEqual(f.store.projection("run"),retained);
 });
 test("PR5 completed baseline pause/resume becomes dispatchable without evaluator recharge", async t => {
   const f = await fixture(t); const calls = f.store.evaluations("run")[0]!.invocations.length;
@@ -214,7 +278,10 @@ test("PR5 completed baseline pause/resume becomes dispatchable without evaluator
 test("PR5 quiescent material resume does not bypass pending review or command execute policy", async t => {
   const f = await fixture(t, { review: true }); await f.invoke("propose", { nodeId: "one", type: "hypothesis", parentId: null, title: "one", rationale: "WRITE GOOD", sourceRefs: [] });
   await f.invoke("decide", { decisionId: "review-one", nodeId: "one", decision: "request_review", evidenceIds: [] });
-  await assert.rejects(f.invoke("control", "resume"), /review/); assert.equal(f.store.get("run")!.state, "awaiting_review");
+  const before=f.store.projection('run')!,old=f.store.binding(f.store.get('run')!,'old-review'),count=f.native.size;
+  const resumed=await f.invoke('control','resume');assert.equal(resumed.status,'applied');assert.equal(resumed.value.state,'awaiting_review');assert.equal(f.store.get('run')!.pendingDecisionId,'review-one');assert.equal(f.native.size,count);
+  const after=f.store.projection('run')!;assert.deepEqual(after.attempts,before.attempts);assert.deepEqual(after.evaluations,before.evaluations);assert.equal((after.decisions as any[])[0].status,'pending');assert.equal((after.decisions as any[])[0].userReceipt,undefined);assert.equal((after.nodes as any[])[0].reviewed,false);
+  await assert.rejects(f.service.invoke('review',{...old,decisionId:'review-one'},f.context),/Stale/);
   const c = await fixture(t, { command: true }); await c.invoke("control", "pause"); assert.equal((await c.invoke("control", "resume")).status, "blocked"); assert.equal(c.store.get("run")!.state, "paused");
   const { commandProgram, researchCommand } = await import("../../src/research/commands.js");
   const request = researchCommand("resume", "run"); const program = commandProgram(request);

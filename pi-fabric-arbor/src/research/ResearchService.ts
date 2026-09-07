@@ -10,6 +10,7 @@ import { configFile, resolveSpec } from "./spec.js";
 import { ResearchStore, type Receipt } from "./ResearchStore.js";
 import { ownedArtifactBytes, nativeAdmission, evaluationCapacity, researchFacts } from './policy.js';
 import { MaterialJourney } from "../material/MaterialJourney.js";
+import { SourceApply } from "../material/SourceApply.js";
 import type { MaterialState } from "../material/contracts.js";
 import type { EvaluationEngine } from "../evaluators/EvaluationEngine.js";
 
@@ -22,6 +23,7 @@ export class ResearchService {
   #researchRuns = new Set<string>();
   #starts = new Map<string, { hash: string; pending: Promise<unknown> }>();
   #reviews = new Map<string, { hash: string; pending: Promise<unknown> }>();
+  #sources = new Map<string, { hash: string; pending: Promise<Receipt> }>();
   #draining = false;
   #disposed: Promise<void> | undefined;
   #pending = new Set<Promise<unknown>>();
@@ -48,11 +50,16 @@ export class ResearchService {
       const bound = this.store.get(args.runId)!; if (canonical(bound.owner) !== canonical(identity)) throw new Error("Different native owning Pi root/host/identity");
       if (name === "control" && bound.spec.evaluation?.kind === "command") return this.store.unavailable(command, this.owner.generation, "control", { action: "resume", instruction: null }, "Command evaluation resume requires the execute-policy arbor.evaluate route; /arbor resume selects it through normal policy");
       if (name === "evaluate" && (args.payload.attemptId !== "exact-material" || !this.store.evaluation(args.runId, args.payload.evaluationId))) throw new Error("Unknown exact evaluation resume binding");
+      if(name==='control'&&bound.material?.pending)throw new Error('Pending integration requires execute-policy arbor.evaluate reconciliation; agent-risk control cannot apply an owned ref');
       const action = name === "evaluate" ? "evaluate" as const : "control" as const;
       const payload = name === "evaluate" ? args.payload : { action: "resume", instruction: null };
       const duplicate = this.store.receipt(command, action, payload); if (duplicate) return duplicate;
+      this.store.check(bound,command);
       await this.owner.verifyRoles(bound.id, true);
-      await this.evaluator.resume(command, identity, context.signal);
+      if(bound.material&&bound.pendingDecisionId)return await this.#reconcilePendingReview(command,context,identity,{action,payload});
+      let resumeCommand=command;
+      if(bound.material && (bound.active||bound.material.pending||['interrupted','cleanup_pending'].includes(bound.state))){resumeCommand=await this.material.reconcile(command,context);}
+      await this.evaluator.resume(resumeCommand, identity, context.signal);
       const reconciled = this.store.get(args.runId)!;
       if (reconciled.material && !reconciled.material.baselineEvaluation) {
         const baseline = this.store.evaluations(args.runId).find(e => e.state === "completed" && e.validity === "valid" && e.snapshots.baseline.oid === reconciled.material!.capture.baseline && e.snapshots.candidate.oid === reconciled.material!.capture.baseline);
@@ -61,8 +68,12 @@ export class ResearchService {
       const current = this.store.get(args.runId)!;
       return this.store.evaluationReceipt(command, this.owner.generation, action, payload, ["INTERRUPTED", "blocked"].includes(current.execution) ? "blocked" : "applied", current.error);
     }
-    const run = this.store.authorize(args.runId, identity, this.owner.generation);
     const command: BoundCommand = { runId: args.runId, materialId: args.materialId, epoch: args.epoch, revision: args.revision, commandId: args.commandId };
+    if (name === 'apply' || name === 'undoApply') {
+      this.store.authorizeSource(args.runId, identity, this.owner.componentId, this.owner.generation);
+      return this.#source(name, command, args.decisionId, context);
+    }
+    const run = this.store.authorize(args.runId, identity, this.owner.generation);
     if(name==='reviseRoles'){
       const duplicate=this.store.receipt(command,name,{});if(duplicate)return duplicate;
       this.store.check(run,command);
@@ -75,7 +86,7 @@ export class ResearchService {
       context.signal?.throwIfAborted();if(this.#draining)throw new Error('Role revision generation retired');
       return this.store.reviseRoles(command,this.owner.generation,{revision:run.revision+1,commandId:command.commandId,bundle,coordinatorId,executorId});
     }
-    if (run.material && ['dispatch', 'collect', 'evaluate', 'decide'].includes(name)) return this.material.invoke(name, command, args.payload, context);
+    if (run.material && ['dispatch', 'collect', 'evaluate', 'decide', 'resumeAttempt'].includes(name)) return this.material.invoke(name, command, name==='resumeAttempt'?{attemptId:args.attemptId,newAttemptId:args.newAttemptId,mode:args.mode,summary:args.summary}:args.payload, context);
     if (name === "control") {
       const receipt = this.store.control(command, this.owner.generation, args.action, args.instruction);
       if (run.material && args.action === "cancel") {
@@ -97,7 +108,7 @@ export class ResearchService {
         }
       }
       // Reopening/config inspection is frozen and never reloads changed defaults.
-      // Native stopped-actor/partial-material resume remains explicitly PR8.
+      // Material/research recovery uses the exact native/artifact reconciliation path above.
       return receipt;
     }
     if (name === "evaluate" && run.spec.config.execution === "evaluate") {
@@ -127,9 +138,60 @@ export class ResearchService {
       this.#reviews.set(key, { hash, pending });
       try { return await pending; } finally { this.#reviews.delete(key); }
     }
-    if (name === "apply" || name === "undoApply") return this.store.unavailable(command, this.owner.generation, name, { decisionId: args.decisionId }, "Source apply/undo and preimage reconciliation remain PR8; no source write attempted");
     if (name === "export") return this.#export(command);
     throw new Error(`Unimplemented routing error ${name}`);
+  }
+  async #reconcilePendingReview(command:BoundCommand,context:FabricInvocationContext,identity:NativeOwner,operation?:{action:'control'|'evaluate';payload:unknown}):Promise<Receipt|undefined> {
+    const run=this.store.get(command.runId)!;this.store.check(run,command);
+    // Renew only the pending binding, never enter evaluator/actor dispatch.
+    if(!run.material||run.active||run.material.pending||this.owner.busyResearch(run.id)||this.store.evaluations(run.id).some(e=>e.state!=='completed'))throw new Error('Pending review recovery requires settled native/material/evaluation boundaries');
+    await this.material.workspace(run.id).verify(run.material.capture);
+    const observed=await this.owner.observeRecovery(run.id,context);
+    context.signal?.throwIfAborted();if(this.#draining)throw new Error('Review recovery generation retired');
+    if(observed.length)throw new Error('Pending review recovery cannot reconcile unsettled attempts');
+    return this.store.rebindPendingReview(command,identity,this.owner.componentId,this.owner.generation,operation);
+  }
+  async #source(name:'apply'|'undoApply',command:BoundCommand,decisionId:string,context:FabricInvocationContext):Promise<Receipt> {
+    const key=command.runId+'/'+command.commandId,hash=digest({name,command,decisionId}),existing=this.#sources.get(key);
+    if(existing){if(existing.hash!==hash)throw new Error('Conflicting duplicate source operation');return existing.pending;}
+    const pending=this.#sourceOnce(name,command,decisionId,context);this.#sources.set(key,{hash,pending});
+    try{return await pending;}finally{this.#sources.delete(key);}
+  }
+  async #sourceOnce(name: 'apply'|'undoApply', command: BoundCommand, decisionId: string, context: FabricInvocationContext): Promise<Receipt> {
+    const duplicate=this.store.receipt(command,name,{decisionId});if(duplicate)return duplicate;
+    const run=this.store.get(command.runId)!;this.store.check(run,command);
+    if(!run.material)return this.store.unavailable(command,this.owner.generation,name,{decisionId},'Source apply requires owned measured material; no source write attempted');
+    if(run.active||run.material.pending||run.pendingDecisionId||this.owner.busyResearch(run.id)||this.#researchRuns.has(run.id)||['running','cleanup_pending','interrupted'].includes(run.state))throw new Error('Source apply requires a quiescent exact owner with settled review/integration/writers');
+    const source=new SourceApply(this.material.workspace(run.id));
+    const decision=(this.store.projection(run.id)!.decisions as Array<Record<string,any>>).find(d=>d.decisionId===decisionId);
+    const applied=source.read(decisionId);
+    const recovery=name==='apply'&&applied?.intent.kind==='apply'?applied:undefined;
+    const terminal=['cancelled','completed','failed'].includes(run.state);
+    if(terminal&&applied?.intent.kind!=='apply')throw new Error('Terminal source reconciliation requires an original apply intent; no new source apply');
+    const keep=recovery?(this.store.projection(run.id)!.decisions as Array<Record<string,any>>).find(d=>d.decisionId===recovery.intent.binding.decisionId):decision;
+    if(name==='apply' && (keep?.status!=='measured-keep'||keep.materialId!==command.materialId||keep.epoch!==command.epoch||this.store.evaluation(run.id,keep.evidenceIds[0])?.snapshots.candidate.oid!==(recovery?.intent.target??run.material.incumbent)))throw new Error('Apply requires exact current measured-keep decision, not a review flag');
+    if((name==='undoApply'||recovery) && (!applied||applied.intent.captureId!==command.materialId||canonical(applied.intent.binding.owner)!==canonical(run.owner)||applied.intent.binding.specId!==run.spec.identity||applied.intent.binding.epoch!==run.epoch||applied.intent.binding.runId!==run.id||applied.intent.binding.response!=='Apply exact source delta'))throw new Error('Source recovery/undo requires exact owning-Pi source operation provenance');
+    if(terminal){
+      // Source-only reconciliation observes saved boundaries, never rebinds research or launches native work.
+      await this.owner.verifyRoles(run.id,true);
+      await source.workspace.verify(run.material.capture);
+      if((await this.owner.observeRecovery(run.id,context)).length)throw new Error('Terminal source reconciliation cannot settle unfinished native attempts');
+      this.store.check(this.store.authorizeSource(run.id,await this.owner.identity(context),this.owner.componentId,this.owner.generation),command);
+      if(this.#draining)throw new Error('Source generation retired');
+    }
+    if(!context.extensionContext.hasUI)throw new Error('Actual owning-Pi source dialog unavailable; no supplied approval');
+    const choice=name==='apply'?'Apply exact source delta':'Undo exact source delta';
+    const selected=(recovery??(name==='undoApply'?applied:undefined))?.intent.target??run.material.incumbent;
+    const response=await context.extensionContext.ui.select(`Arbor ${recovery?'reconcile original apply (postimage adoption only)':name}: ${run.material.capture.root}, material ${command.materialId}, epoch ${command.epoch}, revision ${command.revision}, selected ${selected}, decision ${decisionId}. Preserve unrelated edits; any affected-path conflict blocks. Research review is not Fabric permission.`,[choice,'Cancel source change'],{timeout:60000,...(context.signal?{signal:context.signal}:{})});
+    if(response!==choice)throw new Error('Source dialog dismissed/timed out; no approval or source write');
+    const owner=await this.owner.identity(context);this.store.check(this.store.authorizeSource(run.id,owner,this.owner.componentId,this.owner.generation),command);
+    if(this.#draining)throw new Error('Source generation retired');
+    const binding={...command,specId:run.spec.identity,owner,generation:this.owner.generation,decisionId,response};
+    if(recovery){await source.workspace.verify(run.material.capture);await source.workspace.checkScope(run.material.capture,recovery.intent.target);}
+    const journal=recovery??(name==='apply'?await source.prepare(run.material.capture,run.material.incumbent,command.commandId,binding):await source.prepareUndo(run.material.capture,decisionId,command.commandId,binding));
+    context.signal?.throwIfAborted();if(this.#draining)throw new Error('Source generation retired before writes');this.store.check(this.store.authorizeSource(run.id,owner,this.owner.componentId,this.owner.generation),command);
+    const result=recovery?source.adopt(run.material.capture,journal,binding):source.execute(run.material.capture,journal);
+    return this.store.sourceReceipt(command,this.owner.generation,name,decisionId,source.path(journal.intent.operationId),digest(result),result.state==='applied'?null:result.error??'Source conflict; patch retained',owner,this.owner.componentId);
   }
   async #start(args: Record<string, any>, context: FabricInvocationContext, identity: NativeOwner): Promise<unknown> {
     const hash = digest({ cwd: context.cwd, args });
@@ -198,8 +260,15 @@ export class ResearchService {
     try{
       await this.owner.verifyRoles(run.id,true);
       if(args.resume){
-        if(this.owner.busyResearch(run.id)||run.active||run.material.pending||run.pendingDecisionId||run.state!=='paused')throw new Error('Research resume requires quiescent paused owner; ambiguous work is retained');
-        await this.evaluator.resume(args as BoundCommand,identity,context.signal);
+        if(this.owner.busyResearch(run.id))throw new Error('Research resume requires quiescent owner');
+        if(run.pendingDecisionId){
+          await this.#reconcilePendingReview(args as BoundCommand,context,identity);
+          return this.store.projection(run.id);
+        }
+        let resumeCommand=args as BoundCommand;
+        if(run.active||run.material.pending||['interrupted','cleanup_pending','running'].includes(run.state)){resumeCommand=await this.material.reconcile(args as BoundCommand,context);}
+        else if(run.state!=='paused')throw new Error('Research resume requires quiescent paused owner; terminal work is retained');
+        await this.evaluator.resume(resumeCommand,identity,context.signal);
       }else{this.store.authorize(run.id,identity,this.owner.generation);if(run.execution!=='not-started'||!['ready','running'].includes(run.state))throw new Error('Research requires explicit resume, not replay');}
       const current=this.store.get(run.id)!;
       const projection=this.store.projection(run.id)!;

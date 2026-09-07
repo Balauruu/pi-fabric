@@ -10,7 +10,7 @@ export function researchFacts(p: Record<string, any>) {
  let noGain=0, failedChecks=0, failures=0;
  const outcomes=(p.attempts as Array<Record<string, any>>).map((a:any)=>{
   const c=p.run.material.candidates?.find((c:any)=>c.id===a.id);
-  const d=p.decisions.filter((d:any)=>d.nodeId===a.nodeId && ['measured-keep','applied'].includes(d.status) && ['keep','discard'].includes(d.decision)).at(-1);
+  const d=p.decisions.filter((d:any)=>d.nodeId===a.nodeId && (p.attempts.filter((s:any)=>s.nodeId===a.nodeId).length===1 || d.evidenceIds.includes(a.evidenceId) || p.evaluations.some((e:any)=>e.attemptId===a.id&&d.evidenceIds.includes(e.id))) && ['measured-keep','applied'].includes(d.status) && ['keep','discard'].includes(d.decision)).at(-1);
   // A decision pins its exact evidence forever. Equal trees do not identify attempts.
   const e=d ? p.evaluations.find((e:any)=>e.attemptId===a.id && d.evidenceIds.includes(e.id)) : p.evaluations.filter((e:any)=>e.attemptId===a.id).at(-1);
   const outcome=d?.status==='measured-keep'?'kept':!e || e.state!=='completed'?'infrastructure-failure':e.validity!=='valid'?'failed-check':d?'valid-no-gain':'awaiting-decision';
@@ -18,7 +18,7 @@ export function researchFacts(p: Record<string, any>) {
  });
  // Decision commits are serialized; sibling reservation/completion order must
  // not move a measured-keep reset past a subsequently discarded comparison.
- const order=(o:typeof outcomes[number])=>{const index=p.decisions.findLastIndex((d:any)=>d.nodeId===o.nodeId&&['keep','discard'].includes(d.decision)&&['measured-keep','applied'].includes(d.status));return index<0?p.decisions.length+outcomes.indexOf(o):index;};
+ const order=(o:typeof outcomes[number])=>{const index=p.decisions.findLastIndex((d:any)=>d.nodeId===o.nodeId&&(p.attempts.filter((a:any)=>a.nodeId===o.nodeId).length===1||d.evidenceIds.includes(o.evaluationId)||d.evidenceIds.includes(p.attempts.find((a:any)=>a.id===o.attemptId)?.evidenceId))&&['keep','discard'].includes(d.decision)&&['measured-keep','applied'].includes(d.status));return index<0?p.decisions.length+outcomes.indexOf(o):index;};
  let lastComparedNodeId:string|null=null;
  for(const o of [...outcomes].sort((a,b)=>order(a)-order(b))){
   const a=p.attempts.find((a:any)=>a.id===o.attemptId);
@@ -54,7 +54,7 @@ export function researchObservation(p: Record<string, any>, bytes: number, recor
  const recent=facts.outcomes.slice(-8), relevant=new Set(recent.map(o=>o.nodeId));
  const nodes=p.nodes.filter((n:any)=>!n.pruned).slice(-16);
  for(const n of nodes){relevant.add(n.nodeId);if(n.parentId)relevant.add(n.parentId);}
- return {research:true, selection, selectionAfter, rankings:rankEvaluations(records.filter(e=>e.attemptId),r.spec.config.objective.direction).map(e=>({evaluationId:e.id,attemptId:e.attemptId})), concurrency:r.spec.config.search.concurrency, currentIncumbent:r.material.incumbent,frontier:nodes, nodes, attempts:p.attempts.slice(-8), recentFacts:recent,
+ return {research:true, interactionMode:r.spec.config.search.mode, selection, selectionAfter, rankings:rankEvaluations(records.filter(e=>e.attemptId),r.spec.config.objective.direction).map(e=>({evaluationId:e.id,attemptId:e.attemptId})), concurrency:r.spec.config.search.concurrency, currentIncumbent:r.material.incumbent,frontier:nodes, nodes, attempts:p.attempts.slice(-8), recentFacts:recent,
   evidence:p.evaluations.slice(-8).map((e:any)=>({id:e.id,baselineOid:e.baselineOid,candidateOid:e.candidateOid,state:e.state,validity:e.validity,quality:e.quality,analysis:e.analysis,invocationIds:e.invocations.map((i:any)=>i.id).slice(-32)})),
   nativeEvidence:(p.artifact_refs??[]).filter((e:any)=>e.kind==='native-evidence').slice(-8), decisions:p.decisions.slice(-12),ancestors:p.lessons.filter((l:any)=>relevant.has(l.nodeId)).slice(-8),controls:p.controls.slice(-8),steering:r.steering,
   facts, budgets:{attempts:r.spec.config.limits.attempts-r.attemptsUsed,evaluatorCalls:r.spec.config.limits.evaluatorCalls-facts.evaluatorCalls,evaluationCapacity:evaluationCapacity(p),artifactBytes:r.spec.config.limits.artifactBytes-bytes,activeMs:r.spec.config.limits.activeMs-r.activeMs-(r.activeSince===null?0:Date.now()-r.activeSince),tokens:'observational; unavailable aggregate',cost:'observational; unavailable aggregate'},

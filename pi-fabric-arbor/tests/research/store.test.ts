@@ -219,12 +219,14 @@ test("public manifest exactly matches registrations; every nested schema is clos
     if (schema.items) check(schema.items); if (schema.oneOf) schema.oneOf.forEach(check);
   }
   ARBOR_ACTIONS.forEach(a => { check(a.inputSchema); if (a.outputSchema) check(a.outputSchema); }); check(ACTOR_PROPOSAL_SCHEMA);
-  assert.equal(RESEARCH_ACTIONS.length, 15); assert.equal(ARBOR_ACTIONS.length, 18);
+  assert.equal(RESEARCH_ACTIONS.length, 16); assert.equal(ARBOR_ACTIONS.length, 19);
   assert.deepEqual(ACTION_MANIFEST.map(a => a.name), RESEARCH_ACTIONS.map(a => a.name));
   const manifest = JSON.parse(await readFile("docs/pr3-action-manifest.json", "utf8"));
   assert.deepEqual(manifest.actions.map((a: any) => a.ref), ARBOR_ACTIONS.map(a => `arbor.${a.name}`));
   for (const action of ARBOR_ACTIONS) { const saved = manifest.actions.find((a: any) => a.name === action.name); assert.deepEqual(saved.inputSchema, action.inputSchema); assert.deepEqual(saved.outputSchema, action.outputSchema); assert.deepEqual(saved.effect, action.effect); assert.equal(saved.risk, action.risk); assert.equal(saved.actorCommitment, false); }
   for (const action of ["apply", "undoApply", "review", "export"]) assert.equal(RESEARCH_ACTIONS.find(a => a.name === action)!.risk, "write");
+  assert.equal(RESEARCH_ACTIONS.find(a=>a.name==='resumeAttempt')!.risk,'agent'); // bounded native worker only; evaluation resumes separately through its execute gate
+  for(const mode of ['continue-partial','restart-parent']){const r=researchCommand(mode,'run prior Complete the same hypothesis');assert.equal(r.ref,'arbor.resumeAttempt');assert.equal(r.args.mode,mode);assert.equal(r.args.attemptId,'prior');assert.ok(r.args.newAttemptId);assert.throws(()=>researchCommand(mode,'run prior'),/summary/);assert.doesNotMatch(commandProgram(r),/owner\.|service\.|context.call/);}
   const req = researchCommand("pause", "run"); assert.equal(req.ref, "arbor.control"); const code = commandProgram(req); assert.match(code, /arbor.inspect/); assert.match(code, /arbor.control/); assert.doesNotMatch(code, /owner\.|service\.|context.call/);
   assert.throws(() => researchCommand("forward", "agents.spawn")); assert.throws(() => researchCommand("start", '{"runId":"x","approved":true}'));
   assert.equal(SUBSTRATE_ACTIONS.length, 3); assert.equal(digest({ a: 1, b: 2 }), digest({ b: 2, a: 1 }));

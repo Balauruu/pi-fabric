@@ -136,7 +136,24 @@ export class Workspace {
     const oid = this.#commit(capture.repository, first.entries, candidate.parent);
     gitBytes(capture.repository, ["update-ref", `refs/arbor/candidates/${candidate.id}/${oid}`, oid]);
     if (first.oid) gitBytes(capture.repository, ["update-ref", `refs/arbor/workers/${candidate.id}/${first.oid}`, first.oid]);
-    await this.checkScope(capture, oid); return { ...candidate, oid };
+    await this.checkScope(capture, oid); const frozen={...candidate,oid};await this.#receipt(capture,frozen,'freezes');return frozen;
+  }
+  async #receipt(capture:Capture,candidate:Candidate,kind:'freezes'|'retained'):Promise<void> {
+    const directory=join(this.directory,kind);await mkdir(directory,{recursive:true});
+    const body={captureId:capture.id,candidate},text=canonical({...body,digest:digest(body)})+'\n',path=join(directory,candidate.id+'.json');
+    try{await writeFile(path,text,{flag:'wx',mode:0o600});}catch(e){if((e as NodeJS.ErrnoException).code!=='EEXIST')throw e;const saved=JSON.parse(await readFile(path,'utf8'));if(saved.captureId!==capture.id||saved.candidate.id!==candidate.id||saved.candidate.parent!==candidate.parent||saved.candidate.directory!==candidate.directory)throw new Error('Retained candidate lineage conflict');}
+  }
+  async recoverCandidate(capture:Capture,candidate:Candidate):Promise<Candidate & {oid:string}> {
+    await this.#owned(capture,candidate);
+    for(const kind of ['freezes','retained'] as const){
+      let saved;try{saved=JSON.parse(await readFile(join(this.directory,kind,candidate.id+'.json'),'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code==='ENOENT')continue;throw e;}
+      const {digest:identity,...body}=saved,c=body.candidate as Candidate;
+      if(identity!==digest(body)||body.captureId!==capture.id||c.id!==candidate.id||c.parent!==candidate.parent||c.directory!==candidate.directory||!c.oid)throw new Error('Frozen/partial artifact lineage changed');
+      const ref=`refs/arbor/${kind==='freezes'?'candidates':'retained'}/${c.id}/${c.oid}`;
+      if(gitText(capture.repository,['rev-parse',ref]).trim()!==c.oid)throw new Error('Exact retained partial ref changed');
+      await this.checkScope(capture,c.oid);return {...c,oid:c.oid};
+    }
+    return this.freeze(capture,candidate);
   }
   async checkScope(capture: Capture, oid: string): Promise<void> {
     const before = tree(capture.repository, capture.baseline), after = tree(capture.repository, oid);
@@ -149,6 +166,7 @@ export class Workspace {
     const state = await this.#scan(candidate.directory, [], capture.repository, true), oid = this.#commit(capture.repository, state.entries, candidate.parent);
     gitBytes(capture.repository, ["update-ref", `refs/arbor/retained/${candidate.id}/${oid}`, oid]);
     if (state.oid) gitBytes(capture.repository, ["update-ref", `refs/arbor/workers/${candidate.id}/${state.oid}`, state.oid]);
+    await this.#receipt(capture,{...candidate,oid},'retained');
     gitBytes(candidate.directory, ["checkout", "--detach", "--force", candidate.parent]); gitBytes(candidate.directory, ["clean", "-fd"]);
   }
   async export(capture: Capture, oid: string): Promise<string> { await this.verify(capture); await this.checkScope(capture, oid); return gitText(capture.repository, ["diff", "--binary", "--no-ext-diff", "--no-textconv", capture.baseline, oid, "--"]); }

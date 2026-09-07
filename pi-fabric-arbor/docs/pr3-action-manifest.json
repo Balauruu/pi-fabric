@@ -3624,6 +3624,48 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "continuation": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "continue-partial",
+                            "restart-parent"
+                          ]
+                        },
+                        "previousAttemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "rootAttemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "sourceOid": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "summary": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      },
+                      "required": [
+                        "mode",
+                        "previousAttemptId",
+                        "rootAttemptId",
+                        "sourceOid",
+                        "summary"
+                      ]
+                    },
                     "slotReserved": {
                       "type": "boolean"
                     },
@@ -4667,7 +4709,8 @@
                         "kind": {
                           "type": "string",
                           "enum": [
-                            "unscored-json-export"
+                            "unscored-json-export",
+                            "source-operation"
                           ]
                         }
                       },
@@ -4770,6 +4813,578 @@
         "ordering": "ordered"
       },
       "description": "Owning Pi execute-policy gate for autonomous research: baseline, persistent proposal actor, bounded candidate operations and exact command/subject evaluation. Agent effects additionally use declared policy-checked managed agents refs."
+    },
+    {
+      "ref": "arbor.resumeAttempt",
+      "caller": "owning-Pi",
+      "commands": [
+        "/arbor continue-partial",
+        "/arbor restart-parent"
+      ],
+      "actorCommitment": false,
+      "name": "resumeAttempt",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "runId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "materialId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "epoch": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "commandId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "attemptId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "newAttemptId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "continue-partial",
+              "restart-parent"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "runId",
+          "materialId",
+          "epoch",
+          "revision",
+          "commandId",
+          "attemptId",
+          "newAttemptId",
+          "mode",
+          "summary"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "commandId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "runId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "applied",
+              "queued",
+              "blocked"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "reason": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "nodeId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  }
+                },
+                "required": [
+                  "nodeId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "decisionId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  }
+                },
+                "required": [
+                  "decisionId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "lessonId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  }
+                },
+                "required": [
+                  "lessonId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "nodeId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "task": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "reserved",
+                      "running",
+                      "completed",
+                      "failed",
+                      "stopped",
+                      "timed_out"
+                    ]
+                  },
+                  "nativeId": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nativeDigest": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "evidenceId": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "model": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "pattern": "^[^/]+/.+$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "materialId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "epoch": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "generation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  }
+                },
+                "required": [
+                  "id",
+                  "nodeId",
+                  "task",
+                  "state",
+                  "nativeId",
+                  "nativeDigest",
+                  "evidenceId",
+                  "model",
+                  "materialId",
+                  "epoch",
+                  "generation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "specId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "state",
+                  "specId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "response": {
+                    "type": "string",
+                    "enum": [
+                      "Approve research choice",
+                      "Reject research choice"
+                    ]
+                  },
+                  "owner": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      "rootId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      "ownerHostId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      "ownerIdentityId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      "sessionId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "rootId",
+                      "ownerHostId",
+                      "ownerIdentityId",
+                      "sessionId"
+                    ]
+                  },
+                  "materialId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "epoch": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "commandId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  }
+                },
+                "required": [
+                  "response",
+                  "owner",
+                  "materialId",
+                  "epoch",
+                  "revision",
+                  "commandId"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "digest": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "path",
+                  "digest"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "commandId",
+          "runId",
+          "revision",
+          "status",
+          "action",
+          "reason",
+          "value"
+        ]
+      },
+      "risk": "agent",
+      "effect": {
+        "kind": "emission",
+        "resources": [
+          "arbor:research"
+        ],
+        "ordering": "ordered"
+      },
+      "description": "Owning Pi only: reserve a separately charged bounded same-hypothesis continuation from exact settled partial material, or explicitly restart from its original parent. Never replays ambiguous work or evaluates implicitly."
     },
     {
       "ref": "arbor.reviseRoles",
@@ -4948,6 +5563,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -7736,6 +8393,48 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "continuation": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "continue-partial",
+                            "restart-parent"
+                          ]
+                        },
+                        "previousAttemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "rootAttemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "sourceOid": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "summary": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      },
+                      "required": [
+                        "mode",
+                        "previousAttemptId",
+                        "rootAttemptId",
+                        "sourceOid",
+                        "summary"
+                      ]
+                    },
                     "slotReserved": {
                       "type": "boolean"
                     },
@@ -8779,7 +9478,8 @@
                         "kind": {
                           "type": "string",
                           "enum": [
-                            "unscored-json-export"
+                            "unscored-json-export",
+                            "source-operation"
                           ]
                         }
                       },
@@ -10949,6 +11649,48 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "continuation": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "continue-partial",
+                            "restart-parent"
+                          ]
+                        },
+                        "previousAttemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "rootAttemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "sourceOid": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "summary": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      },
+                      "required": [
+                        "mode",
+                        "previousAttemptId",
+                        "rootAttemptId",
+                        "sourceOid",
+                        "summary"
+                      ]
+                    },
                     "slotReserved": {
                       "type": "boolean"
                     },
@@ -11992,7 +12734,8 @@
                         "kind": {
                           "type": "string",
                           "enum": [
-                            "unscored-json-export"
+                            "unscored-json-export",
+                            "source-operation"
                           ]
                         }
                       },
@@ -12291,6 +13034,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -12799,6 +13584,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -13359,6 +14186,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -14029,6 +14898,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -14544,6 +15455,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -15080,6 +16033,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -15626,6 +16621,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -16182,6 +17219,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -16690,6 +17769,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -17198,6 +18319,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -17520,7 +18683,7 @@
         ],
         "ordering": "ordered"
       },
-      "description": "Owning Pi only; unavailable until source-preimage/workspace implementation. Never treats review as Fabric permission."
+      "description": "Owning Pi actual user dialog: apply an exact measured-keep baseline delta using journaled affected-path preimages. Conflicts retain patch. Never treats research review as Fabric permission."
     },
     {
       "ref": "arbor.undoApply",
@@ -17706,6 +18869,48 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "continuation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "continue-partial",
+                          "restart-parent"
+                        ]
+                      },
+                      "previousAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "rootAttemptId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "sourceOid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "summary": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "previousAttemptId",
+                      "rootAttemptId",
+                      "sourceOid",
+                      "summary"
+                    ]
+                  },
                   "slotReserved": {
                     "type": "boolean"
                   },
@@ -18028,7 +19233,7 @@
         ],
         "ordering": "ordered"
       },
-      "description": "Owning Pi only; unavailable until source-preimage reconciliation implementation. No inverse is guessed."
+      "description": "Owning Pi actual user dialog: undo the exact source operation named by decisionId, only against unchanged applied postimages. Journal before writes; partial conflicts never use a blind inverse."
     },
     {
       "ref": "arbor.substrateStart",

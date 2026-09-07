@@ -37,6 +37,12 @@ export class BindingStore {
       return row ? JSON.parse(String(row.value)) as Binding : undefined;
     } finally { if (db !== this.#db) db.close(); }
   }
+  forMaterial(materialId:string,policyId:string):Binding[] {
+    if(this.#closed)throw new Error('Arbor generation storage is closed');
+    if(!this.#db&&!existsSync(this.path))return [];
+    const db=this.#db??new DatabaseSync(this.path,{readOnly:true});
+    try {const rows=db.prepare("SELECT value FROM execution_bindings WHERE json_extract(value,'$.spec.materialId')=? AND json_extract(value,'$.spec.policyId')=? LIMIT 513").all(materialId,policyId);if(rows.length>512)throw new Error('Recovery binding bound exceeded');return rows.map(r=>JSON.parse(String(r.value)) as Binding);}finally{if(db!==this.#db)db.close();}
+  }
   bind(binding: Binding): Binding {
     const db = this.#open();
     const row = db.prepare("SELECT value FROM execution_bindings WHERE id=?").get(binding.spec.runId);

@@ -27,17 +27,17 @@ export class MaterialJourney {
     if (!m.pending) this.store.check(run, command);
     await workspace.verify(m.capture); context.signal?.throwIfAborted();
     if (this.draining) throw new Error("Material generation retired");
-    if(run.spec.config.execution==='research' && ['dispatch','evaluate'].includes(name)) await requireNativeAdmission(this.store,run.id);
-    if (name === "dispatch") {
+    if(run.spec.config.execution==='research' && ['dispatch','evaluate','resumeAttempt'].includes(name)) await requireNativeAdmission(this.store,run.id);
+    if (name === "dispatch" || name === "resumeAttempt") {
       await this.owner.verifyRoles(run.id);
       context.signal?.throwIfAborted(); if (this.draining) throw new Error("Material generation retired before role admission");
       // All awaits precede the final replay check and atomic whole-wave reservation.
-      const replay=this.store.receipt(command,'dispatch',payload);if(replay)return replay;
-      const receipt=this.store.research('dispatch',command,payload,generation);
-      const items: Array<{attemptId:string}>=payload.candidates??[payload],candidates=[];
+      const replay=this.store.receipt(command,name,payload);if(replay)return replay;
+      const receipt=name==='resumeAttempt'?this.store.reserveContinuation(command,generation,payload):this.store.research('dispatch',command,payload,generation);
+      const items: Array<{attemptId:string}>=name==='resumeAttempt'?[{attemptId:payload.newAttemptId}]:payload.candidates??[payload],candidates=[];
       try {
         for(const item of items){
-          const candidate=await workspace.materialize(m.capture,item.attemptId,m.incumbent);
+          const candidate=await workspace.materialize(m.capture,item.attemptId,name==='resumeAttempt'?this.store.attempt(run.id,item.attemptId)!.continuation!.sourceOid:m.incumbent);
           this.store.materialCandidate(this.store.binding(this.store.get(run.id)!,`workspace-${item.attemptId}`),generation,candidate);
           candidates.push(candidate);
         }
@@ -46,7 +46,7 @@ export class MaterialJourney {
         // consumed attempt identities, but release all proven unused credits/slots.
         const failures:unknown[]=[error];
         for(const item of items){try{this.store.refuseUnlaunched(run.id,item.attemptId,generation);}catch(e){failures.push(e);}}
-        this.store.failMaterialDispatch(command,payload,generation,failures.map(String));
+        this.store.failMaterialDispatch(command,payload,generation,failures.map(String),name);
         throw new AggregateError(failures,failures.map(String).join('; '));
       }
       const preparedAt=Date.now();
@@ -59,7 +59,7 @@ export class MaterialJourney {
       // subsequent measurements/integration remain serial and revision-bound.
       for(let i=0;i<candidates.length;i++){
         const candidate=candidates[i]!,outcome=outcomes[i]!,attempt=this.store.attempt(run.id,candidate.id)!;
-        if(outcome.status==='rejected' && (!payload.candidates || !(attempt.nativeDigest&&['failed','stopped','timed_out'].includes(attempt.state))))failures.push(outcome.reason);
+        if(outcome.status==='rejected' && ((name==='dispatch'&&!payload.candidates) || !(attempt.nativeDigest&&['failed','stopped','timed_out'].includes(attempt.state))))failures.push(outcome.reason);
         if(attempt.nativeDigest && this.store.get(run.id)!.state!=='cleanup_pending'){
           try{const frozen=await workspace.freeze(m.capture,candidate);if(!this.draining)this.store.materialCandidate(this.store.binding(this.store.get(run.id)!,`freeze-${candidate.id}`),generation,frozen);}catch(e){failures.push(e);}
           // A scope/freeze refusal cannot skip cleanup of this proven settled
@@ -68,7 +68,9 @@ export class MaterialJourney {
         }
       }
       if(!this.draining)this.store.recordWave(run.id,generation,{waveId:payload.waveId??command.commandId,parentIncumbent:m.incumbent,attemptIds:items.map(i=>i.attemptId),startedAt,preparedAt,settledAt,collectedAt:Date.now()});
-      if(failures.length){this.store.failMaterialDispatch(command,payload,generation,failures.map(String));throw new AggregateError(failures,failures.map(String).join('; '));}
+      if(failures.length){this.store.failMaterialDispatch(command,payload,generation,failures.map(String),name);throw new AggregateError(failures,failures.map(String).join('; '));}
+      // Collection may await after owner cancellation/retirement has already settled.
+      if(name==='resumeAttempt'&&!this.draining&&['ready','running','paused'].includes(this.store.get(run.id)!.state))this.store.settle(run.id,generation,'paused','partial-invocation-settled',null,`continuation-${command.commandId}`);
       return receipt;
     }
     if (name === "collect") {
@@ -107,10 +109,39 @@ export class MaterialJourney {
       return this.store.completeIntegration(run.id, generation, gitText(m.capture.repository, ["rev-parse", "refs/arbor/incumbent"]).trim());
     }
     if (name === "decide" && payload.decision === "discard") {
-      const attempt = (this.store.projection(run.id)!.attempts as Array<{ id: string; nodeId: string }>).find(a => a.nodeId === payload.nodeId);
+      // Rows retain reservation order. Reset only the latest continuation, never its retained original.
+      const attempt = (this.store.projection(run.id)!.attempts as Array<{ id: string; nodeId: string }>).findLast(a => a.nodeId === payload.nodeId);
       if (attempt) { const a = this.store.attempt(run.id, attempt.id)!; if (!a.nativeDigest) throw new Error("Discard cannot reset a live or ambiguous writer"); const candidate = m.candidates.find(c => c.id === a.id); if (candidate) await workspace.restore(m.capture, candidate); }
     }
     return this.store.research(name as "decide", command, payload, generation);
+  }
+  async reconcile(command:BoundCommand,context:FabricInvocationContext):Promise<BoundCommand> {
+    if(this.draining||this.#busy.has(command.runId))throw new Error('Recovery requires quiescent material boundary');
+    this.#busy.add(command.runId);
+    try{
+      const run=this.store.get(command.runId)!,workspace=this.workspace(run.id);this.store.check(run,command);
+      if(this.store.evaluations(run.id).some(e=>e.invocations.some(i=>['launching','attached'].includes(i.state)&&!i.nativeId&&!i.native)))throw new Error('Unknown native handle for evaluator; cleanup and invocation identity retained without rebind or redispatch');
+      await this.owner.verifyRoles(run.id,true);await workspace.verify(run.material!.capture);
+      const observed=await this.owner.observeRecovery(run.id,context),identity=await this.owner.identity(context);
+      if(this.draining)throw new Error('Recovery generation retired');this.store.rebindRecovery(command,identity,this.owner.componentId,this.owner.generation);
+      let expected=this.store.binding(this.store.get(run.id)!,command.commandId);
+      const guard=()=>{context.signal?.throwIfAborted();if(this.draining)throw new Error('Recovery generation retired');this.store.check(this.store.get(run.id)!,expected);};
+      const pending=this.store.get(run.id)!.material!.pending;
+      if(pending){await workspace.integrate(run.material!.capture,pending.expected,pending.target);context.signal?.throwIfAborted();if(this.draining)throw new Error('Integration recovery generation retired');this.store.completeIntegration(run.id,this.owner.generation,gitText(run.material!.capture.repository,['rev-parse','refs/arbor/incumbent']).trim());}
+      for(const o of observed){if(o.result)this.store.native(run.id,o.attemptId,this.owner.generation,o.result);else this.store.refuseUnlaunched(run.id,o.attemptId,this.owner.generation);}
+      expected=this.store.binding(this.store.get(run.id)!,command.commandId);
+      for(const candidate of this.store.get(run.id)!.material!.candidates){
+        const attempt=this.store.attempt(run.id,candidate.id)!;if(!attempt.nativeDigest)continue;const errors:unknown[]=[];
+        try{if(!candidate.oid){const frozen=await workspace.recoverCandidate(run.material!.capture,candidate);guard();this.store.materialCandidate({...expected,commandId:`recovered-freeze-${candidate.id}`},this.owner.generation,frozen);expected=this.store.binding(this.store.get(run.id)!,command.commandId);}}catch(e){errors.push(e);}
+        try{await workspace.restore(run.material!.capture,candidate);guard();}catch(e){errors.push(e);}
+        if(errors.length)throw new AggregateError(errors,errors.map(String).join('; '));
+      }
+      guard();
+      if(this.store.get(run.id)!.active)throw new Error('Unresolved native writer capacity retained');
+      this.owner.recoveryCompleted(run.id);
+      if(this.store.evaluations(run.id).every(e=>e.state==='completed'))this.store.settle(run.id,this.owner.generation,'paused','native-material-reconciled',null,`reconciled-${command.commandId}`);
+      return this.store.binding(this.store.get(run.id)!,command.commandId);
+    }finally{this.#busy.delete(command.runId);}
   }
   async export(runId: string): Promise<{ baseline: string; selected: string; patch: string; patchDigest: string }> {
     const m = this.store.get(runId)!.material!; const patch = await this.workspace(runId).export(m.capture, m.incumbent);
@@ -122,6 +153,6 @@ export class MaterialJourney {
     // An accepted spawn can lose its reply. No worker handle is not proof that
     // evaluator writers settled; retain their exact input/artifacts for recovery.
     const unresolved = this.store.evaluations(runId).some(e => e.invocations.some(i => ["launching", "attached"].includes(i.state) && !i.native));
-    return writersSettled && !unresolved;
+    return writersSettled && this.store.get(runId)!.active === 0 && !unresolved;
   }
 }
