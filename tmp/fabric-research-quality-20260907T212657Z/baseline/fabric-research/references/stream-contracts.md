@@ -36,7 +36,7 @@ In no-write mode, skip workflow file operations and pass the same note text to d
 Attach only relevant requirements:
 
 - **Official facts, policy and economics:** primary text, effective dates, exact product/entitlement surface, defaults, availability, limits and exceptions. Listings alone do not establish suitability.
-- **Studies:** population/task, intervention/comparator, sample, configuration or concentration, duration, endpoints, actual results and uncertainty. A trial's existence, design or sample size alone is not an efficacy result.
+- **Studies:** population/task, intervention/comparator, sample, configuration or concentration, duration, endpoints, actual results and uncertainty. A trial's existence or design without results does not establish benefit.
 - **Benchmarks:** dataset/task provenance, system snapshot, model/tools, action/retry budgets, grader, metrics/denominators, exclusions, repetitions, uncertainty, latency and included costs. Do not compare incompatible setups as a common leaderboard.
 - **Systems:** distinguish specified, configured, installed, enabled and observed behavior; identify the workflow, state, tool access and verification boundary actually evidenced.
 - **Counterevidence:** seek relevant nulls, regressions, task dependence, bias and omitted costs. Name what could overturn the finding; repeated URLs from one origin are not independent corroboration.

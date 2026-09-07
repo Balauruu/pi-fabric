@@ -1,0 +1,58 @@
+[
+  {
+    "name": "fabric_exec",
+    "display": {
+      "name": "Load research workflow",
+      "description": "Read the requested workflow contract before terminal recovery."
+    },
+    "code": "const skill = await pi.read('/home/balauru/.pi-profiles/fabric/skills/fabric-research/SKILL.md');\nreturn skill;"
+  },
+  {
+    "name": "fabric_exec",
+    "display": {
+      "name": "Load orchestration references",
+      "description": "Read the required runtime safeguards and Fabric workflow pattern."
+    },
+    "code": "const [runtime, workflow] = await Promise.all([\n  pi.read('/home/balauru/.pi-profiles/fabric/skills/fabric-research/references/runtime.md'),\n  pi.read('/home/balauru/.pi-profiles/fabric/npm/node_modules/pi-fabric/skillsets/typescript/fabric-workflow/SKILL.md')\n]);\nreturn `RUNTIME\\n${runtime}\\n\\nWORKFLOW\\n${workflow}`;"
+  },
+  {
+    "name": "fabric_exec",
+    "display": {
+      "name": "Inspect terminal control state",
+      "description": "Confirm profile, required worker model, and exact terminal recovery state."
+    },
+    "code": "const [stateText, profile, models, agentRefs] = await Promise.all([\n  pi.read('/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/state.json'),\n  pi.bash({cmd:'printenv PI_CODING_AGENT_DIR', settle:true}),\n  tools.models(),\n  tools.search({query:'agents spawn wait native durable launch', limit:10})\n]);\nconst state = JSON.parse(stateText);\nreturn {\n  profile: profile.ok ? profile.output.trim() : `ERROR: ${profile.error}`,\n  hasRequiredModel: Array.isArray(models) && models.some((m:any) => m?.key === 'openai-codex/gpt-5.6-terra'),\n  state: {\n    phase: state.phase,\n    allowances: state.allowances,\n    assignments: state.assignments,\n    nextActions: state.nextActions,\n    coverage: state.coverage,\n    keys: Object.keys(state)\n  },\n  agentRefs\n};"
+  },
+  {
+    "name": "fabric_exec",
+    "display": {
+      "name": "Confirm recovery agent contracts",
+      "description": "Inspect native spawn and wait return contracts before the single allowed launch."
+    },
+    "code": "const [spawn, wait] = await Promise.all([\n  tools.describe({ref:'agents.spawn'}),\n  tools.describe({ref:'agents.wait'})\n]);\nreturn {spawn, wait};"
+  },
+  {
+    "name": "fabric_exec",
+    "display": {
+      "name": "Recover terminal research outcome",
+      "description": "Launch one nonrecursive validator to recover and validate the saved dossier's complete final outcome."
+    },
+    "code": "const dossier = '/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493';\nconst statePath = `${dossier}/state.json`;\nconst outcomePath = '/home/balauru/.pi-profiles/fabric/tmp/research-workflow-revision-1788799764350/terminal-outcome.json';\nconst expectedIds = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'];\nconst allowedDispositions = new Set(['supported', 'qualified', 'unknown', 'blocked']);\nconst fallback = (reason: string) => ({\n  status: 'blocked',\n  conclusion: 'Terminal recovery could not obtain a contract-valid validator outcome; the prior dossier conclusion is not relayed.',\n  citations: [],\n  limitations: [reason],\n  coverage: expectedIds.map(questionId => ({ questionId, disposition: 'unknown', reason: 'Terminal outcome contract was unavailable or invalid.' })),\n  gaps: ['A contract-valid terminal validator outcome is required before relaying the dossier conclusion.'],\n  paths: { report: `${dossier}/REPORT.md`, research: `${dossier}/RESEARCH.md`, state: statePath },\n  verification: 'not_run',\n  reportValidation: 'not_run',\n  stopReason: 'terminal recovery blocked',\n  userDecision: null,\n});\nconst valid = (x: any): x is Record<string, any> => {\n  if (!x || typeof x !== 'object' || Array.isArray(x)) return false;\n  if (!['complete','partial','blocked'].includes(x.status) || typeof x.conclusion !== 'string' || !x.conclusion.trim()) return false;\n  if (!Array.isArray(x.citations) || !Array.isArray(x.limitations) || !Array.isArray(x.gaps)) return false;\n  if (!x.paths || x.paths.report !== `${dossier}/REPORT.md` || x.paths.research !== `${dossier}/RESEARCH.md` || x.paths.state !== statePath) return false;\n  if (!['passed','partial','failed','not_run'].includes(x.verification) || !['passed','failed','not_run'].includes(x.reportValidation)) return false;\n  if (typeof x.stopReason !== 'string' || !x.stopReason.trim() || !(typeof x.userDecision === 'string' || x.userDecision === null)) return false;\n  if (!Array.isArray(x.coverage) || x.coverage.length !== expectedIds.length) return false;\n  const ids = x.coverage.map((c:any) => c?.questionId);\n  if (new Set(ids).size !== expectedIds.length || !expectedIds.every(id => ids.includes(id))) return false;\n  return x.coverage.every((c:any) => c && allowedDispositions.has(c.disposition) && typeof c.reason === 'string' && c.reason.trim()) &&\n    [...x.citations, ...x.limitations, ...x.gaps].every((s:any) => typeof s === 'string');\n};\nlet state: any;\ntry {\n  state = JSON.parse(await pi.read(statePath));\n  const assignments = state?.assignments;\n  const original = ['alpha','beta','verifier','synthesizer','validator'];\n  const terminalReady = state?.phase === 'terminal' && original.every(k => assignments?.[k]?.status === 'completed');\n  const allowanceReady = Number(state?.allowances?.launchesAttempted) < Number(state?.allowances?.maximumLaunches);\n  if (!terminalReady || !allowanceReady || assignments?.terminalRecovery) throw new Error('Terminal recovery preconditions are not satisfied.');\n  state.phase = 'terminal-recovery';\n  state.allowances.launchesAttempted += 1;\n  state.assignments.terminalRecovery = {\n    role: 'report-validator-terminal-recovery',\n    ownedPath: `${dossier}/RESEARCH.md`,\n    reserved: true,\n    status: 'reserved',\n    id: null,\n  };\n  state.nextActions = ['terminal recovery validator reserved: return the complete final control outcome'];\n  await pi.write({path: statePath, text: JSON.stringify(state, null, 2) + '\\n'});\n} catch (error) {\n  const outcome = fallback(error instanceof Error ? error.message : String(error));\n  await pi.write({path: outcomePath, text: JSON.stringify(outcome, null, 2) + '\\n'});\n  return outcome;\n}\nlet outcome: any;\nlet failure: string | null = null;\ntry {\n  const spawned: any = await agents.spawn({\n    task: π.contract,\n    name: 'terminal-recovery-validator',\n    runner: 'pi',\n    model: 'openai-codex/gpt-5.6-terra',\n    thinking: 'high',\n    extensions: true,\n    recursive: false,\n    cwd: '/home/balauru/.pi-profiles/fabric',\n    tools: ['read','grep','find','ls','write','edit'],\n    schema: {\n      type: 'object', additionalProperties: false,\n      required: ['status','conclusion','citations','limitations','coverage','gaps','paths','verification','reportValidation','stopReason','userDecision'],\n      properties: {\n        status: {type:'string', enum:['complete','partial','blocked']},\n        conclusion: {type:'string', minLength:1, maxLength:1200},\n        citations: {type:'array', maxItems:12, items:{type:'string', minLength:1, maxLength:300}},\n        limitations: {type:'array', maxItems:12, items:{type:'string', minLength:1, maxLength:500}},\n        coverage: {type:'array', minItems:5, maxItems:5, items:{type:'object', additionalProperties:false, required:['questionId','disposition','reason'], properties:{questionId:{type:'string', enum:expectedIds}, disposition:{type:'string', enum:['supported','qualified','unknown','blocked']}, reason:{type:'string', minLength:1, maxLength:600}}}},\n        gaps: {type:'array', maxItems:12, items:{type:'string', minLength:1, maxLength:500}},\n        paths: {type:'object', additionalProperties:false, required:['report','research','state'], properties:{report:{type:'string'},research:{type:'string'},state:{type:'string'}}},\n        verification: {type:'string', enum:['passed','partial','failed','not_run']},\n        reportValidation: {type:'string', enum:['passed','failed','not_run']},\n        stopReason: {type:'string', minLength:1, maxLength:500},\n        userDecision: {type:['string','null'], maxLength:500}\n      }\n    }\n  });\n  if (!spawned?.id || typeof spawned.id !== 'string') throw new Error('Native spawn did not expose a durable worker ID.');\n  state = JSON.parse(await pi.read(statePath));\n  state.assignments.terminalRecovery.id = spawned.id;\n  state.assignments.terminalRecovery.status = 'running';\n  await pi.write({path: statePath, text: JSON.stringify(state, null, 2) + '\\n'});\n  const waited: any = await agents.wait({id: spawned.id});\n  const candidate = waited?.result ?? waited?.output ?? waited?.value ?? waited;\n  outcome = typeof candidate === 'string' ? JSON.parse(candidate) : candidate;\n} catch (error) {\n  failure = error instanceof Error ? error.message : String(error);\n}\nif (!valid(outcome)) outcome = fallback(failure ?? 'Worker returned an invalid final outcome contract.');\nconst artifactNames = await pi.ls(dossier);\nconst artifactsExist = ['REPORT.md','RESEARCH.md','state.json'].every(name => artifactNames.includes(name));\nif (!artifactsExist) outcome = fallback('A required dossier artifact was absent during outer contract validation.');\nstate = JSON.parse(await pi.read(statePath));\nstate.phase = outcome.status === 'blocked' ? 'terminal-recovery-blocked' : 'terminal-recovered';\nstate.assignments.terminalRecovery.status = failure ? 'failed' : 'completed';\nstate.assignments.terminalRecovery.outcomeStatus = outcome.status;\nstate.coverage = Object.fromEntries(outcome.coverage.map((c:any) => [c.questionId, `${c.disposition}: ${c.reason}`]));\nstate.nextActions = [`stop: ${outcome.stopReason}`];\nawait pi.write({path: statePath, text: JSON.stringify(state, null, 2) + '\\n'});\nawait pi.write({path: outcomePath, text: JSON.stringify(outcome, null, 2) + '\\n'});\nreturn outcome;"
+  },
+  {
+    "name": "fabric_exec",
+    "display": {
+      "name": "Account for outcome update",
+      "description": "Inspect the changed outcome checker and saved terminal outcome before finalizing."
+    },
+    "code": "const [checker, outcome] = await Promise.all([\n  pi.read('/home/balauru/.pi-profiles/fabric/tmp/research-workflow-revision-1788799764350/check-outcome.mjs'),\n  pi.read('/home/balauru/.pi-profiles/fabric/tmp/research-workflow-revision-1788799764350/terminal-outcome.json')\n]);\nreturn {checker, outcome};"
+  },
+  {
+    "name": "fabric_exec",
+    "display": {
+      "name": "Validate checked terminal outcome",
+      "description": "Run the supplied contract checker against the saved terminal outcome."
+    },
+    "code": "const check = await pi.bash({cmd:'node /home/balauru/.pi-profiles/fabric/tmp/research-workflow-revision-1788799764350/check-outcome.mjs /home/balauru/.pi-profiles/fabric/tmp/research-workflow-revision-1788799764350/terminal-outcome.json', settle:true});\nreturn check.ok ? check.output.trim() : {error:check.error, output:check.output, exitCode:check.exitCode};"
+  }
+]

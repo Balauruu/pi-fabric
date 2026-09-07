@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {loadSkillsFromDir,formatSkillsForPrompt} from '/home/balauru/.local/share/pi-node/node-v22.23.1-linux-x64/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/skills.js';
+const dir='/home/balauru/.pi-profiles/fabric/skills/fabric-research';
+const result=loadSkillsFromDir({dir,source:'test'});
+assert.deepEqual(result.diagnostics,[]);
+assert.equal(result.skills.length,1);
+const skill=result.skills[0];
+assert.equal(skill.name,'fabric-research');
+assert.equal(skill.filePath,dir+'/SKILL.md');
+assert.equal(skill.disableModelInvocation,true);
+assert.equal(formatSkillsForPrompt(result.skills),'');
+console.log(JSON.stringify({loaded:skill.name,filePath:skill.filePath,diagnostics:result.diagnostics,manualOnly:skill.disableModelInvocation,excludedFromAutomaticPrompt:true}));

@@ -8,7 +8,7 @@ The assignment states persisted or no-write mode. In no-write mode, all file-rea
 
 ## Verify, reconcile and request repairs
 
-The verifier is independent of the research authors. Read the actual workflow-persisted streams' findings, evidence/methods, counterevidence and gaps, including useful partial notes returned by failed runs and their native/persistence status in control state. Follow supporting-file links and continuations. For a large corpus, accept a bounded verification shard with explicit required-question IDs and its own verification-note path. Shards write those separate notes instead of RESEARCH.md; one reconciliation worker alone updates RESEARCH.md from checked dispositions without source voting.
+The verifier is independent of the research authors. Read the actual assigned streams' findings, evidence/methods, counterevidence and gaps, including useful partial documents after failed runs. Follow supporting-file links and continuations. For a large corpus, accept a bounded verification shard with explicit required-question IDs and its own verification-note path. Shards write those separate notes instead of RESEARCH.md; one reconciliation worker alone updates RESEARCH.md from checked dispositions without source voting.
 
 1. Separate execution success from evidence adequacy. A completed worker may lack support; a failed worker may leave useful evidence.
 2. Check each decisive/disputed claim against inspected source support, surrounding conditions and actual results. Reuse retained passages when they establish faithful support. If they do not, retrieve the original or use available trace evidence within this worker; neither assertions nor temporary handles establish independent verification.
@@ -20,7 +20,7 @@ Every required question needs checked support, a qualified answer, an explicit g
 
 ## Synthesize from the research documents
 
-The synthesizer reads substantive findings, source notes, methods/results, counterevidence and gaps in every assigned stream plus the verifier's dispositions in RESEARCH.md before drafting. Follow supporting-file links and read omitted sections in bounded ranges. Researchers return full Markdown notes, which the workflow persists unchanged. Compact control receipts are navigation, not a substitute for reading those notes. Do not ask Main to absorb the corpus.
+The synthesizer reads substantive findings, source notes, methods/results, counterevidence and gaps in every assigned stream plus the verifier's dispositions in RESEARCH.md before drafting. Follow supporting-file links and read omitted sections in bounded ranges. Compact worker handoffs are navigation, not a substitute for these worker-side reads. Do not ask Main to absorb the corpus.
 
 Follow the verifier's decision-changing dispositions in RESEARCH.md, linked to owning sections. Preserve why a finding is retained, qualified, rejected or left unknown; do not duplicate evidence into another schema or intermediate ledger. Split compound assertions about specification, performance, causality and recommendation so each can be checked. Keep original research notes, including meaningful alternatives and limitations, even when they do not appear in the final report.
 

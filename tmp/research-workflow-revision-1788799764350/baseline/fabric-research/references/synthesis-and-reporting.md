@@ -1,28 +1,12 @@
 # Synthesis and reporting
 
-Verification, synthesis and report-validation workers read this reference. It owns evidence gates and report content; the parent SKILL.md owns the phase graph and document ownership. Apply only relevant methodology sections. The user's output contract wins. A narrow direct lookup can use the applicable gates without a workflow.
-
-## Storage mode comes first
-
-The assignment states persisted or no-write mode. In no-write mode, all file-read/write instructions below refer instead to the full evidence and role outputs passed inside the program: the verifier consumes substantive research and returns checked dispositions plus bounded gap requests; the synthesizer consumes that evidence and verification and returns the report text; the independent validator consumes the report and its evidence and returns acceptance or correction requests. No role writes files or returns saved paths. Keep each handoff within its task budget without replacing evidence with metadata; if full required support cannot fit, return partial/blocked coverage. The final validated report may return inline to Main for relay. Persisted mode uses the dossier and document ownership below.
-
-## Verify, reconcile and request repairs
-
-The verifier is independent of the research authors. Read the actual workflow-persisted streams' findings, evidence/methods, counterevidence and gaps, including useful partial notes returned by failed runs and their native/persistence status in control state. Follow supporting-file links and continuations. For a large corpus, accept a bounded verification shard with explicit required-question IDs and its own verification-note path. Shards write those separate notes instead of RESEARCH.md; one reconciliation worker alone updates RESEARCH.md from checked dispositions without source voting.
-
-1. Separate execution success from evidence adequacy. A completed worker may lack support; a failed worker may leave useful evidence.
-2. Check each decisive/disputed claim against inspected source support, surrounding conditions and actual results. Reuse retained passages when they establish faithful support. If they do not, retrieve the original or use available trace evidence within this worker; neither assertions nor temporary handles establish independent verification.
-3. Apply the source, quantitative-comparability, causal and transfer gates below. Record checks and retain/qualify/reject/unknown dispositions in RESEARCH.md, linked to original notes. Preserve the notes even if the report omits them.
-4. Investigate contradictions through actual methods and conditions. Retain bounded conflicting findings or leave conclusions unknown when reconciliation is unsupported. For consequential/disputed recommendations, seek overturning evidence or record the counterevidence coverage gap.
-5. Return compact required-question dispositions and ranked decision-changing gap requests with affected IDs, exact missing evidence, bounded assignment and stop condition. The workflow, not this leaf worker or Main, dispatches repairs. After repair, recheck changed evidence and affected conclusions only.
-
-Every required question needs checked support, a qualified answer, an explicit gap or a blocked conclusion. One cited subquestion does not close a broad requirement. Distinguish evidence saturation from access/budget exhaustion. Do not accept a broad recommendation merely to avoid another phase; preserve the unresolved gap.
+Use for complex or disputed synthesis, quantitative rankings, causal or transfer claims, and consequential recommendations, whether Main researched directly or delegated. Apply only relevant sections. The parent SKILL.md owns execution policy and the final completion gate; the user's output contract wins.
 
 ## Synthesize from the research documents
 
-The synthesizer reads substantive findings, source notes, methods/results, counterevidence and gaps in every assigned stream plus the verifier's dispositions in RESEARCH.md before drafting. Follow supporting-file links and read omitted sections in bounded ranges. Researchers return full Markdown notes, which the workflow persists unchanged. Compact control receipts are navigation, not a substitute for reading those notes. Do not ask Main to absorb the corpus.
+Main reads the substantive findings, source notes, methods/results, counterevidence and gaps in RESEARCH.md and every assigned stream document before drafting. Follow supporting-file links and read omitted sections in bounded ranges. Compact worker handoffs are navigation, not a substitute for this reading.
 
-Follow the verifier's decision-changing dispositions in RESEARCH.md, linked to owning sections. Preserve why a finding is retained, qualified, rejected or left unknown; do not duplicate evidence into another schema or intermediate ledger. Split compound assertions about specification, performance, causality and recommendation so each can be checked. Keep original research notes, including meaningful alternatives and limitations, even when they do not appear in the final report.
+Reconcile decision-changing claims in RESEARCH.md with links to their owning sections. Record what Main verified and why a finding is retained, qualified, rejected or left unknown; do not duplicate the evidence into another schema or intermediate ledger. Split compound assertions about specification, performance, causality and recommendation so each can be checked. Keep original research notes, including meaningful alternatives and limitations, even when they do not appear in the final report.
 
 Several URLs or workers repeating one paper, run or customer story count as one evidence origin. Preserve support into synthesis and ensure final prose introduces no material unsupported claim. Reuse retrieved support; do not refetch merely to populate administrative fields. Missing nonmaterial metadata is not a reason to discard useful evidence. A study's design without its results cannot establish a measured benefit; a source description or retailer metadata cannot establish suitability or superiority.
 
@@ -83,23 +67,12 @@ The user's requested structure always wins. Otherwise choose the smallest form p
 For substantive research, write the answer to REPORT.md. Unless the user specifies another structure, include:
 
 1. **Answer and scope:** the conclusion, intended decision, assumptions and research date where freshness matters; label partial or blocked findings.
-2. **Evidence-backed analysis by question:** explain the results and their meaning, not just what each source is about. Use appropriate comparisons, actual outcomes, methods and applicability limits. Cite material claims inline with clickable, descriptive Markdown links whose labels name the inspected original sources and whose targets are their original URLs. Also link to local research sections retaining fuller context; dossier links or an unlinked bibliography do not replace original-source links. For original local-file evidence without a public URL, link the file and label it local rather than inventing a URL.
+2. **Evidence-backed analysis by question:** explain the results and their meaning, not just what each source is about. Use appropriate comparisons, actual outcomes, methods and applicability limits. Cite original sources inline and link to the local research sections retaining fuller context.
 3. **Disagreements, alternatives and limitations:** strongest counterevidence, unresolved questions, important exclusions and what can or cannot be inferred.
 4. **Recommendations or implications:** only when warranted by the task, with trade-offs, applicability and evidence that would change the action.
 5. **Coverage and stop reason:** what was checked, what remains partial, why work stopped and the highest-impact next check. Link RESEARCH.md and relevant stream sections.
 
 Omit irrelevant sections for a focused answer, but do not omit a required question or compress substantive research into an executive summary alone. Summarize delegated scopes and coverage without presenting worker count as corroboration. Synthesize rather than concatenate reports. Full bibliographies and exhaustive rejection lists are optional unless requested or needed to explain a material gap. The parent skill owns file creation, read-back and final completion checks.
-
-## Validate the authored report
-
-The report validator must be independent of the report author. Read back REPORT.md and inspect decisive linked evidence and verifier dispositions. Check:
-
-- The actual required questions are answered at the requested depth, with analysis rather than source descriptions or populated slots.
-- Decisive claims retain applicable results, conditions, counterevidence and uncertainty; recommendations stay within verified coverage. New unsupported report claims are rejected or returned for verification, not silently accepted.
-- Both REPORT.md and the returned `citations` contain original-source links for their material claims, not just local dossier navigation. URLs correspond to inspected support and are neither invented nor temporary retrieval handles; original local-file evidence is explicitly labeled local. Missing links are failed citation checks or explicit coverage gaps. Local file links exist; for heading fragments, derive the actual Markdown heading slug including lowercase and punctuation handling and check the target heading. File existence alone does not validate an anchor. Prefer file-only links if the renderer's convention is uncertain.
-- Meaningful notes are saved and linked, execution state accounts for assignments, and coverage, unresolved requirements and the actual stop reason agree across the report and ledger. A completed report has no in-progress placeholders. A limit-stopped report explicitly says what is partial.
-
-Record acceptance and material failures in RESEARCH.md, then return every field of the parent skill's final outcome contract: status, conclusion, decisive citations, limitations, per-question coverage dispositions, gaps, real paths, verification and reportValidation checks, stopReason and userDecision. The assignment must supply that bounded control schema. Do not reduce this to `accepted: true` or replace qualified/unknown dispositions with blanket acceptance; a well-formed report can still contain evidence gaps. If a correction needs report edits, return a bounded correction request to the workflow; a writer applies it, then an independent validator checks the changes. Do not mark an unvalidated draft complete or ask Main to perform validation. In no-write mode inspect the synthesized report and evidence supplied inside the program, and label all outputs unsaved.
 
 ## Smallest resolving evaluation
 

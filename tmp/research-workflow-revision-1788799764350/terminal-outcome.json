@@ -1,0 +1,58 @@
+{
+  "status": "complete",
+  "conclusion": "No preference is justified: Beta’s 90% and Alpha’s 80% were measured under materially different synthetic conditions, so the arithmetic difference does not isolate a system difference. Feature labels present a fixture-only trade-off, not decision-sufficient operational evidence.",
+  "citations": [
+    "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/REPORT.md#answer-and-scope",
+    "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/REPORT.md#why-90-does-not-decide-the-choice",
+    "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/RESEARCH.md#verification-independent-complete",
+    "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/streams/alpha.md#practical-effectiveness",
+    "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/streams/beta.md#practical-effectiveness"
+  ],
+  "limitations": [
+    "Results differ in dataset, language, model, and attempt budget.",
+    "No validation protocol, uncertainty, latency, cost, exclusions, or independent reproduction is supplied.",
+    "Feature evidence is synthetic documentation-level only; operational behavior is unproven.",
+    "Production outcomes, security, licensing, and architecture-decision quality are outside the corpus."
+  ],
+  "coverage": [
+    {
+      "questionId": "Q1",
+      "disposition": "qualified",
+      "reason": "Alpha documents dependency mapping; Beta specifies none, establishing only a fixture-level documentation asymmetry."
+    },
+    {
+      "questionId": "Q2",
+      "disposition": "qualified",
+      "reason": "Beta documents human-approved delivery stages; Alpha specifies no implementation approval workflow, without evidence of governance behavior or effectiveness."
+    },
+    {
+      "questionId": "Q3",
+      "disposition": "qualified",
+      "reason": "Both fixtures document Markdown decision records, but provide no lifecycle, adoption, linkage, or decision-quality evidence."
+    },
+    {
+      "questionId": "Q4",
+      "disposition": "qualified",
+      "reason": "Alpha’s 16/20 under SMALL-20/M1/one attempt and Beta’s 45/50 under LARGE-50/M2/three attempts are supported separately but cannot support a ranking."
+    },
+    {
+      "questionId": "Q5",
+      "disposition": "blocked",
+      "reason": "The 10-point difference is not decision-sufficient because conditions differ and comparative operational evidence, priorities, and acceptance thresholds are absent."
+    }
+  ],
+  "gaps": [
+    "Matched independently reproduced evaluation using common tasks, repositories, model, tools, and retry budget.",
+    "Behavior evidence for dependency mapping, approval controls, and decision-record workflows.",
+    "Decision-maker priorities and acceptance threshold for a preference."
+  ],
+  "paths": {
+    "report": "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/REPORT.md",
+    "research": "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/RESEARCH.md",
+    "state": "/home/balauru/.pi-profiles/fabric/runs/research-workflow-fixture-1788800274493/state.json"
+  },
+  "verification": "passed",
+  "reportValidation": "passed",
+  "stopReason": "Validation is complete. The authorized corpus is fixed, local, and synthetic; remaining comparative and operational gaps require evidence outside it, so no repair or external retrieval was authorized.",
+  "userDecision": null
+}
