@@ -905,6 +905,8 @@ Integrate existing search/fetch capabilities, inspected-source references, groun
 
 ### PR11. Presets, scaffold, and example packs (O2/O3 remainder)
 
+**Independently reviewed deterministic PR11 checkpoint:** normal321, targeted14, native source/installed packs and permission checks8 plus final installed bound guard1, unchanged native PR6/7/8/9/10 gates21/5/42/13/4 and current package audit PASS. Owner-only write-risk scaffolding and source-installed code, native-agent and non-Git recipe packs now run through the actual owner/coordinator/evaluator. Public preset/pack contracts, frozen preset origins, optional grounding/held-out choices and the maintained local upstream command template are documented in `pi-fabric-arbor/examples/README.md`. Scaffolds remain unvalidated until actual baseline evidence; no upstream data/runtime is acquired. Exact gates, independent review repairs and publication status are in `pi-fabric-arbor/docs/pr11-examples-evidence.md`; this checkpoint alone does not authorize PR12-13.
+
 **Dependencies:** PR4, PR9-PR10. **Effort:** 2-4 days.
 
 Ship code and agent-improvement examples, a data/recipe-oriented example, research presets, and optional upstream benchmark scaffold/pack integration through its public preparation interface in a declared environment. Do not adopt the upstream coordinator/tree as a side effect.

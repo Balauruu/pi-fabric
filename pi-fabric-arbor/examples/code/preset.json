@@ -1,0 +1,35 @@
+{
+  "id": "arbor-code",
+  "materialKind": "code",
+  "objectiveDefaults": {
+    "description": "Reduce deterministic input reads while preserving deduplication results and order",
+    "direction": "minimize",
+    "unit": "reads",
+    "minimumGain": "0.01",
+    "gainKind": "relative",
+    "qualityVetoes": [
+      "no-native-failures"
+    ]
+  },
+  "evaluator": {
+    "kind": "command",
+    "repeats": 3,
+    "aggregation": "median"
+  },
+  "limitDefaults": {"evaluatorCalls": 400, "activeMs": 600000},
+  "searchDefaults": {
+    "concurrency": 1,
+    "maxActorTurns": 32
+  },
+  "groundingDefaults": {
+    "mode": "optional",
+    "catalog": null,
+    "query": null,
+    "maxSources": 3,
+    "model": null
+  },
+  "instructions": "Three trials, median, 1% relative practical gain. Strictly positive gain: ties never win. Reads are a deterministic work proxy, not timing or a significance test.",
+  "sourceRefs": [
+    "Arbor maintained local deduplication example v1"
+  ]
+}

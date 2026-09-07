@@ -1,3 +1,4 @@
+import {scaffold, type ScaffoldRequest} from "../presets/scaffold.js";
 import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
@@ -47,6 +48,7 @@ export class ResearchService {
     const identity = await this.owner.identity(context);
     if (this.#draining) throw new Error("Arbor research generation is draining");
     context.signal?.throwIfAborted();
+    if (name === 'scaffold') return scaffold(args as ScaffoldRequest,()=>{if(this.#draining)throw new Error('Arbor research generation is draining');context.signal?.throwIfAborted();});
     if (name === 'start') return this.#start(args, context, identity);
     if (name === 'runResearch') return this.#runResearch(args,context,identity);
     if(name==='control' && args.action==='resume' && this.store.get(args.runId)?.spec.config.execution==='research')throw new Error('Autonomous resume requires execute-policy arbor.runResearch; no unchecked command evaluation');

@@ -2,9 +2,9 @@
 
 `pi-fabric-arbor` is an independent, source-loaded Pi add-on for the Arbor v2 replacement described by the repository plan at `docs/Arbor/deep-refactoring-plan.md`.
 
-## Current checkpoint: PR10 grounding, lessons and trajectories
+## Current checkpoint: PR11 presets, scaffolds and runnable packs
 
-**Independently reviewed deterministic local gate:** owner-visited source grounding, native literature, checked lesson/source reuse and actual outcome trajectories. Normal307, targeted15 and PR10 native4 pass, with preserved full native PR6/7/8/9 gates21/5/42/13. See [PR10 exact evidence, strengthened reruns and publication status](docs/pr10-grounding-evidence.md). PR #3 stays draft; PR11-PR13 and broader product acceptance remain outstanding. [PR9 held-out evidence](docs/pr9-held-out-evidence.md) and [PR8 recovery evidence](docs/pr8-recovery-evidence.md) remain preserved.
+**Independently reviewed deterministic local gate PASS:** normal321, targeted14, native packs/permissions8 plus installed bound guard1 and unchanged full PR6/7/8/9/10 gates21/5/42/13/4. PR11 adds source-installed code, agent-improvement and data/recipe packs, closed presets and owner-only write-risk scaffolding. All three source/clean-installed packs have actual owner/coordinator baseline-to-candidate measured-keep evidence. [PR11 exact gates, independent repairs and publication status](docs/pr11-examples-evidence.md) distinguish preparation from validation. PR #3 stays draft; PR12-13 and broader product acceptance remain outstanding. The [PR10 grounding/experience gate](docs/pr10-grounding-evidence.md) remains preserved. [PR9 held-out evidence](docs/pr9-held-out-evidence.md) and [PR8 recovery evidence](docs/pr8-recovery-evidence.md) remain preserved.
 
 - Pi loads `src/extension.ts` directly. No build, `dist/`, or `.test-dist/` is required.
 - Registration declares passive managed component metadata. It never starts inference, creates an actor or opens research storage.
@@ -23,6 +23,14 @@ Default `inspect` execution preserves the PR3 read-only lane. PR4 `evaluate` pre
 `/arbor start` submits an exact action through the ordinary owning-Pi model/Fabric path, not an unchecked service call. `/arbor show RUN`, controls, review and exports use the same path. Submission is not a durable receipt or completion. [Commands/configuration](docs/consumer-installation.md), [exact action/schema manifest](docs/pr3-action-manifest.json) and [PR3 evidence/limitations](docs/pr3-interface-evidence.md) describe the boundaries.
 
 Schema enforce remains unavailable for this external delegation path. Commands explain the inactive owner without inference. The installed host also exhibits an earlier `Missing: extensions` initialization failure under enforce; that is retained as a limitation, not claimed as a successful exact-reference guard test.
+
+## PR11 presets and runnable examples
+
+Use [the packaged examples guide](examples/README.md) for the exact owning-Pi `/arbor scaffold` request, declared local Node/Git/models and normal `/arbor start` path. The public `examples/manifest.json` inventories all three runnable packs: code deduplication, native-agent instruction improvement and synthetic data/recipe tuning. Code uses three trials/median/1% relative gain with ties never winning; agent tasks use one paired repeat, independent grading and descriptive usage/latency, not three whole-suite repeats. Research grounding is optional and the agent held-out split is explicitly selected.
+
+Preparation enters through owner-only **write-risk `arbor.scaffold`** under normal Fabric permission, never a helper CLI or actor capability. It creates only a new canonical destination, preserves existing paths and records prepared input hashes/model/environment provenance. It launches no inference/install/download/source apply. Returned `start` data selects the same research owner/coordinator/evaluator, not a new orchestrator. The optional upstream command template consumes explicitly prepared local inputs and a pinned declared upstream revision; it is not a shipped/executed upstream benchmark. Preparation remains `unvalidated`; actual baseline/check/measurement records determine validation.
+
+`presetSchema()`, `packManifestSchema()`, `readPackManifest()`, `loadPreset()` and `SCAFFOLD_SCHEMA` are public package exports. Exact action input/output/risk/effect and both data schemas are in [the manifest](docs/pr3-action-manifest.json). CLI/browser cannot scaffold, prepare, init, create or generate exports in any mode. Use `npm run test:pr11`, `npm run test:pr11:e2e` and `npm run audit:pr11`; [the evidence record](docs/pr11-examples-evidence.md) owns exact acceptance and limits.
 
 ## PR10 grounding, lessons and trajectories
 
@@ -123,7 +131,7 @@ Each continuation creates a **new charged bounded native invocation**, retaining
 
 Apply is opt-in, after an exact current measured keep and a separate source dialog under normal Fabric write permission. Review approval is neither source approval nor Fabric permission. A durable journal records the captured-baseline delta and every affected path's pre/postimage before source writes. Apply/undo preserve unrelated edits and original Git index/refs. Undo verifies the prior applied postimage rather than applying a blind inverse. Newer affected bytes/modes, unsafe parents and mixed partial outcomes block without overwriting them; the patch remains in the source journal and owner exports. After same-owner reload/resume for nonterminal research, `apply RUN ORIGINAL_APPLY_COMMAND_ID` uses a fresh source dialog under the same Fabric write policy to adopt only a complete exact postimage set. It cannot replay even an all-preimage set. Adoption/undo remains available if resumed research has since kept a newer incumbent: admission and dialog bind the original recorded measured target, never the newer target. The original immutable intent/approval remains unchanged; a separate bounded adoption receipt binds the fresh command, generation, owner and revision. For cancelled terminal research after same-owner reload, invoke recovery/undo directly: only an original apply intent may be reconciled, without resuming research or changing its terminal state/generation. Fresh source approval and exact postimages are still required; another Pi owner is denied. This is trusted filesystem consistency, not arbitrary-writer locking or containment.
 
-CLI/browser can retrieve existing projection, export and journal files only, including when ownership is lost. No mutating CLI mode, live attachment transport or new public skill was added. See [PR8 exact evidence and nine-gap table](docs/pr8-recovery-evidence.md), `npm run test:pr8`, `npm run test:pr8:e2e` and `npm run audit:pr8`. PR9 is recorded separately above; PR10-PR13 remain out of scope. PR8 final independent guard and Main entire-staged-diff reviews pass. Exact current gate counts and retained evidence belong to the evidence record and ledger.
+CLI/browser can retrieve existing projection, export and journal files only, including when ownership is lost. No mutating CLI mode, live attachment transport or new public skill was added. See [PR8 exact evidence and nine-gap table](docs/pr8-recovery-evidence.md), `npm run test:pr8`, `npm run test:pr8:e2e` and `npm run audit:pr8`. PR9-PR11 are recorded separately above; PR12-PR13 remain out of scope. PR8 final independent guard and Main entire-staged-diff reviews pass. Exact current gate counts and retained evidence belong to the evidence record and ledger.
 
 ## PR5 dirty material and owned incumbent
 
@@ -168,7 +176,7 @@ Authoritative feedback uses `arbor.evaluate` with the current run binding and `p
 
 ### Optional evaluator catalog and presets
 
-A closed preset supplies `id`, `materialKind`, `objectiveDefaults`, `evaluator`, `searchDefaults`, and optional `instructions`/`sourceRefs`. Precedence is built-in defaults < preset < profile < project < explicit. An explicit/project `preset: null` disables lower-precedence preset inheritance without reading its file. Presets are data, not operational bootstrap authority or plugins that start research.
+A closed preset supplies `id`, `materialKind`, `objectiveDefaults`, `evaluator`, `searchDefaults`, and optional `groundingDefaults`/`limitDefaults`/`instructions`/`sourceRefs`. The exported `presetSchema()` is authoritative; new runs retain independent `presetSource` path/content identity even when higher-precedence source references override defaults. Precedence is built-in defaults < preset < profile < project < explicit. An explicit/project `preset: null` disables lower-precedence preset inheritance without reading its file. Presets are data, not operational bootstrap authority or plugins that start research.
 
 The owning Pi profile may contain `arbor.evaluators.json`, a finite array (maximum eight):
 

@@ -5,6 +5,11 @@ export const ARBOR_PACKAGE_VERSION = "0.1.0" as const;
 export const ARBOR_SOURCE_SENTINEL = "pr1-source-a" as const;
 
 export const ARBOR_PACKAGED_ASSETS = Object.freeze({
+  exampleManifest: "examples/manifest.json",
+  examplesGuide: "examples/README.md",
+  codePreset: "examples/code/preset.json",
+  agentPreset: "examples/agent/preset.json",
+  recipePreset: "examples/recipe/preset.json",
   evaluationExample: "examples/pr4-agent-improvement/README.md",
   evaluationBaseline: "examples/pr4-agent-improvement/baseline.md",
   evaluationCandidate: "examples/pr4-agent-improvement/candidate.md",

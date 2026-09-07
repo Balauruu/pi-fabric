@@ -10,7 +10,7 @@ import {
 
 const MAX_READ_BYTES = 8 * 1024 * 1024;
 const MUTATING_COMMANDS = new Set([
-  "validate", "setup", "start", "pause", "resume", "cancel", "steer", "keep", "discard", "review",
+  "scaffold", "prepare", "init", "create", "create-export", "validate", "setup", "start", "pause", "resume", "cancel", "steer", "keep", "discard", "review",
   "continue-partial", "restart-parent", "resumeAttempt", "runResearch", "revise-roles", "reviseRoles", "control", "propose", "dispatch", "collect", "evaluate", "decide", "distill", "undoApply",
   "apply", "undo", "undo-apply", "export", "generate", "serve", "authorize", "certify", "cleanup",
 ]);

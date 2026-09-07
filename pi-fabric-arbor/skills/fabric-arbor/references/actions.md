@@ -12,6 +12,8 @@ Inside Pi:
 
 Read each exact Fabric schema with `tools.describe` before use. Owning-Pi commands select the normal policy-checked research/control/evaluation routes; `arbor.start` alone does not execute command research. Read-only `arbor.inspect` and `arbor.lessons` expose retained facts and hypotheses to retest. Another native root or replacement generation cannot silently adopt a binding. The generated `docs/pr3-action-manifest.json` and `docs/consumer-installation.md` are authoritative for current commands, effects and limitations; this procedure does not duplicate their schemas.
 
+Owning-Pi `/arbor scaffold` uses the closed write-risk `arbor.scaffold` route to create a new unvalidated pack directory without overwriting source/artifacts or starting research. Follow packaged `examples/README.md` for exact environment/model choices and the returned normal start request. Preparation is not a validated baseline. CLI/browser have no preparation/init/scaffold/create route.
+
 The standalone CLI exposes only:
 
 ```text

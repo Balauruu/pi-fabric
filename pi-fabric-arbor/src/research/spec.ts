@@ -24,6 +24,7 @@ export interface Config {
 }
 export interface ResolvedRole { model: string | null; origin: string; instructionsId: string | null; tools: string[]; requires: string[]; resultContract: string }
 export interface ResolvedSpec {
+  presetSource?: {id:string;path:string;digest:string};
   validation?: ValidationPolicy | null;
   roleBundle?: RoleBundleRef;
   version: 2; config: Config; evaluation: EvaluationDefinition | null; origins: Record<string, string>; identity: string;
@@ -106,7 +107,7 @@ export async function resolveSpec(cwd: string, profile: Record<string, unknown>,
     if (evaluation.baseline.root !== config.material.root || evaluation.candidate.root !== config.material.root) throw new Error("PR4 exact-material pair must reference this canonical source root");
     roles.subject = { model: evaluation.subject.model, origin: "frozen-evaluation-definition", instructionsId: digest(evaluation.subject.promptFiles), tools: evaluation.subject.tools, requires: [], resultContract: "independently-graded-native-text" };
   }
-  const body = { version: 2 as const, config, evaluation, ...(validation ? {validation} : {}), origins, source, roles, enforcement: { attempts: "transactional" as const, evaluatorCalls: "transactional" as const, activeTime: "dispatch-admission" as const, tokens: "observational" as const, cost: "observational" as const, artifacts: ["material","research"].includes(config.execution) ? "owned-artifact-admission" as const : "export-admission" as const } };
+  const body = { ...(preset ? {presetSource:{id:preset.id,path:isAbsolute(presetPath as string)?presetPath as string:join(cwd,presetPath as string),digest:preset.identity}} : {}), version: 2 as const, config, evaluation, ...(validation ? {validation} : {}), origins, source, roles, enforcement: { attempts: "transactional" as const, evaluatorCalls: "transactional" as const, activeTime: "dispatch-admission" as const, tokens: "observational" as const, cost: "observational" as const, artifacts: ["material","research"].includes(config.execution) ? "owned-artifact-admission" as const : "export-admission" as const } };
   return { ...body, identity: digest(body) };
 }
 export function unchangedSpec(a: ResolvedSpec, b: ResolvedSpec): boolean { return canonical(a) === canonical(b); }

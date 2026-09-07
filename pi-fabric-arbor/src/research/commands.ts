@@ -1,3 +1,4 @@
+import {SCAFFOLD_SCHEMA} from "../presets/scaffold.js";
 import { randomUUID } from "node:crypto";
 import { COMMAND_ACTIONS, START_SCHEMA, id, validate } from "./contracts.js";
 export interface CommandRequest { ref: string; args: Record<string, unknown>; resolveBinding: boolean }
@@ -5,8 +6,9 @@ export interface CommandRequest { ref: string; args: Record<string, unknown>; re
  * owner pointer or arbitrary provider forwarding tool. No command is completion.
  */
 export function researchCommand(operation: string, raw: string): CommandRequest {
-  if (!Object.hasOwn(COMMAND_ACTIONS, operation)) throw new Error("Unknown Arbor command. Use setup, doctor, start, show, pause, resume, cancel, steer, keep, discard, review, revise-roles, export, apply, undo-apply, continue-partial, restart-parent.");
+  if (!Object.hasOwn(COMMAND_ACTIONS, operation)) throw new Error("Unknown Arbor command. Use setup, doctor, scaffold, start, show, pause, resume, cancel, steer, keep, discard, review, revise-roles, export, apply, undo-apply, continue-partial, restart-parent.");
   const action = COMMAND_ACTIONS[operation as keyof typeof COMMAND_ACTIONS];
+  if (operation === "scaffold") { const args=JSON.parse(raw);validate(SCAFFOLD_SCHEMA,args);return {ref:"arbor.scaffold",args,resolveBinding:false}; }
   if (operation === "start") {
     const args = raw.trim() ? JSON.parse(raw) as Record<string, unknown> : { runId: `run-${randomUUID()}` };
     validate(START_SCHEMA, args); return { ref: "arbor.start", args, resolveBinding: false };
