@@ -1,86 +1,66 @@
-# Mechanism Selection for Fabric-Native Skills
+# Mechanism Selection
 
-Read this reference before choosing an architecture. It is a decision aid, not a capability inventory or replacement for installed API documentation.
+Read before selecting a Fabric architecture. This catalogue connects task demands to native mechanisms; effective runtime contracts remain authoritative. Select for evidence quality, coherent execution, and operational fit, not maximal feature use or automatically minimal cost.
 
-## Select for quality and fit
+## Kernel applicability
 
-1. Map the confirmed quality criteria to evidence-producing steps: source grounding, independent alternatives, adversarial checks, executable tests, human judgment, or coverage accounting.
-2. Identify the execution shape: bounded or open-ended; sequential or independent; one context or oversized; one turn, multiple turns, or surviving the host; advisory or effectful.
-3. Compare the strongest feasible architectures. Evaluate expected evidence quality, independence, context loss, coordination risk, and operational fit. Treat cost/latency as the user's constraints, not an automatic preference for the cheapest option. Avoid numeric quality scores without a real evaluation method.
-4. Select a primary shape and any orthogonal mechanisms that add a distinct quality benefit. Specify an acceptance check for each claimed benefit. Use fewer mechanisms to break a genuine quality/fit tie, not to override a better design.
-5. Verify current contracts and prerequisites. A design may be conditionally feasible; do not claim optimality across models or tools you did not evaluate.
+Call notation below illustrates TypeScript. `agent` / `workflow.agent`, callback-based `parallel` / `pipeline`, `council.run`, and `rlm.query` are TypeScript convenience surfaces, not kernel-neutral contracts. Python uses native loops and `asyncio.gather` with discovered host `agents.run` calls: compose roles explicitly, and use supported recursive agent requests only when recursion is justified. Do not paste callback helpers or TypeScript result access into a Python skill. Consult the configured kernel's execution reference before translating a pattern; neither a shared mechanism name nor a parent runner establishes identical guest APIs.
 
-## Execution shapes
+## Select a primary shape
 
-| Observable need | Native shape | Quality contribution and boundary |
-|---|---|---|
-| Tightly coupled work with enough context and no useful independent roles | One `fabric_exec` program using `pi.*` and known provider proxies | Preserves shared context and coherent decisions. Direct work can still include strong tests and an evidence loop. |
-| One bounded delegated responsibility | `agent()` / `workflow.agent()` or `agents.run()` | Gives one worker an explicit evidence and output contract. A child is not automatically a verifier. |
-| Finite independent items or repeated stages | `workflow` with `parallel(thunks, { concurrency })` or `pipeline(items, ...stages)` | Makes coverage and stage dependencies explicit. Keep dependent stages ordered and partial results available. |
-| Complementary independent roles on the same question | `council.run()` or explicitly composed role workers and synthesis | Surfaces distinct failure modes. Use specific roles, evidence access, and preserved disagreements, not duplicate generic reviewers. |
-| Model diversity materially improves alternatives or critique | Fusion-shaped native agent calls: read-only references plus judge/verifier, or references plus one authorized implementer | Resolve genuinely distinct available models. Same aliases are not diversity; agreement is not truth. Compare mode does not acquire mutation authority. Verify low-level APIs rather than inventing a `fusion.*` provider. |
-| Relevant source exceeds a single context | RLM-shaped orientation, deduplicated partitions, plain agents for context-sized leaves; `rlm.query()` only for still-oversized partitions | Preserves coverage without repeatedly serializing the corpus. Difficulty alone does not justify recursion. Account for seams and cross-partition dependencies. |
-| Long-running finite work needs observation and redirection between turns | `agents.spawn()` with status, steering, and terminal delivery/wait as appropriate | Retains a valuable worker rather than restarting it. Distinguish a background handle from a resumable orchestration program. |
-| Ongoing advice, goal supervision, or spec compliance | `agents.create()` with explicit events, delivery policy, and stop controls | Maintains an outside observer or evidence ledger across activations. Specify when it may interrupt, trigger another turn, or stay silent. |
-| Multiple workers must coordinate durably | Actors plus `mesh` messages/topics and CAS task claims | Gives durable ownership and recoverable task transitions. Host survival additionally requires supported durable residency, not merely project scope or mesh storage. |
-| Mutation needs evidence-bound transactions | `schema.hypothesize()` → `schema.verify()` → `schema.commit()`, with abort/recovery paths | Provides the documented transaction guarantees only under actual prerequisites. Check `schema.status()`; audit is not enforcement, and a proposal is not a committed transaction. |
-| An authorized continuation needs the current trajectory or model handoff | `agents.handoff()` or a documented model-switch path | Avoids rebuilding necessary context. Handoff is deferred to the outer execution boundary; later code in that invocation cannot consume its result. Not a default fan-out mechanism. |
+| Task demand | Fabric mechanism | Contribution, alternative, and boundary |
+| --- | --- | --- |
+| Tightly coupled context-sized work | Direct `fabric_exec`, `pi.*`, and provider/extension calls | Keeps context and judgment coherent. Prefer over delegation when no distinct responsibility earns its coordination cost. A direct skill can still have a strong test loop. |
+| One bounded reasoning responsibility | `agent()` / `workflow.agent()` or `agents.run()` | Explicit context and deliverable. Helpers unwrap structured value/text; use native outcomes when status, error, usage or useful partial text matters. A worker is not automatically a verifier. |
+| Finite independent items or dependent stages per item | Workflow phases with `parallel(thunks, { concurrency })` or `pipeline(items, ...stages)` | Code owns scheduling and coverage. Compare a simpler direct loop. Bound dispatch before launching; sequence prerequisites while allowing unrelated items to progress. |
+| Complementary perspectives on the same question | `council.run()` or explicitly composed role workers | Distinct roles expose different failure modes. Compare one focused critic. Preserve independent initial judgments when required; role agreement is not primary evidence. |
+| Different models materially improve alternatives or critique | Explicit multi-model agent calls and a defined integration owner | Resolve distinct actual models, not aliases that select the same one. Compare same-model roles. Fusion is a composition pattern, not permission to invent a `fusion.*` provider. |
+| Relevant material exceeds a context | Orientation, nonoverlapping partitions, context-sized leaf agents; `rlm.query()` only for still-oversized partitions | Preserves source coverage. Compare bounded reads or nonrecursive fan-out. Difficulty alone does not justify recursion; reserve cross-partition integration. |
+| Finite work benefits from observation and redirection between turns | `agents.spawn()`, handles, steering and terminal delivery/wait | Retains useful worker context. Compare a blocking call. A background handle is not a persistent orchestration heap; a completed one-shot cannot be steered. |
+| Ongoing advice or supervision across activations | `agents.create()`, selected events, directive/text responses and delivery policy | Maintains an outside observer. Compare a finite verifier or lifecycle subscription. Specify silence, interruption, turn triggering, termination and ownership. |
+| An event should notify another participant, without an independent reasoner | Participant lifecycle subscriptions | Routes source-qualified events. Compare an actor only if interpretation/history earns it. Account for at-least-once delivery and remove owned subscriptions. |
+| Multiple executors coordinate shared work | Actors/agents plus mesh state, messages/topics and CAS claims | Makes ownership and recovery explicit. Compare Main-owned finite coordination. Storage scope alone does not establish host survival. |
+| Mutation requires evidence-bound transaction guarantees | `schema.hypothesize()` → `schema.verify()` → `schema.commit()`, plus abort/recovery | Compare ordinary authorized edits and tests. Check effective mode and prerequisites; audit is not enforcement. Do not promise transactions around arbitrary external effects. |
+| A continuation needs the trajectory or another Main model | `agents.handoff()` or a documented model-switch path | Compare a self-contained child. Handoff is deferred to the outer invocation boundary; later code in that program cannot consume its result. |
 
-Choose from the observed need, not from the task's label. A large migration may require a finite workflow, oversized-context decomposition, or durable coordination; those are different predicates.
+Use task conditions, not labels: a migration might be direct, finite delegated, recursive, or durably coordinated. A long-running task does not automatically need an actor.
 
-## Composition contracts
+## Add complementary mechanisms deliberately
 
-### Every proposed program
+| Supporting need | Mechanism | Composition obligation |
+| --- | --- | --- |
+| Retrieve prior session evidence | `memory` recall/expansion | Follow supported handles and continuations; keep provenance. Recall does not make prior claims correct. |
+| Track claims, goals and verification evidence | `state` | Use its goal/evidence semantics, not a generic scratchpad. Connect claims to actual checks. |
+| Reduce a live context | `compact` | Respect advisory boundaries and preserve needed inputs, decisions, handles and unresolved work. Compaction is not durable workflow storage. |
+| Supervise capability dependencies | `components`, or actor capability requirements where supported | Verify effective refs at activation and handle unavailable dependencies. A dependency declaration is not an authority grant. |
+| Reach domain tools | `extensions.*`, `mcp.*`, known provider proxies | Discover the actual action, preserve task-specific permissions, and interpret its real success/error envelope. |
 
-- Use `fabric_exec` as the execution path, `pi.*` for core tools, `extensions.*` for captured tools, `mcp.*` for known MCP actions, and first-class stable provider proxies. Reserve `tools.call({ ref, args })` for discovered or computed refs.
-- Put awkward content in the call's named `payloads`; each `π.key` must exist there. Use the installed contract, not a copied legacy argument spelling.
-- Keep intermediate values in the program and return compact evidence, decisions, and failures. Fresh QuickJS bindings end with the invocation. User questions are turn boundaries, not blocking code variables that survive indefinitely.
-- Define permissions and effect boundaries explicitly. Tool lists and prompts are not proof of isolation across nested delegation or extension surfaces; inspect effective child capabilities before claiming read-only enforcement. Give research workers explicit no-mutation/no-further-delegation instructions when that is their intended role.
+Choose the strongest feasible alternative where the choice matters. Explain the quality gain and coordination/context risks without fabricated numeric scores. A bounded native composition is preferable to a copied feature stack whose parts have no distinct jobs.
 
-### Finite fan-out, councils, and model diversity
+## Check combinations, not just individual availability
 
-- Bound and deduplicate work before launching it. Assign labels and evidence scopes; use JSON Schema when aggregation depends on structured outputs.
-- Pass functions to `parallel`, not already-started promises. Batch independent work, preserve dependent ordering, and stop dispatch after a systemic all-failed batch.
-- Reserve capacity for orientation, verification, and optional synthesis. Top-level `agentBudget` is bounded by configuration; token and shared cost observations may lag concurrent usage. Do not promise a hard spend reservation or unlimited quality search.
-- For consequential findings, use a verifier with access to primary evidence. Collect independent initial reports before exposing peer conclusions when independence matters. A synthesis that merely restates reports is not verification.
-- Return `success`, `partial`, or `failed` with requested/dispatched/completed coverage and named gaps. Keep successful evidence if synthesis fails. Retry only affected items when needed; do not restart successful work because coverage is partial.
-- For edits, partition ownership by path or use worktrees. Assign shared files to one owner and define integration plus post-integration tests. Independent review does not imply concurrent mutation is safe.
+- Workflow helpers can schedule native agents when full outcomes are needed. An outer `try/catch` is not per-item recovery, and an unwrapped text return cannot prove native completion.
+- Parallel reviewers can share read-only source access. Parallel implementers need disjoint path ownership or isolated worktrees; Main owns shared files and post-integration tests.
+- Councils and multi-model calls can supply alternatives or critique to a finite workflow. They do not replace Main's evidence checks or acquire implementation authority from compare mode.
+- Recursive delegation requires supported runner/kernel and delegated authority at each executor. Cwd and an optional-tool allowlist are not filesystem isolation.
+- Actors may use mesh for shared coordination, but a session observer may need neither shared state nor durable residency. Separate definition scope, runner history, background execution and survival of the originating host.
+- Schema enforce restrictions can rule out agent/actor branches. Verify current enforcement contracts; do not promise an incompatible enforced swarm or disable enforcement to make a design work.
+- A lifecycle notification can trigger a new Main turn; this is a deliberate interaction choice, not a harmless default. Event loops must have a silence/stop policy and guard against duplicate effects.
+- Memory, state, compaction and components are orthogonal additions. None implicitly shares local variables or guarantees semantic correctness.
 
-### Oversized context
+## Ground only selected branches
 
-- Estimate the relevant corpus, orient, normalize paths, and reject duplicate/overlapping partitions before spending on children. Reserve an explicit integration step for cross-partition behavior.
-- Let children inspect bounded paths or handles rather than copying the whole corpus into every prompt. Recurse only on partitions that remain oversized, with explicit depth, fan-out, and stopping bounds.
-- Keep scratch values in code during one invocation. Only when cross-turn storage is authorized, use root-scoped mesh bindings with cleanup; use files plus digests for values beyond mesh limits. Do not use the state provider as a scratchpad or store secrets in mesh.
+Locate the installed Fabric package and configured skill tree first. These are package-relative document names, not links relative to this reference. Read needed documents completely and follow relevant cross-references. Use effective discovery for action schemas and current guest contracts for callback helpers.
 
-### Persistence and durable coordination
+| Selected design | Documentation to locate |
+| --- | --- |
+| Any Fabric skill | Pi `docs/skills.md`; Fabric `docs/skills.md`; configured `skillsets/<kernel>/fabric-exec/SKILL.md` |
+| Finite workflows, runners, roles, handoff or actors | Fabric `docs/agents.md`; configured `fabric-exec/references/agents.md` |
+| Shared state, CAS or message routing | Configured `fabric-exec/references/mesh.md` |
+| Host survival | Fabric `docs/residency-runtime.md` |
+| Transactions/enforcement | Fabric `docs/schema-enforcement.md`, `docs/state-layer.md` |
+| Budgets, model resolution, modes | Relevant Fabric `docs/configuration.md` and effective discovery |
+| Capability lifecycle | Fabric `docs/providers.md`, `docs/components.md` |
+| Recall or compaction | Relevant Fabric `docs/memory-recall.md`, `docs/programmatic-compaction.md`, `docs/compaction.md` |
 
-- Separate lifecycle dimensions: session/project definition scope, independent actor runner history, background execution, and durable residency that survives the originating host. One does not prove another.
-- Verify the required trusted-project, mesh, runner, ownership, and Schema-mode prerequisites before promising durability. Schema enforce mode blocks agents/actors and is incompatible with that execution branch; do not compose an impossible enforced-Schema swarm or silently disable enforcement.
-- Define actor identity/reuse, event subscriptions, delivery/turn-trigger policy, mailbox behavior, owner-aware controls, termination, and cleanup. Confirm actual create/setter schemas rather than copying incompatible event defaults.
-- Shared tasks need versioned CAS claims, dependencies, ownership, progress, result evidence, and recovery after owner loss. At-least-once delivery calls for deduplication/idempotency; do not replay purchases, messages, or other non-idempotent effects on generic retry.
-- Define how to stop workers and unsubscribe/remove owned resources without destroying user data or artifacts needed for recovery.
-
-### Supporting mechanisms are orthogonal
-
-Use `memory` for supported recall/expansion of prior evidence, `state` for claims/evidence/certification and executable goals, `compact` for documented advisory compaction boundaries, and supervised `components` for actual capability lifecycle requirements. None makes an unverified answer true or turns local variables into durable state. Add these only when the task needs their semantics.
-
-Optional repository navigation, web, browser, and domain tools remain native provider/extension calls after discovery. Their contracts and permissions must be preserved; writing a skill does not authorize logins, downloads, external messages, or other underlying task effects.
-
-## Authoritative documentation to locate
-
-Find the installed pi-fabric package first; these are package-relative source pointers, not paths relative to this reference. Read only documents needed by the selected branches, completely, and follow relevant cross-references:
-
-| Design question | Primary documents |
-|---|---|
-| Pi discovery, frontmatter, explicit invocation | Installed Pi `docs/skills.md` |
-| Fabric skill boundaries and reference ownership | Fabric `docs/skills.md` |
-| Guest calls, payloads, schemas, and return envelopes | Fabric `skills/fabric-exec/SKILL.md` and effective `tools.describe` results |
-| Workflows, agents, runners, councils, actors, handoff | Fabric `docs/agents.md`, `skills/fabric-exec/references/agents.md` |
-| Mesh, CAS, participant ownership | Fabric `skills/fabric-exec/references/mesh.md` |
-| Durable host lifecycle | Fabric `docs/residency-runtime.md` |
-| Evidence transactions and enforcement restrictions | Fabric `docs/schema-enforcement.md`, `docs/state-layer.md` |
-| Model resolution, budgets, enablement | Fabric `docs/configuration.md`, effective discovery, safe scoped configuration inspection |
-| Provider effects or supervised lifecycle | Fabric `docs/providers.md`, `docs/components.md` |
-| Recall and compaction | Fabric `docs/memory-recall.md`, `docs/programmatic-compaction.md`, `docs/compaction.md` |
-
-Do not read authentication stores or unrelated profile state to fill a capability table. If a required fact cannot be established safely, label it unverified and make the proposed preflight responsible for checking it.
+Document names are navigation evidence, not availability claims. Do not enumerate unrelated configuration or inspect authentication stores. Missing runtime evidence stays a named prerequisite.

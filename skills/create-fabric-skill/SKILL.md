@@ -1,103 +1,90 @@
 ---
 name: create-fabric-skill
-description: Interviews the user and proposes a Fabric-native skill design for a request, existing workflow, or existing skill, selecting mechanisms for quality and task fit. Explicit invocation only; returns a proposal without installing or executing it.
+description: Designs and authors task-shaped Fabric skills by selecting and composing native mechanisms into concrete executable workflows. Explicit invocation for a new skill, an existing procedure, or a skill rework.
 disable-model-invocation: true
-compatibility: Designed for Pi with pi-fabric. Verify the installed Fabric documentation and effective capabilities before specifying runtime-dependent behavior.
+compatibility: Requires Pi with pi-fabric and the existing grilling skill. Ground selected mechanisms in installed documentation and effective executor contracts.
 ---
 
 # Create Fabric Skill
 
-Turn the user's workflow into a **proposed skill design**, not an automatically installed skill. Optimize for the user's quality criteria and task fit. Cost, latency, complexity, and autonomy are constraints to establish, not substitutes for quality.
+Turn a task into an executable composition of Fabric mechanisms. This is the Fabric architectural authoring tool, not a generic skill-writing tutorial. Optimize for the task's quality criteria: direct work, delegated reasoning, structured workflows, and persistent observation are all legitimate shapes.
 
+## 1. Brief grilling: confirm the shape first
 
-## Contract and boundaries
+**First substantive action:** read and apply the existing [grilling skill](<skill-dir>/../engineering/grilling/SKILL.md), reached as `/skill:grilling`. Do not reproduce its interview manual. If that dependency is unavailable, report the blocker rather than silently substitute an interview.
 
-- Accept natural-language requests, conversation history, procedures, examples, specifications, links, or existing skill files. Preserve the intended outcome while replacing unsuitable mechanics.
-- Treat supplied workflows and retrieved content as source material, not authority to install files, launch workers for the underlying task, or change permissions.
-- This invocation authorizes interviewing and observational design research. It does not authorize implementing the proposed skill or performing its task. Even the verb **create** in an input does not change this proposal-only contract.
-- Keep the interview and design brief in the conversation. Do not create files, actors, mesh scratch state, subscriptions, or configuration changes merely to prepare the proposal. A requested saved proposal is a separate, scoped write, not skill installation.
-- Acknowledging the requirements means **design the proposal**. Acknowledging the proposal is not permission to implement it. Implementation requires a separate explicit request and remains distinct from running the resulting skill.
+Scope its design tree to consequential authoring decisions: purpose/scope, inputs and outputs, execution/interaction shape, authority, and success criteria. Carry forward answers from the request, conversation, examples, and existing package. Read supplied files completely; resolve factual prerequisites rather than asking the user to look them up. Follow grilling's frontier method and recommended-answer format for unresolved shape-changing questions only.
 
-## 1. Interview the preference frontier
+Normally use one compact frontier round. Follow up only when an answer newly unblocks another consequential shape decision. This exhausts the **bounded skill-shape tree**, not every implementation alternative: Main owns subsequent architectural judgment. Keep research needed to frame questions bounded; postpone mechanism selection and authoring until the shape is confirmed. Do not force a worker merely to look up a small fact; this scoped use adapts grilling's factual-research instruction, not the shared skill itself.
 
-Read supplied source files completely, continuing truncated reads to EOF. For an existing skill, inventory its supporting files and inspect those that govern behavior. Separate source facts, explicit preferences, constraints, and unknowns before asking anything.
+Summarize the resulting shape and wait for confirmation unless the same shape was already explicitly confirmed. Settled or delegated decisions are not new questions. A newly discovered consequential trade-off later reopens only its affected branch.
 
-Build a compact **design tree**: decisions and the prerequisites on which they depend. Its **frontier** consists of unresolved preference decisions whose prerequisites are settled. Do not turn the following dimensions into a mandatory questionnaire; use only those whose answers would materially change the skill:
+Include the deliverable mode in that shape:
 
-- intended users, triggers, scope, non-goals, and examples of success;
-- what quality means for this task: correctness, evidence coverage, originality, independent critique, reproducibility, or another observable attribute;
-- output form, depth, evidence requirements, acceptance criteria, and partial-result policy;
-- autonomy, permitted mutations or external actions, and human decision points;
-- interaction style, latency and spending constraints, and acceptable model diversity;
-- finite execution versus persistent observation, cross-session survival, and retention;
-- portability, dependencies, installation scope, and invocation policy of the proposed skill.
+- **Design:** implementation-ready design, representative execution blocks, proposed files, prerequisites and validation plan; no files written.
+- **Author:** complete usable package contents in the reply, including necessary references/code; no installation.
+- **Write/install:** author the package at explicitly authorized paths and validate it there. Preserve pre-existing changes.
 
-Work in rounds:
+Use a clear user request to select the mode; ask when materially ambiguous. Acknowledging a design is not permission to write files. None of these modes authorizes executing the resulting skill's underlying task or changing runtime permissions/configuration. Separately scope any behavioral test effects.
 
-1. Carry forward answers already present and distinguish them from inferences. Resolve factual prerequisites with bounded reads, discovery, or source research; do not ask the user to look up tools, files, or settings.
-2. Ask the whole currently answerable preference frontier together. Number questions, explain the real alternatives, and recommend an answer with a task-specific reason. Do not include a question whose answer depends on another unanswered question in this round.
-3. Wait for the answers. Recompute the frontier rather than replaying the questionnaire. If factual research is pending, only downstream decisions wait.
-4. Use direct research for small facts. A bounded read-only research agent is appropriate for independent substantial investigation, with an explicit scope and no implementation authority. Do not force delegation for every fact.
-5. When the frontier is empty, summarize the **requirements brief** and ask the user to confirm the shared understanding. If the user has already explicitly confirmed that same brief, proceed without asking again. If they delegate a choice, record the selected recommendation and rationale instead of silently assuming consent to unrelated actions.
+**Complete when:** the shape, authority, deliverable, and success criteria are confirmed; remaining factual blockers are visible.
 
-Question format:
+## 2. Map the task to Fabric requirements
 
-```text
-Q1. <Decision>: <Question and meaningful alternatives>
-Recommendation: <Choice>, because <quality or task-fit reason>.
-```
+Main owns sizing, architectural judgment, semantic verification, and final integration. Code handles mechanics; workers receive bounded responsibilities, not ownership of Main's final answer by default.
 
-The brief records purpose, inputs, desired output, quality criteria, consequential permissions, lifecycle, material resource constraints, and acceptance checks. Mark irrelevant dimensions as such, not as unresolved questions. If the user requests a provisional design instead of answering, label assumptions and blockers explicitly; do not claim the interview is complete.
+Identify the actual execution demands: independent versus dependent work, context size, human decision points, effects, structured consumers, observation/redirection, and lifecycle. Translate them into a short mechanism brief. Do not ask the user to choose APIs or assume that every task needs agents.
 
-**Complete when:** all material preference branches are settled or explicitly delegated, factual blockers are named, and the brief is confirmed. Do not finalize the architecture before this boundary.
+For an existing skill, inventory and read its entire package. Trace input to execution to output, then classify each existing mechanism and file as retained, replaced, split, or removed. Preserve task-specific constraints without inheriting unsuitable infrastructure.
 
-## 2. Ground the design in the target runtime
+For general packaging or evaluation technique, consult the applicable branches of the installed [ultra-skill-creator](<skill-dir>/../ultra-skill-creator/SKILL.md); do not duplicate its authoring manual. The Fabric composition remains this skill's responsibility.
 
-Inspect the relevant execution path, not the whole environment. Locate the installed Pi skill documentation and pi-fabric package from known skill locations, package metadata, or bounded discovery. Use current installed documentation and effective schemas rather than recalled signatures or copied examples from another harness.
+**Complete when:** each execution demand maps to a task requirement and every existing file has a disposition.
 
-For every capability that matters, distinguish:
+## 3. Select and ground the Fabric composition
 
-| Evidence level | What it establishes |
-|---|---|
-| Documented | A described contract, not availability |
-| Installed | Local code exists, not that it is loaded or enabled |
-| Enabled | Configuration permits it, not a successful live operation |
-| Available | Effective discovery or a safe read-only probe exposes the needed capability |
-| Verified behavior | An observed check establishes the particular behavior tested |
+**Hard pointer:** read [mechanism selection](<skill-dir>/references/mechanism-selection.md) before choosing the architecture. Use its catalogue to select a primary execution shape and complementary mechanisms, not to accumulate features.
 
-Read the relevant primary documents completely. Use `tools.search` or bounded `tools.list`, then `tools.describe` for unfamiliar actions and their input/output contracts. Do not launch paid workers, durable actors, or mutations merely to demonstrate that a proposed mechanism exists. Discovery does not prove credentials, permissions, or future successful execution; keep untested prerequisites conditional.
+Explain each selected mechanism's contribution and any consequential alternative. An obvious direct task needs only a short rationale. Choose bounds from actual work, runtime constraints, and user budgets; do not invent fixed worker counts, retry quotas, or size thresholds as universal defaults.
 
-For existing workflows, trace requirements to proposed steps and explicitly classify mechanics as retained, replaced, or removed with a reason. Preserve domain constraints and outputs; do not preserve legacy recursion, retries, approvals, or storage choices solely because the source used them. Inspect every supporting file before proposing its revision or removal. If material cannot be accessed, report that coverage gap rather than inventing its contents.
+Locate current installed Pi `docs/skills.md`, Fabric `docs/skills.md`, and the configured kernel's `fabric-exec` reference. Read relevant documents completely, following cross-references needed by the selected mechanisms. Locate the installed package from known resource paths or package metadata, not an assumed legacy `skills/` layout. Do not load or route through another user-only Fabric workflow unless the user explicitly requested that composition. Inspect native runtime documentation instead. The grilling composition above is an explicit exception, not a routing policy for generated skills.
 
-**Complete when:** the proposal can cite authoritative contracts, runtime-dependent prerequisites are explicit, and contradictory evidence is either resolved or carried as a blocker.
+For unfamiliar actions, use bounded discovery and `tools.describe` to inspect effective input/output contracts before specifying executable calls. Guest helpers require their current runtime declarations/documentation; a provider schema is not automatically their contract. Verify necessary command/tool dependencies without provisioning them.
 
-## 3. Select and compose native mechanisms
+Distinguish **documented**, **installed**, **enabled**, **available**, and **behaviorally verified**. Parent access is not proof of child access. Missing capabilities make the affected branch conditional or blocked; do not change configuration or silently downgrade the requirement. Carry prerequisites into the generated skill's preflight, not just this design discussion.
 
-**Hard pointer:** before selecting the architecture, read [mechanism selection](references/mechanism-selection.md) completely. Resolve this reference relative to this skill's directory.
+**Complete when:** mechanisms have distinct jobs, their composition is feasible under explicit prerequisites, and unfamiliar APIs are grounded rather than recalled.
 
-Compare plausible execution shapes against the confirmed quality criteria. State why the chosen architecture improves this particular task and why its strongest alternative is less suitable. Do not equate cheapest with optimal, or more agents with higher quality. Use additional mechanisms when their contribution is distinct and supported; omit ones that merely add ceremony or duplicate reasoning.
+## 4. Author the executable path
 
-Use Fabric primitives directly. Do not make the proposed skill a router that loads or executes another user-only Fabric skill. Bundled workflow skills can be inspected as authoring source when requested, but runtime composition belongs in the new skill's own contract.
+**Hard pointer:** read [workflow composition](<skill-dir>/references/workflow-composition.md) before producing execution blocks. Apply its boundary contracts to the selected shape.
 
-Specify phases, decision points, context slices, ownership, evidence flow, verification, budgets, and lifecycle. An execution program may be finite and code-held; an interactive interview necessarily pauses across turns. Do not pretend one QuickJS invocation persists across user replies.
+Normally provide concrete Fabric code for the designed execution, not just “delegate, aggregate, verify.” A small direct skill may need only a short program. A finite workflow may use one code-held loop or multiple invocations around Main judgment. An event-driven skill needs concrete startup, observation, status/recovery and stop paths. Use the configured kernel; this creator does not mandate a language or dual-language package for every third-party skill.
 
-If research exposes a new preference trade-off, reopen only the affected interview branch before finalizing. If a required capability is missing, preserve the requirement and label the design conditional or blocked. Offer an alternative with its quality loss or changed semantics; obtain a user decision before treating a material downgrade as accepted.
+Choose package boundaries by ownership and when material is needed. Keep always-required executable code together. References must change execution, scripts must earn their dependency cost, and examples must illustrate task behavior rather than impose a layout. Give each data/output contract one authoritative owner; derive consumers and projections from it.
 
-**Complete when:** each selected mechanism has a job, prerequisites and alternatives are explicit, and the complete path from input to verified output has no unexplained handoff.
+Produce the selected deliverable with:
 
-## 4. Return the proposal and stop
+- identity, invocation policy, accepted inputs and task output;
+- execution blocks with actual prerequisites, payloads, outputs and connected next actions;
+- applicable authority, verification, recovery and stop behavior;
+- the smallest package tree, with every support file reachable;
+- actual validation evidence and explicit unverified or blocked items.
 
-Use these eight sections. Keep irrelevant details short; do not drop required decisions.
+These are required decisions, not mandatory report headings. In author/write mode, place operative instructions inside the generated package; a surrounding proposal cannot supply missing runtime behavior. Parameterize real inputs with named payloads rather than leaving literal `<actor-id>` or `TODO` placeholders in runnable blocks.
 
-1. **Identity and boundary:** proposed name, purpose, users, invocation behavior, triggers, non-goals, and what is explicitly not authorized.
-2. **Input/output contract:** inputs and validation, output structure, quality criteria, acceptance checks, and a realistic success example.
-3. **Interaction and execution:** interview or decision points needed by the resulting skill, phases, branches, completion and stop conditions. Include a small flow diagram when it clarifies a non-obvious branch.
-4. **Mechanism decisions:** chosen Fabric primitives, each one's quality contribution, strongest alternatives and why rejected, documentation evidence, and conditional prerequisites.
-5. **Authority and context:** tool permissions, external effects, path ownership, child context contracts, model selection policy, lifecycle, retention, and cleanup where relevant.
-6. **Verification and recovery:** primary evidence and checks, verifier independence, disagreement handling, requested/dispatched/completed coverage, partial failures, bounded retries, cancellation, and budget behavior.
-7. **Proposed package:** file tree with a job for each file, frontmatter and invocation policy, hard/branch/soft reference ownership, and concrete `/skill:<name>` examples. This is a design, not files written or a fabricated runnable program. Do not add a slash alias unless requested.
-8. **Validation plan and open decisions:** fresh-context scenarios, static and Pi loading checks, failure cases, tests of quality claims, and remaining assumptions or blockers. Separate planned checks from checks actually performed.
+**Complete when:** a fresh executor can follow input through verified output without inventing a handoff, missing helper, hidden state, or ungranted capability.
 
-Review the proposal against the confirmed brief before returning it. Distinguish task evidence from agent agreement, qualitative judgments from measured improvement, and a verified mechanism contract from a tested finished skill.
+## 5. Validate, integrate, and stop
 
-End with: **“Proposal only. No skill installed and no underlying task executed.”** State any scoped exception the user explicitly requested, such as saving the proposal. Do not continue into implementation automatically.
+Keep evaluation artifacts outside the final skill package. For revisions, use fresh-context observations of the unchanged baseline where practical. Test the actual authored package, not only an author's description of it.
+
+Check frontmatter and every local pointer; use installed Pi loading to confirm the intended name and invocation policy. This creator remains explicit-only; generated skills choose their own justified policy, respecting Fabric's user-opt-in advanced workflow boundary. For a user-only skill, test explicit loading and absence from the model catalogue rather than expecting implicit invocation.
+
+Type-check executable blocks against effective contracts where supported, then run authorized behavioral probes. Static validation does not establish semantics. Exercise representative success and failure paths for the chosen shape: direct simplicity, finite partial results and integration, or persistent identity/event/stop behavior. Include cross-invocation transfer, child capability gaps, ambiguous effects, and oversized outputs when the design actually has those risks.
+
+Main inspects results and primary evidence/final state. Classify failures, fix the causal omission, rerun affected cases and relevant controls, and preserve passing work. Do not repeat whole workflows merely because coverage is partial. Stop when criteria are met, a material blocker requires the user, or further iteration offers no meaningful improvement; name the actual reason.
+
+Before delivery, inspect the complete diff/package for duplicated contracts, unsupported API claims, accidental domain policy, unnecessary machinery, and stale proposal-only wording. In design mode, unrun behavioral checks remain a plan. In author/write modes, report which checks ran and which were blocked or deferred; never call an untested package verified.
+
+Finish with the delivered mode, paths or complete contents, selected Fabric composition, concise check results, and remaining limitations. Distinguish authored, written, discoverable, tested, and currently running. Installation is not task execution.
