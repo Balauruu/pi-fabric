@@ -1,0 +1,34 @@
+{
+  "objective": "Implement all accepted fabric-research improvements in the recommended order: contracts/claim ledger/statuses/return validation, methods/counterevidence, then recommendation/evaluation/reporting. Preserve current Fabric policies and user edits, avoid unrelated changes, and evaluate unchanged versus revised guidance with fixed offline scenarios.",
+  "conditions": {
+    "A": "candidate",
+    "B": "baseline"
+  },
+  "artifacts": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-eval-1788708568601",
+  "changed": [
+    "SKILL.md",
+    "references/stream-contracts.md",
+    "references/synthesis-and-reporting.md"
+  ],
+  "baseline": [
+    {
+      "group": "evidence",
+      "status": "completed"
+    },
+    {
+      "group": "operations",
+      "status": "completed"
+    }
+  ],
+  "candidate": [
+    {
+      "group": "evidence",
+      "status": "completed"
+    },
+    {
+      "group": "operations",
+      "status": "completed"
+    }
+  ],
+  "reviewError": null
+}

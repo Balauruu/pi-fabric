@@ -1,0 +1,26 @@
+[
+  {
+    "id": "simple",
+    "pass": true
+  },
+  {
+    "id": "contract",
+    "pass": true
+  },
+  {
+    "id": "origins",
+    "pass": true
+  },
+  {
+    "id": "comparability",
+    "pass": true
+  },
+  {
+    "id": "causal-transfer",
+    "pass": true
+  },
+  {
+    "id": "counterevidence",
+    "pass": true
+  }
+]

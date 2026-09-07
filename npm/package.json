@@ -7,15 +7,15 @@
   },
   "dependencies": {
     "@juicesharp/rpiv-ask-user-question": "^2.9.0",
-    "betterwright": "^2.3.0",
-    "pi-fabric": "^0.83.0",
-    "pi-fovea": "^0.21.1",
-    "pi-hide-providers": "^0.1.17",
-    "pi-invisible-continue": "^0.3.10",
-    "pi-toggle-skills": "^0.1.15",
-    "pi-tool-repair": "^0.2.4",
+    "betterwright": "^2.4.0",
+    "pi-fabric": "^0.88.2",
+    "pi-fovea": "^0.22.1",
+    "pi-hide-providers": "^0.1.18",
+    "pi-invisible-continue": "^0.3.11",
+    "pi-toggle-skills": "^0.1.16",
+    "pi-tool-repair": "^0.2.5",
     "pi-web-access": "^0.28.0",
-    "pi-zentui": "^0.22.3"
+    "pi-zentui": "^0.23.0"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "0.84.4",
