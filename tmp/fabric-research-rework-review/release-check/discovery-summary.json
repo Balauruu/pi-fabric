@@ -1,0 +1,34 @@
+[
+  {
+    "name": "web_search",
+    "refs": [
+      "extensions.get_search_content",
+      "extensions.web_search"
+    ],
+    "found": true
+  },
+  {
+    "name": "fetch_content",
+    "refs": [
+      "extensions.fetch_content",
+      "extensions.get_search_content"
+    ],
+    "found": true
+  },
+  {
+    "name": "get_search_content",
+    "refs": [
+      "extensions.fetch_content",
+      "extensions.get_search_content"
+    ],
+    "found": true
+  },
+  {
+    "name": "source_check",
+    "refs": [
+      "extensions.get_search_content",
+      "extensions.source_check"
+    ],
+    "found": true
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "source": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-rework-review/release-check/live-a-b/direct-1.json",
+    "destination": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-rework-review/release-check/roundtrip-actual-1.json",
+    "codePoints": 30758,
+    "byteEquivalent": true,
+    "jsonEquivalent": true,
+    "sharded": true
+  },
+  {
+    "source": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-rework-review/release-check/replay-live-cde/worker-concurrency.json",
+    "destination": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-rework-review/release-check/roundtrip-actual-2.json",
+    "codePoints": 25723,
+    "byteEquivalent": true,
+    "jsonEquivalent": true,
+    "sharded": true
+  }
+]

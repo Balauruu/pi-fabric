@@ -1,0 +1,65 @@
+{
+  "syntax": [
+    {
+      "block": 1,
+      "errors": []
+    },
+    {
+      "block": 2,
+      "errors": []
+    },
+    {
+      "block": 3,
+      "errors": []
+    },
+    {
+      "block": 4,
+      "errors": []
+    },
+    {
+      "block": 5,
+      "errors": []
+    },
+    {
+      "block": 6,
+      "errors": []
+    }
+  ],
+  "types": [
+    {
+      "block": 1,
+      "errors": []
+    },
+    {
+      "block": 2,
+      "errors": []
+    },
+    {
+      "block": 3,
+      "errors": []
+    },
+    {
+      "block": 4,
+      "errors": []
+    },
+    {
+      "block": 5,
+      "errors": []
+    },
+    {
+      "block": 6,
+      "errors": []
+    }
+  ],
+  "schema": "compiled",
+  "loader": {
+    "skills": [
+      {
+        "name": "fabric-research",
+        "disableModelInvocation": true,
+        "filePath": "/home/balauru/.pi-profiles/fabric/.worktrees/research-skill-rework/skills/fabric-research/SKILL.md"
+      }
+    ],
+    "diagnostics": []
+  }
+}
