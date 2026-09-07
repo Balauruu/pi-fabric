@@ -6,6 +6,7 @@ run-history.jsonl
 # Generated runtime state and caches
 .pi/
 fabric/
+runs/
 web-search-cache/
 
 # Skills related
@@ -21,4 +22,5 @@ npm/node_modules/
 
 # Local operating-system noise
 .DS_Store
+.directory
 *.log
