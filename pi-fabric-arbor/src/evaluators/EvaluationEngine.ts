@@ -12,34 +12,37 @@ import { analyze, commandRun, parseMetric, units } from "./measurement.js";
 import type { EvaluatorCatalog } from "./catalog.js";
 import { requireNativeAdmission, NativeAdmissionError } from "../research/policy.js";
 import { Workspace } from "../material/Workspace.js";
+import { acceptance } from "../material/acceptance.js";
+import { splitDefinition, splitOf, type Split } from "./validation.js";
 const exec = promisify(execFile);
 /** Finite admitted evaluation, not a research loop or alternative child runtime. */
 export class EvaluationEngine {
   #active = new Map<string, { id: string; purpose: string; promise: Promise<EvaluationRecord>; abort: AbortController }>();
   #draining = false;
   constructor(readonly owner: OwnerExecution, readonly store: ResearchStore, readonly stateDirectory: string, readonly catalog: EvaluatorCatalog) {}
-  async evaluate(runId: string, id: string, signal?: AbortSignal, purpose: "candidate" | "feedback" | "recheck" = "candidate", pair?: { baseline: MaterialRef; candidate: MaterialRef }, attemptId: string | null = null): Promise<EvaluationRecord> {
+  async evaluate(runId: string, id: string, signal?: AbortSignal, purpose: "candidate" | "feedback" | "recheck" = "candidate", pair?: { baseline: MaterialRef; candidate: MaterialRef }, attemptId: string | null = null, split: Split = "development", developmentId: string | null = null): Promise<EvaluationRecord> {
     if (this.#draining) throw new Error("Evaluator generation draining");
     const active = this.#active.get(runId); if (active) { if (active.id !== id || active.purpose !== purpose) throw new Error("Run evaluator capacity occupied"); return active.promise; }
     if (this.#active.size >= 128) throw new Error("Evaluator active-run capacity exhausted");
     const frozen = this.store.get(runId)!; const { identity, ...body } = frozen.spec;
     if (identity !== digest(body)) throw new Error("Frozen resolved spec identity changed");
     const existing = this.store.evaluation(runId, id);
+    if (existing && (splitOf(existing) !== split || (existing.developmentId ?? null) !== developmentId)) throw new Error("Evaluation ID bound to different split/development evidence");
     if (existing && (existing.attemptId ?? null) !== attemptId) throw new Error("Evaluation ID bound to different exact attempt");
     if (pair && existing && (canonical(pair.baseline) !== canonical(existing.definition.baseline) || canonical(pair.candidate) !== canonical(existing.definition.candidate))) throw new Error("Evaluation ID bound to different exact material pair");
     if (existing && existing.purpose !== purpose) throw new Error("Conflicting evaluation invocation purpose for stable ID");
     if (existing?.state === "completed") return existing;
     if (existing && existing.state !== "running") throw new Error("Evaluation requires explicit immutable-bound resume");
-    this.store.beginEvaluation(runId, this.owner.generation);
+    this.store.beginEvaluation(runId, this.owner.generation, split === "final");
     const abort = new AbortController(), onAbort = () => abort.abort();
     signal?.addEventListener("abort", onAbort, { once: true }); if (signal?.aborted) abort.abort();
-    const promise = this.#execute(runId, id, abort.signal, purpose, existing, pair, attemptId);
+    const promise = this.#execute(runId, id, abort.signal, purpose, existing, pair, attemptId, split, developmentId);
     this.#active.set(runId, { id, purpose, promise, abort });
     try { return await promise; } finally { signal?.removeEventListener("abort", onAbort); this.#active.delete(runId); }
   }
-  async #execute(runId: string, id: string, signal: AbortSignal, purpose: "candidate" | "feedback" | "recheck", saved?: EvaluationRecord, pair?: { baseline: MaterialRef; candidate: MaterialRef }, attemptId: string | null = null): Promise<EvaluationRecord> {
+  async #execute(runId: string, id: string, signal: AbortSignal, purpose: "candidate" | "feedback" | "recheck", saved?: EvaluationRecord, pair?: { baseline: MaterialRef; candidate: MaterialRef }, attemptId: string | null = null, split: Split = "development", developmentId: string | null = null): Promise<EvaluationRecord> {
     const run = this.store.get(runId)!;
-    const definition = saved?.definition ?? (run.spec.evaluation ? { ...structuredClone(run.spec.evaluation), ...structuredClone(pair ?? {}) } : null);
+    const definition = saved?.definition ?? (splitDefinition(run.spec, split) ? { ...structuredClone(splitDefinition(run.spec, split)!), ...structuredClone(pair ?? {}) } : null);
     if (!definition) throw new Error("Frozen evaluator definition unavailable; no caller score accepted");
     let e = saved;
     try {
@@ -47,7 +50,7 @@ export class EvaluationEngine {
         signal.throwIfAborted();
         const output = join(this.stateDirectory, "runs", runId, "material", ...(run.material ? [id] : []));
         const baseline = await freezeMaterial(definition.baseline, output), candidate = await freezeMaterial(definition.candidate, output);
-        e = { id, runId, attemptId, purpose, epoch: run.epoch, specId: run.spec.identity, generation: this.owner.generation, ownerBinding: digest(run.owner), definition, definitionId: digest(definition), snapshots: { baseline, candidate }, catalogId: this.catalog.id,
+        e = { id, runId, attemptId, split, developmentId, purpose, epoch: run.epoch, specId: run.spec.identity, generation: this.owner.generation, ownerBinding: digest(run.owner), definition, definitionId: digest(definition), snapshots: { baseline, candidate }, catalogId: this.catalog.id,
           providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null, bindings: [{ generation: this.owner.generation, componentId: this.owner.componentId, catalogId: this.catalog.id, providerBinding: definition.providerAction ? this.catalog.binding(definition.providerAction) : null }], state: "running", invocations: [], analysis: null, quality: { required: run.spec.config.objective.qualityVetoes, passed: false, limitedValidation: definition.kind === "command" && definition.command!.checks.length === 0 }, validity: "pending", incumbentDecision: run.material ? "separate-owned-decision" : "not-evaluated-PR5", error: null };
         this.store.saveEvaluation(e);
       }
@@ -68,6 +71,9 @@ export class EvaluationEngine {
       e.analysis = analyze(e, run.spec.config.objective.direction);
       e.quality.passed = e.quality.required.every(v => v === 'no-native-failures' ? e!.invocations.every(i => i.valid) : v === 'preserve-baseline-correct' ? e!.invocations.filter(i => i.condition === 'baseline' && i.role !== 'judge' && i.valid && i.score === '1').every(i => e!.invocations.some(c => c.condition === 'candidate' && c.role !== 'judge' && c.taskId === i.taskId && c.repeat === i.repeat && c.valid && c.score === '1')) : e!.invocations.every(i => i.valid && i.score === '1'));
       e.validity = e.invocations.every(i => i.valid) && e.quality.passed ? "valid" : "invalid";
+      e.state = "completed";
+      if(splitOf(e)==="development" && run.spec.validation?.policy==="selected" && e.attemptId) e.validationPending=acceptance(this.store.get(runId)!,e,e.snapshots.candidate.oid)==="eligible";
+      // Keep the completed record persistence boundary explicit for recovery probes.
       e.state = "completed"; this.store.saveEvaluation(e);
       await this.#artifact(e).catch(error => { e!.error = `Derived artifact unavailable: ${String(error)}`.slice(0, 4096); this.store.saveEvaluation(e!); });
       this.store.settle(runId, this.owner.generation, run.material ? "ready" : "completed", "native-evaluation-completed; incumbent-not-decided", null, `eval-${id}`);
@@ -93,7 +99,7 @@ export class EvaluationEngine {
     let i = e.invocations.find(i => i.id === id);
     const judge = purpose === "judge";
     const request: Record<string, unknown> = e.definition.kind === "command" ? { command: e.definition.command, cwd: snapshot.directory, deadlineMs: e.definition.deadlineMs } : e.definition.kind === "provider" ? { providerAction: e.definition.providerAction, snapshotId: snapshot.id, cwd: snapshot.directory } : { name: `arbor-${judge ? "judge" : "subject"}-${id}`, task: judge ? `Arbor bounded evaluation judge. ${e.definition.judge!.instructions}\n${taskPrompt}\nReturn exactly PASS or FAIL.` : subjectBootstrap(snapshot, e.definition.subject.promptFiles, taskPrompt),
-      model: judge ? e.definition.judge!.model : e.definition.subject.model, tools: judge ? [] : e.definition.subject.tools, runner: "pi", transport: "process", thinking: "off", extensions: false, recursive: false, residency: "session", cwd: snapshot.directory };
+      model: judge ? e.definition.judge!.model : e.definition.subject.model, tools: judge ? [] : e.definition.subject.tools, runner: "pi", transport: "process", thinking: "off", extensions: false, recursive: false, residency: "session", timeoutMs: e.definition.deadlineMs, cwd: snapshot.directory };
     if (i && i.requestId !== digest({ definitionId: e.definitionId, request, purpose, parentId })) throw new Error("Immutable subject/judge request binding changed");
     if (i?.state === "ingested") return i;
     if (!i?.native) await requireNativeAdmission(this.store, e.runId, e);
@@ -114,12 +120,7 @@ export class EvaluationEngine {
           i.native = await commandRun(command.argv, snapshot.directory, e.definition.deadlineMs, signal);
           i.nativeId = i.native.id;
           i.native.checkResults = [];
-          for (const check of command.checks) {
-            if (!nativeSuccess(i.native)) break;
-            await requireNativeAdmission(this.store, e.runId, e); signal.throwIfAborted();
-            const result = await commandRun(check, snapshot.directory, e.definition.deadlineMs, signal);
-            i.native.checks.push(nativeSuccess(result)); i.native.checkResults.push(result);
-          }
+          i.state="native-complete"; this.store.saveEvaluation(e);
         } else {
           await mkdir(join(this.stateDirectory, "runs", e.runId, "evaluations", e.id), { recursive: true });
           const result = await this.catalog.evaluate(e.definition.providerAction!, { snapshot: { id: snapshot.id, directory: snapshot.directory, oid: snapshot.oid }, specification: canonical(e.definition), outputDirectory: join(this.stateDirectory, "runs", e.runId, "evaluations", e.id), evaluationId: e.id, invocationId: i.id }, async () => {
@@ -130,6 +131,23 @@ export class EvaluationEngine {
           i.native = result.native; i.score = result.measurement;
         }
         i.nativeId = i.native.id; i.state = "native-complete"; this.store.saveEvaluation(e);
+      }
+    }
+    if(e.definition.kind==='command' && nativeSuccess({...i.native!,checks:[]})) {
+      for (const [index,check] of e.definition.command!.checks.entries()) {
+        const requestId=digest({argv:check,cwd:snapshot.directory,deadlineMs:e.definition.deadlineMs});
+        let c=i.commandChecks?.[index];
+        if(c && c.requestId!==requestId)throw new Error('Frozen check request changed');
+        if(!c){await requireNativeAdmission(this.store,e.runId,e);signal.throwIfAborted();c={id:`check-${digest({invocation:id,index}).slice(0,40)}`,requestId,state:'reserved',nativeId:null};(i.commandChecks??=[]).push(c);this.store.saveEvaluation(e);}
+        if(c.state==='launching')throw new Error('Unknown command check completion; no duplicate launch');
+        if(c.state==='reserved') {
+          await requireNativeAdmission(this.store,e.runId,e); signal.throwIfAborted();
+          c.state='launching';this.store.saveEvaluation(e);
+          const result=await commandRun(check,snapshot.directory,e.definition.deadlineMs,signal);
+          c.nativeId=result.id;c.state='native-complete';
+          (i.native!.checkResults??=[]).push(result);i.native!.checks.push(nativeSuccess(result));this.store.saveEvaluation(e);
+        }
+        if(!i.native!.checks[index])break;
       }
     }
     // Aborted ingestion returns INTERRUPTED. The independently durable native fact
@@ -174,12 +192,13 @@ export class EvaluationEngine {
     if (specId !== digest(specBody)) throw new Error("Frozen resolved spec identity changed");
     const records = this.store.evaluations(run.id);
     for (const e of records) {
-      if (e.definitionId !== digest(e.definition) || e.specId !== run.spec.identity || canonical({ ...e.definition, ...(run.material ? { baseline: run.spec.evaluation!.baseline, candidate: run.spec.evaluation!.candidate } : {}) }) !== canonical(run.spec.evaluation) || e.catalogId !== this.catalog.id) throw new Error("Immutable evaluator/catalog identity changed; explicit new measurement required");
+      const expected = splitDefinition(run.spec, splitOf(e));
+      if (!expected || e.definitionId !== digest(e.definition) || e.specId !== run.spec.identity || canonical({ ...e.definition, ...(run.material ? { baseline: expected.baseline, candidate: expected.candidate } : {}) }) !== canonical(expected) || e.catalogId !== this.catalog.id) throw new Error("Immutable evaluator/catalog identity changed; explicit new measurement required");
       if (e.definition.providerAction) this.catalog.binding(e.definition.providerAction);
       await verifyMaterial(e.snapshots.baseline); await verifyMaterial(e.snapshots.candidate);
       for (const i of e.invocations) if (i.state !== "ingested") {
         if (e.definition.kind === "agent-suite") await this.owner.observeEvaluation(e, i);
-        else if (!i.native) throw new Error("Unknown command/provider completion handle; never relaunch ambiguous work");
+        else if (!i.native || i.commandChecks?.some(c=>c.state==="launching"&&!c.nativeId)) throw new Error("Unknown command/provider completion handle; never relaunch ambiguous work");
       }
     }
     signal?.throwIfAborted();
@@ -188,7 +207,7 @@ export class EvaluationEngine {
       const e = old; e.generation = this.owner.generation; e.state = "running"; e.error = null;
       e.providerBinding = e.definition.providerAction ? this.catalog.binding(e.definition.providerAction) : null;
       if (e.bindings.at(-1)?.generation !== this.owner.generation) { if (e.bindings.length >= 128) throw new Error("Evaluation binding-history limit reached; new measurement required"); e.bindings.push({ generation: this.owner.generation, componentId: this.owner.componentId, catalogId: this.catalog.id, providerBinding: e.providerBinding }); }
-      this.store.saveEvaluation(e); await this.evaluate(run.id, e.id, signal, e.purpose, undefined, e.attemptId ?? null);
+      this.store.saveEvaluation(e); await this.evaluate(run.id, e.id, signal, e.purpose, undefined, e.attemptId ?? null, splitOf(e), e.developmentId ?? null);
     }
   }
   async cancel(runId: string): Promise<void> { const active = this.#active.get(runId); active?.abort.abort(); await active?.promise; }

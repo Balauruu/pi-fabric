@@ -6,6 +6,10 @@ import { verifyMaterial } from "../evaluators/material.js";
 import { digest, type BoundCommand } from "../research/contracts.js";
 import type { Receipt, ResearchStore } from "../research/ResearchStore.js";
 import { requireNativeAdmission } from '../research/policy.js';
+import { acceptance } from './acceptance.js';
+import { evaluationCalls } from '../evaluators/contracts.js';
+import { reservedEvaluationCalls } from '../research/policy.js';
+import { splitDefinition, splitCapacity, splitOf, validationEvidence } from '../evaluators/validation.js';
 import { Workspace, gitText } from "./Workspace.js";
 /** Owner-local bounded material operations. Research policy/role loop remains PR6. */
 export class MaterialJourney {
@@ -28,6 +32,7 @@ export class MaterialJourney {
     await workspace.verify(m.capture); context.signal?.throwIfAborted();
     if (this.draining) throw new Error("Material generation retired");
     if(run.spec.config.execution==='research' && ['dispatch','evaluate','resumeAttempt'].includes(name)) await requireNativeAdmission(this.store,run.id);
+    if (["dispatch","resumeAttempt"].includes(name) && this.store.evaluations(run.id).some(e=>splitOf(e)==="final")) throw new Error("Final selection is terminal; no new candidate effects");
     if (name === "dispatch" || name === "resumeAttempt") {
       await this.owner.verifyRoles(run.id);
       context.signal?.throwIfAborted(); if (this.draining) throw new Error("Material generation retired before role admission");
@@ -92,13 +97,36 @@ export class MaterialJourney {
         target = combined.oid!;
       } else if (m.incumbent !== m.capture.baseline) throw new Error("Initial baseline identity cannot replace current incumbent");
       await workspace.checkScope(m.capture, target);
-      const e = await this.evaluator.evaluate(run.id, payload.evaluationId, context.signal, payload.purpose ?? "candidate", { baseline: workspace.reference(m.capture, m.incumbent), candidate: workspace.reference(m.capture, target) }, attempt?.id ?? null);
+      const pair = { baseline: workspace.reference(m.capture, m.incumbent), candidate: workspace.reference(m.capture, target) };
+      const records = this.store.evaluations(run.id), final = payload.validation === 'final';
+      if (records.some(r => splitOf(r) === 'final') && !final) throw new Error('Final selection is terminal; no further adaptive evaluation');
+      let e;
+      if (final) {
+        e = this.store.evaluation(run.id, payload.evaluationId);
+        if (!attempt || !e || e.attemptId !== attempt.id || acceptance(this.store.get(run.id)!, e, target) !== 'eligible') throw new Error('Final selection requires exact eligible development evidence against current incumbent');
+        const v=run.spec.validation;
+        if (!v || (v.policy !== 'final' && !v.final)) throw new Error('No untouched final split selected');
+        const required = [e];
+        if (v.policy === 'selected') { const held=validationEvidence(records,e,'held-out'); if (!held || acceptance(this.store.get(run.id)!,held,target,true)!=='eligible') throw new Error('Held-out veto cannot be overridden by final selection'); required.push(held); }
+        // A stale prerequisite must not spend the one untouched final comparison.
+        const admission = this.store.binding(this.store.get(run.id)!, command.commandId);
+        for (const record of required) { await verifyMaterial(record.snapshots.baseline); await verifyMaterial(record.snapshots.candidate); }
+        this.store.check(this.store.get(run.id)!, admission);
+        if(!records.some(r=>splitOf(r)==="final") && records.reduce((n,r)=>n+evaluationCalls(r),0)+reservedEvaluationCalls(this.store.projection(run.id)!.attempts as any[],records)+splitCapacity(splitDefinition(run.spec,"final"))>run.spec.config.limits.evaluatorCalls) throw new Error("Final evaluation capacity exhausted before untouched split use");
+        e = await this.evaluator.evaluate(run.id, `final-${digest(e.id).slice(0,40)}`, context.signal, 'candidate', pair, attempt.id, 'final', e.id);
+      } else {
+        e = await this.evaluator.evaluate(run.id, payload.evaluationId, context.signal, payload.purpose ?? 'candidate', pair, attempt?.id ?? null);
+        if (run.spec.validation?.policy === 'selected' && e.state === 'completed' && e.validity === 'valid' && (!attempt || acceptance(this.store.get(run.id)!,e,target)==='eligible')) {
+          const held=await this.evaluator.evaluate(run.id, `held-${digest(e.id).slice(0,40)}`, context.signal, 'candidate', pair, attempt?.id ?? null, 'held-out', e.id);
+          if (held.state !== 'completed') return this.store.evaluationReceipt(command,generation,'evaluate',payload,'blocked',held.error);
+        }
+      }
       if (target === m.capture.baseline && e.state === "completed" && e.validity === "valid" && !this.store.get(run.id)!.material!.baselineEvaluation) this.store.materialBaseline(run.id, generation, e.id);
       return this.store.evaluationReceipt(command, generation, "evaluate", payload, e.state === "completed" ? "applied" : "blocked", e.error);
     }
     if (name === "decide" && payload.decision === "keep") {
       const e = payload.evidenceIds.length === 1 ? this.store.evaluation(run.id, payload.evidenceIds[0]) : undefined;
-      if (e) { await verifyMaterial(e.snapshots.baseline); await verifyMaterial(e.snapshots.candidate); await workspace.checkScope(m.capture, e.snapshots.candidate.oid); }
+      if (e) { for (const record of [e, ...this.store.evaluations(run.id).filter(r => r.developmentId === e.id)]) { await verifyMaterial(record.snapshots.baseline); await verifyMaterial(record.snapshots.candidate); } await workspace.checkScope(m.capture, e.snapshots.candidate.oid); }
       const receipt = m.pending ? this.store.receipt(command, "decide", payload)! : this.store.prepareIntegration(command, generation, payload);
       const current = this.store.get(run.id)!, intent = current.material!.pending;
       if (!intent) return receipt;

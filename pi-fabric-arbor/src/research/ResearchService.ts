@@ -8,6 +8,8 @@ import { object, type NativeOwner } from "../managed/contracts.js";
 import { RESEARCH_ACTIONS, canonical, digest, validate, type BoundCommand, type ResearchAction, type Schema } from "./contracts.js";
 import { configFile, resolveSpec } from "./spec.js";
 import { ResearchStore, type Receipt } from "./ResearchStore.js";
+import { promotionGate } from "../material/acceptance.js";
+import { verifyMaterial } from "../evaluators/material.js";
 import { ownedArtifactBytes, nativeAdmission, evaluationCapacity, researchFacts } from './policy.js';
 import { MaterialJourney } from "../material/MaterialJourney.js";
 import { SourceApply } from "../material/SourceApply.js";
@@ -86,6 +88,7 @@ export class ResearchService {
       context.signal?.throwIfAborted();if(this.#draining)throw new Error('Role revision generation retired');
       return this.store.reviseRoles(command,this.owner.generation,{revision:run.revision+1,commandId:command.commandId,bundle,coordinatorId,executorId});
     }
+    if(name==='evaluate'&&args.payload?.validation==='final'&&(this.#researchRuns.has(run.id)||this.owner.busyResearch(run.id)))throw new Error("Final selection requires quiescent owning-Pi boundary");
     if (run.material && ['dispatch', 'collect', 'evaluate', 'decide', 'resumeAttempt'].includes(name)) return this.material.invoke(name, command, name==='resumeAttempt'?{attemptId:args.attemptId,newAttemptId:args.newAttemptId,mode:args.mode,summary:args.summary}:args.payload, context);
     if (name === "control") {
       const receipt = this.store.control(command, this.owner.generation, args.action, args.instruction);
@@ -170,6 +173,13 @@ export class ResearchService {
     if(terminal&&applied?.intent.kind!=='apply')throw new Error('Terminal source reconciliation requires an original apply intent; no new source apply');
     const keep=recovery?(this.store.projection(run.id)!.decisions as Array<Record<string,any>>).find(d=>d.decisionId===recovery.intent.binding.decisionId):decision;
     if(name==='apply' && (keep?.status!=='measured-keep'||keep.materialId!==command.materialId||keep.epoch!==command.epoch||this.store.evaluation(run.id,keep.evidenceIds[0])?.snapshots.candidate.oid!==(recovery?.intent.target??run.material.incumbent)))throw new Error('Apply requires exact current measured-keep decision, not a review flag');
+    if(name==='apply'&&!recovery){
+      const e=this.store.evaluation(run.id,keep!.evidenceIds[0])!,records=this.store.evaluations(run.id);
+      const reason=promotionGate({...run,material:{...run.material,incumbent:e.snapshots.baseline.oid}},e,run.material.incumbent,records);
+      if(reason!=='eligible')throw new Error('Source apply validation veto: '+reason);
+      for(const record of [e,...records.filter(r=>r.developmentId===e.id)]){await verifyMaterial(record.snapshots.baseline);await verifyMaterial(record.snapshots.candidate);}
+      this.store.check(this.store.get(run.id)!,command);
+    }
     if((name==='undoApply'||recovery) && (!applied||applied.intent.captureId!==command.materialId||canonical(applied.intent.binding.owner)!==canonical(run.owner)||applied.intent.binding.specId!==run.spec.identity||applied.intent.binding.epoch!==run.epoch||applied.intent.binding.runId!==run.id||applied.intent.binding.response!=='Apply exact source delta'))throw new Error('Source recovery/undo requires exact owning-Pi source operation provenance');
     if(terminal){
       // Source-only reconciliation observes saved boundaries, never rebinds research or launches native work.
@@ -205,7 +215,7 @@ export class ResearchService {
       const spec = await resolveSpec(context.cwd, profile, project, object(args.overrides ?? {}), model ? `${model.provider}/${model.id}` : undefined);
       if (["evaluate", "material", "research"].includes(spec.config.execution)) {
         if (!this.evaluator) throw new Error("Packaged evaluator unavailable");
-        for (const key of (spec.evaluation!.kind === "agent-suite" ? [spec.evaluation!.subject.model, spec.evaluation!.judge?.model].filter(Boolean) : [])) if (!context.extensionContext.modelRegistry.getAvailable().some(m => `${m.provider}/${m.id}` === key)) throw new Error(`Unavailable exact evaluation model ${key}`);
+        for (const key of [spec.evaluation!,spec.validation?.heldOut,spec.validation?.final].flatMap(d=>d?.kind === "agent-suite" ? [d.subject.model,d.judge?.model].filter(Boolean) : [])) if (!context.extensionContext.modelRegistry.getAvailable().some(m => `${m.provider}/${m.id}` === key)) throw new Error(`Unavailable exact evaluation model ${key}`);
         if (object(await this.owner.call("schema.status", {})).mode === "enforce") throw new Error("Native evaluation unavailable in Schema enforce; policy unchanged");
       }
       if (['inspect','research'].includes(spec.config.execution)) for (const role of ["coordinator", "executor"] as const) if (!context.extensionContext.modelRegistry.getAvailable().some(model => `${model.provider}/${model.id}` === spec.roles[role].model)) throw new Error(`Unavailable exact ${role} model`);
@@ -225,6 +235,7 @@ export class ResearchService {
         context.signal?.throwIfAborted(); if (this.#draining) throw new Error("Capture interrupted; owned artifacts retained");
         spec.source = { root: capture.root, oid: capture.originalOid, materialId: capture.id, capture: "owned-snapshot" };
         spec.evaluation!.baseline = workspace.reference(capture, capture.baseline); spec.evaluation!.candidate = workspace.reference(capture, capture.baseline);
+        for (const d of [spec.validation?.heldOut, spec.validation?.final]) if (d) { d.baseline = workspace.reference(capture,capture.baseline); d.candidate = workspace.reference(capture,capture.baseline); }
         spec.config.evaluator.identity = digest(spec.evaluation);
         const { identity: _identity, ...body } = spec; spec.identity = digest(body);
         material = { capture, incumbent: capture.baseline, baselineEvaluation: null, candidates: [], pending: null };

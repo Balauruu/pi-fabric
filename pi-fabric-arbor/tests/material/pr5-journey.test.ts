@@ -11,19 +11,20 @@ import { OwnerExecution } from "../../src/managed/OwnerExecution.js";
 import { EvaluationEngine } from "../../src/evaluators/EvaluationEngine.js";
 import { EvaluatorCatalog } from "../../src/evaluators/catalog.js";
 import { reservedEvaluationCalls } from "../../src/research/policy.js";
-import { researchFacts } from "../../src/research/policy.js";
+import { researchObservation, researchFacts } from "../../src/research/policy.js";
 import { commandProgram, researchCommand } from "../../src/research/commands.js";
 import { acceptance } from "../../src/material/acceptance.js";
 import { Workspace, gitBytes, gitText } from "../../src/material/Workspace.js";
 const identity = { id: "root", rootId: "root", ownerHostId: "host", ownerIdentityId: "identity", sessionId: "session" };
-async function fixture(t: test.TestContext, options: { settlementFailure?: boolean; search?: Record<string,number>; research?: boolean; workerLoss?: boolean; workerFailure?: boolean; output?: string; checks?: string[]; limits?: Record<string, number>; failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
+async function fixture(t: test.TestContext, options: { direction?:"maximize"|"minimize"; heldMetric?:string; untouched?:"win"|"lose"; validation?:Record<string,unknown>; heldOut?: "win" | "lose"; settlementFailure?: boolean; search?: Record<string,number>; research?: boolean; workerLoss?: boolean; workerFailure?: boolean; output?: string; checks?: string[]; limits?: Record<string, number>; failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
   const base = resolve(".runtime/pr5-journey"); await mkdir(base, { recursive: true }); const root = await mkdtemp(join(base, "case-")), cwd = join(root, "source"), state = join(root, "state"), profile = join(root, "profile"); await mkdir(cwd); await mkdir(profile);
   const git = (...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   git("init", "-b", "main"); git("config", "user.name", "PR5"); git("config", "user.email", "pr5@example.invalid");
   await writeFile(join(cwd, "prompt"), "source committed"); await writeFile(join(cwd, "check"), "fixed"); await writeFile(join(cwd, "other"), "base"); git("add", "."); git("commit", "-m", "source"); await writeFile(join(cwd, "prompt"), "user staged"); git("add", "prompt"); await writeFile(join(cwd, "prompt"), "BASELINE_SNAPSHOT_BAD");
   if (options.links) { await symlink(".", join(cwd, "a")); await symlink("a/../outside", join(cwd, "escape")); git("add", "a", "escape"); }
-  const definition = { version: 1, kind: options.command ? "command" : "agent-suite", baseline: { root: cwd, oid: "capture", files: ["prompt", "check"] }, candidate: { root: cwd, oid: "capture", files: ["prompt", "check"] }, tasks: Array.from({ length: options.tasks ?? 1 }, (_, n) => ({ id: `t${n + 1}`, prompt: `fixed task ${n + 1}`, expected: "GOOD" })), repeats: options.repeats ?? 1, retries: 0, deadlineMs: 15000, analysis: "paired-descriptive", order: "task-baseline-candidate", subject: { model: "fake/subject", tools: [], promptFiles: ["prompt"] }, judge: null, command: options.command ? { argv: [process.execPath, "-e", `const fs=require('fs');const good=fs.readFileSync('prompt','utf8').includes('GOOD');console.log('ARBOR_METRIC '+(1+(good?1:0)+(fs.readFileSync('other','utf8')==='GOOD'?1:0))+' points');${options.failedMetric ? "if(good)process.exit(3);" : ""}${options.output ?? ""}`], checks: (options.checks ?? []).map(code=>[process.execPath,"-e",code]), unit: "points" } : null, providerAction: null };
+  const definition = { version: 1, kind: options.command ? "command" : "agent-suite", baseline: { root: cwd, oid: "capture", files: ["prompt", "check"] }, candidate: { root: cwd, oid: "capture", files: ["prompt", "check"] }, tasks: Array.from({ length: options.tasks ?? 1 }, (_, n) => ({ id: `t${n + 1}`, prompt: `fixed task ${n + 1}`, expected: "GOOD" })), repeats: options.repeats ?? 1, retries: 0, deadlineMs: 15000, analysis: "paired-descriptive", order: "task-baseline-candidate", subject: { model: "fake/subject", tools: [], promptFiles: ["prompt"] }, judge: null, command: options.command ? { argv: [process.execPath, "-e", `const fs=require('fs');const good=fs.readFileSync('prompt','utf8').includes('GOOD');console.log('ARBOR_METRIC '+(${options.direction==='minimize'?'-(1+(good?1:0))':"1+(good?1:0)+(fs.readFileSync('other','utf8')==='GOOD'?1:0)"})+' points');${options.failedMetric ? "if(good)process.exit(3);" : ""}${options.output ?? ""}`], checks: (options.checks ?? []).map(code=>[process.execPath,"-e",code]), unit: "points" } : null, providerAction: null };
   await writeFile(join(root, "definition.json"), JSON.stringify(definition));
+  if(options.heldOut) await writeFile(join(root,'validation.json'),JSON.stringify({version:1,policy:'selected',maxUses:2,criterion:'non-regression',heldOut:{...definition,...(options.heldMetric&&definition.command?{command:{...definition.command,argv:[process.execPath,'-e',`const good=require('fs').readFileSync('prompt','utf8').includes('GOOD');console.log('ARBOR_METRIC '+(${options.heldMetric})+' points');`]}}:{}),tasks:[{id:'held',prompt:'HELD_OUT_DETAIL_SENTINEL fixed task',expected:options.heldOut==='lose'?'BAD':'GOOD'}]},final:options.untouched?{...definition,tasks:[{id:"untouched",prompt:"FINAL_DETAIL_SENTINEL fixed task",expected:options.untouched==="win"?"GOOD":"BAD"}]}:null,...options.validation}));
   const store = new ResearchStore(join(state, "research.sqlite3")), bindings = new BindingStore(join(state, "bindings.sqlite3")), native = new Map<string, any>(); let count = 0;
   const call = async (ref: string, args: any = {}) => {
     if (ref === "agents.self") return { ...identity, kind: "root", local: true, stale: false };
@@ -57,12 +58,109 @@ async function fixture(t: test.TestContext, options: { settlementFailure?: boole
   const invoke = async (name: string, payload: any, commandId = `${name}-${count}-${store.get("run")?.revision}`) => service.invoke(name, { ...store.binding(store.get("run")!, commandId), ...(name === "review" ? { decisionId: payload } : name === "export" ? { format: "json" } : name === "control" ? { action: payload } : { payload }) }, context) as Promise<any>;
   t.after(async () => { if(options.workerLoss||options.settlementFailure) await assert.rejects(service.close(), /settlement/); else await service.close(); });
   const before = await readFile(join(cwd, ".git/index")), refs = git("show-ref");
-  await service.invoke("start", { runId: "run", overrides: { execution: options.research ? "research" : "material", ...(options.limits ? { limits: options.limits } : {}), material: { mutablePaths: ["prompt", "other"], evaluationInputs: ["check"] }, objective: { unit: "points", ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, evaluator: { kind: definition.kind, definition: join(root, "definition.json") }, roleTools: { executor: ["read", "write", "bash"] }, search: { mode: options.review ? "review" : "auto", ...options.search } } }, context);
+  await service.invoke("start", { runId: "run", overrides: { execution: options.research ? "research" : "material", ...(options.limits ? { limits: options.limits } : {}), material: { mutablePaths: ["prompt", "other"], evaluationInputs: ["check"] }, objective: { unit: "points", ...(options.direction ? {direction:options.direction} : {}), ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, evaluator: { kind: definition.kind, definition: join(root, "definition.json"), ...(options.heldOut ? {heldOut:join(root,"validation.json")} : {}) }, roleTools: { executor: ["read", "write", "bash"] }, search: { mode: options.review ? "review" : "auto", ...options.search } } }, context);
   if (options.command && !options.research) await invoke("evaluate", { attemptId: "baseline", evaluationId: "initial" });
   const candidate = async (id: string, task = "WRITE GOOD") => { await invoke("propose", { nodeId: id, type: "hypothesis", parentId: null, title: id, rationale: task, sourceRefs: [] }); await invoke("dispatch", { nodeId: id, attemptId: id }); await invoke("evaluate", { attemptId: id, evaluationId: `eval-${id}` }); };
   const keep = (id: string) => invoke("decide", { decisionId: `keep-${id}`, nodeId: id, decision: "keep", evidenceIds: [`eval-${id}`] });
   return { native, root, cwd, state, store, bindings, service, owner, evaluator, invoke, candidate, keep, before, refs, git, context };
 }
+test('PR9 stale held-out approval cannot consume untouched final evidence',async t=>{
+ const f=await fixture(t,{heldOut:'win',untouched:'win'});await f.candidate('one');
+ const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
+ await writeFile(join(held.snapshots.candidate.directory,'prompt'),'TAMPERED_HELD_SNAPSHOT');const before=f.native.size;
+ await assert.rejects(f.invoke('evaluate',{attemptId:'one',evaluationId:'eval-one',validation:'final'}),/changed|mismatch|modified/i);
+ assert.equal(f.native.size,before);assert.equal(f.store.evaluations('run').some(e=>e.split==='final'),false);
+});
+test('PR9 held-out-linked lessons and decisions stay out of ordinary product ideation',async t=>{
+ const f=await fixture(t,{heldOut:'win'});await f.candidate('one');
+ const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
+ await f.invoke('distill',{lessonId:'held-lesson',nodeId:'one',insight:'HELD_GRADE_DETAIL_SENTINEL',limitations:'test-only',evidenceIds:[held.id]});
+ await f.invoke('decide',{decisionId:'held-review',nodeId:'one',decision:'request_review',evidenceIds:[held.id]});
+ const p=f.store.projection('run')!;assert.ok(JSON.stringify(p).includes('HELD_GRADE_DETAIL_SENTINEL'));
+ const observation=researchObservation(p,0,f.store.evaluations('run'));
+ assert.doesNotMatch(JSON.stringify(observation),/HELD_GRADE_DETAIL_SENTINEL/);assert.equal(observation.decisions.some((d:any)=>d.evidenceIds.includes(held.id)),false);
+ await f.invoke('review','held-review');await f.invoke('decide',{decisionId:'held-discard',nodeId:'one',decision:'discard',evidenceIds:[held.id]});
+ const after=researchObservation(f.store.projection('run')!,0,f.store.evaluations('run'));
+ assert.equal(after.facts.noGain,0,'Test-only decisions cannot drive development convergence');assert.equal(after.recentFacts[0]!.evaluationId,'eval-one');
+});
+test('PR9 same-OID attempts cannot borrow attribution, stale review or consumed final evidence',async t=>{
+ const f=await fixture(t,{heldOut:'win',validation:{policy:'final',maxUses:1},review:true});await f.candidate('one');
+ await f.invoke('propose',{nodeId:'two',type:'hypothesis',parentId:null,title:'two',rationale:'WRITE GOOD',sourceRefs:[]});await f.invoke('dispatch',{nodeId:'two',attemptId:'two'});
+ const run=f.store.get('run')!,one=run.material!.candidates.find(c=>c.id==='one')!,two=run.material!.candidates.find(c=>c.id==='two')!;
+ assert.equal(gitText(run.material!.capture.repository,['rev-parse',one.oid+'^{tree}']),gitText(run.material!.capture.repository,['rev-parse',two.oid+'^{tree}']));
+ // Two genuinely settled writers produced identical material. Attribute the same immutable commit, not merely equal metrics.
+ f.store.materialCandidate(f.store.binding(run,'same-oid'),'g1',{...two,oid:one.oid});
+ await assert.rejects(f.invoke('evaluate',{attemptId:'two',evaluationId:'eval-one'}),/different exact attempt/);
+ await f.invoke('evaluate',{attemptId:'two',evaluationId:'eval-two'});
+ await f.invoke('decide',{decisionId:'review-one',nodeId:'one',decision:'request_review',evidenceIds:['eval-one']});await f.invoke('review','review-one');await f.invoke('control','resume');
+ await f.invoke('evaluate',{attemptId:'one',evaluationId:'recheck-one',purpose:'recheck'});
+ await f.invoke('evaluate',{attemptId:'one',evaluationId:'recheck-one',validation:'final'});const count=f.native.size;
+ assert.match((await f.keep('one')).reason,/final/,'Older development evidence cannot reuse the recheck final');
+ assert.match((await f.keep('two')).reason,/final/,'Same OID is not the selected attempt');
+ const stale=await f.invoke('decide',{decisionId:'stale-review',nodeId:'one',decision:'keep',evidenceIds:['recheck-one']});assert.match(stale.reason,/review receipt/);
+ await assert.rejects(f.invoke('evaluate',{attemptId:'two',evaluationId:'eval-two',validation:'final'}),/already consumed/);assert.equal(f.native.size,count);
+ await f.invoke('decide',{decisionId:'review-recheck',nodeId:'one',decision:'request_review',evidenceIds:['recheck-one']});await f.invoke('review','review-recheck');
+ assert.equal((await f.invoke('decide',{decisionId:'fresh-keep',nodeId:'one',decision:'keep',evidenceIds:['recheck-one']})).status,'applied');
+});
+test('PR9 actual command held-out non-regression handles negative min/max ties and vetoes directional loss',async t=>{
+ for(const direction of ['maximize','minimize'] as const)for(const loss of [false,true]){
+  const f=await fixture(t,{command:true,heldOut:'win',direction,heldMetric:loss?(direction==='maximize'?'good?-2:-1':'good?0:-1'):'-1'});await f.candidate('one');
+  const result=await f.keep('one');assert.equal(result.status,loss?'blocked':'applied');if(loss)assert.match(result.reason,/held-out-veto/);
+ }
+});
+test('PR9 changed combined material requires new development and held-out current-incumbent comparisons',async t=>{
+ const f=await fixture(t,{command:true,heldOut:'win',validation:{maxUses:3}});await f.candidate('one');await f.candidate('two','WRITE OTHER');const old=f.store.evaluation('run','eval-two')!;
+ assert.equal((await f.keep('one')).status,'applied');assert.match((await f.keep('two')).reason,/stale-incumbent/);
+ await f.invoke('evaluate',{attemptId:'two',evaluationId:'combined-two'});const combined=f.store.evaluation('run','combined-two')!,held=f.store.evaluations('run').find(e=>e.developmentId==='combined-two')!;
+ assert.notEqual(combined.snapshots.candidate.oid,old.snapshots.candidate.oid);assert.equal(held.snapshots.candidate.oid,combined.snapshots.candidate.oid);assert.equal(held.snapshots.baseline.oid,f.store.get('run')!.material!.incumbent);assert.deepEqual(held.invocations.map(i=>i.score),['2','3']);
+ assert.equal((await f.invoke('decide',{decisionId:'combined',nodeId:'two',decision:'keep',evidenceIds:['combined-two']})).status,'applied');assert.equal((f.store.projection('run')!.validation as any).heldOutUses,3);
+});
+test('PR9 held-out snapshot byte drift cannot use old score or review to keep',async t=>{
+ const f=await fixture(t,{heldOut:'win'});await f.candidate('one');const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
+ await writeFile(join(held.snapshots.candidate.directory,'prompt'),'CANDIDATE_SNAPSHOT_TAMPERED');await assert.rejects(f.keep('one'),/changed|mismatch|modified/i);assert.equal(f.store.get('run')!.material!.incumbent,f.store.get('run')!.material!.capture.baseline);
+});
+test('PR9 development nonimprovement never invokes adaptive held-out or becomes validated',async t=>{
+ const devOnly=await fixture(t);await devOnly.candidate('one');assert.equal((await devOnly.keep('one')).status,'applied');assert.equal((devOnly.store.projection('run')!.validation as any).label,'development-only');assert.equal((devOnly.store.projection('run')!.validation as any).heldOutUses,0);
+ const f=await fixture(t,{heldOut:'win'});await f.candidate('one','WRITE BAD');assert.equal(f.store.evaluations('run').filter(e=>e.split==='held-out'&&e.attemptId).length,0);assert.match((await f.keep('one')).reason,/no-gain/);assert.equal((f.store.projection('run')!.validation as any).label,'development-only');
+});
+test('PR9 final-only is untouched until explicit owner selection, exact replay never redispatches and search cannot reuse it',async t=>{
+ const limited=await fixture(t,{heldOut:'win',validation:{policy:'final',maxUses:1},limits:{evaluatorCalls:4}});await limited.candidate('one');await assert.rejects(limited.invoke('evaluate',{attemptId:'one',evaluationId:'eval-one',validation:'final'}),/capacity exhausted before untouched/);assert.equal(limited.store.evaluations('run').some(e=>e.split==='final'),false);
+ const selected=await fixture(t,{heldOut:'win',untouched:'lose'});await selected.candidate('one');assert.equal((selected.store.projection('run')!.validation as any).finalUses,0);await selected.invoke('evaluate',{attemptId:'one',evaluationId:'eval-one',validation:'final'});assert.match((await selected.keep('one')).reason,/final-veto/);
+ const f=await fixture(t,{heldOut:'win',validation:{policy:'final',maxUses:1}});await f.candidate('one');
+ assert.equal(f.store.evaluations('run').length,2);assert.match((await f.keep('one')).reason,/final/);
+ await f.invoke('control','pause');
+ const payload={attemptId:'one',evaluationId:'eval-one',validation:'final'};
+ assert.equal((await f.invoke('evaluate',payload)).status,'applied');const count=f.native.size;
+ assert.equal((await f.invoke('evaluate',payload)).status,'applied');assert.equal(f.native.size,count);
+ assert.equal((await f.keep('one')).status,'applied');assert.equal((f.store.projection('run')!.validation as any).label,'final-validated');
+ await assert.rejects(f.invoke('evaluate',{attemptId:'one',evaluationId:'another'}),/Final selection/);
+ await f.invoke('propose',{nodeId:'two',type:'hypothesis',parentId:null,title:'two',rationale:'WRITE GOOD',sourceRefs:[]});
+ await assert.rejects(f.invoke('dispatch',{nodeId:'two',attemptId:'two'}),/Final selection/);assert.equal(f.native.size,count);
+});
+test('PR9 adaptive reuse is counted and capped across rechecks; frozen grading ignores policy file edits',async t=>{
+ const f=await fixture(t,{heldOut:'win',validation:{maxUses:1}});await writeFile(join(f.root,'validation.json'),'{}');await f.candidate('one');
+ await assert.rejects(f.invoke('evaluate',{attemptId:'one',evaluationId:'recheck',purpose:'recheck'}),/use limit/);
+ assert.equal((f.store.projection('run')!.validation as any).heldOutUses,1);
+ assert.equal(f.store.evaluations('run').filter(e=>e.split==='held-out'&&e.attemptId).length,1);
+});
+test('PR9 actual owning-Pi review cannot override held-out loser or authorize apply',async t=>{
+ const f=await fixture(t,{heldOut:'lose',review:true});await f.candidate('one');
+ await f.invoke('decide',{decisionId:'review',nodeId:'one',decision:'request_review',evidenceIds:['eval-one']});await f.invoke('review','review');
+ assert.match((await f.keep('one')).reason,/held-out/);
+ await assert.rejects(f.service.invoke('apply',{...f.store.binding(f.store.get('run')!,'apply'),decisionId:'review'},f.context),/measured-keep/);
+});
+test('PR9 command checks have separately reserved counted native IDs',async t=>{
+ const f=await fixture(t,{command:true,heldOut:'win',checks:['process.exit(0)']});await f.candidate('one');assert.equal((await f.keep('one')).status,'applied');
+ const records=f.store.evaluations('run');assert.ok(records.every(e=>e.invocations.every(i=>i.commandChecks?.length===1&&i.commandChecks[0]!.nativeId===i.native!.checkResults![0]!.id&&i.commandChecks[0]!.state==='native-complete')));
+ assert.equal(researchFacts(f.store.projection('run')!).evaluatorCalls,16);
+});
+for(const heldOut of ['win','lose'] as const)test(`PR9 separate held-out ${heldOut} evidence gates exact measured keep`,async t=>{
+ const f=await fixture(t,{heldOut});await f.candidate('one');const records=f.store.evaluations('run');
+ assert.equal(records.filter(e=>(e as any).split==='held-out').length,2,'baseline and selected comparison are separate authoritative held-out records');
+ const decision=await f.keep('one');assert.equal(decision.status,heldOut==='win'?'applied':'blocked');if(heldOut==='lose')assert.match(decision.reason,/held-out/);
+ const p=f.store.projection('run') as any;assert.equal(p.validation.heldOutUses,1);assert.equal(p.validation.label,heldOut==='win'?'held-out-validated':'development-only');
+ const ids=records.flatMap(e=>e.invocations.map(i=>i.id));assert.equal(new Set(ids).size,ids.length);assert.ok(records.every(e=>e.invocations.every(i=>i.native&&i.state==='ingested')));
+});
 test('PR8 explicit same-owner reopen recovers known spawn attachment gap and freezes without duplicate native work',async t=>{
  const f=await fixture(t,{command:true,settlementFailure:true});await f.invoke('propose',{nodeId:'one',type:'hypothesis',parentId:null,title:'one',rationale:'WRITE GOOD',sourceRefs:[]});
  const ingest=f.store.native.bind(f.store);let lost=true;t.mock.method(f.store,'native',(...args:Parameters<typeof f.store.native>)=>{if(lost){lost=false;throw new Error('attachment persistence interrupted');}return ingest(...args);});

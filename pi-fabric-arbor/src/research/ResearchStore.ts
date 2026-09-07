@@ -4,12 +4,13 @@ import { DatabaseSync } from "node:sqlite";
 import { TERMINAL, type NativeOwner, type Terminal } from "../managed/contracts.js";
 import { ACTION_SCHEMAS, ACTOR_PROPOSAL_SCHEMA, canonical, digest, validate, type BoundCommand, type Proposal, type ResearchAction } from "./contracts.js";
 import type { ResolvedSpec } from "./spec.js";
-import { evaluationSummary, type EvaluationRecord } from "../evaluators/contracts.js";
+import { evaluationCalls, evaluationSummary, type EvaluationRecord } from "../evaluators/contracts.js";
 import type { MaterialState } from "../material/contracts.js";
 import type { Candidate } from "../material/Workspace.js";
 import { evaluationCapacity, reservedEvaluationCalls, researchFacts } from './policy.js';
 import { ancestry, validateNode, validateSelection, type Selection } from './tree.js';
-import { acceptance } from "../material/acceptance.js";
+import { promotionGate } from "../material/acceptance.js";
+import { splitOf, validationUses, validationProjection } from "../evaluators/validation.js";
 export interface WaveEvidence { waveId:string; parentIncumbent:string; attemptIds:string[]; startedAt:number; preparedAt:number; settledAt:number; collectedAt:number }
 export interface ResearchRun {
   waves?: WaveEvidence[];
@@ -95,14 +96,16 @@ export class ResearchStore {
       const run = this.#run(db, runId); if (!run) return null;
       const projection: Record<string, unknown> = { run, validation: run.material ? "owned-material; exact-incumbent-comparison; descriptive-noise-policy" : run.spec.config.execution === "evaluate" ? "exact-material-evaluation; no-incumbent-adoption-PR5" : "unscored-read-only-observations" };
       for (const table of TABLES.filter(table => table !== "operations")) projection[table] = table === "evaluations" ? this.#rows<EvaluationRecord>(db, table, runId).map(evaluationSummary) : this.#rows(db, table, runId).slice(table === "events" ? -64 : 0);
+      if (run.material) projection.validation = validationProjection(run, this.#rows<EvaluationRecord>(db, "evaluations", runId), projection.decisions as any[]);
       return projection;
     }, null);
   }
-  beginEvaluation(runId: string, generation: string): void {
+  beginEvaluation(runId: string, generation: string, finalSelection = false): void {
     this.#transaction(db => {
       const run = this.#run(db, runId); if (!run || run.generation !== generation || !["evaluate", "material", "research"].includes(run.spec.config.execution)) throw new Error("Evaluation generation unavailable");
       if (run.material && (run.active !== 0 || run.material.pending || run.pendingDecisionId)) throw new Error("Writers/integration/review must settle before evaluation");
-      if (["paused", "cancelled", "cleanup_pending", "interrupted"].includes(run.state)) throw new Error("Evaluation requires explicit resume");
+      if (["cancelled", "cleanup_pending", "interrupted"].includes(run.state) || (run.material && ["failed", "completed"].includes(run.state)) || (run.state === "paused" && !finalSelection)) throw new Error("Evaluation requires explicit resume");
+      if (finalSelection && run.state === "paused") { run.state="ready"; run.revision++; this.#save(db,run); }
       if (run.activeSince === null) { run.activeSince = Date.now(); run.revision++; this.#save(db, run); }
     });
   }
@@ -113,17 +116,31 @@ export class ResearchStore {
     this.#transaction(db => {
       const run = this.#run(db, e.runId); if (!run || run.generation !== e.generation || run.spec.identity !== e.specId || run.epoch !== e.epoch || digest(run.owner) !== e.ownerBinding) throw new Error("Stale evaluation owner/spec/epoch binding");
       const previous = this.#row<EvaluationRecord>(db, "evaluations", run.id, e.id);
+      if (!previous) {
+        const records=this.#rows<EvaluationRecord>(db,'evaluations',run.id), split=splitOf(e), v=run.spec.validation;
+        if(records.some(r=>splitOf(r)==='final'))throw new Error('Untouched final split already consumed; exact selection is terminal');
+        if(split!=='development') {
+          const dev=records.find(r=>r.id===e.developmentId);
+          if(!v||!dev||splitOf(dev)!=='development'||dev.state!=='completed'||dev.attemptId!==e.attemptId||dev.epoch!==e.epoch||dev.specId!==e.specId||canonical(dev.definition.baseline)!==canonical(e.definition.baseline)||canonical(dev.definition.candidate)!==canonical(e.definition.candidate))throw new Error('Validation requires exact separate development pair');
+          if(split==='held-out'&&(v.policy!=='selected'||(e.attemptId&&validationUses(records,'held-out')>=v.maxUses)))throw new Error('Adaptive held-out use limit reached');
+          if(split==='final'&&(!e.attemptId||(v.policy!=='final'&&!v.final)))throw new Error('No final candidate/split selected');
+        }
+      }
       if (e.attemptId) {
         const attempt=this.#row<Attempt>(db,'attempts',run.id,e.attemptId);
         if(!run.material || !attempt?.nativeDigest || attempt.state!=='completed' || attempt.materialId!==run.spec.source.materialId || attempt.epoch!==run.epoch)throw new Error('Evaluation requires exact settled attempt binding');
       }
       if(previous?.state==='completed' && canonical({state:previous.state,validity:previous.validity,quality:previous.quality,analysis:previous.analysis})!==canonical({state:e.state,validity:e.validity,quality:e.quality,analysis:e.analysis}))throw new Error('Completed evaluation outcome is immutable');
-      if (previous && ((previous.attemptId ?? null) !== (e.attemptId ?? null) || previous.purpose !== e.purpose || previous.definitionId !== e.definitionId || canonical(previous.snapshots) !== canonical(e.snapshots) || previous.invocations.length > e.invocations.length || previous.bindings.some((binding, i) => canonical(binding) !== canonical(e.bindings[i])))) throw new Error("Immutable evaluation identity changed");
+      if (previous && ((previous.attemptId ?? null) !== (e.attemptId ?? null) || splitOf(previous) !== splitOf(e) || (previous.developmentId ?? null) !== (e.developmentId ?? null) || previous.purpose !== e.purpose || previous.definitionId !== e.definitionId || canonical(previous.snapshots) !== canonical(e.snapshots) || previous.invocations.length > e.invocations.length || previous.bindings.some((binding, i) => canonical(binding) !== canonical(e.bindings[i])))) throw new Error("Immutable evaluation identity changed");
       for (const prior of previous?.invocations ?? []) {
         const next = e.invocations.find(i => i.id === prior.id);
-        if (!next || next.requestId !== prior.requestId || (prior.nativeId && prior.nativeId !== next.nativeId) || (prior.native && canonical(prior.native) !== canonical(next.native)) || (prior.state === "ingested" && canonical(prior) !== canonical(next))) throw new Error("Conflicting native invocation or terminal replay");
+        if (!next || next.requestId !== prior.requestId || (prior.nativeId && prior.nativeId !== next.nativeId) || (prior.native && (!next.native || canonical({...prior.native,checks:[],checkResults:[]}) !== canonical({...next.native,checks:[],checkResults:[]}) || prior.native.checks.some((c,k)=>c!==next.native!.checks[k]) || (prior.native.checkResults??[]).some((c,k)=>canonical(c)!==canonical(next.native!.checkResults?.[k])))) || (prior.state === "ingested" && canonical(prior) !== canonical(next))) throw new Error("Conflicting native invocation or terminal replay");
       }
-      const count = this.#rows<EvaluationRecord>(db, "evaluations", run.id).filter(r => r.id !== e.id).reduce((n, r) => n + r.invocations.length, e.invocations.length);
+      for(const prior of previous?.invocations??[]) {
+        const next=e.invocations.find(i=>i.id===prior.id)!;
+        for(const c of prior.commandChecks??[]){const n=next.commandChecks?.find(x=>x.id===c.id);if(!n||n.requestId!==c.requestId||(c.nativeId&&c.nativeId!==n.nativeId)||(c.state==='native-complete'&&canonical(c)!==canonical(n)))throw new Error('Immutable command check binding changed');}
+      }
+      const count = this.#rows<EvaluationRecord>(db, "evaluations", run.id).filter(r => r.id !== e.id).reduce((n, r) => n + evaluationCalls(r), evaluationCalls(e));
       if (count + reservedEvaluationCalls(this.#rows<Attempt>(db, "attempts", run.id), [...this.#rows<EvaluationRecord>(db, "evaluations", run.id).filter(r => r.id !== e.id), e]) > run.spec.config.limits.evaluatorCalls) throw new Error("Evaluator invocation capacity exhausted (including retries/rechecks/feedback/judges)");
       this.#put(db, "evaluations", run.id, e.id, e); run.revision++;
       this.#put(db, "events", run.id, String(run.revision), { revision: run.revision, type: `evaluation:${e.state}:${e.invocations.at(-1)?.state ?? "frozen"}`, commandId: e.id, status: e.state === "running" ? "queued" : e.state === "completed" ? "applied" : "blocked", reason: e.error });
@@ -269,6 +286,7 @@ export class ResearchStore {
         this.#put(db, "nodes", run.id, payload.nodeId, { ...payload, depth, pruned: false, reviewed: false, insightIds:[], insightRevision:0 }); return { value: { nodeId: payload.nodeId } };
       }
       if (action === "dispatch") {
+        if(this.#rows<EvaluationRecord>(db,'evaluations',run.id).some(e=>splitOf(e)==='final'))throw new Error('Final selection is terminal');
         if (run.material && (!run.material.baselineEvaluation || this.#row<EvaluationRecord>(db, "evaluations", run.id, run.material.baselineEvaluation)?.validity !== "valid")) throw new Error("Invalid or missing captured baseline blocks candidate dispatch");
         const items=payload.candidates ?? [payload], reserved:Attempt[]=[];
         if(items.length>2)throw new Error('Wave exceeds bounded capacity');
@@ -288,7 +306,7 @@ export class ResearchStore {
           if (run.attemptsUsed >= run.spec.config.limits.attempts || (reserved.length < run.spec.config.search.concurrency && run.active >= run.spec.config.search.concurrency) || usedMs >= run.spec.config.limits.activeMs) throw new Error("Attempt/capacity/active-time budget exhausted");
           const selection=run.spec.config.execution==='research'?validateSelection(p,item.nodeId,item.selection):undefined;
           const evaluationReservation=run.material?evaluationCapacity(p):0;
-          const used=p.evaluations.reduce((n,e)=>n+e.invocations.length,0)+reservedEvaluationCalls(p.attempts,p.evaluations);
+          const used=p.evaluations.reduce((n,e)=>n+evaluationCalls(e),0)+reservedEvaluationCalls(p.attempts,p.evaluations);
           if(used+evaluationReservation>run.spec.config.limits.evaluatorCalls)throw new Error('Evaluator invocation capacity exhausted at wave reservation');
           if(run.material && researchFacts(p).noGain>=run.spec.config.search.stopAfterNoGain)throw new Error('Search convergence stops selection');
           const attempt: Attempt = { id: item.attemptId, nodeId: item.nodeId, task: selected.rationale, state: "reserved", nativeId: null, nativeDigest: null, evidenceId: null, model: run.spec.roles.executor.model, materialId: run.spec.source.materialId, epoch: run.epoch, generation,
@@ -457,7 +475,7 @@ export class ResearchStore {
       const sourceOid=payload.mode==='continue-partial'?partial?.oid:partial?.parent??prior.parentIncumbent;
       if(!sourceOid||(payload.mode==='continue-partial'&&!prior.nativeDigest))throw new Error('Exact settled partial artifact required; restart-parent is a distinct action');
       const p={run,attempts,evaluations:this.#rows<EvaluationRecord>(db,'evaluations',run.id)},credits=evaluationCapacity(p);
-      if(run.attemptsUsed>=run.spec.config.limits.attempts||run.activeMs+(run.activeSince===null?0:Date.now()-run.activeSince)>=run.spec.config.limits.activeMs||p.evaluations.reduce((n,e)=>n+e.invocations.length,0)+reservedEvaluationCalls(attempts,p.evaluations)+credits>run.spec.config.limits.evaluatorCalls)throw new Error('Continuation invocation budget exhausted');
+      if(run.attemptsUsed>=run.spec.config.limits.attempts||run.activeMs+(run.activeSince===null?0:Date.now()-run.activeSince)>=run.spec.config.limits.activeMs||p.evaluations.reduce((n,e)=>n+evaluationCalls(e),0)+reservedEvaluationCalls(attempts,p.evaluations)+credits>run.spec.config.limits.evaluatorCalls)throw new Error('Continuation invocation budget exhausted');
       const attempt:Attempt={id:payload.newAttemptId,nodeId:prior.nodeId,task:prior.task,state:'reserved',nativeId:null,nativeDigest:null,evidenceId:null,model:run.spec.roles.executor.model,materialId:prior.materialId,epoch:prior.epoch,generation,slotReserved:true,parentIncumbent:m.incumbent,evaluationReservation:credits,waveId:command.commandId,continuation:{mode:payload.mode,previousAttemptId:prior.id,rootAttemptId:prior.continuation?.rootAttemptId??prior.id,sourceOid,summary:payload.summary}};
       run.attemptsUsed++;run.active++;run.state='running';run.activeSince??=Date.now();this.#put(db,'attempts',run.id,attempt.id,attempt);return {value:attempt};
     });
@@ -518,7 +536,7 @@ export class ResearchStore {
       const selected = this.#row<Record<string, any>>(db, "nodes", run.id, payload.nodeId);
       if (!selected || selected.pruned) return { status: "blocked", reason: "Discarded/pruned candidate cannot win" };
       if(e.attemptId!==attempt.id)return {status:'blocked',reason:'Evaluation must belong to this exact attempt; unlinked historical evidence cannot authorize keep'};
-      const reason = acceptance(run, e, candidate.oid); if (reason !== "eligible") return { status: "blocked", reason };
+      const reason = promotionGate(run, e, candidate.oid, this.#rows<EvaluationRecord>(db, "evaluations", run.id)); if (reason !== "eligible") return { status: "blocked", reason };
       if (run.pendingDecisionId) return { status: "blocked", reason: "Pending review is not approval" };
       if (run.spec.config.search.mode === "review") {
         const review = this.#rows<Record<string, any>>(db, "decisions", run.id).filter(d => d.nodeId === payload.nodeId).at(-1);
@@ -535,7 +553,7 @@ export class ResearchStore {
       const run = this.#run(db, runId); if (!run || run.generation !== generation || !run.material?.pending) throw new Error("No owned integration intent");
       const m = run.material, intent = m.pending!;
       const e = this.#row<EvaluationRecord>(db, "evaluations", runId, intent.evaluationId)!;
-      if (run.revision !== intent.revision || m.incumbent !== intent.expected || observed !== intent.target || acceptance(run, e, intent.target) !== "eligible") throw new Error("Integration intent changed; explicit reconciliation required");
+      if (run.revision !== intent.revision || m.incumbent !== intent.expected || observed !== intent.target || promotionGate(run, e, intent.target, this.#rows<EvaluationRecord>(db, "evaluations", run.id)) !== "eligible") throw new Error("Integration intent changed; explicit reconciliation required");
       const saved = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", runId, intent.commandId)!;
       m.incumbent = intent.target; m.pending = null; run.revision++; run.state = "ready";
       saved.receipt = { ...saved.receipt, revision: run.revision, status: "applied" };

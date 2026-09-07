@@ -10,4 +10,5 @@ export {
 } from "./package-layout.js";
 export { SourceWebAssets, type SourceWebAsset } from "./web/SourceWebAssets.js";
 export { providerInputSchema, providerOutputSchema, type CatalogEntry } from "./evaluators/catalog.js";
+export { validationSchema, type ValidationPolicy, type Split } from "./evaluators/validation.js";
 export { definitionSchema, type EvaluationDefinition, type MaterialRef } from "./evaluators/contracts.js";

@@ -1,7 +1,8 @@
 import { appendFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 /** Local inference only. Edits are native worker tool calls; owner independently grades. */
-export async function researchModel(trace:string, options:{failAttempt?:string;extraFile?:boolean;partialHold?:boolean}={}){
+export async function researchModel(trace:string, options:{heldDelayMs?:number;judgeMalformedAt?:number;failAttempt?:string;extraFile?:boolean;partialHold?:boolean}={}){
+ let judges=0;
  const server=createServer(async(req,res)=>{try{
   let input='';for await(const part of req){input+=String(part);if(input.length>2*1048576)throw new Error('fixture input bound');}
   const b=JSON.parse(input),text=b.messages.filter((m:any)=>m.role==='user').map((m:any)=>typeof m.content==='string'?m.content:(m.content??[]).filter((p:any)=>p.type==='text').map((p:any)=>p.text).join('\n')).join('\n');
@@ -13,8 +14,10 @@ export async function researchModel(trace:string, options:{failAttempt?:string;e
   const command=`test "$(git rev-parse --show-toplevel)" = ${JSON.stringify(cwd)} && test "$(git rev-parse HEAD)" = ${JSON.stringify(oid)} || exit 9; printf '${content}\\n' > ${path}; ${options.partialHold?"printf '// PR8_PARTIAL_WRITE\\n' >> program.cjs; sleep 5;":""} ${options.extraFile?"printf 'extra\\n' > extra; git add extra;":""} git add ${path}; git -c user.name=worker -c user.email=worker@example.invalid commit --allow-empty -m 'fixed hypothesis'`;
   const subjectLevel=Number(/PR6_SUBJECT_LEVEL=(\d+)/.exec(text)?.[1]??0), task=Number(/TASK_(\d+)/.exec(text)?.[1]??1);
   const good=subjectLevel===4 || (subjectLevel===3?task!==1:task===1 || (subjectLevel>0&&task===2));
-  const delta=worker&&!didTool?{role:'assistant',tool_calls:[{index:0,id:'research-edit',type:'function',function:{name:'bash',arguments:JSON.stringify({command})}}]}:{role:'assistant',content:worker?JSON.stringify({sentinel:(text.includes('PR6_FAIL_WORKERS')||attempt===options.failAttempt)?'INVALID_WORKER_SENTINEL':'ARBOR_WORKER_RESULT_V1',attemptId:attempt,observations:'Fixed hypothesis edited and committed in the assigned worktree; all writers settled',paths:[path],limitations:'No scored feedback or informal diagnostic invocation; owner evaluation required'}):good?'GOOD':'BAD'};
-  appendFileSync(trace,JSON.stringify({event:worker?'research.worker':'research.subject',data:{worker,didTool,level:worker?level:subjectLevel,task,model:b.model,tools:(b.tools??[]).map((t:any)=>t.function.name),revision:text.includes('PR6_EXPLICIT_REVISION'),bootstrap:text.includes('ARBOR_EXECUTOR_V1'),sentinel:text.includes('ARBOR_OPERATIONAL_BOOTSTRAP_V1'),attempt,cwd},at:Date.now()})+'\n');
+  const judge=text.includes('Arbor bounded evaluation judge');if(judge)judges++;
+  if(options.heldDelayMs&&!judge&&subjectLevel>0&&text.includes('HELD_OUT_DETAIL_SENTINEL'))await new Promise(r=>setTimeout(r,options.heldDelayMs));
+  const delta=worker&&!didTool?{role:'assistant',tool_calls:[{index:0,id:'research-edit',type:'function',function:{name:'bash',arguments:JSON.stringify({command})}}]}:{role:'assistant',content:worker?JSON.stringify({sentinel:(text.includes('PR6_FAIL_WORKERS')||attempt===options.failAttempt)?'INVALID_WORKER_SENTINEL':'ARBOR_WORKER_RESULT_V1',attemptId:attempt,observations:'Fixed hypothesis edited and committed in the assigned worktree; all writers settled',paths:[path],limitations:'No scored feedback or informal diagnostic invocation; owner evaluation required'}):judge?(judges===options.judgeMalformedAt?'AMBIGUOUS':'PASS'):good?'GOOD':'BAD'};
+  appendFileSync(trace,JSON.stringify({event:worker?'research.worker':judge?'research.judge':'research.subject',data:{worker,didTool,level:worker?level:subjectLevel,task,model:b.model,tools:(b.tools??[]).map((t:any)=>t.function.name),revision:text.includes('PR6_EXPLICIT_REVISION'),bootstrap:text.includes('ARBOR_EXECUTOR_V1'),sentinel:text.includes('ARBOR_OPERATIONAL_BOOTSTRAP_V1'),attempt,cwd},at:Date.now()})+'\n');
   res.writeHead(200,{'Content-Type':'text/event-stream'});res.write(`data: ${JSON.stringify({id:'local-research',object:'chat.completion.chunk',created:1,model:b.model,choices:[{index:0,delta,finish_reason:null}]})}\n\n`);
   res.end(`data: ${JSON.stringify({id:'local-research',object:'chat.completion.chunk',created:1,model:b.model,choices:[{index:0,delta:{},finish_reason:worker&&!didTool?'tool_calls':'stop'}],usage:{prompt_tokens:2,completion_tokens:1,total_tokens:3}})}\n\ndata: [DONE]\n\n`);
  }catch(e){res.writeHead(500);res.end(String(e));}});

@@ -56,7 +56,8 @@ for(const explicit of [false,true])test(`PR6 installed ${explicit?'explicit role
 for(const [name,overrides,attempts,evaluations] of [
  ['no-gain',{search:{maxChildren:4,maxActorTurns:64,stopAfterNoGain:1}},2,3],
  ['target',{search:{maxChildren:4,maxActorTurns:64,target:'2'}},1,2],
- ['evaluator-budget',{limits:{attempts:4,evaluatorCalls:2,activeMs:600000}},0,1],
+ // PR9 charges the two required baseline checks as well as the two measurements.
+ ['evaluator-budget',{limits:{attempts:4,evaluatorCalls:4,activeMs:600000}},0,1],
  ['artifact-budget',{limits:{attempts:4,evaluatorCalls:100,activeMs:600000,artifactBytes:16384}},0,0],
  ['active-time-budget',{limits:{attempts:4,evaluatorCalls:100,activeMs:1000}},0,1],
  ['repeated-infrastructure-failure',{objective:{description:'PR6_FAIL_WORKERS',unit:'points'},search:{maxChildren:4,maxActorTurns:64,stopAfterFailures:2}},2,1],

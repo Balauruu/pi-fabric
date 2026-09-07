@@ -4,6 +4,7 @@ import { isAbsolute, join, relative } from "node:path";
 import { promisify } from "node:util";
 import { CONFIG_SCHEMA, canonical, digest, validate } from "./contracts.js";
 import { validateDefinition, type EvaluationDefinition } from "../evaluators/contracts.js";
+import { validationPolicy, type ValidationPolicy } from "../evaluators/validation.js";
 import { loadPreset } from "../presets/contract.js";
 import type { RoleBundleRef } from "../managed/RoleBundle.js";
 const exec = promisify(execFile);
@@ -20,6 +21,7 @@ export interface Config {
   sourceRefs: string[]; preset: string | null; execution: "inspect" | "deferred" | "evaluate" | "material" | "research";
 }
 export interface ResolvedSpec {
+  validation?: ValidationPolicy | null;
   roleBundle?: RoleBundleRef;
   version: 2; config: Config; evaluation: EvaluationDefinition | null; origins: Record<string, string>; identity: string;
   source: { root: string; oid: string | null; materialId: string; capture: "source-reference-not-candidate-snapshot" | "owned-snapshot" };
@@ -72,6 +74,7 @@ export async function resolveSpec(cwd: string, profile: Record<string, unknown>,
     subject: { model: config.roles.subject, origin: origins["roles.subject"]!, instructionsId: null, tools: [], requires: [], resultContract: "unavailable-PR4" },
   };
   let evaluation: EvaluationDefinition | null = null;
+  let validation: ValidationPolicy | null = null;
   if (["evaluate", "material", "research"].includes(config.execution)) {
     const path = isAbsolute(config.evaluator.definition) ? config.evaluator.definition : join(cwd, config.evaluator.definition);
     const bytes = await readFile(path, "utf8"); if (bytes.length > 65536) throw new Error("Evaluation definition exceeds bound");
@@ -83,11 +86,18 @@ export async function resolveSpec(cwd: string, profile: Record<string, unknown>,
     if (origins["evaluator.identity"] !== "built-in" && config.evaluator.identity !== digest(evaluation)) throw new Error("Evaluation definition identity mismatch");
     config.evaluator.aggregation = aggregation; config.evaluator.repeats = evaluation.repeats; config.evaluator.identity = digest(evaluation);
     origins["evaluator.aggregation"] = "frozen-evaluation-definition"; origins["evaluator.repeats"] = "frozen-evaluation-definition"; origins["evaluator.identity"] = "frozen-evaluation-definition";
-    if (evaluation.kind !== config.evaluator.kind || config.evaluator.heldOut !== null) throw new Error("Selected evaluator kind mismatch or held-out support not yet available (PR9)");
+    if (evaluation.kind !== config.evaluator.kind) throw new Error("Selected evaluator kind mismatch");
+    if(config.evaluator.heldOut!==null){
+      const heldPath=isAbsolute(config.evaluator.heldOut)?config.evaluator.heldOut:join(cwd,config.evaluator.heldOut);
+      const bytes=await readFile(heldPath,'utf8');if(bytes.length>196608)throw new Error('Validation policy exceeds bound');
+      validation=validationPolicy(JSON.parse(bytes),evaluation);
+      if(!['material','research'].includes(config.execution))throw new Error('Held-out validation requires owned material or research execution');
+      for(const d of [validation.heldOut,validation.final].filter(Boolean) as EvaluationDefinition[]) if(d.kind==='command'&&d.command!.unit!==config.objective.unit)throw new Error('Split metric unit mismatch');
+    }
     if (evaluation.baseline.root !== config.material.root || evaluation.candidate.root !== config.material.root) throw new Error("PR4 exact-material pair must reference this canonical source root");
     roles.subject = { model: evaluation.subject.model, origin: "frozen-evaluation-definition", instructionsId: digest(evaluation.subject.promptFiles), tools: evaluation.subject.tools, requires: [], resultContract: "independently-graded-native-text" };
   }
-  const body = { version: 2 as const, config, evaluation, origins, source, roles, enforcement: { attempts: "transactional" as const, evaluatorCalls: "transactional" as const, activeTime: "dispatch-admission" as const, tokens: "observational" as const, cost: "observational" as const, artifacts: config.execution === "research" ? "owned-artifact-admission" as const : "export-admission" as const } };
+  const body = { version: 2 as const, config, evaluation, ...(validation ? {validation} : {}), origins, source, roles, enforcement: { attempts: "transactional" as const, evaluatorCalls: "transactional" as const, activeTime: "dispatch-admission" as const, tokens: "observational" as const, cost: "observational" as const, artifacts: ["material","research"].includes(config.execution) ? "owned-artifact-admission" as const : "export-admission" as const } };
   return { ...body, identity: digest(body) };
 }
 export function unchangedSpec(a: ResolvedSpec, b: ResolvedSpec): boolean { return canonical(a) === canonical(b); }

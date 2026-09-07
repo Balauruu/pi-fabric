@@ -1,5 +1,654 @@
 {
   "version": 2,
+  "validationPolicy": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1
+      },
+      "policy": {
+        "type": "string",
+        "enum": [
+          "selected",
+          "final"
+        ]
+      },
+      "maxUses": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100
+      },
+      "criterion": {
+        "type": "string",
+        "enum": [
+          "non-regression",
+          "gain"
+        ]
+      },
+      "heldOut": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1,
+            "enum": [
+              1
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "command",
+              "agent-suite",
+              "provider"
+            ]
+          },
+          "baseline": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "root": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "oid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+              },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "maxItems": 4096,
+                "minItems": 1
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "git-tree"
+                ]
+              }
+            },
+            "required": [
+              "root",
+              "oid",
+              "files"
+            ]
+          },
+          "candidate": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "root": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "oid": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+              },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "maxItems": 4096,
+                "minItems": 1
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "git-tree"
+                ]
+              }
+            },
+            "required": [
+              "root",
+              "oid",
+              "files"
+            ]
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 96,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                },
+                "expected": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                }
+              },
+              "required": [
+                "id",
+                "prompt",
+                "expected"
+              ]
+            },
+            "maxItems": 64,
+            "minItems": 1
+          },
+          "repeats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9
+          },
+          "retries": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "deadlineMs": {
+            "type": "integer",
+            "minimum": 10,
+            "maximum": 3600000
+          },
+          "analysis": {
+            "type": "string",
+            "enum": [
+              "paired-descriptive"
+            ]
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "task-baseline-candidate"
+            ]
+          },
+          "subject": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "model": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[^/]+/.+$"
+              },
+              "tools": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "read",
+                    "grep",
+                    "find",
+                    "ls"
+                  ]
+                },
+                "maxItems": 4,
+                "minItems": 0
+              },
+              "promptFiles": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "maxItems": 16,
+                "minItems": 1
+              }
+            },
+            "required": [
+              "model",
+              "tools",
+              "promptFiles"
+            ]
+          },
+          "judge": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[^/]+/.+$"
+                  },
+                  "instructions": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  }
+                },
+                "required": [
+                  "model",
+                  "instructions"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "command": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "argv": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "maxItems": 32,
+                    "minItems": 1
+                  },
+                  "checks": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8192
+                      },
+                      "maxItems": 32,
+                      "minItems": 1
+                    },
+                    "maxItems": 16,
+                    "minItems": 0
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "argv",
+                  "checks",
+                  "unit"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "providerAction": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "kind",
+          "baseline",
+          "candidate",
+          "tasks",
+          "repeats",
+          "retries",
+          "deadlineMs",
+          "analysis",
+          "order",
+          "subject",
+          "judge",
+          "command",
+          "providerAction"
+        ]
+      },
+      "final": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1,
+                "enum": [
+                  1
+                ]
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "command",
+                  "agent-suite",
+                  "provider"
+                ]
+              },
+              "baseline": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "root": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "oid": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 4096,
+                    "minItems": 1
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "git-tree"
+                    ]
+                  }
+                },
+                "required": [
+                  "root",
+                  "oid",
+                  "files"
+                ]
+              },
+              "candidate": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "root": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "oid": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 4096,
+                    "minItems": 1
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "git-tree"
+                    ]
+                  }
+                },
+                "required": [
+                  "root",
+                  "oid",
+                  "files"
+                ]
+              },
+              "tasks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "prompt": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "expected": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "prompt",
+                    "expected"
+                  ]
+                },
+                "maxItems": 64,
+                "minItems": 1
+              },
+              "repeats": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9
+              },
+              "retries": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2
+              },
+              "deadlineMs": {
+                "type": "integer",
+                "minimum": 10,
+                "maximum": 3600000
+              },
+              "analysis": {
+                "type": "string",
+                "enum": [
+                  "paired-descriptive"
+                ]
+              },
+              "order": {
+                "type": "string",
+                "enum": [
+                  "task-baseline-candidate"
+                ]
+              },
+              "subject": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[^/]+/.+$"
+                  },
+                  "tools": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "read",
+                        "grep",
+                        "find",
+                        "ls"
+                      ]
+                    },
+                    "maxItems": 4,
+                    "minItems": 0
+                  },
+                  "promptFiles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 16,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "model",
+                  "tools",
+                  "promptFiles"
+                ]
+              },
+              "judge": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "model": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "pattern": "^[^/]+/.+$"
+                      },
+                      "instructions": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8192
+                      }
+                    },
+                    "required": [
+                      "model",
+                      "instructions"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "command": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "argv": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "maxItems": 32,
+                        "minItems": 1
+                      },
+                      "checks": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 8192
+                          },
+                          "maxItems": 32,
+                          "minItems": 1
+                        },
+                        "maxItems": 16,
+                        "minItems": 0
+                      },
+                      "unit": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    },
+                    "required": [
+                      "argv",
+                      "checks",
+                      "unit"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "providerAction": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "kind",
+              "baseline",
+              "candidate",
+              "tasks",
+              "repeats",
+              "retries",
+              "deadlineMs",
+              "analysis",
+              "order",
+              "subject",
+              "judge",
+              "command",
+              "providerAction"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "policy",
+      "maxUses",
+      "criterion",
+      "heldOut",
+      "final"
+    ]
+  },
   "evaluationDefinition": {
     "type": "object",
     "additionalProperties": false,
@@ -1964,6 +2613,662 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                      "validation": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "version": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1
+                              },
+                              "policy": {
+                                "type": "string",
+                                "enum": [
+                                  "selected",
+                                  "final"
+                                ]
+                              },
+                              "maxUses": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100
+                              },
+                              "criterion": {
+                                "type": "string",
+                                "enum": [
+                                  "non-regression",
+                                  "gain"
+                                ]
+                              },
+                              "heldOut": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "version": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1,
+                                    "enum": [
+                                      1
+                                    ]
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "command",
+                                      "agent-suite",
+                                      "provider"
+                                    ]
+                                  },
+                                  "baseline": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "root": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 4096
+                                      },
+                                      "oid": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64,
+                                        "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                      },
+                                      "files": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 4096,
+                                        "minItems": 1
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "enum": [
+                                          "git-tree"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "root",
+                                      "oid",
+                                      "files"
+                                    ]
+                                  },
+                                  "candidate": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "root": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 4096
+                                      },
+                                      "oid": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64,
+                                        "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                      },
+                                      "files": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 4096,
+                                        "minItems": 1
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "enum": [
+                                          "git-tree"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "root",
+                                      "oid",
+                                      "files"
+                                    ]
+                                  },
+                                  "tasks": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 96,
+                                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                                        },
+                                        "prompt": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 8192
+                                        },
+                                        "expected": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 8192
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "prompt",
+                                        "expected"
+                                      ]
+                                    },
+                                    "maxItems": 64,
+                                    "minItems": 1
+                                  },
+                                  "repeats": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9
+                                  },
+                                  "retries": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2
+                                  },
+                                  "deadlineMs": {
+                                    "type": "integer",
+                                    "minimum": 10,
+                                    "maximum": 3600000
+                                  },
+                                  "analysis": {
+                                    "type": "string",
+                                    "enum": [
+                                      "paired-descriptive"
+                                    ]
+                                  },
+                                  "order": {
+                                    "type": "string",
+                                    "enum": [
+                                      "task-baseline-candidate"
+                                    ]
+                                  },
+                                  "subject": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "model": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 256,
+                                        "pattern": "^[^/]+/.+$"
+                                      },
+                                      "tools": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "read",
+                                            "grep",
+                                            "find",
+                                            "ls"
+                                          ]
+                                        },
+                                        "maxItems": 4,
+                                        "minItems": 0
+                                      },
+                                      "promptFiles": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 16,
+                                        "minItems": 1
+                                      }
+                                    },
+                                    "required": [
+                                      "model",
+                                      "tools",
+                                      "promptFiles"
+                                    ]
+                                  },
+                                  "judge": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "model": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256,
+                                            "pattern": "^[^/]+/.+$"
+                                          },
+                                          "instructions": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 8192
+                                          }
+                                        },
+                                        "required": [
+                                          "model",
+                                          "instructions"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "command": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "argv": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            },
+                                            "maxItems": 32,
+                                            "minItems": 1
+                                          },
+                                          "checks": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 8192
+                                              },
+                                              "maxItems": 32,
+                                              "minItems": 1
+                                            },
+                                            "maxItems": 16,
+                                            "minItems": 0
+                                          },
+                                          "unit": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          }
+                                        },
+                                        "required": [
+                                          "argv",
+                                          "checks",
+                                          "unit"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "providerAction": {
+                                    "oneOf": [
+                                      {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 256
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "version",
+                                  "kind",
+                                  "baseline",
+                                  "candidate",
+                                  "tasks",
+                                  "repeats",
+                                  "retries",
+                                  "deadlineMs",
+                                  "analysis",
+                                  "order",
+                                  "subject",
+                                  "judge",
+                                  "command",
+                                  "providerAction"
+                                ]
+                              },
+                              "final": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "version": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1,
+                                        "enum": [
+                                          1
+                                        ]
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "command",
+                                          "agent-suite",
+                                          "provider"
+                                        ]
+                                      },
+                                      "baseline": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "root": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 4096
+                                          },
+                                          "oid": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64,
+                                            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                          },
+                                          "files": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 4096,
+                                            "minItems": 1
+                                          },
+                                          "format": {
+                                            "type": "string",
+                                            "enum": [
+                                              "git-tree"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "root",
+                                          "oid",
+                                          "files"
+                                        ]
+                                      },
+                                      "candidate": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "root": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 4096
+                                          },
+                                          "oid": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64,
+                                            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                          },
+                                          "files": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 4096,
+                                            "minItems": 1
+                                          },
+                                          "format": {
+                                            "type": "string",
+                                            "enum": [
+                                              "git-tree"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "root",
+                                          "oid",
+                                          "files"
+                                        ]
+                                      },
+                                      "tasks": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "additionalProperties": false,
+                                          "properties": {
+                                            "id": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 96,
+                                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                                            },
+                                            "prompt": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            },
+                                            "expected": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            }
+                                          },
+                                          "required": [
+                                            "id",
+                                            "prompt",
+                                            "expected"
+                                          ]
+                                        },
+                                        "maxItems": 64,
+                                        "minItems": 1
+                                      },
+                                      "repeats": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 9
+                                      },
+                                      "retries": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 2
+                                      },
+                                      "deadlineMs": {
+                                        "type": "integer",
+                                        "minimum": 10,
+                                        "maximum": 3600000
+                                      },
+                                      "analysis": {
+                                        "type": "string",
+                                        "enum": [
+                                          "paired-descriptive"
+                                        ]
+                                      },
+                                      "order": {
+                                        "type": "string",
+                                        "enum": [
+                                          "task-baseline-candidate"
+                                        ]
+                                      },
+                                      "subject": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "model": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256,
+                                            "pattern": "^[^/]+/.+$"
+                                          },
+                                          "tools": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "enum": [
+                                                "read",
+                                                "grep",
+                                                "find",
+                                                "ls"
+                                              ]
+                                            },
+                                            "maxItems": 4,
+                                            "minItems": 0
+                                          },
+                                          "promptFiles": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 16,
+                                            "minItems": 1
+                                          }
+                                        },
+                                        "required": [
+                                          "model",
+                                          "tools",
+                                          "promptFiles"
+                                        ]
+                                      },
+                                      "judge": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                              "model": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 256,
+                                                "pattern": "^[^/]+/.+$"
+                                              },
+                                              "instructions": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 8192
+                                              }
+                                            },
+                                            "required": [
+                                              "model",
+                                              "instructions"
+                                            ]
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "command": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                              "argv": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string",
+                                                  "minLength": 1,
+                                                  "maxLength": 8192
+                                                },
+                                                "maxItems": 32,
+                                                "minItems": 1
+                                              },
+                                              "checks": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 8192
+                                                  },
+                                                  "maxItems": 32,
+                                                  "minItems": 1
+                                                },
+                                                "maxItems": 16,
+                                                "minItems": 0
+                                              },
+                                              "unit": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 64
+                                              }
+                                            },
+                                            "required": [
+                                              "argv",
+                                              "checks",
+                                              "unit"
+                                            ]
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "providerAction": {
+                                        "oneOf": [
+                                          {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "version",
+                                      "kind",
+                                      "baseline",
+                                      "candidate",
+                                      "tasks",
+                                      "repeats",
+                                      "retries",
+                                      "deadlineMs",
+                                      "analysis",
+                                      "order",
+                                      "subject",
+                                      "judge",
+                                      "command",
+                                      "providerAction"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "version",
+                              "policy",
+                              "maxUses",
+                              "criterion",
+                              "heldOut",
+                              "final"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "roleBundle": {
                         "type": "object",
                         "additionalProperties": false,
@@ -3519,9 +4824,69 @@
                 ]
               },
               "validation": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 256
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "enum": [
+                          "development-only",
+                          "held-out-validated",
+                          "final-validated"
+                        ]
+                      },
+                      "heldOutUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "maxUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "finalUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "policy": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "selected",
+                              "final"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "limitation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "heldOutUses",
+                      "maxUses",
+                      "finalUses",
+                      "policy",
+                      "limitation"
+                    ]
+                  }
+                ]
               },
               "nodes": {
                 "type": "array",
@@ -3854,6 +5219,27 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "split": {
+                      "type": "string",
+                      "enum": [
+                        "development",
+                        "held-out",
+                        "final"
+                      ]
+                    },
+                    "developmentId": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "attemptId": {
                       "oneOf": [
                         {
@@ -3937,6 +5323,34 @@
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
+                          "checkInvocationIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 96,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                            },
+                            "maxItems": 16,
+                            "minItems": 0
+                          },
+                          "checkNativeIds": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "maxItems": 16,
+                            "minItems": 0
+                          },
                           "id": {
                             "type": "string",
                             "minLength": 1,
@@ -4124,6 +5538,8 @@
                           }
                         },
                         "required": [
+                          "checkInvocationIds",
+                          "checkNativeIds",
                           "id",
                           "taskId",
                           "condition",
@@ -4219,6 +5635,8 @@
                     }
                   },
                   "required": [
+                    "split",
+                    "developmentId",
                     "attemptId",
                     "epoch",
                     "specId",
@@ -6733,6 +8151,662 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                      "validation": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "version": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1
+                              },
+                              "policy": {
+                                "type": "string",
+                                "enum": [
+                                  "selected",
+                                  "final"
+                                ]
+                              },
+                              "maxUses": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100
+                              },
+                              "criterion": {
+                                "type": "string",
+                                "enum": [
+                                  "non-regression",
+                                  "gain"
+                                ]
+                              },
+                              "heldOut": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "version": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1,
+                                    "enum": [
+                                      1
+                                    ]
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "command",
+                                      "agent-suite",
+                                      "provider"
+                                    ]
+                                  },
+                                  "baseline": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "root": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 4096
+                                      },
+                                      "oid": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64,
+                                        "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                      },
+                                      "files": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 4096,
+                                        "minItems": 1
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "enum": [
+                                          "git-tree"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "root",
+                                      "oid",
+                                      "files"
+                                    ]
+                                  },
+                                  "candidate": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "root": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 4096
+                                      },
+                                      "oid": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64,
+                                        "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                      },
+                                      "files": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 4096,
+                                        "minItems": 1
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "enum": [
+                                          "git-tree"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "root",
+                                      "oid",
+                                      "files"
+                                    ]
+                                  },
+                                  "tasks": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 96,
+                                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                                        },
+                                        "prompt": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 8192
+                                        },
+                                        "expected": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 8192
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "prompt",
+                                        "expected"
+                                      ]
+                                    },
+                                    "maxItems": 64,
+                                    "minItems": 1
+                                  },
+                                  "repeats": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9
+                                  },
+                                  "retries": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2
+                                  },
+                                  "deadlineMs": {
+                                    "type": "integer",
+                                    "minimum": 10,
+                                    "maximum": 3600000
+                                  },
+                                  "analysis": {
+                                    "type": "string",
+                                    "enum": [
+                                      "paired-descriptive"
+                                    ]
+                                  },
+                                  "order": {
+                                    "type": "string",
+                                    "enum": [
+                                      "task-baseline-candidate"
+                                    ]
+                                  },
+                                  "subject": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "model": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 256,
+                                        "pattern": "^[^/]+/.+$"
+                                      },
+                                      "tools": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "read",
+                                            "grep",
+                                            "find",
+                                            "ls"
+                                          ]
+                                        },
+                                        "maxItems": 4,
+                                        "minItems": 0
+                                      },
+                                      "promptFiles": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 16,
+                                        "minItems": 1
+                                      }
+                                    },
+                                    "required": [
+                                      "model",
+                                      "tools",
+                                      "promptFiles"
+                                    ]
+                                  },
+                                  "judge": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "model": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256,
+                                            "pattern": "^[^/]+/.+$"
+                                          },
+                                          "instructions": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 8192
+                                          }
+                                        },
+                                        "required": [
+                                          "model",
+                                          "instructions"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "command": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "argv": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            },
+                                            "maxItems": 32,
+                                            "minItems": 1
+                                          },
+                                          "checks": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 8192
+                                              },
+                                              "maxItems": 32,
+                                              "minItems": 1
+                                            },
+                                            "maxItems": 16,
+                                            "minItems": 0
+                                          },
+                                          "unit": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          }
+                                        },
+                                        "required": [
+                                          "argv",
+                                          "checks",
+                                          "unit"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "providerAction": {
+                                    "oneOf": [
+                                      {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 256
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "version",
+                                  "kind",
+                                  "baseline",
+                                  "candidate",
+                                  "tasks",
+                                  "repeats",
+                                  "retries",
+                                  "deadlineMs",
+                                  "analysis",
+                                  "order",
+                                  "subject",
+                                  "judge",
+                                  "command",
+                                  "providerAction"
+                                ]
+                              },
+                              "final": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "version": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1,
+                                        "enum": [
+                                          1
+                                        ]
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "command",
+                                          "agent-suite",
+                                          "provider"
+                                        ]
+                                      },
+                                      "baseline": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "root": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 4096
+                                          },
+                                          "oid": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64,
+                                            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                          },
+                                          "files": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 4096,
+                                            "minItems": 1
+                                          },
+                                          "format": {
+                                            "type": "string",
+                                            "enum": [
+                                              "git-tree"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "root",
+                                          "oid",
+                                          "files"
+                                        ]
+                                      },
+                                      "candidate": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "root": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 4096
+                                          },
+                                          "oid": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64,
+                                            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                          },
+                                          "files": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 4096,
+                                            "minItems": 1
+                                          },
+                                          "format": {
+                                            "type": "string",
+                                            "enum": [
+                                              "git-tree"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "root",
+                                          "oid",
+                                          "files"
+                                        ]
+                                      },
+                                      "tasks": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "additionalProperties": false,
+                                          "properties": {
+                                            "id": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 96,
+                                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                                            },
+                                            "prompt": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            },
+                                            "expected": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            }
+                                          },
+                                          "required": [
+                                            "id",
+                                            "prompt",
+                                            "expected"
+                                          ]
+                                        },
+                                        "maxItems": 64,
+                                        "minItems": 1
+                                      },
+                                      "repeats": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 9
+                                      },
+                                      "retries": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 2
+                                      },
+                                      "deadlineMs": {
+                                        "type": "integer",
+                                        "minimum": 10,
+                                        "maximum": 3600000
+                                      },
+                                      "analysis": {
+                                        "type": "string",
+                                        "enum": [
+                                          "paired-descriptive"
+                                        ]
+                                      },
+                                      "order": {
+                                        "type": "string",
+                                        "enum": [
+                                          "task-baseline-candidate"
+                                        ]
+                                      },
+                                      "subject": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "model": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256,
+                                            "pattern": "^[^/]+/.+$"
+                                          },
+                                          "tools": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "enum": [
+                                                "read",
+                                                "grep",
+                                                "find",
+                                                "ls"
+                                              ]
+                                            },
+                                            "maxItems": 4,
+                                            "minItems": 0
+                                          },
+                                          "promptFiles": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 16,
+                                            "minItems": 1
+                                          }
+                                        },
+                                        "required": [
+                                          "model",
+                                          "tools",
+                                          "promptFiles"
+                                        ]
+                                      },
+                                      "judge": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                              "model": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 256,
+                                                "pattern": "^[^/]+/.+$"
+                                              },
+                                              "instructions": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 8192
+                                              }
+                                            },
+                                            "required": [
+                                              "model",
+                                              "instructions"
+                                            ]
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "command": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                              "argv": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string",
+                                                  "minLength": 1,
+                                                  "maxLength": 8192
+                                                },
+                                                "maxItems": 32,
+                                                "minItems": 1
+                                              },
+                                              "checks": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 8192
+                                                  },
+                                                  "maxItems": 32,
+                                                  "minItems": 1
+                                                },
+                                                "maxItems": 16,
+                                                "minItems": 0
+                                              },
+                                              "unit": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 64
+                                              }
+                                            },
+                                            "required": [
+                                              "argv",
+                                              "checks",
+                                              "unit"
+                                            ]
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "providerAction": {
+                                        "oneOf": [
+                                          {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "version",
+                                      "kind",
+                                      "baseline",
+                                      "candidate",
+                                      "tasks",
+                                      "repeats",
+                                      "retries",
+                                      "deadlineMs",
+                                      "analysis",
+                                      "order",
+                                      "subject",
+                                      "judge",
+                                      "command",
+                                      "providerAction"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "version",
+                              "policy",
+                              "maxUses",
+                              "criterion",
+                              "heldOut",
+                              "final"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "roleBundle": {
                         "type": "object",
                         "additionalProperties": false,
@@ -8288,9 +10362,69 @@
                 ]
               },
               "validation": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 256
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "enum": [
+                          "development-only",
+                          "held-out-validated",
+                          "final-validated"
+                        ]
+                      },
+                      "heldOutUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "maxUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "finalUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "policy": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "selected",
+                              "final"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "limitation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "heldOutUses",
+                      "maxUses",
+                      "finalUses",
+                      "policy",
+                      "limitation"
+                    ]
+                  }
+                ]
               },
               "nodes": {
                 "type": "array",
@@ -8623,6 +10757,27 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "split": {
+                      "type": "string",
+                      "enum": [
+                        "development",
+                        "held-out",
+                        "final"
+                      ]
+                    },
+                    "developmentId": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "attemptId": {
                       "oneOf": [
                         {
@@ -8706,6 +10861,34 @@
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
+                          "checkInvocationIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 96,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                            },
+                            "maxItems": 16,
+                            "minItems": 0
+                          },
+                          "checkNativeIds": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "maxItems": 16,
+                            "minItems": 0
+                          },
                           "id": {
                             "type": "string",
                             "minLength": 1,
@@ -8893,6 +11076,8 @@
                           }
                         },
                         "required": [
+                          "checkInvocationIds",
+                          "checkNativeIds",
                           "id",
                           "taskId",
                           "condition",
@@ -8988,6 +11173,8 @@
                     }
                   },
                   "required": [
+                    "split",
+                    "developmentId",
                     "attemptId",
                     "epoch",
                     "specId",
@@ -9989,6 +12176,662 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                      "validation": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "version": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1
+                              },
+                              "policy": {
+                                "type": "string",
+                                "enum": [
+                                  "selected",
+                                  "final"
+                                ]
+                              },
+                              "maxUses": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100
+                              },
+                              "criterion": {
+                                "type": "string",
+                                "enum": [
+                                  "non-regression",
+                                  "gain"
+                                ]
+                              },
+                              "heldOut": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "version": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1,
+                                    "enum": [
+                                      1
+                                    ]
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "command",
+                                      "agent-suite",
+                                      "provider"
+                                    ]
+                                  },
+                                  "baseline": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "root": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 4096
+                                      },
+                                      "oid": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64,
+                                        "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                      },
+                                      "files": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 4096,
+                                        "minItems": 1
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "enum": [
+                                          "git-tree"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "root",
+                                      "oid",
+                                      "files"
+                                    ]
+                                  },
+                                  "candidate": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "root": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 4096
+                                      },
+                                      "oid": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 64,
+                                        "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                      },
+                                      "files": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 4096,
+                                        "minItems": 1
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "enum": [
+                                          "git-tree"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "root",
+                                      "oid",
+                                      "files"
+                                    ]
+                                  },
+                                  "tasks": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 96,
+                                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                                        },
+                                        "prompt": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 8192
+                                        },
+                                        "expected": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 8192
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "prompt",
+                                        "expected"
+                                      ]
+                                    },
+                                    "maxItems": 64,
+                                    "minItems": 1
+                                  },
+                                  "repeats": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9
+                                  },
+                                  "retries": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 2
+                                  },
+                                  "deadlineMs": {
+                                    "type": "integer",
+                                    "minimum": 10,
+                                    "maximum": 3600000
+                                  },
+                                  "analysis": {
+                                    "type": "string",
+                                    "enum": [
+                                      "paired-descriptive"
+                                    ]
+                                  },
+                                  "order": {
+                                    "type": "string",
+                                    "enum": [
+                                      "task-baseline-candidate"
+                                    ]
+                                  },
+                                  "subject": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "model": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 256,
+                                        "pattern": "^[^/]+/.+$"
+                                      },
+                                      "tools": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "read",
+                                            "grep",
+                                            "find",
+                                            "ls"
+                                          ]
+                                        },
+                                        "maxItems": 4,
+                                        "minItems": 0
+                                      },
+                                      "promptFiles": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 4096
+                                        },
+                                        "maxItems": 16,
+                                        "minItems": 1
+                                      }
+                                    },
+                                    "required": [
+                                      "model",
+                                      "tools",
+                                      "promptFiles"
+                                    ]
+                                  },
+                                  "judge": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "model": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256,
+                                            "pattern": "^[^/]+/.+$"
+                                          },
+                                          "instructions": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 8192
+                                          }
+                                        },
+                                        "required": [
+                                          "model",
+                                          "instructions"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "command": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "argv": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            },
+                                            "maxItems": 32,
+                                            "minItems": 1
+                                          },
+                                          "checks": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 8192
+                                              },
+                                              "maxItems": 32,
+                                              "minItems": 1
+                                            },
+                                            "maxItems": 16,
+                                            "minItems": 0
+                                          },
+                                          "unit": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64
+                                          }
+                                        },
+                                        "required": [
+                                          "argv",
+                                          "checks",
+                                          "unit"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "providerAction": {
+                                    "oneOf": [
+                                      {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 256
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "version",
+                                  "kind",
+                                  "baseline",
+                                  "candidate",
+                                  "tasks",
+                                  "repeats",
+                                  "retries",
+                                  "deadlineMs",
+                                  "analysis",
+                                  "order",
+                                  "subject",
+                                  "judge",
+                                  "command",
+                                  "providerAction"
+                                ]
+                              },
+                              "final": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "version": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1,
+                                        "enum": [
+                                          1
+                                        ]
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "command",
+                                          "agent-suite",
+                                          "provider"
+                                        ]
+                                      },
+                                      "baseline": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "root": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 4096
+                                          },
+                                          "oid": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64,
+                                            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                          },
+                                          "files": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 4096,
+                                            "minItems": 1
+                                          },
+                                          "format": {
+                                            "type": "string",
+                                            "enum": [
+                                              "git-tree"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "root",
+                                          "oid",
+                                          "files"
+                                        ]
+                                      },
+                                      "candidate": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "root": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 4096
+                                          },
+                                          "oid": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 64,
+                                            "pattern": "^(?:capture|[a-f0-9]{40}|[a-f0-9]{64})$"
+                                          },
+                                          "files": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 4096,
+                                            "minItems": 1
+                                          },
+                                          "format": {
+                                            "type": "string",
+                                            "enum": [
+                                              "git-tree"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "root",
+                                          "oid",
+                                          "files"
+                                        ]
+                                      },
+                                      "tasks": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "additionalProperties": false,
+                                          "properties": {
+                                            "id": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 96,
+                                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                                            },
+                                            "prompt": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            },
+                                            "expected": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 8192
+                                            }
+                                          },
+                                          "required": [
+                                            "id",
+                                            "prompt",
+                                            "expected"
+                                          ]
+                                        },
+                                        "maxItems": 64,
+                                        "minItems": 1
+                                      },
+                                      "repeats": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 9
+                                      },
+                                      "retries": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 2
+                                      },
+                                      "deadlineMs": {
+                                        "type": "integer",
+                                        "minimum": 10,
+                                        "maximum": 3600000
+                                      },
+                                      "analysis": {
+                                        "type": "string",
+                                        "enum": [
+                                          "paired-descriptive"
+                                        ]
+                                      },
+                                      "order": {
+                                        "type": "string",
+                                        "enum": [
+                                          "task-baseline-candidate"
+                                        ]
+                                      },
+                                      "subject": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "model": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256,
+                                            "pattern": "^[^/]+/.+$"
+                                          },
+                                          "tools": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "enum": [
+                                                "read",
+                                                "grep",
+                                                "find",
+                                                "ls"
+                                              ]
+                                            },
+                                            "maxItems": 4,
+                                            "minItems": 0
+                                          },
+                                          "promptFiles": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 4096
+                                            },
+                                            "maxItems": 16,
+                                            "minItems": 1
+                                          }
+                                        },
+                                        "required": [
+                                          "model",
+                                          "tools",
+                                          "promptFiles"
+                                        ]
+                                      },
+                                      "judge": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                              "model": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 256,
+                                                "pattern": "^[^/]+/.+$"
+                                              },
+                                              "instructions": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 8192
+                                              }
+                                            },
+                                            "required": [
+                                              "model",
+                                              "instructions"
+                                            ]
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "command": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                              "argv": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string",
+                                                  "minLength": 1,
+                                                  "maxLength": 8192
+                                                },
+                                                "maxItems": 32,
+                                                "minItems": 1
+                                              },
+                                              "checks": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 8192
+                                                  },
+                                                  "maxItems": 32,
+                                                  "minItems": 1
+                                                },
+                                                "maxItems": 16,
+                                                "minItems": 0
+                                              },
+                                              "unit": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 64
+                                              }
+                                            },
+                                            "required": [
+                                              "argv",
+                                              "checks",
+                                              "unit"
+                                            ]
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "providerAction": {
+                                        "oneOf": [
+                                          {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 256
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "version",
+                                      "kind",
+                                      "baseline",
+                                      "candidate",
+                                      "tasks",
+                                      "repeats",
+                                      "retries",
+                                      "deadlineMs",
+                                      "analysis",
+                                      "order",
+                                      "subject",
+                                      "judge",
+                                      "command",
+                                      "providerAction"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "version",
+                              "policy",
+                              "maxUses",
+                              "criterion",
+                              "heldOut",
+                              "final"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "roleBundle": {
                         "type": "object",
                         "additionalProperties": false,
@@ -11544,9 +14387,69 @@
                 ]
               },
               "validation": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 256
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "enum": [
+                          "development-only",
+                          "held-out-validated",
+                          "final-validated"
+                        ]
+                      },
+                      "heldOutUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "maxUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "finalUses": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "policy": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "selected",
+                              "final"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "limitation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "heldOutUses",
+                      "maxUses",
+                      "finalUses",
+                      "policy",
+                      "limitation"
+                    ]
+                  }
+                ]
               },
               "nodes": {
                 "type": "array",
@@ -11879,6 +14782,27 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "split": {
+                      "type": "string",
+                      "enum": [
+                        "development",
+                        "held-out",
+                        "final"
+                      ]
+                    },
+                    "developmentId": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "attemptId": {
                       "oneOf": [
                         {
@@ -11962,6 +14886,34 @@
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
+                          "checkInvocationIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 96,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                            },
+                            "maxItems": 16,
+                            "minItems": 0
+                          },
+                          "checkNativeIds": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 256
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "maxItems": 16,
+                            "minItems": 0
+                          },
                           "id": {
                             "type": "string",
                             "minLength": 1,
@@ -12149,6 +15101,8 @@
                           }
                         },
                         "required": [
+                          "checkInvocationIds",
+                          "checkNativeIds",
                           "id",
                           "taskId",
                           "condition",
@@ -12244,6 +15198,8 @@
                     }
                   },
                   "required": [
+                    "split",
+                    "developmentId",
                     "attemptId",
                     "epoch",
                     "specId",
@@ -15825,6 +18781,7 @@
       "ref": "arbor.evaluate",
       "caller": "owning-Pi",
       "commands": [
+        "/arbor validate",
         "/arbor start (command evaluator execute gate)",
         "/arbor resume (command evaluator execute gate)"
       ],
@@ -15867,6 +18824,12 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "validation": {
+                "type": "string",
+                "enum": [
+                  "final"
+                ]
+              },
               "attemptId": {
                 "type": "string",
                 "minLength": 1,

@@ -1,3 +1,4 @@
+import { splitOf } from '../evaluators/validation.js';
 import type { EvaluationRecord } from '../evaluators/contracts.js';
 import { units } from '../evaluators/measurement.js';
 import { researchFacts } from './policy.js';
@@ -16,7 +17,7 @@ export function validateNode(p:Projection, n:Pick<TreeNode,'nodeId'|'parentId'|'
  if(path.some(n=>n.pruned))throw new Error('Parent ancestry is pruned');
  if(parent?.type==='hypothesis'){
   // A hypothesis may have an immutable failed original followed by a measured continuation.
-  const measured=p.attempts.some((a:any)=>a.nodeId===parent.nodeId&&p.evaluations.some((e:any)=>e.attemptId===a.id&&e.state==='completed'&&e.validity==='valid'));
+  const measured=p.attempts.some((a:any)=>a.nodeId===parent.nodeId&&p.evaluations.some((e:any)=>splitOf(e)==='development'&&e.attemptId===a.id&&e.state==='completed'&&e.validity==='valid'));
   if(n.type!=='hypothesis'||!measured)throw new Error('Hypothesis refinement requires measured parent');
  }
  const depth=parent?parent.depth+1:0;
@@ -48,5 +49,5 @@ export function validateSelection(p:Projection,nodeId:string,selection:Selection
 /** Exact task/repeat ratios; presentation means never rank candidates. */
 export function rankEvaluations(evaluations:EvaluationRecord[],direction:'maximize'|'minimize'):EvaluationRecord[]{
  const ratio=(e:EvaluationRecord)=>{let sum=0n,count=0n;for(const t of e.definition.tasks){const values:bigint[]=[];for(let r=0;r<e.definition.repeats;r++){const i=e.invocations.filter(i=>i.condition==='candidate'&&i.taskId===t.id&&i.repeat===r&&i.purpose!=='judge').at(-1);if(!i?.valid||i.score===null)return null;values.push(units(i.score));}values.sort((a,b)=>a<b?-1:a>b?1:0);if(e.definition.kind==='command'){sum+=values[Math.floor(values.length/2)]!;count++;}else{sum+=values.reduce((a,b)=>a+b,0n);count+=BigInt(values.length);}}return count?{sum,count}:null;};
- return evaluations.filter(e=>e.state==='completed'&&e.validity==='valid'&&e.quality.passed).map(e=>({e,r:ratio(e)})).filter(x=>x.r!==null).sort((a,b)=>{const d=(a.r!.sum*b.r!.count-b.r!.sum*a.r!.count)*(direction==='maximize'?-1n:1n);return d<0n?-1:d>0n?1:a.e.id<b.e.id?-1:a.e.id>b.e.id?1:0;}).map(x=>x.e);
+ return evaluations.filter(e=>splitOf(e)==='development'&&e.state==='completed'&&e.validity==='valid'&&e.quality.passed).map(e=>({e,r:ratio(e)})).filter(x=>x.r!==null).sort((a,b)=>{const d=(a.r!.sum*b.r!.count-b.r!.sum*a.r!.count)*(direction==='maximize'?-1n:1n);return d<0n?-1:d>0n?1:a.e.id<b.e.id?-1:a.e.id>b.e.id?1:0;}).map(x=>x.e);
 }
