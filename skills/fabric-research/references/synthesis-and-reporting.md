@@ -6,18 +6,7 @@ Use for complex or disputed synthesis, quantitative rankings, causal or transfer
 
 Before prose, reconcile the same evidence rows returned by workers. Keep only decision-changing claims; a simple lookup does not need a table. Split compound assertions about specification, performance, causality and recommendation into independently assessable claims.
 
-| Field | Required meaning when applicable |
-| --- | --- |
-| Claim / finding | Smallest material assertion; exact value or bounded result |
-| Evidence status | Documented fact, measured result, sourced claim, inference, recommendation or unknown |
-| Support | Direct URL/title and exact passage, table context or locator; retrieval handle where useful |
-| Counterevidence | Strongest contradiction or bounded search gap |
-| Origin / source type | Original evidence origin, source class and relevant vendor/funding relationship if known |
-| Date | Publication, revision, effective or retrieval date where it changes relevance |
-| Method / applicability | Task, sample, comparison and conditions; direct relevance or transfer limits |
-| Comparability | Applicable differences, missing fields and resulting limits |
-| Confidence | Qualitative strength with a short evidence-based reason |
-| Disposition | Retain, qualify, reject or unknown, with the decision implication |
+The [evidence schema](evidence.schema.json) is the authoritative field contract for retrieval receipts and material rows. Use its `finding`, `status`, `support`, `counterevidence`, `method`, `comparability`, `confidence` and `disposition` fields directly; do not create a second return format or bibliographic checklist. The sections below define the evidence-status meanings and conditional methodological gates. In a narrow unstructured return, preserve the same applicable meanings without requiring JSON.
 
 Several URLs or workers repeating one paper, run or customer story count as one evidence origin. Preserve support through aggregation and ensure final prose introduces no material unsupported claim. Reuse retrieved support; do not refetch merely to populate a ledger. Keep the ledger internal unless the user needs the audit trail. Missing nonmaterial metadata is not a reason to discard useful evidence.
 
