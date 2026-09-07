@@ -1,84 +1,46 @@
 # Evaluating Skills
 
-Use this reference to establish a baseline, grade behavior, compare versions, or decide whether another iteration is justified.
+Use only after an explicit user request to evaluate a skill's behavior or compare versions. Creating, revising, or reviewing a skill does not activate this procedure. Editing this reference is not permission to execute an evaluation. Description and invocation testing are outside this procedure.
 
-## Define evidence before running
+## 1. Define the evaluation question
 
-Call every predeclared success statement a **criterion**. Use one term throughout artifacts and reports.
+Identify the target skill, behavior being assessed, supplied inputs, expected result, and any comparison requested. Use the user's examples and criteria. Ask only for a missing choice that would change the evaluation. Do not require a comparison when the user requests a standalone assessment.
 
-Choose evidence by outcome type:
+Choose evidence appropriate to the question:
 
-| Outcome | Evidence |
+| Subject | Evidence |
 | --- | --- |
-| Deterministic artifact | Programmatic inspection against an independent expected value |
-| Required process or discipline | Transcript evidence showing decisions, order, and rationales |
-| Invocation | Exact read or activation of the intended `SKILL.md` |
-| Subjective quality | Anchored human rubric, preferably on blinded paired outputs |
+| Structured output | Produced artifact compared with independently stated required values and shape |
+| Decision or procedure | Trace showing the actual choice, actions, order, and result |
+| Persistent update | Before/after artifact showing changed and preserved fields |
+| Subjective quality | Examples and an anchored human rubric, not invented numerical precision |
 
-A criterion should be discriminating: a wrong output must not pass it by coincidence. Grade objective criteria pass/fail with specific evidence. Do not convert taste into fake precision.
+## 2. Select cases and conditions
 
-## Establish the right baseline
+Use realistic inputs that distinguish correct from incorrect behavior. Include relevant boundaries such as missing values, empty or repeated output units, ambiguous routing, and unavailable prerequisites. Select from the skill's actual contract rather than requiring every category.
 
-Use the same prompt, inputs, model, tools, and environment in fresh contexts:
+| Requested assessment | Conditions |
+| --- | --- |
+| Does this skill satisfy its contract? | The supplied skill with the selected cases |
+| Did this revision change behavior? | Previous and candidate versions with the same cases |
+| Does adding the skill help? | With and without the skill on the same cases |
 
-- creating: compare the draft with no skill;
-- improving: snapshot and compare the original skill;
-- changing one instruction: include a no-guidance control;
-- changing invocation: compare the current description.
+For comparisons, hold the prompt, inputs, model, tools, and environment constant where possible. Record unavoidable differences. Use fresh contexts for independent runs. Set case count and repetitions according to the user's budget and the question. A single run is a smoke observation, not a reliability estimate.
 
-When subagents are available, launch paired conditions together. Otherwise run fresh Pi sessions sequentially. Do not let the authoring conversation leak the intended answer into the baseline.
+## 3. Run and inspect
 
-## Build representative cases
+Execute only the selected conditions using the available test mechanism. Keep generated artifacts outside the skill package and ignore `.directory` metadata. Record the exact version assessed and retain the output or trace needed to support each verdict.
 
-Cover every major branch plus boundaries. Include:
+Inspect results rather than relying on the tested agent's self-report. For subjective comparisons, use blinded labels when feasible and request concrete reasons for the preference. Report unavailable execution as blocked, not simulated evidence.
 
-- realistic positive tasks;
-- missing-information tasks;
-- difficult near-misses;
-- variation and edge cases;
-- pressure scenarios only when the skill enforces a rule agents are tempted to skip.
+## 4. Report the findings
 
-For a discipline skill, combine credible pressures such as urgency, sunk cost, authority, or fatigue. Capture rationalizations verbatim. For an output-shaping skill, test the output structure directly instead of manufacturing pressure.
+Use this result shape, repeating one row per criterion and condition:
 
-## Micro-test wording
+| Case / condition | Expected behavior | Observed behavior and evidence | Verdict |
+| --- | --- | --- | --- |
+| Actual case and version | Independent criterion | Artifact or trace location and relevant observation | pass, fail, or blocked |
 
-Use micro-tests when a specific sentence or contract may be causing behavior:
+State the cases and repetitions actually run. Report costs, timing, or usage only when measured. Identify both improvements and regressions when comparing versions. Do not generalize beyond the exercised cases.
 
-1. Keep the full realistic context around the candidate wording.
-2. Include a no-guidance control that exhibits the failure.
-3. Run at least five fresh samples per close variant.
-4. Score the target behavior, then manually inspect every flagged match.
-5. Treat convergence as evidence; divergent interpretations are variance, not success.
-
-Micro-tests choose wording. Full scenarios remain the final behavior gate.
-
-## Grade and analyze
-
-Inspect produced artifacts, not just the assistant's claims. For each run record:
-
-- case and condition;
-- criterion, pass/fail, and evidence;
-- errors or workarounds;
-- captured duration, tokens, or tool calls only when the harness actually reports them.
-
-Across repeated runs, report the distribution or mean and spread. Identify criteria that always pass both conditions, always fail both, regress with the skill, or vary enough to be unreliable. Do not invent timing, token counts, sample sizes, confidence, or statistical significance.
-
-After aggregate grading, inspect transcripts for causation: which instruction was followed, missed, negotiated away, or replaced by improvised work?
-
-## Use blind comparison when quality is subjective
-
-Randomize labels A/B and give an independent reviewer the prompt, rubric, and outputs without skill identities. Require specific strengths, weaknesses, and evidence. Unblind only after the verdict, then compare transcripts to explain why the winner won. A blind preference complements objective criteria; it does not replace them.
-
-## Iterate without overfitting
-
-Change the smallest instruction, pointer, script, or completion criterion that explains an observed failure. Rerun the failing case, controls, and held-out cases. Preserve a separate test set when optimizing repeatedly.
-
-Stop when:
-
-- required criteria pass and near-misses remain clean;
-- the user accepts subjective results;
-- the baseline already performs as well;
-- new wording merely moves failures around;
-- repeated runs show no meaningful improvement.
-
-Report the stop reason and any blocked validation. Passing unrun tests is not a valid result.
+End with findings and limitations. Evaluation does not edit the target, tune wording, launch more trials, or start a repair loop unless the user separately requests that work.
