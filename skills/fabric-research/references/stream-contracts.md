@@ -1,49 +1,53 @@
-# Stream contracts
+# Stream assignments
 
-Read before substantive delegated research. Use only applicable fields and specializations; narrow lookups do not need this template. The parent SKILL.md owns Fabric runtime, Browser, tool-access, mutation and delegation policy. Carry those constraints into each self-contained assignment, including any specifically permitted task artifacts; this template does not add permissions.
+Read before delegated research. The parent SKILL.md owns the dossier and research-content contract; `runtime.md` owns execution safeguards. Carry applicable constraints into each self-contained assignment. A worker should not need sibling work to understand its task.
 
-## Assignment
+## Assign a question and an owned document
+
+Main prepares `streams/` and reserves the assignment in its execution accounting before dispatch. Give each worker one unique safe file path. Only that worker writes its file while live; Main alone edits RESEARCH.md and REPORT.md. Separate files allow parallel work without lost updates. Main may annotate or recover a stream after its worker is terminal, clearly marking additions.
+
+Use this brief, replacing every field with the actual task:
 
 ```text
-Central question or decision, intended use and consequence of error:
-Owned uncertainty and why it affects the decision:
-Scope, definitions, exclusions and time horizon:
-Criterion or final-output slot to inform:
-Useful known sources and source priorities:
-Required method and variables that must stay comparable:
-Stream-specific deliverables:
-Applicable execution constraints from Main:
-
-Return:
-- A bounded conclusion for this uncertainty, not the cross-stream decision.
-- Material evidence rows using evidence.schema.json; applicable methodology gates below.
-- Contradictions, confidence with reasons, and explicit gaps.
-- Retrieval provenance/handles sufficient for Main to verify decisive support.
-- Coverage and stop reason; the smallest check for the highest-impact gap.
+Central question/decision, intended use and consequence of error:
+Owned uncertainty and why it matters:
+Required questions/criteria this stream informs:
+Scope, definitions, exclusions, dates/versions:
+Known sources, search angles, source priorities:
+Required method and variables that must remain comparable:
+Absolute dossier path and your single owned Markdown path:
+Research-content contract and applicable methodology gates:
+Execution constraints, allowed tools, retrieval/time allowance if any:
+Stop conditions and highest-impact follow-up rule:
 ```
 
-Use the [canonical evidence schema](evidence.schema.json) for structured returns and its same material rows for synthesis. The parent skill supplies the executable dispatch and aggregation blocks. Keep original URLs and decisive passages/table context through reduction. Include source rejection reasons only when they explain a material conflict or gap; do not create exhaustive rejection logs or mandatory bibliographic administration.
+Include the parent skill's substantive note requirements and applicable runtime safeguards in the task, not merely a pointer to constraints the child cannot access. Grant `read`, `grep`, `write` and `edit` when needed, plus registered retrieval actions. Grant additional tools only for a concrete need. An allowlist is not filesystem isolation.
 
-## Return validation
+## Produce research, then hand off navigation
 
-Main checks execution status separately from evidence usability. Confirm the owned uncertainty was addressed, inspect supporting evidence and retrieval provenance, and check applicable source type/date, method, comparability, contradictions, confidence and gap fields. A well-formed object is not proof of retrieval or support. Missing administrative metadata alone does not invalidate useful evidence; missing decisive support limits the conclusion.
+Create the owned document before expanding retrieval. Update it incrementally after meaningful findings, not only at the end. Prefer this readable outline, adapting headings and omitting genuinely irrelevant sections:
 
-Retain supported portions even if the return is incomplete or the worker failed. Name which assigned requirements remain unsupported. Recover the decision-changing gap under Main's lifecycle, count and budget rules, or narrow/block the conclusion. Use JSON Schema only when aggregation benefits from it, not for every narrow check.
+1. **Question, scope and status.** Owned requirements, assumptions, dates and whether work is in progress, complete, partial or blocked.
+2. **Findings and analysis.** Explain the bounded answer, why evidence supports it, and its conditions. Do not decide Main's cross-stream recommendation.
+3. **Evidence and source notes.** Source IDs and original URLs, inspected passages/locators, relevant methods and actual outcomes, qualifications and transfer limits. Keep substantive details here even when the handoff is short.
+4. **Counterevidence and alternatives.** Strongest material disagreement or null finding, and reasons important alternatives were included or excluded. Distinguish inspected counterevidence from an unperformed search.
+5. **Gaps, coverage and next checks.** Disposition of each owned requirement, access/budget limits, actual stop reason and smallest resolving check.
 
-## Stop with coverage intact
+When a retrieval allowance is assigned, keep a compact running count and failures in the document across turns. Count actual invocations including failed ones; a batched request is one invocation, multiple tool calls in one program are multiple invocations. Preserve exact nonsecret query/URL/locator details for material retrievals, not a mandatory receipt object per action. Native traces can supplement verification, but temporary handles alone do not preserve research context.
 
-Prioritize decisive sources and required evidence classes. Stop when the contract is sufficiently supported, additional sources repeat existing origins, or further retrieval is unlikely to change the bounded conclusion. A budget/access stop is a coverage limitation, not evidence saturation. Report the actual stop reason and highest-impact unresolved gap.
+Read back the completed document before returning. The final response is a short handoff: owned path, status, major findings with section anchors, decisive source IDs, gaps and stop reason. Do not return an evidence-row schema or dump the whole report into the parent tool result. If writing fails, return useful findings and support as a clearly unsaved partial result rather than a false path-only success.
 
-Scope negative findings to inspected coverage: for example, "No direct public measurement was found in the sources and search scope inspected." Empty results or repeated convenient sources do not establish absence elsewhere.
+## Conditional methodology
 
-## Conditional methodology requirements
+Attach only applicable requirements to the brief:
 
-Attach only the specialization relevant to the owned uncertainty. Mark genuinely inapplicable fields as such rather than forcing quantitative details onto qualitative research.
+- **Official facts, policy and economics:** current primary text, effective dates, exact product/entitlement surface, defaults, availability, limits and exceptions. A catalog listing establishes a listing; inspect content needed for suitability or operational recommendations.
+- **Papers and clinical/technical studies:** relevant title/date/original URL, intervention, comparator, population/task, sample, concentration/configuration, duration, endpoints, actual results and reported uncertainty. Missing results remain missing; study design is not proof of efficacy. Distinguish target evidence from indirect transfer and name what does not transfer.
+- **Benchmarks and performance:** task provenance/count, system snapshot, scaffold/tools, effort/action/retry budgets, grader and final-state validation, exclusions, repetitions, uncertainty, failures, latency and included cost components where relevant. Separate independent measurements, vendor evaluations and anecdotes.
+- **Systems and operations:** distinguish product, model and harness behavior; identify workflow/interface, state, tool access, retries, recovery, verification, final-state correctness and implementation constraints. Describe quality/cost/latency implications only where supported.
+- **Counterevidence:** seek relevant nulls, regressions, task dependence, bias, contamination and omitted costs/risks. Name what could overturn or narrow the finding; avoid reflexive opposition and repetitive generic searches.
+- **Current field signals:** follow Main's last30days integration constraints. Preserve dates, source coverage, direct URLs and native engagement when available. Engagement is attention, not truth; repeated posts are not independent measurements.
 
-- **Official facts, policy or economics:** inspect current primary documentation, effective dates, exact product/entitlement surface, aliases/defaults, availability, limits and exceptions. Verify decisive specifications against exact passages; use historical values only to explain a conflict.
-- **Benchmarks and practical performance:** retrieve the method, not just the benchmark name. Preserve task provenance/count, system snapshot, prompt/scaffold/tools, effort/action/retry budgets, grader, final-state or response-only validation, exclusions, repetitions and uncertainty when reported. Include measured completion, failures, latency and total cost where relevant; label independent, vendor, customer and anecdotal sources distinctly.
-- **Papers and technical reports:** retain enough title/author/date/venue/DOI or original URL detail for the requested artifact, plus interventions, controls, tasks/samples, metrics, uncertainty and methodological limits. State whether evidence directly concerns the target or requires transfer, why transfer is plausible and what does not transfer. Do not pad sparse direct literature with unrelated papers; full author lists are needed only when the citation contract calls for them.
-- **Systems and operations:** separate product, model and harness behavior. Identify workflow/interface, statefulness, tool access, retries, stopping/recovery/verification, final-state correctness, and implementation constraints affecting transfer. Report quality, cost, latency and failure implications only where supported.
-- **Counterevidence:** seek the strongest relevant null results, regressions, task dependence, selection/publication/evaluator/survivorship bias, contamination or exploitation, and omitted costs or risks. Identify what would overturn or narrow the leading conclusion; avoid reflexive opposition and redundant generic searches.
-- **Current field signals:** use only when they affect the decision. Follow Main's last30days integration reference, not a copied execution recipe. Preserve actual run/envelope and per-source coverage evidence, exact dates, direct URLs and platform-native engagement where available. Engagement measures attention, not truth; field signals are hypotheses or prevalence warnings, not controlled benchmarks. Do not treat a badge/footer as proof of execution or silently claim an unavailable required engine ran.
+## Main's acceptance
 
+Main reads the actual document, not just the handoff, then applies the parent verification loop. Retain supported portions of failed or incomplete work. A named source, well-written note or terminal status does not prove retrieval, support or coverage. Missing nonmaterial bibliography fields alone do not invalidate evidence. Report negative findings only within the inspected scope.

@@ -2,13 +2,13 @@
 
 Use for complex or disputed synthesis, quantitative rankings, causal or transfer claims, and consequential recommendations, whether Main researched directly or delegated. Apply only relevant sections. The parent SKILL.md owns execution policy and the final completion gate; the user's output contract wins.
 
-## One material-claim ledger
+## Synthesize from the research documents
 
-Before prose, reconcile the same evidence rows returned by workers. Keep only decision-changing claims; a simple lookup does not need a table. Split compound assertions about specification, performance, causality and recommendation into independently assessable claims.
+Main reads the substantive findings, source notes, methods/results, counterevidence and gaps in RESEARCH.md and every assigned stream document before drafting. Follow supporting-file links and read omitted sections in bounded ranges. Compact worker handoffs are navigation, not a substitute for this reading.
 
-The [evidence schema](evidence.schema.json) is the authoritative field contract for retrieval receipts and material rows. Use its `finding`, `status`, `support`, `counterevidence`, `method`, `comparability`, `confidence` and `disposition` fields directly; do not create a second return format or bibliographic checklist. The sections below define the evidence-status meanings and conditional methodological gates. In a narrow unstructured return, preserve the same applicable meanings without requiring JSON.
+Reconcile decision-changing claims in RESEARCH.md with links to their owning sections. Record what Main verified and why a finding is retained, qualified, rejected or left unknown; do not duplicate the evidence into another schema or intermediate ledger. Split compound assertions about specification, performance, causality and recommendation so each can be checked. Keep original research notes, including meaningful alternatives and limitations, even when they do not appear in the final report.
 
-Several URLs or workers repeating one paper, run or customer story count as one evidence origin. Preserve support through aggregation and ensure final prose introduces no material unsupported claim. Reuse retrieved support; do not refetch merely to populate a ledger. Keep the ledger internal unless the user needs the audit trail. Missing nonmaterial metadata is not a reason to discard useful evidence.
+Several URLs or workers repeating one paper, run or customer story count as one evidence origin. Preserve support into synthesis and ensure final prose introduces no material unsupported claim. Reuse retrieved support; do not refetch merely to populate administrative fields. Missing nonmaterial metadata is not a reason to discard useful evidence. A study's design without its results cannot establish a measured benefit; a source description or retailer metadata cannot establish suitability or superiority.
 
 ## Evidence status is not confidence or provenance
 
@@ -64,7 +64,15 @@ The user's requested structure always wins. Otherwise choose the smallest form p
 - **Comparative:** recommendation under stated criteria, criterion-by-criterion evidence, valid quantitative comparisons, disagreements/counterevidence, unknowns and what changes the recommendation.
 - **Decision-grade:** add operational rules, a gap-specific resolving evaluation and a source appendix mapping retained direct URLs to supported claims, relevant dates, source types, methods and important limitations. End with what to adopt now, strongest support, highest-impact uncertainties and the measurements that could change the decision.
 
-State the research date where freshness matters and, for delegated work, summarize stream scopes and coverage without presenting worker count as corroboration. Synthesize rather than concatenate reports. Full bibliographies and rejected-source lists are optional unless the user requests them or they explain a material gap.
+For substantive research, write the answer to REPORT.md. Unless the user specifies another structure, include:
+
+1. **Answer and scope:** the conclusion, intended decision, assumptions and research date where freshness matters; label partial or blocked findings.
+2. **Evidence-backed analysis by question:** explain the results and their meaning, not just what each source is about. Use appropriate comparisons, actual outcomes, methods and applicability limits. Cite original sources inline and link to the local research sections retaining fuller context.
+3. **Disagreements, alternatives and limitations:** strongest counterevidence, unresolved questions, important exclusions and what can or cannot be inferred.
+4. **Recommendations or implications:** only when warranted by the task, with trade-offs, applicability and evidence that would change the action.
+5. **Coverage and stop reason:** what was checked, what remains partial, why work stopped and the highest-impact next check. Link RESEARCH.md and relevant stream sections.
+
+Omit irrelevant sections for a focused answer, but do not omit a required question or compress substantive research into an executive summary alone. Summarize delegated scopes and coverage without presenting worker count as corroboration. Synthesize rather than concatenate reports. Full bibliographies and exhaustive rejection lists are optional unless requested or needed to explain a material gap. The parent skill owns file creation, read-back and final completion checks.
 
 ## Smallest resolving evaluation
 
