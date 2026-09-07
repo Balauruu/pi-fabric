@@ -2,7 +2,7 @@
 
 Use last30days for what people are saying, not as a substitute for specifications or controlled performance evidence. Main or a delegated worker may run it.
 
-Read the installed [last30days skill](../../last30days/skills/last30days/SKILL.md) and its [agent JSON reference](../../last30days/docs/reference/json-export.md). Follow its targeting and query-planning instructions; this research assignment's scope, Browser rule and configured-provider choice take precedence over standalone setup, browser, publishing and response-format instructions. Skip onboarding, installs, credential changes and publishing.
+Read the installed last30days skill at `/home/balauru/.pi-profiles/fabric/skills/last30days/skills/last30days/SKILL.md` and its agent JSON reference at `/home/balauru/.pi-profiles/fabric/skills/last30days/docs/reference/json-export.md`. Follow its targeting and query-planning instructions; this research assignment's scope, Browser rule and configured-provider choice take precedence over standalone setup, browser, publishing and response-format instructions. Skip onboarding, installs, credential changes and publishing.
 
 ## Execution adaptations
 

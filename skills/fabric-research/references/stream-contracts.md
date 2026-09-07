@@ -16,13 +16,13 @@ Applicable execution constraints from Main:
 
 Return:
 - A bounded conclusion for this uncertainty, not the cross-stream decision.
-- Material evidence rows using the synthesis reference's canonical ledger.
+- Material evidence rows using evidence.schema.json; applicable methodology gates below.
 - Contradictions, confidence with reasons, and explicit gaps.
 - Retrieval provenance/handles sufficient for Main to verify decisive support.
 - Coverage and stop reason; the smallest check for the highest-impact gap.
 ```
 
-Use the [canonical claim ledger](synthesis-and-reporting.md) for evidence rows. Keep original URLs and decisive passages/table context through reduction. Include source rejection reasons only when they explain a material conflict or gap; do not create exhaustive rejection logs or mandatory bibliographic administration.
+Use the [canonical evidence schema](evidence.schema.json) for structured returns and its same material rows for synthesis. The parent skill supplies the executable dispatch and aggregation blocks. Keep original URLs and decisive passages/table context through reduction. Include source rejection reasons only when they explain a material conflict or gap; do not create exhaustive rejection logs or mandatory bibliographic administration.
 
 ## Return validation
 
