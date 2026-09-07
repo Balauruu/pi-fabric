@@ -15,7 +15,7 @@ export interface Config {
   evaluator: { kind: string; identity: string; definition: string; heldOut: string | null; repeats: number; aggregation: string };
   roles: { coordinator: string | null; executor: string | null; subject: string | null };
   roleTools: { coordinator: string[]; executor: string[] };
-  search: { maxDepth: number; maxChildren: number; concurrency: number; maxActorTurns: number; stopAfterNoGain: number; shiftAfterNoGain: number; stopAfterFailures: number; target: string | null; mode: string };
+  search: { exploreEvery: number; measurementConcurrency: number; maxDepth: number; maxChildren: number; concurrency: number; maxActorTurns: number; stopAfterNoGain: number; shiftAfterNoGain: number; stopAfterFailures: number; target: string | null; mode: string };
   limits: { attempts: number; evaluatorCalls: number; activeMs: number; artifactBytes: number; tokenCeiling: number | null; costCeiling: string | null };
   sourceRefs: string[]; preset: string | null; execution: "inspect" | "deferred" | "evaluate" | "material" | "research";
 }
@@ -32,7 +32,7 @@ function defaults(cwd: string): Config { return {
   evaluator: { kind: "command", identity: "unconfigured", definition: "unconfigured", heldOut: null, repeats: 1, aggregation: "median" },
   roles: { coordinator: null, executor: null, subject: null },
   roleTools: { coordinator: ["fabric_exec"], executor: ["read", "grep", "find", "ls"] },
-  search: { maxDepth: 3, maxChildren: 3, concurrency: 1, maxActorTurns: 8, stopAfterNoGain: 5, shiftAfterNoGain: 3, stopAfterFailures: 2, target: null, mode: "auto" },
+  search: { exploreEvery: 3, measurementConcurrency: 1, maxDepth: 3, maxChildren: 3, concurrency: 1, maxActorTurns: 8, stopAfterNoGain: 5, shiftAfterNoGain: 3, stopAfterFailures: 2, target: null, mode: "auto" },
   limits: { attempts: 5, evaluatorCalls: 20, activeMs: 120000, artifactBytes: 16777216, tokenCeiling: null, costCeiling: null },
   sourceRefs: [], preset: null, execution: "inspect",
 }; }

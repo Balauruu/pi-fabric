@@ -8,7 +8,7 @@ import test from "node:test";
 import { DatabaseSync } from "node:sqlite";
 import { ResearchStore, type ResearchRun } from "../../src/research/ResearchStore.js";
 import { resolveSpec } from "../../src/research/spec.js";
-import { ACTOR_PROPOSAL_SCHEMA, ACTION_MANIFEST, RESEARCH_ACTIONS, canonical, digest, validate } from "../../src/research/contracts.js";
+import { PROJECTION_SCHEMA, ACTOR_PROPOSAL_SCHEMA, ACTION_MANIFEST, RESEARCH_ACTIONS, canonical, digest, validate } from "../../src/research/contracts.js";
 import { ARBOR_ACTIONS, SUBSTRATE_ACTIONS } from "../../src/managed/contracts.js";
 import { commandProgram, researchCommand } from "../../src/research/commands.js";
 const exec = promisify(execFile);
@@ -228,4 +228,41 @@ test("public manifest exactly matches registrations; every nested schema is clos
   const req = researchCommand("pause", "run"); assert.equal(req.ref, "arbor.control"); const code = commandProgram(req); assert.match(code, /arbor.inspect/); assert.match(code, /arbor.control/); assert.doesNotMatch(code, /owner\.|service\.|context.call/);
   assert.throws(() => researchCommand("forward", "agents.spawn")); assert.throws(() => researchCommand("start", '{"runId":"x","approved":true}'));
   assert.equal(SUBSTRATE_ACTIONS.length, 3); assert.equal(digest({ a: 1, b: 2 }), digest({ b: 2, a: 1 }));
+});
+
+for(const response of ['Approve research choice','Reject research choice'] as const)test(`PR7 repair pending review rejects root and descendant expansion transactionally before ${response}`,async t=>{
+ const f=await fixture(t);f.node('one');f.store.research('decide',f.binding('request'),{decisionId:'choice',nodeId:'one',decision:'request_review',evidenceIds:[]},'g1');
+ const exact=f.binding('response'),before=canonical(f.store.projection('run'));
+ for(const parentId of [null,'one'])assert.throws(()=>f.store.research('propose',f.binding('expand'),{nodeId:'new',type:'hypothesis',parentId,title:'new',rationale:'expand',sourceRefs:[]},'g1'),/pending.*review|review.*pending/i);
+ assert.equal(canonical(f.store.projection('run')),before);f.store.review(exact,'g1','choice',response,owner);assert.equal(f.store.get('run')!.pendingDecisionId,null);
+ assert.equal((f.store.projection('run')!.nodes as any[])[0].reviewed,response==='Approve research choice');
+});
+
+test('PR7 retained PR6 projection accepts absent additive fields without rewriting saved identity or records',async t=>{
+ const f=await fixture(t);f.node('one');const db=new DatabaseSync(f.store.path);t.after(()=>db.close());
+ const run=JSON.parse(String(db.prepare('SELECT value FROM runs WHERE id=?').get('run')!.value));
+ for(const key of ['exploreEvery','measurementConcurrency']){delete run.spec.config.search[key];delete run.spec.origins['search.'+key];}
+ const node=JSON.parse(String(db.prepare('SELECT value FROM nodes WHERE run_id=? AND id=?').get('run','one')!.value));delete node.insightIds;delete node.insightRevision;
+ db.prepare('UPDATE runs SET value=? WHERE id=?').run(canonical(run),'run');db.prepare('UPDATE nodes SET value=? WHERE run_id=? AND id=?').run(canonical(node),'run','one');
+ const before=[db.prepare('SELECT value FROM runs WHERE id=?').get('run')!.value,db.prepare('SELECT value FROM nodes WHERE run_id=? AND id=?').get('run','one')!.value];
+ f.store.close();const reopened=new ResearchStore(f.store.path);t.after(()=>reopened.close());const p=reopened.projection('run')!;validate(PROJECTION_SCHEMA,p);assert.deepEqual((p.run as any).spec,run.spec);
+ assert.deepEqual([db.prepare('SELECT value FROM runs WHERE id=?').get('run')!.value,db.prepare('SELECT value FROM nodes WHERE run_id=? AND id=?').get('run','one')!.value],before);
+ // Optional does not mean unvalidated: reject unsupported values/fields, while
+ // normal new runs still resolve and expose the explicit bounded defaults.
+ for(const [key,value] of [['exploreEvery',0],['measurementConcurrency',2],['invented',1]]){const bad=structuredClone(p) as any;bad.run.spec.config.search[key as string]=value;assert.throws(()=>validate(PROJECTION_SCHEMA,bad));}
+ for(const patch of [{insightRevision:-1},{insightIds:['invalid id']},{invented:true}]){const bad=structuredClone(p) as any;Object.assign(bad.nodes[0],patch);assert.throws(()=>validate(PROJECTION_SCHEMA,bad));}
+ const fresh=await resolveSpec(f.root,{},{},{execution:'deferred'});assert.equal(fresh.config.search.exploreEvery,3);assert.equal(fresh.config.search.measurementConcurrency,1);
+});
+
+test('PR7 insight capacity rejects shared-ancestor overflow transactionally without losing sibling lessons',async t=>{
+ const f=await fixture(t,{search:{concurrency:2}});f.store.research('propose',f.binding('root'),{nodeId:'root',type:'direction',parentId:null,title:'root',rationale:'Inspect alternatives',sourceRefs:[]},'g1');
+ for(const id of ['left','right']){
+  f.store.research('propose',f.binding('node-'+id),{nodeId:id,type:'hypothesis',parentId:'root',title:id,rationale:'Inspect',sourceRefs:[]},'g1');
+  f.store.research('dispatch',f.binding('dispatch-'+id),{nodeId:id,attemptId:id},'g1');f.store.native('run',id,'g1',{id:'worker-'+id,cwd:f.root,status:'completed'});
+ }
+ const lesson=(n:number)=>{const nodeId=n%2?'left':'right';return {lessonId:'lesson-'+n,nodeId,insight:'Retain distinct bounded observation',limitations:'Unscored',evidenceIds:[f.store.attempt('run',nodeId)!.evidenceId]};};
+ for(let n=1;n<=100;n++)f.store.research('distill',f.binding('distill-'+n),lesson(n),'g1');
+ const p=f.store.projection('run')!;validate(PROJECTION_SCHEMA,p);assert.equal((p.nodes as any[]).find(n=>n.nodeId==='root').insightIds.length,100);assert.ok((p.nodes as any[]).filter(n=>n.nodeId!=='root').every(n=>n.insightIds.length===50));
+ const before=canonical(p),command=f.binding('overflow');assert.throws(()=>f.store.research('distill',command,lesson(101),'g1'),/insight.*capacity|capacity.*insight/i);
+ assert.equal(canonical(f.store.projection('run')),before);assert.equal(f.store.receipt(command,'distill',lesson(101)),undefined);assert.equal((f.store.projection('run')!.lessons as any[]).length,100);
 });

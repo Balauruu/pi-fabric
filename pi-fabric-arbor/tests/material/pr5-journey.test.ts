@@ -10,12 +10,13 @@ import { BindingStore } from "../../src/managed/BindingStore.js";
 import { OwnerExecution } from "../../src/managed/OwnerExecution.js";
 import { EvaluationEngine } from "../../src/evaluators/EvaluationEngine.js";
 import { EvaluatorCatalog } from "../../src/evaluators/catalog.js";
+import { reservedEvaluationCalls } from "../../src/research/policy.js";
 import { researchFacts } from "../../src/research/policy.js";
 import { commandProgram, researchCommand } from "../../src/research/commands.js";
 import { acceptance } from "../../src/material/acceptance.js";
 import { Workspace, gitBytes, gitText } from "../../src/material/Workspace.js";
 const identity = { id: "root", rootId: "root", ownerHostId: "host", ownerIdentityId: "identity", sessionId: "session" };
-async function fixture(t: test.TestContext, options: { research?: boolean; workerLoss?: boolean; workerFailure?: boolean; output?: string; checks?: string[]; limits?: Record<string, number>; failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
+async function fixture(t: test.TestContext, options: { search?: Record<string,number>; research?: boolean; workerLoss?: boolean; workerFailure?: boolean; output?: string; checks?: string[]; limits?: Record<string, number>; failedMetric?: boolean; review?: boolean; command?: boolean; links?: boolean; loss?: boolean; repeats?: number; tasks?: number; threshold?: string } = {}) {
   const base = resolve(".runtime/pr5-journey"); await mkdir(base, { recursive: true }); const root = await mkdtemp(join(base, "case-")), cwd = join(root, "source"), state = join(root, "state"), profile = join(root, "profile"); await mkdir(cwd); await mkdir(profile);
   const git = (...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   git("init", "-b", "main"); git("config", "user.name", "PR5"); git("config", "user.email", "pr5@example.invalid");
@@ -32,7 +33,7 @@ async function fixture(t: test.TestContext, options: { research?: boolean; worke
     if (ref === "agents.stop" && args.id === "actor") { native.get("actor").status = "stopped"; return { id: args.id, kind: "actor", scope: "project", status: "stopped", local: true }; }
     if (ref === "agents.status" && args.id === "actor") return { id: args.id, kind: "actor", scope: "project", status: "stopped", local: true };
     if (ref === "agents.ask") { const d = args.data, nodes = d.nodes;
-      const kind = nodes.length ? "dispatch" : "propose", payload = nodes.length ? { nodeId: "one", attemptId: "one" } : { nodeId: "one", type: "hypothesis", parentId: null, title: "one", rationale: "WRITE GOOD", sourceRefs: [] };
+      const kind = nodes.length ? "dispatch" : "propose", payload = nodes.length ? { nodeId: "one", attemptId: "one", selection: {...d.selection.eligible[0],reason:"Test the admitted fixed hypothesis"} } : { nodeId: "one", type: "hypothesis", parentId: null, title: "one", rationale: "WRITE GOOD", sourceRefs: [] };
       return { actorId: args.id, direction: "out", action: "silent", runId: "activation", data: { version: 2, runId: d.runId, materialId: d.materialId, epoch: d.epoch, revision: d.revision, commandId: d.commandId, kind, payload, expectedEvidence: [], estimatedBudget: { attempts: kind === "dispatch" ? 1 : 0, evaluatorCalls: 0 }, rationale: "fixture" } };
     }
     if (ref === "agents.spawn") {
@@ -56,7 +57,7 @@ async function fixture(t: test.TestContext, options: { research?: boolean; worke
   const invoke = async (name: string, payload: any, commandId = `${name}-${count}-${store.get("run")?.revision}`) => service.invoke(name, { ...store.binding(store.get("run")!, commandId), ...(name === "review" ? { decisionId: payload } : name === "export" ? { format: "json" } : name === "control" ? { action: payload } : { payload }) }, context) as Promise<any>;
   t.after(async () => { if(options.workerLoss) await assert.rejects(service.close(), /settlement/); else await service.close(); });
   const before = await readFile(join(cwd, ".git/index")), refs = git("show-ref");
-  await service.invoke("start", { runId: "run", overrides: { execution: options.research ? "research" : "material", ...(options.limits ? { limits: options.limits } : {}), material: { mutablePaths: ["prompt", "other"], evaluationInputs: ["check"] }, objective: { unit: "points", ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, evaluator: { kind: definition.kind, definition: join(root, "definition.json") }, roleTools: { executor: ["read", "write", "bash"] }, search: { mode: options.review ? "review" : "auto" } } }, context);
+  await service.invoke("start", { runId: "run", overrides: { execution: options.research ? "research" : "material", ...(options.limits ? { limits: options.limits } : {}), material: { mutablePaths: ["prompt", "other"], evaluationInputs: ["check"] }, objective: { unit: "points", ...(options.threshold ? { minimumGain: options.threshold, gainKind: "absolute" } : {}) }, evaluator: { kind: definition.kind, definition: join(root, "definition.json") }, roleTools: { executor: ["read", "write", "bash"] }, search: { mode: options.review ? "review" : "auto", ...options.search } } }, context);
   if (options.command && !options.research) await invoke("evaluate", { attemptId: "baseline", evaluationId: "initial" });
   const candidate = async (id: string, task = "WRITE GOOD") => { await invoke("propose", { nodeId: id, type: "hypothesis", parentId: null, title: id, rationale: task, sourceRefs: [] }); await invoke("dispatch", { nodeId: id, attemptId: id }); await invoke("evaluate", { attemptId: id, evaluationId: `eval-${id}` }); };
   const keep = (id: string) => invoke("decide", { decisionId: `keep-${id}`, nodeId: id, decision: "keep", evidenceIds: [`eval-${id}`] });
@@ -309,4 +310,93 @@ test("PR5 descriptive command noise oracle is inconclusive and cannot be overrid
   e.invocations = e.invocations.flatMap(i => [i, { ...structuredClone(i), id: i.id + "-2", repeat: 1 }, { ...structuredClone(i), id: i.id + "-3", repeat: 2 }]);
   const last = e.invocations.at(-1)!; last.score = "4"; last.native!.text = "ARBOR_METRIC 4 points\n";
   assert.equal(acceptance(run, e, e.snapshots.candidate.oid), "inconclusive-noise-recheck-required");
+});
+
+const waveItem=(nodeId:string)=>({nodeId,attemptId:nodeId,selection:{nodeId,slot:'exploit',kind:'explore',fallback:'eligible-exploit-absent',reason:'Independent fixed alternative'}});
+async function waveNodes(f:Awaited<ReturnType<typeof fixture>>){for(const [id,task] of [['left','WRITE GOOD'],['right','WRITE OTHER']])await f.invoke('propose',{nodeId:id,type:'hypothesis',parentId:null,title:id,rationale:task,sourceRefs:[]});}
+test('PR7 atomic wave admission rolls back both attempts/slots/evaluator credits and duplicate replay never spawns',async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:2},limits:{evaluatorCalls:5}});await waveNodes(f);const before=f.store.projection('run');
+ await assert.rejects(f.invoke('dispatch',{waveId:'too-large',candidates:[waveItem('left'),waveItem('right')]}),/Evaluator invocation capacity/);assert.deepEqual(f.store.projection('run'),before);assert.equal(f.native.size,0);
+ const payload={waveId:'one',candidates:[waveItem('left')]},command={...f.store.binding(f.store.get('run')!,'once'),payload};await f.service.invoke('dispatch',command,f.context);const count=f.native.size;await f.service.invoke('dispatch',command,f.context);assert.equal(f.native.size,count);assert.equal(f.store.get('run')!.attemptsUsed,1);assert.equal(f.store.get('run')!.active,0);
+});
+test('PR7 two fixed-parent candidates settle whole wave; serial evaluation, stale promotion refusal and new exact combined evaluation',async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:2}});await waveNodes(f);const parent=f.store.get('run')!.material!.incumbent;
+ await f.invoke('dispatch',{waveId:'pair',candidates:[waveItem('left'),waveItem('right')]});assert.equal(f.store.get('run')!.active,0);
+ const attempts=['left','right'].map(id=>f.store.attempt('run',id)!);assert.ok(attempts.every(a=>a.nativeDigest&&a.parentIncumbent===parent&&a.evaluationReservation===2));assert.equal(new Set(f.store.get('run')!.material!.candidates.map(c=>c.directory)).size,2);
+ const first=f.invoke('evaluate',{attemptId:'left',evaluationId:'eval-left'});await assert.rejects(f.invoke('evaluate',{attemptId:'right',evaluationId:'race'}),/occupied/);await first;await f.invoke('evaluate',{attemptId:'right',evaluationId:'eval-right'});
+ const right=f.store.evaluation('run','eval-right')!;assert.equal((await f.keep('left')).status,'applied');assert.match((await f.keep('right')).reason,/stale-incumbent/);
+ await f.invoke('evaluate',{attemptId:'right',evaluationId:'combined'});const combined=f.store.evaluation('run','combined')!;assert.notEqual(combined.snapshots.candidate.oid,right.snapshots.candidate.oid);assert.equal(combined.snapshots.baseline.oid,f.store.get('run')!.material!.incumbent);assert.ok(combined.invocations.every(i=>i.native&&i.state==='ingested'));assert.equal((await f.invoke('decide',{decisionId:'keep-combined',nodeId:'right',decision:'keep',evidenceIds:['combined']})).status,'applied');
+ assert.deepEqual(await readFile(join(f.cwd,'.git/index')),f.before);assert.equal(f.git('show-ref'),f.refs);
+});
+for(const control of ['pause','cancel'] as const)test(`PR7 ${control} between admitted native launches prevents second launch and settles first`,async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:2}});await waveNodes(f);let release!:()=>void,entered!:()=>void;const held=new Promise<void>(r=>release=r),ready=new Promise<void>(r=>entered=r),original=f.owner.dispatchMaterial.bind(f.owner);
+ t.mock.method(f.owner,'dispatchMaterial',async(runId:string,attemptId:string,context:FabricInvocationContext)=>{if(attemptId==='right'){entered();await held;}return original(runId,attemptId,context);});
+ const wave=f.invoke('dispatch',{waveId:'controlled',candidates:[waveItem('left'),waveItem('right')]});await ready;
+ // Explicit owning-Pi state boundary, not actor cancellation disguised as pruning.
+ f.store.control(f.store.binding(f.store.get('run')!,'control'),f.owner.generation,control);release();await wave;
+ assert.equal(f.store.attempt('run','right')!.nativeId,null);assert.equal(f.store.attempt('run','right')!.state,'stopped');assert.equal(f.store.get('run')!.active,0);assert.ok(f.native.size<=1);
+});
+test('PR7 pruning changes eligibility, never cancels admitted worker; ancestor lesson revisions retain both siblings',async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:2}});await f.invoke('propose',{nodeId:'direction',type:'direction',parentId:null,title:'direction',rationale:'Independent mechanisms',sourceRefs:[]});
+ for(const id of ['left','right'])await f.invoke('propose',{nodeId:id,type:'hypothesis',parentId:'direction',title:id,rationale:'WRITE GOOD',sourceRefs:[]});
+ let release!:()=>void,entered!:()=>void;const held=new Promise<void>(r=>release=r),ready=new Promise<void>(r=>entered=r),original=f.owner.dispatchMaterial.bind(f.owner);
+ t.mock.method(f.owner,'dispatchMaterial',async(runId:string,attemptId:string,context:FabricInvocationContext)=>{entered();await held;return original(runId,attemptId,context);});
+ const wave=f.invoke('dispatch',{waveId:'pruned-active',candidates:[waveItem('left'),waveItem('right')]});await ready;
+ f.store.research('decide',f.store.binding(f.store.get('run')!,'prune'),{decisionId:'prune',nodeId:'direction',decision:'prune',evidenceIds:[]},f.owner.generation);release();await wave;assert.ok(['left','right'].every(id=>f.store.attempt('run',id)!.state==='completed'));
+ const binding=f.store.binding(f.store.get('run')!,'insight-left');const lesson=(id:string)=>({lessonId:'lesson-'+id,nodeId:id,insight:'Settled factual observation',limitations:'No causal claim',evidenceIds:[f.store.attempt('run',id)!.evidenceId]});
+ f.store.research('distill',binding,lesson('left'),f.owner.generation);assert.throws(()=>f.store.research('distill',{...binding,commandId:'stale-sibling'},lesson('right'),f.owner.generation),/Stale/);
+ f.store.research('distill',f.store.binding(f.store.get('run')!,'insight-right'),lesson('right'),f.owner.generation);const n=(f.store.projection('run')!.nodes as any[]).find(n=>n.nodeId==='direction');assert.deepEqual(n.insightIds,['lesson-left','lesson-right']);assert.equal(n.insightRevision,f.store.get('run')!.revision);
+});
+
+test('PR7 duplicate wave identity refuses before new reservation or native effects',async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:2,maxChildren:4}});await waveNodes(f);await f.invoke('dispatch',{waveId:'stable',candidates:[waveItem('left'),waveItem('right')]});
+ await f.invoke('propose',{nodeId:'third',type:'hypothesis',parentId:null,title:'third',rationale:'WRITE GOOD',sourceRefs:[]});const before=f.store.projection('run'),count=f.native.size;
+ await assert.rejects(f.invoke('dispatch',{waveId:'stable',candidates:[waveItem('third')]}),/Wave identity/);assert.deepEqual(f.store.projection('run'),before);assert.equal(f.native.size,count);
+});
+test('PR7 budget exhaustion mid serial wave releases unlaunched slot with no second native effect',async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:1},limits:{activeMs:1000}});await waveNodes(f);const original=f.owner.dispatchMaterial.bind(f.owner);
+ t.mock.method(f.owner,'dispatchMaterial',async(runId:string,attemptId:string,context:FabricInvocationContext)=>{if(attemptId==='left'){const r=await original(runId,attemptId,context);await new Promise(r=>setTimeout(r,1100));return r;}return original(runId,attemptId,context);});
+ await f.invoke('dispatch',{waveId:'budget',candidates:[waveItem('left'),waveItem('right')]});assert.equal(f.native.size,1);assert.equal(f.store.attempt('run','right')!.state,'stopped');assert.equal(f.store.attempt('run','right')!.nativeId,null);assert.equal(f.store.get('run')!.active,0);
+});
+test('PR7 convergence committed midwave admits no further native launch',async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:1,stopAfterNoGain:1}});await f.candidate('prior','WRITE BAD');await waveNodes(f);const original=f.owner.dispatchMaterial.bind(f.owner),count=f.native.size;
+ t.mock.method(f.owner,'dispatchMaterial',async(runId:string,attemptId:string,context:FabricInvocationContext)=>{const result=await original(runId,attemptId,context);if(attemptId==='left')f.store.research('decide',f.store.binding(f.store.get('run')!,'negative'),{decisionId:'negative',nodeId:'prior',decision:'discard',evidenceIds:['eval-prior']},f.owner.generation);return result;});
+ await f.invoke('dispatch',{waveId:'convergence',candidates:[waveItem('left'),waveItem('right')]});assert.equal(f.native.size,count+1);assert.equal(f.store.attempt('run','right')!.nativeId,null);assert.equal(f.store.attempt('run','right')!.state,'stopped');assert.equal(f.store.get('run')!.active,0);
+});
+
+for(const concurrency of [1,2])test(`PR7 repair preparation failure releases every proven unlaunched reservation at concurrency ${concurrency}`,async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency}});await waveNodes(f);
+ const blocked=join(f.state,'runs/run/workspace/candidates/right');await mkdir(blocked,{recursive:true});await writeFile(join(blocked,'retained'),'obstruction');
+ const payload={waveId:'prepare-failure',candidates:[waveItem('left'),waveItem('right')]},command={...f.store.binding(f.store.get('run')!,'prepare-failure'),payload};
+ await assert.rejects(f.service.invoke('dispatch',command,f.context),/already exists|not empty/);
+ assert.equal(f.native.size,0);assert.equal(f.store.get('run')!.active,0);
+ const p=f.store.projection('run')!;assert.equal(reservedEvaluationCalls(p.attempts as any,p.evaluations as any),0);
+ for(const id of ['left','right']){const a=f.store.attempt('run',id)!;assert.equal(a.state,'stopped');assert.equal(a.nativeId,null);assert.equal(a.nativeDigest,null);}
+ assert.equal(await readFile(join(blocked,'retained'),'utf8'),'obstruction');assert.ok(f.store.get('run')!.material!.candidates.find(c=>c.id==='left'));
+ const replay=await f.service.invoke('dispatch',command,f.context) as any;assert.equal(replay.status,'blocked');assert.match(replay.reason,/already exists|not empty/);assert.equal(f.native.size,0);
+});
+for(const restoreFails of [false,true])test(`PR7 repair protected freeze rejection still restores settled writer; restore failure ${restoreFails}`,async t=>{
+ const f=await fixture(t,{command:true});await waveNodes(f);const dispatch=f.owner.dispatchMaterial.bind(f.owner);let workerHead='';
+ t.mock.method(f.owner,'dispatchMaterial',async(...args:Parameters<typeof dispatch>)=>{await dispatch(...args);const c=f.store.get('run')!.material!.candidates.find(c=>c.id===args[1])!;await writeFile(join(c.directory,'check'),'PROTECTED WORKER CHANGE');gitText(c.directory,['add','check']);gitText(c.directory,['-c','user.name=worker','-c','user.email=worker@example.invalid','commit','-m','protected']);workerHead=gitText(c.directory,['rev-parse','HEAD']).trim();});
+ let restores=0;const restore=Workspace.prototype.restore;t.mock.method(Workspace.prototype,'restore',async function(this:Workspace,...args:Parameters<typeof restore>){restores++;if(restoreFails)throw new Error('restore probe failure');await restore.apply(this,args);});
+ const payload={nodeId:'left',attemptId:'left'},command={...f.store.binding(f.store.get('run')!,'protected'),payload};
+ await assert.rejects(f.service.invoke('dispatch',command,f.context),/Protected evaluation input/);assert.equal(restores,1);
+ const m=f.store.get('run')!.material!,c=m.candidates.find(c=>c.id==='left')!;assert.equal(c.oid,null);assert.equal(m.incumbent,m.capture.baseline);assert.equal(f.store.get('run')!.active,0);assert.ok(f.store.attempt('run','left')!.nativeDigest);
+ assert.equal(gitText(c.directory,['rev-parse','HEAD']).trim(),restoreFails?workerHead:c.parent);assert.match(gitText(m.capture.repository,['show-ref']),new RegExp(workerHead));
+ const replay=await f.service.invoke('dispatch',command,f.context) as any;assert.equal(replay.status,'blocked');assert.match(replay.reason,/Protected evaluation input/);if(restoreFails)assert.match(replay.reason,/restore probe failure/);
+ assert.deepEqual(await readFile(join(f.cwd,'.git/index')),f.before);assert.equal(f.git('show-ref'),f.refs);
+});
+
+test('PR7 repair adjacent prelaunch admission rejection releases reservations but never lost native replies',async t=>{
+ const f=await fixture(t,{command:true,search:{concurrency:2}});await waveNodes(f);const call=f.owner.call;
+ t.mock.method(f.owner,'call',async(ref:Parameters<typeof call>[0],args:Parameters<typeof call>[1])=>{if(ref==='schema.status')throw new Error('prelaunch admission failed');return call(ref,args);});
+ await assert.rejects(f.invoke('dispatch',{waveId:'admission',candidates:[waveItem('left'),waveItem('right')]}),/prelaunch admission failed/);
+ assert.equal(f.native.size,0);assert.equal(f.store.get('run')!.active,0);assert.ok(['left','right'].every(id=>f.store.attempt('run',id)!.state==='stopped'));
+});
+test('PR7 repair ambiguous spawn keeps reservation, workspace and blocked replay without redispatch',async t=>{
+ const f=await fixture(t,{command:true,workerLoss:true});await waveNodes(f);const payload={nodeId:'left',attemptId:'left'},command={...f.store.binding(f.store.get('run')!,'ambiguous'),payload};
+ await assert.rejects(f.service.invoke('dispatch',command,f.context),/ambiguous|lost/);const count=f.native.size,m=f.store.get('run')!.material!;
+ assert.equal(f.store.get('run')!.active,1);assert.equal(f.store.get('run')!.state,'cleanup_pending');assert.equal(m.candidates[0]!.oid,null);assert.equal(f.store.attempt('run','left')!.nativeDigest,null);
+ assert.notEqual(gitText(m.candidates[0]!.directory,['rev-parse','HEAD']).trim(),m.candidates[0]!.parent);
+ const replay=await f.service.invoke('dispatch',command,f.context) as any;assert.equal(replay.status,'blocked');assert.equal(f.native.size,count);
 });

@@ -22,6 +22,7 @@ export class MaterialJourney {
     try { return await this.#invoke(name, command, payload, context); } finally { this.#busy.delete(command.runId); }
   }
   async #invoke(name: string, command: BoundCommand, payload: Record<string, any>, context: FabricInvocationContext): Promise<Receipt> {
+    const startedAt=Date.now();
     const run = this.store.get(command.runId)!, m = run.material!, workspace = this.workspace(run.id), generation = this.owner.generation;
     if (!m.pending) this.store.check(run, command);
     await workspace.verify(m.capture); context.signal?.throwIfAborted();
@@ -30,22 +31,44 @@ export class MaterialJourney {
     if (name === "dispatch") {
       await this.owner.verifyRoles(run.id);
       context.signal?.throwIfAborted(); if (this.draining) throw new Error("Material generation retired before role admission");
-      const receipt = this.store.research("dispatch", command, payload, generation);
-      const candidate = await workspace.materialize(m.capture, payload.attemptId, m.incumbent);
-      this.store.materialCandidate(this.store.binding(this.store.get(run.id)!, `workspace-${payload.attemptId}`), generation, candidate);
-      let failure: unknown;
-      try { await this.owner.dispatchMaterial(run.id, payload.attemptId, context); }
-      catch (e) { failure = e; }
-      const attempt = this.store.attempt(run.id, payload.attemptId)!;
-      if (attempt.nativeDigest && this.store.get(run.id)!.state !== "cleanup_pending") {
-        try {
-          const frozen = await workspace.freeze(m.capture, candidate);
-          if (!this.draining) this.store.materialCandidate(this.store.binding(this.store.get(run.id)!, `freeze-${payload.attemptId}`), generation, frozen);
-        } catch (e) { failure ??= e; }
-        // Restores worker commits/staging, but refs keep all frozen and partial trees.
-        await workspace.restore(m.capture, candidate);
+      // All awaits precede the final replay check and atomic whole-wave reservation.
+      const replay=this.store.receipt(command,'dispatch',payload);if(replay)return replay;
+      const receipt=this.store.research('dispatch',command,payload,generation);
+      const items: Array<{attemptId:string}>=payload.candidates??[payload],candidates=[];
+      try {
+        for(const item of items){
+          const candidate=await workspace.materialize(m.capture,item.attemptId,m.incumbent);
+          this.store.materialCandidate(this.store.binding(this.store.get(run.id)!,`workspace-${item.attemptId}`),generation,candidate);
+          candidates.push(candidate);
+        }
+      } catch(error) {
+        // Preparation precedes every native launch. Keep partial workspaces and
+        // consumed attempt identities, but release all proven unused credits/slots.
+        const failures:unknown[]=[error];
+        for(const item of items){try{this.store.refuseUnlaunched(run.id,item.attemptId,generation);}catch(e){failures.push(e);}}
+        this.store.failMaterialDispatch(command,payload,generation,failures.map(String));
+        throw new AggregateError(failures,failures.map(String).join('; '));
       }
-      if (failure) throw failure;
+      const preparedAt=Date.now();
+      // One finite owned wave. No continuation callback, idle polling or scheduler.
+      const outcomes:PromiseSettledResult<void>[]=[];
+      if(run.spec.config.search.concurrency===1){for(const candidate of candidates)outcomes.push((await Promise.allSettled([this.owner.dispatchMaterial(run.id,candidate.id,context)]))[0]!);}
+      else outcomes.push(...await Promise.allSettled(candidates.map(candidate=>this.owner.dispatchMaterial(run.id,candidate.id,context))));
+      const settledAt=Date.now();const failures:unknown[]=[];
+      // Collect only after every owned native operation settles. Shared Git and
+      // subsequent measurements/integration remain serial and revision-bound.
+      for(let i=0;i<candidates.length;i++){
+        const candidate=candidates[i]!,outcome=outcomes[i]!,attempt=this.store.attempt(run.id,candidate.id)!;
+        if(outcome.status==='rejected' && (!payload.candidates || !(attempt.nativeDigest&&['failed','stopped','timed_out'].includes(attempt.state))))failures.push(outcome.reason);
+        if(attempt.nativeDigest && this.store.get(run.id)!.state!=='cleanup_pending'){
+          try{const frozen=await workspace.freeze(m.capture,candidate);if(!this.draining)this.store.materialCandidate(this.store.binding(this.store.get(run.id)!,`freeze-${candidate.id}`),generation,frozen);}catch(e){failures.push(e);}
+          // A scope/freeze refusal cannot skip cleanup of this proven settled
+          // writer. Restore retains worker/dirty refs and independently verifies ownership.
+          try{await workspace.restore(m.capture,candidate);}catch(e){failures.push(e);}
+        }
+      }
+      if(!this.draining)this.store.recordWave(run.id,generation,{waveId:payload.waveId??command.commandId,parentIncumbent:m.incumbent,attemptIds:items.map(i=>i.attemptId),startedAt,preparedAt,settledAt,collectedAt:Date.now()});
+      if(failures.length){this.store.failMaterialDispatch(command,payload,generation,failures.map(String));throw new AggregateError(failures,failures.map(String).join('; '));}
       return receipt;
     }
     if (name === "collect") {

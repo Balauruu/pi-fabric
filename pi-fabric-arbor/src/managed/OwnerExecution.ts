@@ -13,7 +13,7 @@ import { executionSpec, nativeOwner, object, proposal, localStop, text, TERMINAL
 import { bindRequest, immutableCopy, EvaluationBindingError } from "../evaluators/trust.js";
 import type { EvaluationRecord, Invocation, NativeEvidence } from "../evaluators/contracts.js";
 import type { MaterialJourney } from '../material/MaterialJourney.js';
-import { ownedArtifactBytes, nativeAdmission, requireNativeAdmission, researchFacts, researchObservation, stopReason, evaluationCapacity } from '../research/policy.js';
+import { ownedArtifactBytes, nativeAdmission, researchFacts, researchObservation, stopReason, evaluationCapacity } from '../research/policy.js';
 const exec = promisify(execFile);
 interface Run {
   journey?: { runId: string; material: MaterialJourney; context: FabricInvocationContext; stop?: string };
@@ -325,7 +325,7 @@ export class OwnerExecution {
       const bytes=run.journey ? await ownedArtifactBytes(store,runId) : 0;
       const reason=run.journey ? stopReason(projection,researchFacts(projection),bytes) : null;
       if(reason){run.journey!.stop=reason;break;}
-      const observation=run.journey ? researchObservation(projection,bytes) : {};
+      const observation=run.journey ? researchObservation(projection,bytes,store.evaluations(runId)) : {};
       const role = await this.#role(runId, "coordinator", run.journey || (projection.artifact_refs as unknown[]).length ? ["strategy", "evidence"] : ["strategy"]);
       this.#admit(run);
       if(await this.#journeyStop(run))break;
@@ -346,10 +346,10 @@ export class OwnerExecution {
       const command: BoundCommand = { runId: proposal.runId, materialId: proposal.materialId, epoch: proposal.epoch, revision: proposal.revision, commandId: proposal.commandId };
       if (run.journey && ['dispatch','collect','evaluate','decide'].includes(proposal.kind)) {
         const fresh=store.projection(runId)!;
-        if(['dispatch','evaluate'].includes(proposal.kind) && researchFacts(fresh).evaluatorCalls+evaluationCapacity(fresh)>current.spec.config.limits.evaluatorCalls){run.journey.stop='evaluator-budget';break;}
+        if(proposal.kind==='evaluate' && researchFacts(fresh).evaluatorCalls+evaluationCapacity(fresh)>current.spec.config.limits.evaluatorCalls){run.journey.stop='evaluator-budget';break;}
         let receipt:Receipt;
         try{receipt=await run.journey.material.invoke(proposal.kind,command,proposal.payload,run.journey.context);}
-        catch(error){const failed=proposal.kind==='dispatch'?store.attempt(runId,proposal.payload.attemptId):undefined;if(failed?.nativeDigest && ['failed','stopped','timed_out'].includes(failed.state) && !['cleanup_pending','interrupted'].includes(store.get(runId)!.state))continue;throw error;}
+        catch(error){const failed=proposal.kind==='dispatch'&&typeof proposal.payload.attemptId==='string'?store.attempt(runId,proposal.payload.attemptId):undefined;if(failed?.nativeDigest && ['failed','stopped','timed_out'].includes(failed.state) && !['cleanup_pending','interrupted'].includes(store.get(runId)!.state))continue;throw error;}
         if(receipt.status==='blocked'){run.journey.stop=`blocked:${receipt.reason}`;break;}
       } else if (proposal.kind === 'dispatch') await this.dispatchResearch(command, proposal.payload);
       else store.research(proposal.kind, command, proposal.payload, this.generation);
@@ -359,17 +359,18 @@ export class OwnerExecution {
   }
   /** PR5 single admitted material invocation. No actor strategy or PR6 autonomous loop. */
   async dispatchMaterial(runId: string, attemptId: string, context: FabricInvocationContext): Promise<void> {
-    this.#admit(); const research = this.research!, saved = research.get(runId)!, candidate = saved.material!.candidates.find(c => c.id === attemptId)!;
+    const research = this.research!, nativeRunId = `material-${runId}-${attemptId}`;
+    try {
+    this.#admit(); const saved = research.get(runId)!, candidate = saved.material!.candidates.find(c => c.id === attemptId)!;
     const attempt = research.attempt(runId, attemptId)!; if (!candidate || attempt.state !== "reserved") throw new Error("Reserved owned candidate required; ambiguous work never redispatched");
     const owner = await this.#owner(context);
-    const nativeRunId = `material-${runId}-${attemptId}`;
     if (this.#runs.has(nativeRunId) || this.store.get(nativeRunId)) throw new Error("Existing material invocation requires reconciliation, not redispatch");
     const spec = executionSpec({ runId: nativeRunId, materialId: saved.spec.source.materialId, cwd: candidate.directory, oid: candidate.parent, policyId: saved.spec.identity, objective: saved.spec.config.objective.description, model: saved.spec.roles.executor.model, maxWaves: 1, concurrency: 1 });
     await this.#verifySnapshot(spec); this.#admit(); context.signal?.throwIfAborted();
     if (object(await this.call("schema.status", {})).mode === "enforce") throw new Error("Native material delegation unavailable in Schema enforce; policy unchanged");
     this.#admit(); context.signal?.throwIfAborted();
     const current = research.authorize(runId, owner, this.generation);
-    if (!["ready", "running"].includes(current.state)) throw new Error("Control superseded material dispatch");
+    if (!["ready", "running"].includes(current.state)) { research.refuseUnlaunched(runId,attemptId,this.generation); return; }
     const binding = this.store.bind({ version: 1, spec, owner, componentId: this.componentId, generation: this.generation, revision: 0, state: "running", dispatches: [], actors: [], workers: [] });
     const run: Run = { binding, research: true, material: { runId, attemptId, cwd: candidate.directory, oid: candidate.parent }, draining: false, ambiguous: false, pending: new Set(), targets: new Map(), stops: new Map() };
     this.#runs.set(nativeRunId, run);
@@ -389,6 +390,14 @@ export class OwnerExecution {
     try { await run.operation; if (binding.state === "cleanup_pending") throw new Error("Material native cleanup remains ambiguous; workspace retained"); if (binding.error) throw new Error(binding.error); } finally {
       if (binding.state === "cleanup_pending") research.settle(runId, this.generation, "cleanup_pending", "material-cleanup-pending", binding.error ?? "Ambiguous native settlement", `material-cleanup-${attemptId}`);
       context.signal?.removeEventListener("abort", abort);
+    }
+  }
+    catch(error) {
+      // A persisted dispatch intent can hide a lost spawn reply. Only absence
+      // of that intent proves admission failed before any native launch.
+      const attempt=research.attempt(runId,attemptId),binding=this.store.get(nativeRunId);
+      if(attempt?.state==='reserved'&&!attempt.nativeId&&!binding?.dispatches.length)research.refuseUnlaunched(runId,attemptId,this.generation);
+      throw error;
     }
   }
   async cancelMaterial(runId: string): Promise<boolean> {
@@ -419,7 +428,13 @@ export class OwnerExecution {
     this.#admit(run);
     const b = run.binding, spec = run.material ? { ...b.spec, runId: run.material.runId, cwd: run.material.cwd, oid: run.material.oid } : b.spec;
     const role = run.research ? await this.#role(spec.runId, "executor", []) : undefined;
-    if(run.material) await requireNativeAdmission(this.research!,spec.runId);
+    if(run.material){
+      const admission=await nativeAdmission(this.research!,spec.runId),p=this.research!.projection(spec.runId)!,facts=researchFacts(p),current=this.research!.get(spec.runId)!;
+      if(admission.reason || !['ready','running'].includes(current.state) || facts.noGain>=current.spec.config.search.stopAfterNoGain || facts.failures>=current.spec.config.search.stopAfterFailures){
+        this.research!.refuseUnlaunched(spec.runId,attemptId!,this.generation);return;
+      }
+      if(this.research!.attempt(spec.runId,attemptId!)!.slotReserved===false)this.research!.claimWaveSlot(spec.runId,attemptId!,this.generation);
+    }
     this.#admit(run);
     const dispatch: Binding["dispatches"][number] = { kind: "agent", name: `arbor-worker-${this.generation}-${b.dispatches.length}` };
     b.dispatches.push(dispatch); this.store.save(b);

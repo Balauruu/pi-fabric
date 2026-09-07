@@ -1,6 +1,6 @@
 # PR6 research implementation evidence
 
-Status: **PR6 independently reviewed scoped gate PASS**. Accepted for the user-authorized scoped commit/push and draft PR #3 evidence comment, subject to explicit reviewed-path staging and final cached-diff checks. PR7 has not started; PR7-PR13 require separate work and acceptance. Historical checkpoints below do not override this gate.
+Status: **PR6 independently reviewed scoped gate PASS**. Accepted for the user-authorized scoped commit/push and draft PR #3 evidence comment, subject to explicit reviewed-path staging and final cached-diff checks. At this independent PR6 gate, PR7 had not started. Subsequent separately authorized PR7 implementation evidence is recorded in [PR7 evidence](pr7-parallel-evidence.md); it does not broaden this historical serial gate. PR8-PR13 still require separate work and acceptance. Historical checkpoints below do not override this gate.
 
 ## Independent Main acceptance ledger
 

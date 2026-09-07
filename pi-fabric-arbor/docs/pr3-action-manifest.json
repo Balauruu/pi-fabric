@@ -786,25 +786,173 @@
             "maxLength": 4096
           },
           "payload": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "nodeId": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 96,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "nodeId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  }
+                },
+                "required": [
+                  "nodeId",
+                  "attemptId"
+                ]
               },
-              "attemptId": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 96,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "candidates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "nodeId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "attemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "selection": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "nodeId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 96,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                            },
+                            "slot": {
+                              "type": "string",
+                              "enum": [
+                                "explore",
+                                "exploit"
+                              ]
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "explore",
+                                "exploit"
+                              ]
+                            },
+                            "fallback": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 128
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            }
+                          },
+                          "required": [
+                            "nodeId",
+                            "slot",
+                            "kind",
+                            "fallback",
+                            "reason"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "nodeId",
+                        "attemptId",
+                        "selection"
+                      ]
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "candidates"
+                ]
               }
-            },
-            "required": [
-              "nodeId",
-              "attemptId"
             ]
           }
         },
@@ -1443,6 +1591,68 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waves": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "waveId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "parentIncumbent": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "attemptIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 96,
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                          },
+                          "maxItems": 2,
+                          "minItems": 1
+                        },
+                        "startedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "preparedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "settledAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "collectedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "waveId",
+                        "parentIncumbent",
+                        "attemptIds",
+                        "startedAt",
+                        "preparedAt",
+                        "settledAt",
+                        "collectedAt"
+                      ]
+                    },
+                    "maxItems": 100,
+                    "minItems": 0
+                  },
                   "generationHistory": {
                     "type": "array",
                     "items": {
@@ -2056,6 +2266,16 @@
                             "type": "object",
                             "additionalProperties": false,
                             "properties": {
+                              "exploreEvery": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100
+                              },
+                              "measurementConcurrency": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1
+                              },
                               "maxDepth": {
                                 "type": "integer",
                                 "minimum": 1,
@@ -2650,6 +2870,16 @@
                             "maxLength": 256
                           },
                           "roleTools.executor": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          },
+                          "search.exploreEvery": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          },
+                          "search.measurementConcurrency": {
                             "type": "string",
                             "minLength": 1,
                             "maxLength": 256
@@ -3355,6 +3585,22 @@
                     },
                     "reviewed": {
                       "type": "boolean"
+                    },
+                    "insightIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "maxItems": 100,
+                      "minItems": 0
+                    },
+                    "insightRevision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000000
                     }
                   },
                   "required": [
@@ -3378,6 +3624,75 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "slotReserved": {
+                      "type": "boolean"
+                    },
+                    "selection": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "nodeId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "slot": {
+                          "type": "string",
+                          "enum": [
+                            "explore",
+                            "exploit"
+                          ]
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "explore",
+                            "exploit"
+                          ]
+                        },
+                        "fallback": {
+                          "oneOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      },
+                      "required": [
+                        "nodeId",
+                        "slot",
+                        "kind",
+                        "fallback",
+                        "reason"
+                      ]
+                    },
+                    "waveId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "parentIncumbent": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "evaluationReservation": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 10000
+                    },
                     "id": {
                       "type": "string",
                       "minLength": 1,
@@ -4576,6 +4891,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -4606,6 +4948,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -5120,6 +5531,16 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "exploreEvery": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "measurementConcurrency": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1
+                  },
                   "maxDepth": {
                     "type": "integer",
                     "minimum": 1,
@@ -5282,6 +5703,68 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waves": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "waveId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "parentIncumbent": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "attemptIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 96,
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                          },
+                          "maxItems": 2,
+                          "minItems": 1
+                        },
+                        "startedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "preparedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "settledAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "collectedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "waveId",
+                        "parentIncumbent",
+                        "attemptIds",
+                        "startedAt",
+                        "preparedAt",
+                        "settledAt",
+                        "collectedAt"
+                      ]
+                    },
+                    "maxItems": 100,
+                    "minItems": 0
+                  },
                   "generationHistory": {
                     "type": "array",
                     "items": {
@@ -5895,6 +6378,16 @@
                             "type": "object",
                             "additionalProperties": false,
                             "properties": {
+                              "exploreEvery": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100
+                              },
+                              "measurementConcurrency": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1
+                              },
                               "maxDepth": {
                                 "type": "integer",
                                 "minimum": 1,
@@ -6489,6 +6982,16 @@
                             "maxLength": 256
                           },
                           "roleTools.executor": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          },
+                          "search.exploreEvery": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          },
+                          "search.measurementConcurrency": {
                             "type": "string",
                             "minLength": 1,
                             "maxLength": 256
@@ -7194,6 +7697,22 @@
                     },
                     "reviewed": {
                       "type": "boolean"
+                    },
+                    "insightIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "maxItems": 100,
+                      "minItems": 0
+                    },
+                    "insightRevision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000000
                     }
                   },
                   "required": [
@@ -7217,6 +7736,75 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "slotReserved": {
+                      "type": "boolean"
+                    },
+                    "selection": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "nodeId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "slot": {
+                          "type": "string",
+                          "enum": [
+                            "explore",
+                            "exploit"
+                          ]
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "explore",
+                            "exploit"
+                          ]
+                        },
+                        "fallback": {
+                          "oneOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      },
+                      "required": [
+                        "nodeId",
+                        "slot",
+                        "kind",
+                        "fallback",
+                        "reason"
+                      ]
+                    },
+                    "waveId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "parentIncumbent": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "evaluationReservation": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 10000
+                    },
                     "id": {
                       "type": "string",
                       "minLength": 1,
@@ -8328,6 +8916,68 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waves": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "waveId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "parentIncumbent": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "attemptIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 96,
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                          },
+                          "maxItems": 2,
+                          "minItems": 1
+                        },
+                        "startedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "preparedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "settledAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "collectedAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "waveId",
+                        "parentIncumbent",
+                        "attemptIds",
+                        "startedAt",
+                        "preparedAt",
+                        "settledAt",
+                        "collectedAt"
+                      ]
+                    },
+                    "maxItems": 100,
+                    "minItems": 0
+                  },
                   "generationHistory": {
                     "type": "array",
                     "items": {
@@ -8941,6 +9591,16 @@
                             "type": "object",
                             "additionalProperties": false,
                             "properties": {
+                              "exploreEvery": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100
+                              },
+                              "measurementConcurrency": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1
+                              },
                               "maxDepth": {
                                 "type": "integer",
                                 "minimum": 1,
@@ -9535,6 +10195,16 @@
                             "maxLength": 256
                           },
                           "roleTools.executor": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          },
+                          "search.exploreEvery": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          },
+                          "search.measurementConcurrency": {
                             "type": "string",
                             "minLength": 1,
                             "maxLength": 256
@@ -10240,6 +10910,22 @@
                     },
                     "reviewed": {
                       "type": "boolean"
+                    },
+                    "insightIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "maxItems": 100,
+                      "minItems": 0
+                    },
+                    "insightRevision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000000
                     }
                   },
                   "required": [
@@ -10263,6 +10949,75 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "slotReserved": {
+                      "type": "boolean"
+                    },
+                    "selection": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "nodeId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "slot": {
+                          "type": "string",
+                          "enum": [
+                            "explore",
+                            "exploit"
+                          ]
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "explore",
+                            "exploit"
+                          ]
+                        },
+                        "fallback": {
+                          "oneOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      },
+                      "required": [
+                        "nodeId",
+                        "slot",
+                        "kind",
+                        "fallback",
+                        "reason"
+                      ]
+                    },
+                    "waveId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "parentIncumbent": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "evaluationReservation": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 10000
+                    },
                     "id": {
                       "type": "string",
                       "minLength": 1,
@@ -11479,6 +12234,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -11509,6 +12291,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -11891,6 +12742,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -11921,6 +12799,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -12355,6 +13302,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -12385,6 +13359,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -12680,25 +13723,173 @@
             "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
           },
           "payload": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "nodeId": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 96,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "nodeId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  }
+                },
+                "required": [
+                  "nodeId",
+                  "attemptId"
+                ]
               },
-              "attemptId": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 96,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "candidates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "nodeId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "attemptId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 96,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                        },
+                        "selection": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "nodeId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 96,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                            },
+                            "slot": {
+                              "type": "string",
+                              "enum": [
+                                "explore",
+                                "exploit"
+                              ]
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "explore",
+                                "exploit"
+                              ]
+                            },
+                            "fallback": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 128
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            }
+                          },
+                          "required": [
+                            "nodeId",
+                            "slot",
+                            "kind",
+                            "fallback",
+                            "reason"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "nodeId",
+                        "attemptId",
+                        "selection"
+                      ]
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "candidates"
+                ]
               }
-            },
-            "required": [
-              "nodeId",
-              "attemptId"
             ]
           }
         },
@@ -12781,6 +13972,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -12811,6 +14029,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -13200,6 +14487,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -13230,6 +14544,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -13640,6 +15023,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -13670,6 +15080,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -14090,6 +15569,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -14120,6 +15626,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -14550,6 +16125,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -14580,6 +16182,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -14962,6 +16633,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -14992,6 +16690,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -15374,6 +17141,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -15404,6 +17198,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,
@@ -15786,6 +17649,33 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "attemptIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 96,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                    },
+                    "maxItems": 2,
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "waveId",
+                  "attemptIds"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
                   "decisionId": {
                     "type": "string",
                     "minLength": 1,
@@ -15816,6 +17706,75 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
+                  "slotReserved": {
+                    "type": "boolean"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nodeId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                      },
+                      "slot": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "explore",
+                          "exploit"
+                        ]
+                      },
+                      "fallback": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "slot",
+                      "kind",
+                      "fallback",
+                      "reason"
+                    ]
+                  },
+                  "waveId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "parentIncumbent": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "evaluationReservation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
                   "id": {
                     "type": "string",
                     "minLength": 1,

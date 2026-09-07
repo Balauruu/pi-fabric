@@ -7,9 +7,12 @@ import type { ResolvedSpec } from "./spec.js";
 import { evaluationSummary, type EvaluationRecord } from "../evaluators/contracts.js";
 import type { MaterialState } from "../material/contracts.js";
 import type { Candidate } from "../material/Workspace.js";
-import { evaluationCapacity } from './policy.js';
+import { evaluationCapacity, reservedEvaluationCalls, researchFacts } from './policy.js';
+import { ancestry, validateNode, validateSelection, type Selection } from './tree.js';
 import { acceptance } from "../material/acceptance.js";
+export interface WaveEvidence { waveId:string; parentIncumbent:string; attemptIds:string[]; startedAt:number; preparedAt:number; settledAt:number; collectedAt:number }
 export interface ResearchRun {
+  waves?: WaveEvidence[];
   generationHistory?: string[];
   roleRevisions?: Array<{ revision: number; commandId: string; bundle: import("../managed/RoleBundle.js").RoleBundleRef; coordinatorId: string; executorId: string }>;
   material?: MaterialState;
@@ -19,7 +22,7 @@ export interface ResearchRun {
   execution: string; error: string | null;
 }
 export interface Receipt { commandId: string; runId: string; revision: number; status: "applied" | "queued" | "blocked"; action: string; reason: string | null; value: unknown }
-export interface Attempt { id: string; nodeId: string; task: string; state: "reserved" | "running" | "completed" | "failed" | "stopped" | "timed_out"; nativeId: string | null; nativeDigest: string | null; evidenceId: string | null; model: string | null; materialId: string; epoch: string; generation: string }
+export interface Attempt { slotReserved?: boolean; selection?: Selection; waveId?: string; parentIncumbent?: string; evaluationReservation?: number; id: string; nodeId: string; task: string; state: "reserved" | "running" | "completed" | "failed" | "stopped" | "timed_out"; nativeId: string | null; nativeDigest: string | null; evidenceId: string | null; model: string | null; materialId: string; epoch: string; generation: string }
 const TABLES = ["nodes", "attempts", "evaluations", "decisions", "operations", "controls", "events", "artifact_refs", "lessons"] as const;
 type Table = typeof TABLES[number];
 /** One fresh domain authority. No v1 reader, participant registry or transcripts.
@@ -121,7 +124,7 @@ export class ResearchStore {
         if (!next || next.requestId !== prior.requestId || (prior.nativeId && prior.nativeId !== next.nativeId) || (prior.native && canonical(prior.native) !== canonical(next.native)) || (prior.state === "ingested" && canonical(prior) !== canonical(next))) throw new Error("Conflicting native invocation or terminal replay");
       }
       const count = this.#rows<EvaluationRecord>(db, "evaluations", run.id).filter(r => r.id !== e.id).reduce((n, r) => n + r.invocations.length, e.invocations.length);
-      if (count > run.spec.config.limits.evaluatorCalls) throw new Error("Evaluator invocation capacity exhausted (including retries/rechecks/feedback/judges)");
+      if (count + reservedEvaluationCalls(this.#rows<Attempt>(db, "attempts", run.id), [...this.#rows<EvaluationRecord>(db, "evaluations", run.id).filter(r => r.id !== e.id), e]) > run.spec.config.limits.evaluatorCalls) throw new Error("Evaluator invocation capacity exhausted (including retries/rechecks/feedback/judges)");
       this.#put(db, "evaluations", run.id, e.id, e); run.revision++;
       this.#put(db, "events", run.id, String(run.revision), { revision: run.revision, type: `evaluation:${e.state}:${e.invocations.at(-1)?.state ?? "frozen"}`, commandId: e.id, status: e.state === "running" ? "queued" : e.state === "completed" ? "applied" : "blocked", reason: e.error });
       this.#save(db, run);
@@ -208,30 +211,41 @@ export class ResearchStore {
     return this.#commit(command, generation, action, payload, (db, run) => {
       const node = (id: string) => this.#row<Record<string, any>>(db, "nodes", run.id, id);
       const evidence = (ids: string[]) => this.#evidence(db, run, ids);
+      const projection = () => ({run, nodes:this.#rows<any>(db,'nodes',run.id), attempts:this.#rows<Attempt>(db,'attempts',run.id), evaluations:this.#rows<EvaluationRecord>(db,'evaluations',run.id), decisions:this.#rows<any>(db,'decisions',run.id)});
       if (action === "propose") {
-        if (node(payload.nodeId)) throw new Error("Node ID already exists");
-        const parent = payload.parentId ? node(payload.parentId) : undefined;
-        if (payload.parentId && (!parent || parent.type !== "direction" || parent.pruned)) throw new Error("Parent must be an eligible direction");
-        const depth = parent ? parent.depth + 1 : 0;
-        if (depth > run.spec.config.search.maxDepth || this.#rows<Record<string, any>>(db, "nodes", run.id).filter(n => n.parentId === payload.parentId).length >= run.spec.config.search.maxChildren) throw new Error("Topology depth/child bound exceeded");
-        if (["direction", "collaborative"].includes(run.spec.config.search.mode) && payload.parentId && parent?.reviewed !== true) throw new Error("Direction expansion requires actual owning-Pi research review");
-        this.#put(db, "nodes", run.id, payload.nodeId, { ...payload, depth, pruned: false, reviewed: false }); return { value: { nodeId: payload.nodeId } };
+        if (run.pendingDecisionId) throw new Error("Pending research review blocks expansion");
+        const depth=validateNode(projection(),payload as any);
+        this.#put(db, "nodes", run.id, payload.nodeId, { ...payload, depth, pruned: false, reviewed: false, insightIds:[], insightRevision:0 }); return { value: { nodeId: payload.nodeId } };
       }
       if (action === "dispatch") {
         if (run.material && (!run.material.baselineEvaluation || this.#row<EvaluationRecord>(db, "evaluations", run.id, run.material.baselineEvaluation)?.validity !== "valid")) throw new Error("Invalid or missing captured baseline blocks candidate dispatch");
-        const selected = node(payload.nodeId);
-        if (!selected || selected.type !== "hypothesis" || selected.pruned) throw new Error("Dispatch requires an eligible hypothesis leaf");
-        if (["direction", "collaborative"].includes(run.spec.config.search.mode)) {
-          const direction = selected.parentId ? node(selected.parentId) : undefined;
-          if (!direction || direction.type !== "direction" || direction.pruned || direction.reviewed !== true) throw new Error("Dispatch requires an approved direction; root hypotheses cannot bypass owning-Pi review");
+        const items=payload.candidates ?? [payload], reserved:Attempt[]=[];
+        if(items.length>2)throw new Error('Wave exceeds bounded capacity');
+        if(run.material && projection().attempts.some(a=>a.waveId===(payload.waveId??command.commandId)))throw new Error('Wave identity already reserved; no duplicate native effects');
+        if(run.material && projection().attempts.some(a=>['reserved','running'].includes(a.state)))throw new Error('Prior wave must settle before another reservation');
+        if(payload.candidates && !run.material)throw new Error('Candidate waves require owned material');
+        for(const item of items){
+          const p=projection(),selected=node(item.nodeId);
+          if (!selected || selected.type !== "hypothesis" || ancestry(p.nodes,item.nodeId).some(n=>n.pruned) || p.nodes.some(n=>n.parentId===item.nodeId)) throw new Error("Dispatch requires an eligible hypothesis leaf");
+          if (["direction", "collaborative"].includes(run.spec.config.search.mode)) {
+            const directions=ancestry(p.nodes,item.nodeId).filter(n=>n.type==='direction');
+            if(!directions.length||directions.some(n=>!n.reviewed))throw new Error("Dispatch requires an approved direction; root hypotheses cannot bypass owning-Pi review");
+          }
+          if (!["ready", "running"].includes(run.state)) throw new Error("Run is not dispatchable");
+          if (p.attempts.some(a => a.id === item.attemptId || a.nodeId === item.nodeId)) throw new Error("Attempt/hypothesis already reserved; no duplicate execution");
+          const usedMs = run.activeMs + (run.activeSince === null ? 0 : Date.now() - run.activeSince);
+          if (run.attemptsUsed >= run.spec.config.limits.attempts || (reserved.length < run.spec.config.search.concurrency && run.active >= run.spec.config.search.concurrency) || usedMs >= run.spec.config.limits.activeMs) throw new Error("Attempt/capacity/active-time budget exhausted");
+          const selection=run.spec.config.execution==='research'?validateSelection(p,item.nodeId,item.selection):undefined;
+          const evaluationReservation=run.material?evaluationCapacity(p):0;
+          const used=p.evaluations.reduce((n,e)=>n+e.invocations.length,0)+reservedEvaluationCalls(p.attempts,p.evaluations);
+          if(used+evaluationReservation>run.spec.config.limits.evaluatorCalls)throw new Error('Evaluator invocation capacity exhausted at wave reservation');
+          if(run.material && researchFacts(p).noGain>=run.spec.config.search.stopAfterNoGain)throw new Error('Search convergence stops selection');
+          const attempt: Attempt = { id: item.attemptId, nodeId: item.nodeId, task: selected.rationale, state: "reserved", nativeId: null, nativeDigest: null, evidenceId: null, model: run.spec.roles.executor.model, materialId: run.spec.source.materialId, epoch: run.epoch, generation,
+            ...(selection?{selection}:{}),...(run.material?{slotReserved:reserved.length<run.spec.config.search.concurrency,evaluationReservation,parentIncumbent:run.material.incumbent,waveId:payload.waveId??command.commandId}:{}) };
+          run.attemptsUsed++; if(attempt.slotReserved!==false)run.active++; run.activeSince ??= Date.now(); run.state = "running";
+          this.#put(db, "attempts", run.id, attempt.id, attempt);reserved.push(attempt);
         }
-        if (!["ready", "running"].includes(run.state)) throw new Error("Run is not dispatchable");
-        if (this.#rows<Attempt>(db, "attempts", run.id).some(a => a.id === payload.attemptId || a.nodeId === payload.nodeId)) throw new Error("Attempt/hypothesis already reserved; no duplicate execution");
-        const usedMs = run.activeMs + (run.activeSince === null ? 0 : Date.now() - run.activeSince);
-        if (run.attemptsUsed >= run.spec.config.limits.attempts || run.active >= run.spec.config.search.concurrency || usedMs >= run.spec.config.limits.activeMs) throw new Error("Attempt/capacity/active-time budget exhausted");
-        const attempt: Attempt = { id: payload.attemptId, nodeId: payload.nodeId, task: selected.rationale, state: "reserved", nativeId: null, nativeDigest: null, evidenceId: null, model: run.spec.roles.executor.model, materialId: run.spec.source.materialId, epoch: run.epoch, generation };
-        run.attemptsUsed++; run.active++; run.activeSince ??= Date.now(); run.state = "running";
-        this.#put(db, "attempts", run.id, attempt.id, attempt); return { value: attempt };
+        return {value:payload.candidates?{waveId:payload.waveId,attemptIds:reserved.map(a=>a.id)}:reserved[0]};
       }
       if (action === "collect") {
         const attempt = this.#row<Attempt>(db, "attempts", run.id, payload.attemptId);
@@ -242,6 +256,20 @@ export class ResearchStore {
       if (action === "distill") {
         if (!node(payload.nodeId) || !evidence(payload.evidenceIds)) throw new Error("Insight needs existing node and owner-ingested evidence");
         if (this.#row(db, "lessons", run.id, payload.lessonId)) throw new Error("Lesson ID already exists");
+        const nodes=this.#rows<any>(db,'nodes',run.id);
+        for(const evidenceId of payload.evidenceIds){
+          const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,evidenceId),ref=this.#row<any>(db,'artifact_refs',run.id,evidenceId);
+          const a=this.#row<Attempt>(db,'attempts',run.id,e?.attemptId??ref?.attemptId??'');
+          if(!a||!ancestry(nodes,a.nodeId).some(n=>n.nodeId===payload.nodeId))throw new Error('Insight evidence must belong to this node or a descendant');
+        }
+        // Append evidence-linked interpretations to the current ancestor revisions;
+        // never replace a stale actor-supplied aggregate and lose sibling insights.
+        const ancestors=ancestry(nodes,payload.nodeId).map(ancestor=>node(ancestor.nodeId)!);
+        if(ancestors.some(current=>(current.insightIds?.length??0)>=100))throw new Error('Ancestor insight capacity exhausted; no lesson or revision written');
+        for(const current of ancestors){
+          current.insightIds=[...(current.insightIds??[]),payload.lessonId];current.insightRevision=run.revision+1;
+          this.#put(db,'nodes',run.id,current.nodeId,current);
+        }
         this.#put(db, "lessons", run.id, payload.lessonId, { ...payload, validation: "unscored-observation" }); return { value: { lessonId: payload.lessonId } };
       }
       if (!evidence(payload.evidenceIds) || (payload.nodeId && !node(payload.nodeId))) throw new Error("Decision references missing node/evidence");
@@ -263,7 +291,7 @@ export class ResearchStore {
   validateProposal(value: unknown, runId: string): Proposal {
     validate(ACTOR_PROPOSAL_SCHEMA, value); const proposal = value as Proposal, run = this.get(runId)!;
     this.check(run, proposal);
-    if (proposal.estimatedBudget.attempts !== (proposal.kind === "dispatch" ? 1 : 0) || proposal.estimatedBudget.evaluatorCalls !== (proposal.kind === 'evaluate' ? run.spec.config.execution==='research' ? evaluationCapacity(this.projection(runId)!) : 1 : 0)) throw new Error("Proposal budget estimate does not match action");
+    if (proposal.estimatedBudget.attempts !== (proposal.kind === "dispatch" ? proposal.payload.candidates?.length ?? 1 : 0) || proposal.estimatedBudget.evaluatorCalls !== (proposal.kind === 'evaluate' ? run.spec.config.execution==='research' ? evaluationCapacity(this.projection(runId)!) : 1 : 0)) throw new Error("Proposal budget estimate does not match action");
     if (!this.#read(db => this.#evidence(db, run, proposal.expectedEvidence), false)) throw new Error("Proposal expects invalid or unknown native evidence");
     return structuredClone(proposal);
   }
@@ -291,7 +319,7 @@ export class ResearchStore {
       if (terminal) {
         attempt.state = result.status!; attempt.nativeDigest = nativeDigest; attempt.evidenceId = `evidence-${digest(attemptId).slice(0, 32)}`;
         this.#artifact(db, runId, attempt.evidenceId, { id: attempt.evidenceId, kind: "native-evidence", attemptId, generation, nativeId: result.id, materialId: attempt.materialId, epoch: attempt.epoch, status: result.status, digest: nativeDigest, summary: (result.summary ?? "").slice(0, 1024), validation: "unscored-native-observation" });
-        current.active--; if (current.active < 0) throw new Error("Capacity underflow");
+        if(attempt.slotReserved!==false)current.active--; if(attempt.slotReserved!==undefined)attempt.slotReserved=false; if (current.active < 0) throw new Error("Capacity underflow");
       } else { attempt.state = "running"; }
       this.#put(db, "attempts", runId, attemptId, attempt); return { value: attempt };
     });
@@ -356,6 +384,33 @@ export class ResearchStore {
     return this.#commit(command, generation, "reviseRoles", {}, (_db, run) => {
       if (run.state !== "paused" || run.active || run.pendingDecisionId || run.material?.pending || (run.roleRevisions?.length ?? 0) >= 16) throw new Error("Role revision requires quiescent paused owner with no pending review/integration");
       run.roleRevisions = [...(run.roleRevisions ?? []), { ...revision, revision: run.revision + 1, commandId: command.commandId }]; return {};
+    });
+  }
+  recordWave(runId:string,generation:string,wave:WaveEvidence):void {
+    this.#commit(this.binding(this.get(runId)!,`wave-${digest(wave.waveId).slice(0,32)}`),generation,'wave-settled',wave,(_db,run)=>{run.waves=[...(run.waves??[]),wave];return {};});
+  }
+  claimWaveSlot(runId:string,attemptId:string,generation:string):void {
+    this.#commit(this.binding(this.get(runId)!,`slot-${digest(attemptId).slice(0,32)}`),generation,'wave-slot',{attemptId},(db,run)=>{
+      const a=this.#row<Attempt>(db,'attempts',runId,attemptId);
+      if(!a||a.state!=='reserved'||a.nativeId||a.slotReserved!==false||!['ready','running'].includes(run.state)||run.active>=run.spec.config.search.concurrency)throw new Error('Reserved wave slot not admissible');
+      a.slotReserved=true;run.active++;this.#put(db,'attempts',runId,attemptId,a);return {};
+    });
+  }
+  refuseUnlaunched(runId:string,attemptId:string,generation:string):void {
+    this.#commit(this.binding(this.get(runId)!,`unlaunched-${digest(attemptId).slice(0,32)}`),generation,'dispatch-refused',{attemptId},(db,run)=>{
+      const a=this.#row<Attempt>(db,'attempts',runId,attemptId);if(!a||a.state!=='reserved'||a.nativeId)throw new Error('Only proven unlaunched reservation can release capacity');
+      a.state='stopped';if(a.slotReserved!==false)run.active--;if(a.slotReserved!==undefined)a.slotReserved=false;this.#put(db,'attempts',runId,attemptId,a);return {};
+    });
+  }
+  /** Finalize a failed admitted command without ever replaying its effects. */
+  failMaterialDispatch(command: BoundCommand, payload: unknown, generation: string, errors: string[]): Receipt {
+    const reason=errors.join('; ');
+    return this.#commit(this.binding(this.get(command.runId)!,`dispatch-failure-${digest(command.commandId).slice(0,32)}`),generation,'material-dispatch-failed',{commandId:command.commandId,errors},(db,run)=>{
+      const saved=this.#row<{hash:string;receipt:Receipt}>(db,'operations',run.id,command.commandId);
+      if(!saved||saved.hash!==digest({command,action:'dispatch',payload}))throw new Error('Exact admitted dispatch receipt required');
+      saved.receipt={...saved.receipt,revision:run.revision+1,status:'blocked',reason};
+      this.#put(db,'operations',run.id,command.commandId,saved);run.error=reason;
+      return {status:'blocked',reason,value:{commandId:command.commandId,errors}};
     });
   }
   materialCandidate(command: BoundCommand, generation: string, candidate: Candidate): void {

@@ -4,6 +4,7 @@ import { canonical } from './contracts.js';
 import type { ResearchStore } from './ResearchStore.js';
 import type { EvaluationRecord } from '../evaluators/contracts.js';
 import { units } from '../evaluators/measurement.js';
+import { selectionOptions, rankEvaluations } from './tree.js';
 /** Bounded factual projection, not a hypothesis chooser. Full evidence remains in the store. */
 export function researchFacts(p: Record<string, any>) {
  let noGain=0, failedChecks=0, failures=0;
@@ -13,12 +14,20 @@ export function researchFacts(p: Record<string, any>) {
   // A decision pins its exact evidence forever. Equal trees do not identify attempts.
   const e=d ? p.evaluations.find((e:any)=>e.attemptId===a.id && d.evidenceIds.includes(e.id)) : p.evaluations.filter((e:any)=>e.attemptId===a.id).at(-1);
   const outcome=d?.status==='measured-keep'?'kept':!e || e.state!=='completed'?'infrastructure-failure':e.validity!=='valid'?'failed-check':d?'valid-no-gain':'awaiting-decision';
-  if(d || ['failed','stopped','timed_out'].includes(a.state)) {
-   if(outcome==='kept'){noGain=0;failures=0;} else if(outcome==='valid-no-gain'){noGain++;failures=0;} else if(outcome==='failed-check'){failedChecks++;failures=0;} else failures++;
-  }
   return {attemptId:a.id,nodeId:a.nodeId,materialId:e?.candidateOid??c?.oid??null,evaluationId:e?.id??null,comparedIncumbent:e?.baselineOid??null,outcome,decided:!!d};
  });
- return {noGain,failedChecks,failures,shiftRequired:noGain>=p.run.spec.config.search.shiftAfterNoGain,outcomes, evaluatorCalls:p.evaluations.reduce((n:number,e:any)=>n+(e.invocationCount??e.invocations.length),0)};
+ // Decision commits are serialized; sibling reservation/completion order must
+ // not move a measured-keep reset past a subsequently discarded comparison.
+ const order=(o:typeof outcomes[number])=>{const index=p.decisions.findLastIndex((d:any)=>d.nodeId===o.nodeId&&['keep','discard'].includes(d.decision)&&['measured-keep','applied'].includes(d.status));return index<0?p.decisions.length+outcomes.indexOf(o):index;};
+ let lastComparedNodeId:string|null=null;
+ for(const o of [...outcomes].sort((a,b)=>order(a)-order(b))){
+  const a=p.attempts.find((a:any)=>a.id===o.attemptId);
+  if(!o.decided&&!['failed','stopped','timed_out'].includes(a.state))continue;
+  if(o.outcome==='kept'){noGain=0;failures=0;lastComparedNodeId=o.nodeId;}
+  else if(o.outcome==='valid-no-gain'){noGain++;failures=0;lastComparedNodeId=o.nodeId;}
+  else if(o.outcome==='failed-check'){failedChecks++;failures=0;}else failures++;
+ }
+ return {noGain,failedChecks,failures,lastComparedNodeId,shiftRequired:noGain>=p.run.spec.config.search.shiftAfterNoGain,outcomes, evaluatorCalls:p.evaluations.reduce((n:number,e:any)=>n+(e.invocationCount??e.invocations.length),0)};
 }
 export function evaluationCapacity(p: Record<string, any>): number {
  const d=p.run.spec.evaluation; return d ? 2*d.tasks.length*d.repeats*(d.retries+1)*(d.judge?2:1) : 1;
@@ -39,12 +48,13 @@ export function stopReason(p: Record<string, any>, facts: ReturnType<typeof rese
  if(facts.evaluatorCalls+evaluationCapacity(p)>l.evaluatorCalls)return 'evaluator-budget';
  return null;
 }
-export function researchObservation(p: Record<string, any>, bytes: number) {
- const facts=researchFacts(p), r=p.run;
+export function researchObservation(p: Record<string, any>, bytes: number, records: EvaluationRecord[] = []) {
+ const facts=researchFacts(p), r=p.run,selection=selectionOptions(p);
+ const selectionAfter=Object.fromEntries(selection.eligible.map(first=>[first.nodeId,selectionOptions({...p,run:{...r,attemptsUsed:r.attemptsUsed+1},attempts:[...p.attempts,{id:'reserved-observation',nodeId:first.nodeId,state:'reserved'}]})]));
  const recent=facts.outcomes.slice(-8), relevant=new Set(recent.map(o=>o.nodeId));
  const nodes=p.nodes.filter((n:any)=>!n.pruned).slice(-16);
  for(const n of nodes){relevant.add(n.nodeId);if(n.parentId)relevant.add(n.parentId);}
- return {research:true,currentIncumbent:r.material.incumbent,frontier:nodes, nodes, attempts:p.attempts.slice(-8), recentFacts:recent,
+ return {research:true, selection, selectionAfter, rankings:rankEvaluations(records.filter(e=>e.attemptId),r.spec.config.objective.direction).map(e=>({evaluationId:e.id,attemptId:e.attemptId})), concurrency:r.spec.config.search.concurrency, currentIncumbent:r.material.incumbent,frontier:nodes, nodes, attempts:p.attempts.slice(-8), recentFacts:recent,
   evidence:p.evaluations.slice(-8).map((e:any)=>({id:e.id,baselineOid:e.baselineOid,candidateOid:e.candidateOid,state:e.state,validity:e.validity,quality:e.quality,analysis:e.analysis,invocationIds:e.invocations.map((i:any)=>i.id).slice(-32)})),
   nativeEvidence:(p.artifact_refs??[]).filter((e:any)=>e.kind==='native-evidence').slice(-8), decisions:p.decisions.slice(-12),ancestors:p.lessons.filter((l:any)=>relevant.has(l.nodeId)).slice(-8),controls:p.controls.slice(-8),steering:r.steering,
   facts, budgets:{attempts:r.spec.config.limits.attempts-r.attemptsUsed,evaluatorCalls:r.spec.config.limits.evaluatorCalls-facts.evaluatorCalls,evaluationCapacity:evaluationCapacity(p),artifactBytes:r.spec.config.limits.artifactBytes-bytes,activeMs:r.spec.config.limits.activeMs-r.activeMs-(r.activeSince===null?0:Date.now()-r.activeSince),tokens:'observational; unavailable aggregate',cost:'observational; unavailable aggregate'},
@@ -82,4 +92,15 @@ export async function nativeAdmission(store: ResearchStore, runId: string, pendi
 }
 export async function requireNativeAdmission(store: ResearchStore, runId: string, pending?: EvaluationRecord): Promise<void> {
  const {reason}=await nativeAdmission(store,runId,pending);if(reason)throw new NativeAdmissionError(reason);
+}
+
+/** Unconsumed wave credits cannot be borrowed by unrelated evaluations. Failed
+ * workers release prospective evaluation capacity, never already used calls. */
+export function reservedEvaluationCalls(attempts:Array<{id:string;state:string;evaluationReservation?:number}>, evaluations:Array<{attemptId?:string|null;invocations:unknown[];state:string}>):number {
+ return attempts.reduce((sum,a)=>{
+  if(['failed','stopped','timed_out'].includes(a.state))return sum;
+  const own=evaluations.filter(e=>e.attemptId===a.id);
+  if(own.some(e=>e.state==='completed'))return sum;
+  return sum+Math.max(0,(a.evaluationReservation??0)-own.reduce((n,e)=>n+e.invocations.length,0));
+ },0);
 }
