@@ -122,15 +122,15 @@ Runtime discovery takes precedence over documentation examples. If a required ar
 
 ### B. One direct retrieval action with a persisted receipt
 
-**Use:** multi-step direct research or Main's gap-specific verification. Prepend the shared packet helpers defined below. **Inputs:** `run`; `request` JSON `{kind: "search"|"fetch"|"passage", query?, queries?, url?, responseId?, findText?}`. **Output:** compact leads/passages, actual tool details and receipt path, never an automatic supported-claim label. **Next:** inspect the returned source text; fetch a search lead, expand decisive support, or stop and answer a narrow lookup. Reinvoke only for an evidence gap, with a new named request.
+**Use:** multi-step direct research or Main's gap-specific verification. Prepend the shared packet helpers defined below. **Inputs:** `run`; `request` JSON `{kind: "search"|"fetch"|"passage"|"source_check", query?, queries?, url?, responseId?, findText?, claim?, numResults?, fetchContent?}`. **Output:** compact leads/passages, actual tool details and receipt path, never an automatic supported-claim label. **Next:** inspect the returned source text; fetch a search lead, expand decisive support, or stop and answer a narrow lookup. Reinvoke only for an evidence gap, with a new named request.
 
-Example sequence: search `site:sqlite.org WAL network filesystem`; fetch the returned `https://www.sqlite.org/wal.html`; request a passage using the **actual Main fetch responseId** and `findText: "network filesystem"`. For substantive search use `queries` with 2–4 distinct angles, not synonyms. Known original URLs may go straight to fetch. Reuse support already visible instead of making a redundant passage call.
+Example sequence: search `site:sqlite.org WAL network filesystem`; fetch the returned `https://www.sqlite.org/wal.html`; request a passage using the **actual Main fetch responseId** and `findText: "network filesystem"`. For claim checking, use `kind: "source_check"` with `claim` and optional `queries`; `fetchContent` defaults to true so the artifact can retain passages. For substantive search use `queries` with 2–4 distinct angles, not synonyms. Known original URLs may go straight to fetch. Reuse support already visible instead of making a redundant passage call.
 
 ```ts
 const run = π.run;
 const s = await loadJSON(`${run}/ledger.json`);
 const q = JSON.parse(π.request);
-const names = {search: "web_search", fetch: "fetch_content", passage: "get_search_content"};
+const names = {search: "web_search", fetch: "fetch_content", passage: "get_search_content", source_check: "source_check"};
 const name = names[q.kind];
 if (!name) throw new Error("Unknown retrieval kind");
 if (!s.profileOK || s.missing.includes(`extensions.${name}`)) return {status: "blocked", reason: "Profile/capability preflight"};
@@ -138,28 +138,43 @@ if (Date.now() >= s.deadline || s.directCalls.length >= s.plan.limits.mainRetrie
 const path = `${run}/direct-${s.directCalls.length + 1}.json`;
 s.directCalls.push({path, request: q, status: "attempted"});
 await saveJSON(`${run}/ledger.json`, s);
+let r;
 try {
-  const r = q.kind === "search"
+  r = q.kind === "search"
     ? await extensions.web_search({...(q.queries ? {queries: q.queries} : {query: q.query}), numResults: 5, workflow: "none"})
     : q.kind === "fetch"
       ? await extensions.fetch_content({url: q.url})
-      : await extensions.get_search_content({responseId: q.responseId, url: q.url, findText: q.findText, findMode: "exact"});
-  const d = (r.details && typeof r.details === "object" ? r.details : {}) as Record<string, unknown>;
-  const retrieved = !r.isError && !d.error && (q.kind === "search"
-    ? typeof d.successfulQueries === "number" && d.successfulQueries > 0
-    : q.kind === "fetch" ? d.successful === 1 : typeof d.matchCount === "number" && d.matchCount > 0);
-  await saveJSON(path, {request: q, retrieved, result: {isError: r.isError, details: d, text: r.text}});
-  s.directCalls[s.directCalls.length - 1].status = retrieved ? "retrieved" : "gap";
-  await saveJSON(`${run}/ledger.json`, s);
-  const handle = d.responseId ?? d.searchId;
-  return {path, retrieved, responseId: typeof handle === "string" && handle.length <= 256 ? handle : null, error: String(d.error ?? "").slice(0,600), excerpt: r.text.slice(0,6000), clipped: r.text.length > 6000, next: "Main checks relevance, exact support and omitted context; full details remain in receipt"};
+      : q.kind === "passage"
+        ? await extensions.get_search_content({responseId: q.responseId, url: q.url, findText: q.findText, findMode: "exact"})
+        : await extensions.source_check({claim: q.claim, ...(q.queries ? {queries: q.queries} : {}),
+            ...(q.numResults ? {numResults: q.numResults} : {}), fetchContent: q.fetchContent ?? true});
 } catch (error) {
   const failure = {path, retrieved: false, error: String(error)};
-  await saveJSON(path, failure);
+  const persistenceErrors = [];
+  try { await saveJSON(path, failure); } catch (writeError) { persistenceErrors.push(`receipt: ${String(writeError)}`); }
   s.directCalls[s.directCalls.length - 1].status = "error";
-  await saveJSON(`${run}/ledger.json`, s);
-  return {...failure, error: failure.error.slice(0,600)};
+  try { await saveJSON(`${run}/ledger.json`, s); } catch (writeError) { persistenceErrors.push(`ledger: ${String(writeError)}`); }
+  return {...failure, error: failure.error.slice(0,600), persistenceError: persistenceErrors.join("; ").slice(0,600)};
 }
+const d = (r.details && typeof r.details === "object" ? r.details : {}) as Record<string, unknown>;
+const retrieved = !r.isError && !d.error && (q.kind === "search"
+  ? typeof d.successfulQueries === "number" && d.successfulQueries > 0
+  : q.kind === "fetch" ? d.successful === 1
+    : q.kind === "passage" ? typeof d.matchCount === "number" && d.matchCount > 0
+      : typeof d.responseId === "string" && d.artifact !== null && typeof d.artifact === "object");
+const receipt = {request: q, retrieved, result: {isError: r.isError, details: d, text: r.text}};
+const persistenceErrors = [];
+try { await saveJSON(path, receipt); } catch (writeError) { persistenceErrors.push(`receipt: ${String(writeError)}`); }
+s.directCalls[s.directCalls.length - 1].status = retrieved ? "retrieved" : "gap";
+if (persistenceErrors.length) s.directCalls[s.directCalls.length - 1].persistenceError = persistenceErrors.join("; ").slice(0,600);
+try { await saveJSON(`${run}/ledger.json`, s); } catch (writeError) { persistenceErrors.push(`ledger: ${String(writeError)}`); }
+const handle = d.responseId ?? d.searchId;
+return {path, retrieved, responseId: typeof handle === "string" && handle.length <= 256 ? handle : null,
+  error: String(d.error ?? "").slice(0,600), persistenceError: persistenceErrors.join("; ").slice(0,600),
+  excerpt: r.text.slice(0,6000), clipped: r.text.length > 6000,
+  next: persistenceErrors.length
+    ? "Retrieval completed but persistence is incomplete; inspect the returned evidence and host trace before any retry"
+    : "Main checks relevance, exact support and omitted context; full details remain in receipt"};
 ```
 
 A successful search with zero results is successful retrieval of empty coverage, not absence of evidence everywhere. A matching phrase is not entailment. Preserve table headers, units and nearby qualifications before reducing output. `source_check` is an optional claim-checking aid after effective discovery; inspect its artifact and original supporting passages, not its verdict alone.
@@ -332,18 +347,50 @@ const run = π.run;
 const s = await loadJSON(`${run}/ledger.json`);
 const review = JSON.parse(π.review);
 const rows = review.rows;
+if (!Array.isArray(rows) || !Array.isArray(review.checks) || !Array.isArray(review.coverage)) throw new Error("Review rows, checks and coverage must be arrays");
+const rowSchema = JSON.parse(await pi.read(`${s.skill}/references/evidence.schema.json`)).properties.rows.items;
+const object = (x: any) => x !== null && typeof x === "object" && !Array.isArray(x);
+function assertSchema(value: any, spec: any, at: string): void {
+  if (spec.enum && !spec.enum.includes(value)) throw new Error(`${at} is outside the canonical enum`);
+  if (spec.type === "object") {
+    if (!object(value)) throw new Error(`${at} must be an object`);
+    for (const key of spec.required ?? []) if (!(key in value)) throw new Error(`${at}.${key} is required`);
+    if (spec.additionalProperties === false) for (const key of Object.keys(value)) if (!(key in (spec.properties ?? {}))) throw new Error(`${at}.${key} is not canonical`);
+    for (const [key, child] of Object.entries(spec.properties ?? {})) if (key in value) assertSchema(value[key], child, `${at}.${key}`);
+    return;
+  }
+  if (spec.type === "array") {
+    if (!Array.isArray(value)) throw new Error(`${at} must be an array`);
+    for (let i = 0; i < value.length; i++) assertSchema(value[i], spec.items, `${at}[${i}]`);
+    return;
+  }
+  if (spec.type === "string") {
+    if (typeof value !== "string") throw new Error(`${at} must be a string`);
+    if (spec.minLength !== undefined && value.length < spec.minLength) throw new Error(`${at} is too short`);
+    if (spec.pattern && !(new RegExp(spec.pattern)).test(value)) throw new Error(`${at} does not match the canonical pattern`);
+    return;
+  }
+  if (spec.type === "boolean" && typeof value !== "boolean") throw new Error(`${at} must be a boolean`);
+}
+for (let i = 0; i < rows.length; i++) {
+  assertSchema(rows[i], rowSchema, `rows[${i}]`);
+  if (!rows[i].id || !s.plan.slots.includes(rows[i].slot)) throw new Error(`Evidence row ${rows[i].id || i} needs a nonempty ID and known slot`);
+}
 if (new Set(rows.map(r => r.id)).size !== rows.length) throw new Error("Duplicate evidence IDs");
 if (review.coverage.length !== s.plan.slots.length || new Set(review.coverage.map(c => c.slot)).size !== s.plan.slots.length || review.coverage.some(c => !s.plan.slots.includes(c.slot))) throw new Error("Account for every required slot exactly once");
 for (const c of review.coverage) {
-  if (!["supported", "gap", "blocked"].includes(c.status) || !c.reason) throw new Error("Coverage needs a disposition and reason");
+  if (!object(c) || typeof c.slot !== "string" || !Array.isArray(c.rowIds) || c.rowIds.some(id => typeof id !== "string") || !["supported", "gap", "blocked"].includes(c.status) || typeof c.reason !== "string" || !c.reason.trim()) throw new Error("Coverage needs a canonical slot, row IDs, disposition and reason");
   for (const id of c.rowIds) if (!rows.some(r => r.id === id && r.slot === c.slot)) throw new Error("Coverage references missing/wrong-slot evidence");
   if (c.status === "supported" && !c.rowIds.length) throw new Error("Supported slot needs evidence");
 }
+const coveredRowIds = review.coverage.flatMap(c => c.rowIds);
+if (coveredRowIds.length !== rows.length || new Set(coveredRowIds).size !== rows.length || rows.some(r => !coveredRowIds.includes(r.id))) throw new Error("Every retained evidence row must appear in coverage exactly once");
+if (review.checks.length !== rows.length || new Set(review.checks.map(c => c.rowId)).size !== rows.length) throw new Error("Every retained evidence row needs exactly one check");
 for (const r of rows) {
   const check = review.checks.find(c => c.rowId === r.id);
-  if (!check?.supported || !check.witness || !check.reason || !r.support.length || !["retain", "qualify"].includes(r.disposition)) throw new Error(`Unverified final evidence: ${r.id}`);
+  if (!object(check) || check.supported !== true || typeof check.witness !== "string" || !check.witness.trim() || typeof check.reason !== "string" || !check.reason.trim() || !r.support.length || !["retain", "qualify"].includes(r.disposition)) throw new Error(`Unverified final evidence: ${r.id}`);
 }
-if (!review.stopReason) throw new Error("Actual stop reason required");
+if (typeof review.stopReason !== "string" || !review.stopReason.trim()) throw new Error("Actual stop reason required");
 const incomplete = s.plan.assignments.filter(a => !s.outcomes.some(o => o.assignment === a.id));
 const confirmed = s.launches.filter(x => x.id).length;
 const indeterminate = s.launches.filter(x => !x.id).length;
@@ -375,7 +422,7 @@ return {
 };
 ```
 
-The code verifies accounting structure; **Main supplies the semantic support/method judgments**. A full-evidence answer can coexist with an execution failure repaired directly: report both, never relabel the failed worker completed. Unsupported/unknown claims belong in gap accounting, not the retained evidence array. An unfinished assignment must be explicitly reported, even if another source answered its slot.
+The code verifies canonical row shape and accounting structure; **Main supplies the semantic support/method judgments**. A full-evidence answer can coexist with an execution failure repaired directly: report both, never relabel the failed worker completed. Unsupported/unknown claims belong in gap accounting, not the retained evidence array. An unfinished assignment must be explicitly reported, even if another source answered its slot.
 
 Main synthesizes, never concatenates worker reports. Every material external claim needs a direct supporting URL inline or a clearly mapped source ID in the final answer; an internal ledger is not a citation. Separate documented/measured findings, sourced claims, inference and recommendation. The user's requested structure wins; otherwise answer narrowly, comparatively or decision-grade as needed. Keep unknown cells unknown, explain decision-changing disagreements, applicability and trade-offs. Consequential recommendations include failure/escalation conditions and evidence that would change the action. If unresolved, propose the smallest gap-specific observation/evaluation with fixed variables and an appropriate validator, not invented universal thresholds.
 
