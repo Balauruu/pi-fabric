@@ -9,29 +9,31 @@ import { ResearchService } from "../research/ResearchService.js";
 import { EvaluationEngine } from "../evaluators/EvaluationEngine.js";
 import { EvaluatorCatalog, type CatalogEntry } from "../evaluators/catalog.js";
 
+import {SourceCatalog,type SourceCatalogEntry} from "../research/SourceCatalog.js";
+
 export interface ArborComponentConfig { stateDirectory: string }
 export type EvaluatorDescriptorReader = (ref: string, invocation: FabricInvocationContext) => Promise<FabricActionDescriptor | undefined>;
 export type DiagnosticReader = () => FabricComponentInfo | undefined;
 /** A read-only lifecycle handle is not an operational prepared-provider pointer.
  * The parent stays active when exact owner requirements leave its child waiting.
  */
-export function createArborComponent(observe: (read: DiagnosticReader) => void = () => {}, catalog: readonly CatalogEntry[] = [], describe?: EvaluatorDescriptorReader): FabricComponentDefinition {
+export function createArborComponent(observe: (read: DiagnosticReader) => void = () => {}, catalog: readonly CatalogEntry[] = [], describe?: EvaluatorDescriptorReader, sources: readonly SourceCatalogEntry[] = []): FabricComponentDefinition {
   return {
     name: "arbor", description: "Passive Arbor configuration and owner diagnostics", guarantee: "managed", requires: [], provides: [],
     activate(context, rawConfig) {
       const config = closed(rawConfig, ["stateDirectory"]);
       const stateDirectory = text(config.stateDirectory, "stateDirectory", 4096);
       if (!isAbsolute(stateDirectory)) throw new Error("Arbor stateDirectory must be absolute; use /arbor setup");
-      const child = context.use(createArborOwnerComponent(catalog, describe), { id: "owner", config: { stateDirectory } });
+      const child = context.use(createArborOwnerComponent(catalog, describe, sources), { id: "owner", config: { stateDirectory } });
       observe(() => child.status());
       context.defer(() => observe(() => undefined), "clear owner diagnostics");
     },
   };
 }
-export function createArborOwnerComponent(catalog: readonly CatalogEntry[] = [], describe?: EvaluatorDescriptorReader): FabricComponentDefinition<ArborComponentConfig> {
+export function createArborOwnerComponent(catalog: readonly CatalogEntry[] = [], describe?: EvaluatorDescriptorReader, sources: readonly SourceCatalogEntry[] = []): FabricComponentDefinition<ArborComponentConfig> {
   return {
     name: "arbor.owner", description: "Managed native owner execution adapter", guarantee: "managed",
-    requires: [...ARBOR_OWNER_REFS, ...catalog.map(entry => ({ ref: entry.ref, optional: true }))], provides: ["arbor"],
+    requires: [...ARBOR_OWNER_REFS, ...[...new Set([...catalog.map(entry=>entry.ref),...sources.flatMap(entry=>[entry.search.ref,entry.fetch.ref])])].map(ref=>({ref,optional:true}))], provides: ["arbor"],
     activate(context, config) {
       const generation = randomUUID();
       const store = new BindingStore(join(config.stateDirectory, "execution-bindings.sqlite3"));
@@ -45,7 +47,8 @@ export function createArborOwnerComponent(catalog: readonly CatalogEntry[] = [],
         return context.call(ref, args);
       }, describe ? ref => describe(ref, context.invocation) : undefined);
       const engine = new EvaluationEngine(owner, research, config.stateDirectory, evaluators);
-      const service = new ResearchService(owner, research, config.stateDirectory, undefined, engine);
+      const sourceCatalog=new SourceCatalog(sources,context.view,(ref,args)=>{if(!sources.some(e=>e.search.ref===ref||e.fetch.ref===ref))throw new Error("Source ref outside finite configured catalog");return context.call(ref,args);},describe?ref=>describe(ref,context.invocation):undefined);
+      const service = new ResearchService(owner, research, config.stateDirectory, undefined, engine, sourceCatalog);
       // Abort marks draining synchronously; the disposer awaits all owned calls.
       // No lifecycle call, actor readiness wait, Fabric operation or research is
       // performed in activation. The provider is callable only after commit.

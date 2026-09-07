@@ -61,7 +61,8 @@ export function researchObservation(p: Record<string, any>, bytes: number, recor
  const recent=facts.outcomes.slice(-8), relevant=new Set(recent.map(o=>o.nodeId));
  const nodes=p.nodes.filter((n:any)=>!n.pruned).slice(-16);
  for(const n of nodes){relevant.add(n.nodeId);if(n.parentId)relevant.add(n.parentId);}
- return {research:true, interactionMode:r.spec.config.search.mode, selection, selectionAfter, rankings:rankEvaluations(records.filter(e=>splitOf(e)==='development'&&e.attemptId),r.spec.config.objective.direction).map(e=>({evaluationId:e.id,attemptId:e.attemptId})), concurrency:r.spec.config.search.concurrency, currentIncumbent:r.material.incumbent,frontier:nodes, nodes, attempts:p.attempts.slice(-8), recentFacts:recent,
+ const sources=(p.artifact_refs??[]).filter((a:any)=>a.kind==='source-inspection').slice(0,4).map((s:any)=>({id:s.id,reference:{sourceId:s.id,runId:s.runId,revision:s.revision,digest:s.digest},url:s.url,title:s.title,passage:s.passage,claim:s.claim,limitations:s.limitations,validation:s.validation}));
+ return {research:true, grounding:r.grounding??null, sources, interactionMode:r.spec.config.search.mode, selection, selectionAfter, rankings:rankEvaluations(records.filter(e=>splitOf(e)==='development'&&e.attemptId),r.spec.config.objective.direction).map(e=>({evaluationId:e.id,attemptId:e.attemptId})), concurrency:r.spec.config.search.concurrency, currentIncumbent:r.material.incumbent,frontier:nodes, nodes, attempts:p.attempts.slice(-8), recentFacts:recent,
   evidence:p.evaluations.filter((e:any)=>splitOf(e)==='development').slice(-8).map((e:any)=>({id:e.id,baselineOid:e.baselineOid,candidateOid:e.candidateOid,state:e.state,validity:e.validity,quality:e.quality,analysis:e.analysis,invocationIds:e.invocations.map((i:any)=>i.id).slice(-32)})),
   nativeEvidence:(p.artifact_refs??[]).filter((e:any)=>e.kind==='native-evidence').slice(-8), decisions:p.decisions.filter(developmentLinked).slice(-12),ancestors:p.lessons.filter((l:any)=>developmentLinked(l)&&relevant.has(l.nodeId)).slice(-8),controls:p.controls.slice(-8),steering:r.steering,
   facts, budgets:{attempts:r.spec.config.limits.attempts-r.attemptsUsed,evaluatorCalls:r.spec.config.limits.evaluatorCalls-facts.evaluatorCalls,evaluationCapacity:evaluationCapacity(p),artifactBytes:r.spec.config.limits.artifactBytes-bytes,activeMs:r.spec.config.limits.activeMs-r.activeMs-(r.activeSince===null?0:Date.now()-r.activeSince),tokens:'observational; unavailable aggregate',cost:'observational; unavailable aggregate'},
@@ -88,7 +89,8 @@ export async function ownedArtifactBytes(store: ResearchStore, runId: string, pe
  const run=store.get(runId)!, ceiling=run.spec.config.limits.artifactBytes;
  const disk=await artifactBytes(join(dirname(store.path),'runs',runId),ceiling);
  const records=store.evaluations(runId).filter(e=>e.id!==pending?.id);if(pending)records.push(pending);
- return disk+Buffer.byteLength(canonical(records))+Buffer.byteLength(canonical(store.projection(runId)?.artifact_refs ?? []));
+ const projection=store.projection(runId);
+ return disk+Buffer.byteLength(canonical(records))+Buffer.byteLength(canonical(projection?.artifact_refs??[]))+Buffer.byteLength(canonical(projection?.lessons??[]))+Buffer.byteLength(canonical(store.trajectories(runId)));
 }
 export class NativeAdmissionError extends Error {
  constructor(readonly reason: 'artifact-budget'|'active-time-budget'){super(`Native effect admission stopped: ${reason}`);}

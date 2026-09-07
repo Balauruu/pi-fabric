@@ -4,7 +4,7 @@ import { arborPackageRoot } from "../package-layout.js";
 import { array, canonical, closed, digest, enumeration, integer, str, validate } from "../research/contracts.js";
 
 export const ROLE_SENTINEL = "ARBOR_OPERATIONAL_BOOTSTRAP_V1";
-export type OperationalRole = "coordinator" | "executor";
+export type OperationalRole = "coordinator" | "executor" | "literature";
 export type RolePhase = "strategy" | "evidence";
 export interface RoleBundleRef { id: string; directory: string; bytes: number }
 export interface RoleAssembly {
@@ -23,8 +23,9 @@ const ASSETS = [
   ["roles/executor.md", "ARBOR_EXECUTOR_V1"],
   ["references/research-strategy.md", "ARBOR_RESEARCH_STRATEGY_V1"],
   ["references/evidence-interpretation.md", "ARBOR_EVIDENCE_INTERPRETATION_V1"],
+  ["roles/literature.md", "ARBOR_LITERATURE_V1"],
 ] as const;
-const manifestSchema = closed({ version: integer(1, 1), sourceRoot: str(4096), files: array(closed({ path: enumeration(...ASSETS.map(([path]) => path)), digest: str(64), bytes: integer(32768, 1) }), 4, 4) });
+const manifestSchema = closed({ version: integer(1, 1), sourceRoot: str(4096), files: array(closed({ path: enumeration(...ASSETS.map(([path]) => path)), digest: str(64), bytes: integer(32768, 1) }), 5, 4) });
 type Manifest = { version: 1; sourceRoot: string; files: Array<{ path: string; digest: string; bytes: number }> };
 function inside(root: string, path: string): boolean {
   const r = relative(root, path); return !!r && !isAbsolute(r) && r !== ".." && !r.startsWith(`..${sep}`);
@@ -73,7 +74,7 @@ export class RoleBundle {
   }
   async load(reference: RoleBundleRef, role: OperationalRole, phases: RolePhase[]): Promise<RoleAssembly> {
     const ref = structuredClone(reference), selected = [...phases];
-    if (!["coordinator", "executor"].includes(role) || selected.some(p => !["strategy", "evidence"].includes(p)) || new Set(selected).size !== selected.length || (role === "executor" && selected.includes("strategy"))) throw new Error("Incompatible operational role phase");
+    if (!["coordinator", "executor", "literature"].includes(role) || selected.some(p => !["strategy", "evidence"].includes(p)) || new Set(selected).size !== selected.length || (role !== "coordinator" && selected.includes("strategy"))) throw new Error("Incompatible operational role phase");
     const directory = await realpath(ref.directory).catch(error => { throw new Error(`Operational role bundle unavailable: ${String(error)}`); });
     if (directory !== ref.directory || !inside(await destination(resolve(this.directory)), directory)) throw new Error("Operational bundle path identity mismatch");
     const manifestText = await boundedRead(join(directory, "manifest.json")), manifest: Manifest = JSON.parse(manifestText); validate(manifestSchema, manifest);
@@ -83,7 +84,8 @@ export class RoleBundle {
     for (const path of paths) {
       const absolute = join(directory, path), actual = await realpath(absolute).catch(error => { throw new Error(`Operational role unavailable at ${path}: ${String(error)}`); });
       if (actual !== absolute || !inside(directory, actual)) throw new Error(`Operational role path identity mismatch: ${path}`);
-      const text = await boundedRead(absolute), expected = manifest.files.find(f => f.path === path)!;
+      const text = await boundedRead(absolute), expected = manifest.files.find(f => f.path === path);
+      if (!expected) throw new Error(`Operational role unavailable in saved bundle: ${path}`);
       if (digest(text) !== expected.digest || Buffer.byteLength(text) !== expected.bytes) throw new Error(`Operational role content identity mismatch: ${path}`);
       compatible(path, text); sources.push({ path: absolute, digest: expected.digest });
       parts.push(`Loaded procedure: ${absolute}\n${text.replaceAll("<role-bundle>", directory)}`);

@@ -14,8 +14,10 @@ import { bindRequest, immutableCopy, EvaluationBindingError } from "../evaluator
 import type { EvaluationRecord, Invocation, NativeEvidence } from "../evaluators/contracts.js";
 import type { MaterialJourney } from '../material/MaterialJourney.js';
 import { ownedArtifactBytes, nativeAdmission, researchFacts, researchObservation, stopReason, evaluationCapacity } from '../research/policy.js';
+import { literatureResultSchema } from "../research/GroundingContracts.js";
 const exec = promisify(execFile);
 interface Run {
+  literature?: {runId:string;batchId:string};
   journey?: { runId: string; material: MaterialJourney; context: FabricInvocationContext; stop?: string };
   material?: { runId: string; attemptId: string; cwd: string; oid: string };
   binding: Binding; research: boolean; draining: boolean; ambiguous: boolean; reason?: string;
@@ -138,6 +140,7 @@ export class OwnerExecution {
     for(const b of bindings){
       if(digest(b.owner)!==digest(owner)||b.componentId!==this.componentId)throw new Error('Native journal owner/component provenance mismatch');
       if(b.dispatches.some(d=>!d.nativeId))throw new Error('Unobservable native spawn/create attachment gap; no duplicate execution');
+      if(b.literature&&b.workers.some(w=>!w.status))throw new Error('Unresolved literature native handle; no duplicate inspection launch');
     }
     const membersRaw=await this.call('agents.members',{scope:'project',kinds:['actor','agent'],includeStale:false});
     if(!Array.isArray(membersRaw))throw new Error('Invalid native recovery observation');const members=membersRaw.map(object);
@@ -173,6 +176,7 @@ export class OwnerExecution {
     if (!["inspect", "material", "research"].includes(saved.spec.config.execution)) return;
     await this.#role(runId, "coordinator", resume ? ["strategy", "evidence"] : []);
     await this.#role(runId, "executor", []);
+    if(saved.spec.roles.literature)await this.#role(runId,"literature",[]);
   }
   async #role(runId: string, role: OperationalRole, phases: RolePhase[]): Promise<RoleAssembly> {
     const saved = this.research!.get(runId)!, spec = saved.spec, revision = saved.roleRevisions?.at(-1);
@@ -180,11 +184,11 @@ export class OwnerExecution {
     if (!bundle) throw new Error("Operational role bundle missing; no generic bootstrap fallback");
     const bundles = new RoleBundle(join(dirname(this.research!.path), "runs", runId, "roles"));
     const base = await bundles.load(bundle, role, []);
-    if (base.instructionsId !== (revision ? revision[role === 'coordinator' ? 'coordinatorId' : 'executorId'] : spec.roles[role].instructionsId)) throw new Error("Operational role binding identity mismatch");
+    if (base.instructionsId !== (revision ? revision[role === 'coordinator' ? 'coordinatorId' : role==='literature'?'literatureId':'executorId'] : spec.roles[role]!.instructionsId)) throw new Error("Operational role binding identity mismatch");
     return phases.length ? bundles.load(bundle, role, phases) : base;
   }
   #recordRole(run: Run, assembly: RoleAssembly, ref: RoleInvocation["ref"], request: Record<string, unknown>): RoleInvocation {
-    const runId = run.journey?.runId ?? run.material?.runId ?? run.binding.spec.runId, role = this.research!.get(runId)!.spec.roles[assembly.role];
+    const runId = run.journey?.runId ?? run.material?.runId ?? run.literature?.runId ?? run.binding.spec.runId, role = this.research!.get(runId)!.spec.roles[assembly.role]!;
     const invocation: RoleInvocation = { id: `role-${run.binding.roleInvocations?.length ?? 0}`, ref, bundleId: assembly.bundleId, role: assembly.role, phases: assembly.phases, instructionsId: assembly.instructionsId, requestId: digest(request), roleBindingId: digest({ bundleId: assembly.bundleId, role, revision: this.research!.get(runId)!.roleRevisions?.at(-1)?.revision ?? 0 }), sources: structuredClone(assembly.sources), model: String(request.model), tools: [...role.tools], requires: [...role.requires], resultContract: role.resultContract, extensions: assembly.role === "coordinator", runner: "pi", thinking: "off" };
     (run.binding.roleInvocations ??= []).push(invocation); this.store.save(run.binding); return invocation;
   }
@@ -380,7 +384,7 @@ export class OwnerExecution {
       const bytes=run.journey ? await ownedArtifactBytes(store,runId) : 0;
       const reason=run.journey ? stopReason(projection,researchFacts(projection),bytes) : null;
       if(reason){run.journey!.stop=reason;break;}
-      const observation=run.journey ? researchObservation(projection,bytes,store.evaluations(runId)) : {};
+      const observation=run.journey ? { ...researchObservation(projection,bytes,store.evaluations(runId)), recalledLessons:store.lessons({runId,query:current.spec.config.objective.description.slice(0,512),limit:8}) } : {};
       const role = await this.#role(runId, "coordinator", run.journey || (projection.artifact_refs as unknown[]).length ? ["strategy", "evidence"] : ["strategy"]);
       this.#admit(run);
       if(await this.#journeyStop(run))break;
@@ -399,6 +403,9 @@ export class OwnerExecution {
       if(run.journey){const latest=store.get(runId)!;if(latest.activeMs+(latest.activeSince===null?0:Date.now()-latest.activeSince)>=latest.spec.config.limits.activeMs){run.journey.stop='active-time-budget';break;}}
       const proposal = store.validateProposal(response.data, runId);
       const command: BoundCommand = { runId: proposal.runId, materialId: proposal.materialId, epoch: proposal.epoch, revision: proposal.revision, commandId: proposal.commandId };
+      store.recordProposal(proposal,this.generation,{actorId,nativeId:invocation.nativeId!,requestId:invocation.requestId,context:request.expected.data});
+      let trajectoryError:string|null=null;
+      try {
       if (run.journey && ['dispatch','collect','evaluate','decide'].includes(proposal.kind)) {
         const fresh=store.projection(runId)!;
         if(proposal.kind==='evaluate' && researchFacts(fresh).evaluatorCalls+evaluationCapacity(fresh)>current.spec.config.limits.evaluatorCalls){run.journey.stop='evaluator-budget';break;}
@@ -408,6 +415,8 @@ export class OwnerExecution {
         if(receipt.status==='blocked'){run.journey.stop=`blocked:${receipt.reason}`;break;}
       } else if (proposal.kind === 'dispatch') await this.dispatchResearch(command, proposal.payload);
       else store.research(proposal.kind, command, proposal.payload, this.generation);
+      } catch(error) {trajectoryError=String(error);throw error;}
+      finally {store.finishProposal(runId,command.commandId,this.generation,store.receipt(command,proposal.kind,proposal.payload)??null,trajectoryError);}
       if (proposal.kind === 'decide' && proposal.payload.decision === 'stop') {if(run.journey)run.journey.stop='actor-stop';break;}
       if(run.journey && turn===maxTurns-1)run.journey.stop='actor-turn-budget';
     }
@@ -455,8 +464,31 @@ export class OwnerExecution {
       throw error;
     }
   }
+  async inspectLiterature(runId:string,batchId:string,directory:string,task:string,context:FabricInvocationContext):Promise<NonNullable<Binding['literatureResult']>> {
+    this.#admit();const saved=this.research!.get(runId)!,owner=await this.#owner(context),nativeRunId=`literature-${digest({runId,batchId}).slice(0,32)}`;
+    this.research!.authorize(runId,owner,this.generation);await this.verifyRoles(runId);
+    const existing=this.store.get(nativeRunId);
+    if(existing){
+      if(digest(existing.owner)!==digest(owner)||existing.componentId!==this.componentId||existing.spec.policyId!==saved.spec.identity||existing.literature?.batchId!==batchId||existing.spec.cwd!==directory||existing.workers[0]?.task!==task)throw new Error('Literature invocation provenance mismatch');
+      if(existing.state!=='completed'||!existing.literatureResult)throw new Error('Prior literature invocation unresolved/failed; no automatic duplicate launch');
+      return structuredClone(existing.literatureResult);
+    }
+    if(!saved.spec.roles.literature?.model||!saved.material)throw new Error('Configured literature model and owned material required');
+    const spec=executionSpec({runId:nativeRunId,materialId:saved.spec.source.materialId,cwd:directory,oid:saved.material.capture.baseline,policyId:saved.spec.identity,objective:saved.spec.config.objective.description,model:saved.spec.roles.literature.model,maxWaves:1,concurrency:1});
+    const binding=this.store.bind({version:1,spec,owner,componentId:this.componentId,generation:this.generation,revision:0,state:'running',dispatches:[],actors:[],workers:[],literature:{runId,batchId}});
+    const run:Run={binding,research:true,literature:{runId,batchId},draining:false,ambiguous:false,pending:new Set(),targets:new Map(),stops:new Map()};this.#runs.set(nativeRunId,run);
+    const abort=()=>{void this.#drain(run,'cancelled').catch(()=>undefined);};context.signal?.addEventListener('abort',abort,{once:true});
+    run.operation=(async()=>{
+      try{await this.#track(run,()=>this.#launch(run,task));}
+      catch(error){binding.error=String(error);if(!binding.workers.length||binding.workers.some(w=>!w.status))throw error;}
+      finally{await this.#drain(run,'completed');binding.state=run.ambiguous?'cleanup_pending':run.reason==='cancelled'?'cancelled':binding.error?'failed':'completed';this.store.save(binding);}
+      return binding;
+    })();
+    try{await run.operation;if(binding.state!=='completed'||!binding.literatureResult)throw new Error(binding.error??'Literature completion unavailable');return structuredClone(binding.literatureResult);}
+    finally{context.signal?.removeEventListener('abort',abort);if(binding.state==='cleanup_pending')this.research!.settle(runId,this.generation,'cleanup_pending','literature-cleanup-pending',binding.error??'Unresolved literature native work');}
+  }
   async cancelMaterial(runId: string): Promise<boolean> {
-    const runs = [...this.#runs.values()].filter(r => r.material?.runId === runId || r.journey?.runId === runId);
+    const runs = [...this.#runs.values()].filter(r => r.material?.runId === runId || r.journey?.runId === runId || r.literature?.runId === runId);
     await Promise.all(runs.map(r => this.#drain(r, "cancelled"))); await Promise.allSettled(runs.map(r => r.operation));
     return runs.every(r => !r.ambiguous);
   }
@@ -481,8 +513,10 @@ export class OwnerExecution {
   }
   async #launch(run: Run, task: string, attemptId?: string): Promise<void> {
     this.#admit(run);
-    const b = run.binding, spec = run.material ? { ...b.spec, runId: run.material.runId, cwd: run.material.cwd, oid: run.material.oid } : b.spec;
-    const role = run.research ? await this.#role(spec.runId, "executor", []) : undefined;
+    const b = run.binding, spec = run.material ? { ...b.spec, runId: run.material.runId, cwd: run.material.cwd, oid: run.material.oid } : run.literature ? {...b.spec,runId:run.literature.runId} : b.spec;
+    const roleName=run.literature?"literature":"executor";
+    const role = run.research ? await this.#role(spec.runId, roleName, run.literature?["evidence"]:[]) : undefined;
+    if(run.literature){const admitted=await nativeAdmission(this.research!,spec.runId);if(admitted.reason||!["ready","running"].includes(this.research!.get(spec.runId)!.state))throw new Error(admitted.reason??"Literature dispatch interrupted");}
     if(run.material){
       const admission=await nativeAdmission(this.research!,spec.runId),p=this.research!.projection(spec.runId)!,facts=researchFacts(p),current=this.research!.get(spec.runId)!;
       if(admission.reason || !['ready','running'].includes(current.state) || facts.noGain>=current.spec.config.search.stopAfterNoGain || facts.failures>=current.spec.config.search.stopAfterFailures){
@@ -493,8 +527,10 @@ export class OwnerExecution {
     this.#admit(run);
     const dispatch: Binding["dispatches"][number] = { kind: "agent", name: `arbor-worker-${this.generation}-${b.dispatches.length}` };
     b.dispatches.push(dispatch); this.store.save(b);
-    const structured=run.material && this.research!.get(spec.runId)!.spec.config.execution==='research';
-    const request = bindRequest({ ...(structured ? {schema:WORKER_RESULT_SCHEMA} : {}), name: dispatch.name, task: `${role?.instructions ?? EXECUTOR_INSTRUCTIONS}\nAssignment mode: ${run.material ? "Arbor bounded material worker" : "read-only observation"}\nAssignment: ${task}\nRun: ${spec.runId}\nAttempt: ${attemptId ?? "bounded-observation"}\nExpected canonical cwd: ${spec.cwd}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}\nResult contract: ${run.research ? this.research!.get(spec.runId)!.spec.roles.executor.resultContract : "native-terminal-unscored-text"}\nDiagnostics: no scored feedback capability; no informal diagnostic invocations admitted. Identity check is allowed.`, runner: "pi", transport: "process", model: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.model : spec.model, thinking: "off", tools: run.research ? this.research!.get(spec.runId)!.spec.roles.executor.tools : ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" });
+    const structured=!!run.literature || (run.material && this.research!.get(spec.runId)!.spec.config.execution==='research');
+    const resultSchema=run.literature?literatureResultSchema():WORKER_RESULT_SCHEMA;
+    const configuredRole=run.research?this.research!.get(spec.runId)!.spec.roles[roleName]!:undefined;
+    const request = bindRequest({ ...(structured ? {schema:resultSchema} : {}), name: dispatch.name, task: `${role?.instructions ?? EXECUTOR_INSTRUCTIONS}\nAssignment mode: ${run.literature ? "Arbor bounded literature inspector" : run.material ? "Arbor bounded material worker" : "read-only observation"}\nAssignment: ${task}\nRun: ${spec.runId}\nAttempt: ${attemptId ?? "bounded-observation"}\nExpected canonical cwd: ${spec.cwd}\nMaterial: ${spec.materialId}\nExact OID: ${spec.oid}\nResult contract: ${run.research ? configuredRole!.resultContract : "native-terminal-unscored-text"}\nDiagnostics: no scored feedback capability; no informal diagnostic invocations admitted. Identity check is allowed.`, runner: "pi", transport: "process", model: run.research ? configuredRole!.model : spec.model, thinking: "off", tools: run.research ? configuredRole!.tools : ["read", "grep", "find", "ls"], extensions: false, recursive: false, cwd: spec.cwd, residency: "session" });
     const invocation = role ? this.#recordRole(run, role, "agents.spawn", request.args) : undefined;
     const raw = object(immutableCopy(await this.#call(run, "agents.spawn", request.args)));
     const id = text(raw.id, "native worker ID");
@@ -508,17 +544,18 @@ export class OwnerExecution {
     const worker: Binding["workers"][number] = { id, cwd: spec.cwd, oid: spec.oid, task };
     dispatch.nativeId = id; b.workers.push(worker); if (invocation) invocation.nativeId = id; this.store.save(b);
     request.check();
-    if (run.material && raw.model !== request.expected.model) throw new Error("Exact material worker model mismatch");
+    if ((run.material||run.literature) && raw.model !== request.expected.model) throw new Error("Exact material worker model mismatch");
     if (raw.cwd !== spec.cwd || raw.runner !== "pi" || raw.transport !== "process" || (raw.residency !== undefined && raw.residency !== "session")) throw new Error("Native worker identity/cwd mismatch");
     if (attemptId) this.research!.native(spec.runId, attemptId, this.generation, { id, cwd: spec.cwd });
     if (run.draining || this.#draining) await this.#stop(run, target);
     const result = object(await waiting); request.check(); wait.check();
-    if (run.material && result.model !== request.expected.model) throw new Error("Exact material worker result model mismatch");
+    if ((run.material||run.literature) && result.model !== request.expected.model) throw new Error("Exact material worker result model mismatch");
     if (result.id !== id || result.cwd !== spec.cwd || !TERMINAL.includes(result.status as Terminal)) throw new Error("Ambiguous native wait result");
     let reportError: string | undefined;
-    if(structured && result.status==='completed'){try{validate(WORKER_RESULT_SCHEMA,result.value);if(object(result.value).attemptId!==attemptId)throw new Error('Worker result attempt mismatch');}catch(e){reportError=String(e);}}
+    if(structured && result.status==='completed'){try{validate(resultSchema,result.value);if(run.literature?object(result.value).batchId!==run.literature.batchId:object(result.value).attemptId!==attemptId)throw new Error('Worker result assignment mismatch');}catch(e){reportError=String(e);}}
     // Persist settlement facts while draining, never proposal/domain transitions.
-    worker.status = run.material && (reportError || result.error || (result.exitCode !== undefined && result.exitCode !== null && result.exitCode !== 0)) ? "failed" : result.status as Terminal; this.store.save(b);
+    worker.status = (run.material||run.literature) && (reportError || result.error || (result.exitCode !== undefined && result.exitCode !== null && result.exitCode !== 0)) ? "failed" : result.status as Terminal; this.store.save(b);
+    if(run.literature&&worker.status==="completed"){b.literatureResult={value:structuredClone(result.value) as import("../research/GroundingContracts.js").LiteratureResult,nativeId:id,requestId:invocation!.requestId,roleBundleId:invocation!.bundleId,model:String(request.expected.model)};this.store.save(b);}
     if (attemptId) this.research!.native(spec.runId, attemptId, this.generation, { id, cwd: spec.cwd, status: worker.status, ...(structured ? {summary:reportError ?? (typeof result.error === "string" ? result.error : JSON.stringify(result.value) ?? "No valid structured worker report")} : {}) });
     if (worker.status !== "completed" && !run.draining) throw new Error(`Worker ${id} ended ${worker.status}`);
   }

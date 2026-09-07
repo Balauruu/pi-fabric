@@ -21,6 +21,9 @@ async function canonicalDestination(path: string): Promise<string> {
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; const parent = dirname(path); if (parent === path) throw error; return join(await canonicalDestination(parent), basename(path)); }
 }
 
+import {Grounding} from "./Grounding.js";
+import type {SourceCatalog} from "./SourceCatalog.js";
+
 export class ResearchService {
   #researchRuns = new Set<string>();
   #starts = new Map<string, { hash: string; pending: Promise<unknown> }>();
@@ -30,11 +33,12 @@ export class ResearchService {
   #disposed: Promise<void> | undefined;
   #pending = new Set<Promise<unknown>>();
   readonly material: MaterialJourney;
-  constructor(readonly owner: OwnerExecution, readonly store: ResearchStore, readonly stateDirectory: string, readonly profileDirectory = getAgentDir(), readonly evaluator?: EvaluationEngine) { this.material = new MaterialJourney(owner, store, stateDirectory, evaluator); }
+  constructor(readonly owner: OwnerExecution, readonly store: ResearchStore, readonly stateDirectory: string, readonly profileDirectory = getAgentDir(), readonly evaluator?: EvaluationEngine, readonly sourceCatalog?: SourceCatalog) { this.material = new MaterialJourney(owner, store, stateDirectory, evaluator); }
   async invoke(name: string, args: Record<string, unknown>, context: FabricInvocationContext): Promise<unknown> {
     const descriptor = RESEARCH_ACTIONS.find(action => action.name === name); if (!descriptor) throw new Error(`Unknown Arbor action ${name}`);
     validate(descriptor.inputSchema as Schema, args);
     if (name === "inspect") return this.store.projection(String(args.runId));
+    if (name === "lessons") { const result=this.store.lessons(args as {runId:string;query:string;limit:number});validate(descriptor.outputSchema as Schema,result);return result; }
     if (this.#draining) throw new Error("Arbor research generation is draining");
     const pending = this.#invoke(name, args, context); this.#pending.add(pending);
     try { const result = await pending; validate(descriptor.outputSchema as Schema, result); return result; } finally { this.#pending.delete(pending); }
@@ -85,8 +89,9 @@ export class ResearchService {
       const bundle=await bundles.freeze(run.spec.config.limits.artifactBytes,run.spec.source.root);
       if(await ownedArtifactBytes(this.store,run.id)>=run.spec.config.limits.artifactBytes)throw new Error('Role revision cumulative artifact budget exhausted; prior binding preserved');
       const coordinatorId=(await bundles.load(bundle,'coordinator',[])).instructionsId, executorId=(await bundles.load(bundle,'executor',[])).instructionsId;
+      const literatureId=run.spec.roles.literature?(await bundles.load(bundle,'literature',[])).instructionsId:undefined;
       context.signal?.throwIfAborted();if(this.#draining)throw new Error('Role revision generation retired');
-      return this.store.reviseRoles(command,this.owner.generation,{revision:run.revision+1,commandId:command.commandId,bundle,coordinatorId,executorId});
+      return this.store.reviseRoles(command,this.owner.generation,{revision:run.revision+1,commandId:command.commandId,bundle,coordinatorId,executorId,...(literatureId?{literatureId}:{})});
     }
     if(name==='evaluate'&&args.payload?.validation==='final'&&(this.#researchRuns.has(run.id)||this.owner.busyResearch(run.id)))throw new Error("Final selection requires quiescent owning-Pi boundary");
     if (run.material && ['dispatch', 'collect', 'evaluate', 'decide', 'resumeAttempt'].includes(name)) return this.material.invoke(name, command, name==='resumeAttempt'?{attemptId:args.attemptId,newAttemptId:args.newAttemptId,mode:args.mode,summary:args.summary}:args.payload, context);
@@ -213,6 +218,10 @@ export class ResearchService {
       const [profile, project] = await Promise.all([configFile(join(this.profileDirectory, "arbor.defaults.json")), configFile(join(context.cwd, "arbor.config.json"))]);
       const model = context.extensionContext.model;
       const spec = await resolveSpec(context.cwd, profile, project, object(args.overrides ?? {}), model ? `${model.provider}/${model.id}` : undefined);
+      if(spec.config.grounding?.mode!=='off'&&spec.config.grounding){
+        spec.groundingCatalog=null;
+        try{if(this.sourceCatalog&&spec.config.grounding.catalog)spec.groundingCatalog={id:this.sourceCatalog.id,bindings:['search','fetch'].map(k=>this.sourceCatalog!.binding(spec.config.grounding!.catalog!,k as 'search'|'fetch').binding)};}catch{/* Unavailability is frozen and reported only for selected grounding. */}
+      }
       if (["evaluate", "material", "research"].includes(spec.config.execution)) {
         if (!this.evaluator) throw new Error("Packaged evaluator unavailable");
         for (const key of [spec.evaluation!,spec.validation?.heldOut,spec.validation?.final].flatMap(d=>d?.kind === "agent-suite" ? [d.subject.model,d.judge?.model].filter(Boolean) : [])) if (!context.extensionContext.modelRegistry.getAvailable().some(m => `${m.provider}/${m.id}` === key)) throw new Error(`Unavailable exact evaluation model ${key}`);
@@ -225,7 +234,7 @@ export class ResearchService {
       if (["inspect", "material", "research"].includes(spec.config.execution)) {
         const bundles = new RoleBundle(join(this.stateDirectory, "runs", args.runId, "roles"));
         spec.roleBundle = await bundles.freeze(spec.config.limits.artifactBytes, spec.source.root);
-        for (const role of ["coordinator", "executor"] as const) spec.roles[role].instructionsId = (await bundles.load(spec.roleBundle, role, [])).instructionsId;
+        for (const role of ["coordinator", "executor", "literature"] as const) if(spec.roles[role]) spec.roles[role]!.instructionsId = (await bundles.load(spec.roleBundle, role, [])).instructionsId;
         const { identity: _identity, ...body } = spec; spec.identity = digest(body);
       }
       let material: MaterialState | undefined;
@@ -281,6 +290,7 @@ export class ResearchService {
         else if(run.state!=='paused')throw new Error('Research resume requires quiescent paused owner; terminal work is retained');
         await this.evaluator.resume(resumeCommand,identity,context.signal);
       }else{this.store.authorize(run.id,identity,this.owner.generation);if(run.execution!=='not-started'||!['ready','running'].includes(run.state))throw new Error('Research requires explicit resume, not replay');}
+      if(!await new Grounding(this.owner,this.store,this.stateDirectory,this.sourceCatalog,()=>this.#draining).run(run.id,context)){const blocked=this.store.get(run.id)!;this.store.settle(run.id,this.owner.generation,"paused","research-stop:grounding",blocked.grounding?.error??"Grounding reservation requires reconciliation; no duplicate dispatch");return this.store.projection(run.id);}
       const current=this.store.get(run.id)!;
       const projection=this.store.projection(run.id)!;
       const {reason}=await nativeAdmission(this.store,run.id);
@@ -298,7 +308,7 @@ export class ResearchService {
   async #export(command: BoundCommand): Promise<Receipt> {
     const duplicate = this.store.receipt(command, "export", { format: "json" }); if (duplicate) return duplicate;
     const run = this.store.get(command.runId)!; this.store.check(run, command);
-    const projection = this.store.projection(command.runId)!;
+    const projection = { ...this.store.projection(command.runId)!, trajectories:this.store.trajectories(command.runId) };
     const text = canonical(run.material ? { ...projection, materialDelta: await this.material.export(run.id) } : projection) + "\n";
     if (Buffer.byteLength(text) > run.spec.config.limits.artifactBytes) throw new Error("Export artifact budget exceeded");
     const path = join(this.stateDirectory, "runs", run.id, "exports", `${command.commandId}.json`);

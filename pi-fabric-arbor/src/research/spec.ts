@@ -6,11 +6,13 @@ import { CONFIG_SCHEMA, canonical, digest, validate } from "./contracts.js";
 import { validateDefinition, type EvaluationDefinition } from "../evaluators/contracts.js";
 import { validationPolicy, type ValidationPolicy } from "../evaluators/validation.js";
 import { loadPreset } from "../presets/contract.js";
+import type { GroundingConfig } from "./GroundingContracts.js";
 import type { RoleBundleRef } from "../managed/RoleBundle.js";
 const exec = promisify(execFile);
 export const COORDINATOR_INSTRUCTIONS = "You are Arbor's proposal-only coordinator. Choose a bounded observation hypothesis or stop from authoritative owner observations. Never approve, mutate Arbor, or dispatch. Return a silent directive with data matching the supplied closed contract. No scores are authoritative. This PR3 lane only inspects source; scored research and candidate editing are unavailable.";
 export const EXECUTOR_INSTRUCTIONS = "Arbor bounded executor. Do not spawn or mutate shared Arbor state. No self-grading. Inspect only.";
 export interface Config {
+  grounding?: GroundingConfig;
   material: { root: string; kind: string; mutablePaths: string[]; evaluationInputs: string[]; selectedUntracked: string[] };
   objective: { description: string; direction: "maximize" | "minimize"; unit: string; minimumGain: string; gainKind: "absolute" | "relative"; qualityVetoes: string[] };
   evaluator: { kind: string; identity: string; definition: string; heldOut: string | null; repeats: number; aggregation: string };
@@ -20,15 +22,18 @@ export interface Config {
   limits: { attempts: number; evaluatorCalls: number; activeMs: number; artifactBytes: number; tokenCeiling: number | null; costCeiling: string | null };
   sourceRefs: string[]; preset: string | null; execution: "inspect" | "deferred" | "evaluate" | "material" | "research";
 }
+export interface ResolvedRole { model: string | null; origin: string; instructionsId: string | null; tools: string[]; requires: string[]; resultContract: string }
 export interface ResolvedSpec {
   validation?: ValidationPolicy | null;
   roleBundle?: RoleBundleRef;
   version: 2; config: Config; evaluation: EvaluationDefinition | null; origins: Record<string, string>; identity: string;
   source: { root: string; oid: string | null; materialId: string; capture: "source-reference-not-candidate-snapshot" | "owned-snapshot" };
-  roles: Record<"coordinator" | "executor" | "subject", { model: string | null; origin: string; instructionsId: string | null; tools: string[]; requires: string[]; resultContract: string }>;
+  groundingCatalog?: {id:string;bindings:string[]}|null;
+  roles: Record<"coordinator" | "executor" | "subject", ResolvedRole> & { literature?: ResolvedRole };
   enforcement: { attempts: "transactional"; evaluatorCalls: "transactional"; activeTime: "dispatch-admission"; tokens: "observational"; cost: "observational"; artifacts: "export-admission" | "owned-artifact-admission" };
 }
 function defaults(cwd: string): Config { return {
+  grounding:{mode:"off",catalog:null,query:null,maxSources:3,model:null},
   material: { root: cwd, kind: "other", mutablePaths: [], evaluationInputs: [], selectedUntracked: [] },
   objective: { description: "Inspect material; choose an objective before scoring", direction: "maximize", unit: "unspecified", minimumGain: "0", gainKind: "absolute", qualityVetoes: [] },
   evaluator: { kind: "command", identity: "unconfigured", definition: "unconfigured", heldOut: null, repeats: 1, aggregation: "median" },
@@ -73,6 +78,10 @@ export async function resolveSpec(cwd: string, profile: Record<string, unknown>,
     executor: { model: config.roles.executor, origin: origins["roles.executor"]!, instructionsId: digest(EXECUTOR_INSTRUCTIONS), tools: config.roleTools.executor, requires: [], resultContract: config.execution === "research" ? "arbor.worker-result.v1" : "native-terminal-unscored-text" },
     subject: { model: config.roles.subject, origin: origins["roles.subject"]!, instructionsId: null, tools: [], requires: [], resultContract: "unavailable-PR4" },
   };
+  if(config.grounding && config.grounding.mode!=="off") {
+    if(config.execution!=="research")throw new Error("Literature grounding requires explicit research execution");
+    roles.literature={model:config.grounding.model??activeModel??null,origin:config.grounding.model?origins["grounding.model"]!:activeModel?"active-Pi-model":"unknown",instructionsId:null,tools:["read"],requires:[],resultContract:"arbor.literature-result.v1"};
+  }
   let evaluation: EvaluationDefinition | null = null;
   let validation: ValidationPolicy | null = null;
   if (["evaluate", "material", "research"].includes(config.execution)) {

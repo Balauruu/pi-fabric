@@ -1,5 +1,6 @@
 import { getAgentDir, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { join } from "node:path";
+import {readSourceCatalog} from "./research/SourceCatalog.js";
 import { readCatalog } from "./evaluators/catalog.js";
 import { ARBOR_PACKAGED_ASSETS, getArborAvailability } from "./package-layout.js";
 import { createArborComponent, type DiagnosticReader } from "./managed/definitions.js";
@@ -17,15 +18,16 @@ export default async function piFabricArbor(pi: ExtensionAPI): Promise<void> {
     // Catalog is read once at definition registration, never from a run or activation.
     // Changing it requires a quiescent owning-Pi /reload and explicit run resume.
     const catalog = readCatalog(join(getAgentDir(), "arbor.evaluators.json"));
+    const sources=readSourceCatalog(join(getAgentDir(), "arbor.sources.json"));
     const component = createArborComponent(read => { diagnostic = read; }, catalog, async (ref, invocation) => {
       // Public provider discovery is descriptor inspection only. Never invoke a
       // discovered provider directly or widen the committed optional catalog.
-      if (!catalog.some(entry => entry.ref === ref)) throw new Error("Unconfigured evaluator descriptor request");
+      if (!catalog.some(entry => entry.ref === ref)&&!sources.some(entry=>entry.search.ref===ref||entry.fetch.ref===ref)) throw new Error("Unconfigured evaluator descriptor request");
       const [namespace, action] = ref.split(".");
       let selected: import("pi-fabric/protocol").FabricProvider | undefined;
       pi.events.emit(protocol.FABRIC_PROVIDER_DISCOVER_EVENT, { version: 1, register(provider: import("pi-fabric/protocol").FabricProvider) { if (provider.name === namespace) selected = provider; } });
       return selected?.describe(action!, invocation);
-    });
+    }, sources);
     pi.events.emit(protocol.FABRIC_COMPONENT_REGISTER_EVENT, { version: 1, component, overwrite: true });
     pi.events.on(protocol.FABRIC_COMPONENT_DISCOVER_EVENT, (event) => {
       (event as import("pi-fabric/protocol").FabricComponentDiscovery).register(component, { overwrite: true });

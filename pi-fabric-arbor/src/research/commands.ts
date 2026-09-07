@@ -13,6 +13,7 @@ export function researchCommand(operation: string, raw: string): CommandRequest 
   }
   const [runId, ...rest] = raw.trim().split(/\s+/u); validate(id, runId);
   const detail = rest.join(" ");
+  if(operation==='lessons')return {ref:"arbor.lessons",args:{runId,query:detail,limit:8},resolveBinding:false};
   if(operation==='validate'){validate(id,detail);return {ref:'arbor.evaluate',resolveBinding:true,args:{runId,commandId:`command-${randomUUID()}`,payload:{attemptId:detail,validation:'final'}}};}
   if(action==='resumeAttempt'){
     const [attemptId,...summary]=rest;validate(id,attemptId);if(!summary.join(' ').trim())throw new Error('Continuation requires run ID, prior attempt ID and an explicit same-hypothesis summary');

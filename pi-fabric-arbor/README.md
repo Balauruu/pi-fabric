@@ -2,9 +2,9 @@
 
 `pi-fabric-arbor` is an independent, source-loaded Pi add-on for the Arbor v2 replacement described by the repository plan at `docs/Arbor/deep-refactoring-plan.md`.
 
-## Current checkpoint: PR9 held-out validation (reviewed scoped gate)
+## Current checkpoint: PR10 grounding, lessons and trajectories
 
-**Independent scoped review and repaired gates pass:** frozen selected/final validation, exact current-incumbent comparisons, native vetoes and accounted deadlines/recovery. Normal292, targeted17 and native13 pass; original288/13/12 evidence is retained. User-authorized publication requires full staged review and ordinary remote equality; PR #3 stays draft. PR10-PR13 and broader product acceptance remain outstanding. See [PR9 exact evidence and limits](docs/pr9-held-out-evidence.md); [PR8 accepted evidence](docs/pr8-recovery-evidence.md) is preserved.
+**Independently reviewed deterministic local gate:** owner-visited source grounding, native literature, checked lesson/source reuse and actual outcome trajectories. Normal307, targeted15 and PR10 native4 pass, with preserved full native PR6/7/8/9 gates21/5/42/13. See [PR10 exact evidence, strengthened reruns and publication status](docs/pr10-grounding-evidence.md). PR #3 stays draft; PR11-PR13 and broader product acceptance remain outstanding. [PR9 held-out evidence](docs/pr9-held-out-evidence.md) and [PR8 recovery evidence](docs/pr8-recovery-evidence.md) remain preserved.
 
 - Pi loads `src/extension.ts` directly. No build, `dist/`, or `.test-dist/` is required.
 - Registration declares passive managed component metadata. It never starts inference, creates an actor or opens research storage.
@@ -12,8 +12,8 @@
 - The operational child uses exact definition-time public Fabric dependencies and captured post-activation `context.call`.
 - In `inspect` mode, an owning-Pi call creates one persistent proposal-only actor, validates bounded proposals, launches native workers, owns their waits and supplies fresh observations to later asks. Actor outbox delivery is passive, not a Main continuation.
 - `src/research/` owns a fresh transactional SQLite schema, frozen domain-neutral specification and origins, typed proposals, atomic reservations, controls, evidence-linked observations and real owning-Pi review receipts. `src/managed/` retains native linkage and the verified execution lifecycle.
-- Native owner/root/host identity is immutable. Evaluation recovery requires explicit same-owner reconciliation after reload; unknown handles block without redispatch. Quiescent research resume replaces the stopped actor and re-observes saved facts. Known exact native/material recovery and separately charged partial continuation are described below; ambiguous launches still block. Models and tools for coordinator, executor, subject and optional judge are resolved independently.
-- Exactly one public skill, `fabric-arbor`, is registered unchanged. New inspect/material/research runs explicitly freeze packaged coordinator/executor roles and conditional procedures outside candidate material. Literature delivery remains PR10.
+- Native owner/root/host identity is immutable. Evaluation recovery requires explicit same-owner reconciliation after reload; unknown handles block without redispatch. Quiescent research resume replaces the stopped actor and re-observes saved facts. Known exact native/material recovery and separately charged partial continuation are described below; ambiguous launches still block. Models and tools for coordinator, executor, literature, subject and optional judge are resolved independently.
+- Exactly one public skill, `fabric-arbor`, is registered unchanged. New inspect/material/research runs explicitly freeze packaged coordinator/executor roles and conditional procedures outside candidate material. Selected PR10 literature uses the same frozen operational bundle.
 - CLI and stable source Web assets remain strictly read-only, with no live-owner attachment or Web server.
 
 PR4 adds packaged command, native agent-suite and finite configured-provider evaluation over **an explicitly supplied pair of committed material references**. It freezes the task/grade definition, explicitly loads subject prompt/skill bytes, charges every invocation and retains native evidence before grading. Native execution, evaluation validity, quality gates, descriptive analysis and incumbent decisions are separate facts.
@@ -24,6 +24,29 @@ Default `inspect` execution preserves the PR3 read-only lane. PR4 `evaluate` pre
 
 Schema enforce remains unavailable for this external delegation path. Commands explain the inactive owner without inference. The installed host also exhibits an earlier `Missing: extensions` initialization failure under enforce; that is retained as a limitation, not claimed as a successful exact-reference guard test.
 
+## PR10 grounding, lessons and trajectories
+
+`/arbor lessons RUN QUERY` calls read-only `arbor.lessons({runId, query, limit})`, with `limit`1-8. Retrieval considers at most128 recent relevant fresh-v2 project records and returns at most16KiB. It retains negative and opposing observations, explains lexical matches and duplicate provenance, and labels every result `hypothesis-to-retest`. Source-run lesson revisions/digests, evaluation/native evidence IDs, material IDs and applicability remain linked. Hypotheses may include returned `lessonRefs`; stale/forged or another-project references reject without grade adoption.
+
+The native coordinator receives bounded relevant lesson selections. Owning-Pi `/arbor export RUN` includes actual coordinator proposals, context digests/references, native activation/request IDs, selected actions and receipt-bound outcomes with exact development evaluation/attempt/material/insight links. It is an analysis artifact, not a training pipeline or transcript mirror. The existing CLI can retrieve that generated artifact without creating exports. Ordinary actor proposals cannot consume held-out/final evidence; direct owner inspection retains those separate records.
+
+Grounding is selected only with `execution: "research"`. It defaults off:
+
+```json
+{"grounding":{"mode":"required","catalog":"public","query":"parser cache","maxSources":3,"model":null}}
+```
+
+`mode` is `off`, `optional` or `required`; `maxSources` is1-4 and a null model inherits the active Pi model. Configure at most four provider pairs in the owning profile's `arbor.sources.json`, **before definition registration**:
+
+```json
+[{"id":"public","search":{"ref":"public.search","descriptorHash":"<64 lowercase hex from tools.catalog>"},"fetch":{"ref":"public.fetch","descriptorHash":"<64 lowercase hex from tools.catalog>"}}]
+```
+
+Inspect exact public descriptors first. `src/research/GroundingContracts.ts` exports the closed search/fetch input/output schemas: bounded query/limit to URL/title/snippet results, then exact URL/maxChars to visited URL/title/text. Selected providers must match those schemas, have `read` or `network` risk and `none`/`commutative` effects. No arbitrary provider transport or credentials are added. Calls use only the captured managed component context and its finite optional requirements. Missing or incompatible capability blocks required grounding before baseline evaluation; optional grounding records unavailability and unrelated local research stays available. Minimize and maximize use the same source path. Changing the catalog requires quiescent owning-Pi `/reload` definition registration and a new run; component reload alone never rereads it or widens a saved binding.
+
+The owner reserves one bounded search/fetch batch, saves actual fetched passage artifacts and exact source/run/material/epoch/spec/catalog/request/result identities, then spawns one native Pi literature child with the preserved role, evidence procedure, exact model, `read` only and a closed result contract. It validates each returned verbatim passage against its visited artifact before recording inspected source IDs/native provenance. Discovery snippets and free-form node references remain `uninspectedSourceRefs`, never inspections. Grounded hypotheses use exact returned `groundingRefs`; wrong-run/revision/digest, unvisited IDs and changed artifacts reject. Required hypotheses cannot omit inspected references. Source claims and recalled lessons are hypotheses to retest, not grades or scientific endorsement.
+
+Resume verifies frozen roles and reuses completed grounding without redispatch. Interrupted/reserved batches retain their artifacts and block automatic retry; no guessed handle, fallback research runtime or novelty subsystem exists. Existing CLI/browser read-only boundaries and the single public skill are unchanged. Run `npm run test:pr10` and `npm run test:pr10:e2e`; [exact gate/review/publication status](docs/pr10-grounding-evidence.md) is authoritative, not this feature description.
 ## PR6 autonomous research and operational roles
 
 Select `execution: "research"`, the material scope/evaluator definition described below, available role models and explicit writable executor tools. `/arbor start` freezes/captures with `arbor.start`, then invokes **execute-risk `arbor.runResearch`** under normal policy. This gate covers command evaluation; actual actor/subject/worker effects additionally traverse the managed owner's exact policy-checked `agents.*` requirements. Direct `arbor.start` does not begin research effects. `/arbor resume RUN` uses the same execute gate, not an agent-risk control bypass.
@@ -38,7 +61,7 @@ Evaluation summaries expose nullable `attemptId` and exact baseline/candidate OI
 
 At a quiescent paused boundary, `/arbor revise-roles RUN` explicitly freezes the current installed package roles as a new attributable revision. Then resume to replace/re-ground the actor. The immutable measurement spec/epoch and prior native invocations are never rewritten. Ordinary package changes without this command retain the old bundle. Missing/incompatible bundles or required phases refuse before research effects. Branching and bounded parallel policy are described below; exact partial continuation and conservative ambiguous-handle refusal are described below.
 
-New `inspect`, `material` and `research` runs save a content-addressed operational bundle under `runs/RUN/roles/`, outside mutable material. `src/managed/RoleBundle.ts` resolves only this installed package's role assets, verifies their version sentinels and identities, and explicitly assembles native `instructions`/`task` fields. Strategy and evidence procedures are included only for their applicable coordinator phases. Candidate skills with the same name/path do not choose optimizer instructions.
+New `inspect`, `material` and `research` runs save a content-addressed operational bundle under `runs/RUN/roles/`, outside mutable material. `src/managed/RoleBundle.ts` resolves only this installed package's role assets, verifies their version sentinels and identities, and explicitly assembles native `instructions`/`task` fields. Strategy and evidence procedures are included only for their applicable coordinator phases; the selected literature inspector receives the evidence procedure. Candidate skills with the same name/path do not choose optimizer instructions.
 
 Native bindings record bundle/role/request identities, selected procedures, model, tools, requirements and result contract before create/ask/spawn, then attach native IDs without rewriting earlier attribution. Missing or corrupt bootstrap blocks dispatch before reservation. Completed-baseline material resume checks the preserved bundle before evaluator reconciliation, so package updates cannot silently substitute instructions. This is trusted configuration separation, not containment or proof of scientific adherence. No worker gets shared Arbor mutation/delegation capabilities; worker-driven scored feedback is not currently exposed.
 

@@ -1,8 +1,8 @@
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { TERMINAL, type NativeOwner, type Terminal } from "../managed/contracts.js";
-import { ACTION_SCHEMAS, ACTOR_PROPOSAL_SCHEMA, canonical, digest, validate, type BoundCommand, type Proposal, type ResearchAction } from "./contracts.js";
+import { ACTION_SCHEMAS, ACTOR_PROPOSAL_SCHEMA, lessonProvenanceSchema, canonical, digest, validate, type BoundCommand, type Proposal, type ResearchAction } from "./contracts.js";
 import type { ResolvedSpec } from "./spec.js";
 import { evaluationCalls, evaluationSummary, type EvaluationRecord } from "../evaluators/contracts.js";
 import type { MaterialState } from "../material/contracts.js";
@@ -10,12 +10,16 @@ import type { Candidate } from "../material/Workspace.js";
 import { evaluationCapacity, reservedEvaluationCalls, researchFacts } from './policy.js';
 import { ancestry, validateNode, validateSelection, type Selection } from './tree.js';
 import { promotionGate } from "../material/acceptance.js";
+import { lessonReference, selectLessons, proposalTrajectory, type LessonReference, type ProposalTrajectory } from './Experience.js';
 import { splitOf, validationUses, validationProjection } from "../evaluators/validation.js";
+import {groundingStateSchema,sourceAccessSchema,sourceInspectionSchema,literatureResultSchema,type GroundingState,type SourceAccess,type SourceInspection} from './GroundingContracts.js';
+import type {Binding} from '../managed/BindingStore.js';
 export interface WaveEvidence { waveId:string; parentIncumbent:string; attemptIds:string[]; startedAt:number; preparedAt:number; settledAt:number; collectedAt:number }
 export interface ResearchRun {
+  grounding?: GroundingState;
   waves?: WaveEvidence[];
   generationHistory?: string[];
-  roleRevisions?: Array<{ revision: number; commandId: string; bundle: import("../managed/RoleBundle.js").RoleBundleRef; coordinatorId: string; executorId: string }>;
+  roleRevisions?: Array<{ revision: number; commandId: string; bundle: import("../managed/RoleBundle.js").RoleBundleRef; coordinatorId: string; executorId: string; literatureId?: string }>;
   material?: MaterialState;
   id: string; spec: ResolvedSpec; requestHash: string; owner: NativeOwner; componentId: string; generation: string;
   epoch: string; revision: number; state: "ready" | "running" | "paused" | "awaiting_review" | "completed" | "cancelled" | "interrupted" | "cleanup_pending" | "failed";
@@ -67,6 +71,15 @@ export class ResearchStore {
   #row<T>(db: DatabaseSync, table: Table, runId: string, id: string): T | undefined { const row = db.prepare(`SELECT value FROM ${table} WHERE run_id=? AND id=?`).get(runId, id); return row ? JSON.parse(String(row.value)) : undefined; }
   #rows<T>(db: DatabaseSync, table: Table, runId: string): T[] { return db.prepare(`SELECT value FROM ${table} WHERE run_id=? ORDER BY rowid`).all(runId).map(row => JSON.parse(String(row.value)) as T); }
   #put(db: DatabaseSync, table: Table, runId: string, id: string, value: unknown): void { db.prepare(`INSERT INTO ${table} VALUES (?,?,?) ON CONFLICT(run_id,id) DO UPDATE SET value=excluded.value`).run(runId, id, canonical(value)); }
+  #operation(db:DatabaseSync,run:ResearchRun,id:string,value:Record<string,any>):void {
+    // Capture the operation's own transition atomically, before a later control
+    // can change the run or a crash can delay trajectory finalization.
+    this.#put(db,'operations',run.id,id,{...value,...(value.trajectory&&value.receipt?{trajectoryState:{revision:value.receipt.revision,incumbent:run.material?.incumbent??null}}:{})});
+  }
+  #actorEvidence(db:DatabaseSync,run:ResearchRun,proposal:Proposal):void {
+    const ids=[...proposal.expectedEvidence,...(proposal.payload.evidenceIds??[]),...(proposal.payload.evaluationId?[proposal.payload.evaluationId]:[])];
+    if(ids.some(id=>{const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,id);return e&&splitOf(e)!=='development';}))throw new Error('Ordinary actor proposals require development evidence, never held-out/final links');
+  }
   #artifact(db: DatabaseSync, runId: string, id: string, value: unknown): void {
     const existing = this.#row(db, "artifact_refs", runId, id);
     if (existing) {
@@ -151,12 +164,13 @@ export class ResearchStore {
     return this.#transaction(db => {
       const run = this.#run(db, command.runId); if (!run || run.generation !== generation || !["evaluate", "material", "research"].includes(run.spec.config.execution) || run.epoch !== command.epoch || run.spec.source.materialId !== command.materialId) throw new Error("Stale evaluation receipt binding");
       const hash = digest({ command, action, payload }), old = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", run.id, command.commandId);
-      if (old) { if (old.hash !== hash) throw new Error("Conflicting duplicate evaluation control"); return old.receipt; }
+      if (old && old.hash !== hash) throw new Error("Conflicting duplicate evaluation control");
+      if (old?.receipt) return old.receipt;
       run.revision++;
       if (run.material?.pending) run.material.pending.revision = run.revision;
       const value = { state: run.state, specId: run.spec.identity };
       const receipt: Receipt = { commandId: command.commandId, runId: run.id, revision: run.revision, status, action, reason, value };
-      this.#put(db, "operations", run.id, command.commandId, { hash, receipt });
+      this.#operation(db, run, command.commandId, { ...old, hash, receipt });
       this.#put(db, "events", run.id, String(run.revision), { revision: run.revision, type: action, commandId: command.commandId, status, reason });
       if (action === "control" && status !== "blocked") this.#put(db, "controls", run.id, command.commandId, { ...command, action: "resume", instruction: null, status, value });
       this.#save(db, run); return receipt;
@@ -251,6 +265,82 @@ export class ResearchStore {
   check(run: ResearchRun, command: BoundCommand): void {
     if (command.runId !== run.id || command.materialId !== run.spec.source.materialId || command.epoch !== run.epoch || command.revision !== run.revision) throw new Error("Stale run/material/epoch/revision binding");
   }
+  /** Fresh-v2 project index. Reads never create DB/files or generate exports. */
+  lessons(query:{runId:string;query:string;limit:number}) {
+    if(typeof query.query!=='string'||query.query.length>512||!Number.isInteger(query.limit)||query.limit<1||query.limit>8)throw new Error('Bounded lesson query required');
+    return this.#read(db=>{
+      const target=this.#run(db,query.runId);if(!target)return [];
+      const terms=[...new Set(query.query.toLowerCase().match(/[\p{L}\p{N}]+/gu)??[])].slice(0,16);
+      const matches=terms.length?' AND ('+terms.map(()=>"instr(lower(l.value),?)>0").join(' OR ')+')':'';
+      const rows=db.prepare("SELECT l.value FROM lessons l JOIN runs r ON r.id=l.run_id WHERE json_extract(r.value,'$.spec.source.root')=? AND json_extract(l.value,'$.provenance.runId')=l.run_id"+matches+' ORDER BY l.rowid DESC LIMIT 128').all(target.spec.source.root,...terms).map(r=>JSON.parse(String(r.value)));
+      const eligible=rows.filter(l=>{const run=this.#run(db,l.provenance.runId);return run&&l.provenance.specId===run.spec.identity&&this.#evidence(db,run,l.evidenceIds)&&!l.evidenceIds.some((id:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,id);return e&&splitOf(e)!=='development';});});
+      return selectLessons(eligible,query.query,query.limit);
+    },[]);
+  }
+  #checkLesson(db:DatabaseSync,run:ResearchRun,ref:LessonReference):void {
+    const source=this.#run(db,ref.runId),lesson=this.#row<any>(db,'lessons',ref.runId,ref.lessonId);
+    if(!source||source.spec.source.root!==run.spec.source.root||!lesson?.provenance||canonical(ref)!==canonical(lessonReference(lesson))||!this.#evidence(db,source,lesson.evidenceIds)||lesson.evidenceIds.some((id:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',source.id,id);return e&&splitOf(e)!=='development';}))throw new Error('Stale or forged project lesson reference');
+  }
+  recordProposal(proposal:Proposal,generation:string,native:{actorId:string;nativeId:string;requestId:string;context:Record<string,any>}):void {
+    const p=structuredClone(proposal),n=structuredClone(native);
+    this.#transaction(db=>{
+      const run=this.#run(db,p.runId);if(!run||run.generation!==generation)throw new Error('Stale trajectory generation');
+      validate(ACTOR_PROPOSAL_SCHEMA,p);
+      if(!n.actorId||!n.nativeId||!/^[a-f0-9]{64}$/.test(n.requestId))throw new Error('Native proposal attribution required');
+      const command={runId:p.runId,materialId:p.materialId,epoch:p.epoch,revision:p.revision,commandId:p.commandId};
+      const hash=digest({command,action:p.kind,payload:p.payload}),trajectory=proposalTrajectory(p,run,n);
+      const old=this.#row<any>(db,'operations',run.id,p.commandId);
+      if(old){if(old.hash!==hash||canonical({...old.trajectory,outcome:null})!==canonical(trajectory))throw new Error('Conflicting actual proposal trajectory');return;}
+      this.check(run,p);this.#actorEvidence(db,run,p);this.#put(db,'operations',run.id,p.commandId,{hash,trajectory});
+    });
+  }
+  finishProposal(runId:string,commandId:string,generation:string,receipt:Receipt|null,error:string|null):void {
+    this.#transaction(db=>{
+      const run=this.#run(db,runId),old=this.#row<any>(db,'operations',runId,commandId);
+      if(!run||run.generation!==generation||!old?.trajectory)throw new Error('Missing exact proposal trajectory');
+      if(old.trajectory.outcome){if(canonical(old.trajectory.outcome.receipt)!==canonical(receipt)||old.trajectory.outcome.error!==(error?.slice(0,4096)??null))throw new Error('Immutable proposal outcome');return;}
+      if(canonical(receipt)!==canonical(old.receipt??null)||(receipt&&(receipt.commandId!==commandId||receipt.runId!==runId)))throw new Error('Trajectory outcome requires actual operation receipt');
+      if(receipt&&(!old.trajectoryState||old.trajectoryState.revision!==receipt.revision))throw new Error('Missing atomic trajectory transition; cannot infer delayed outcome');
+      const payload=old.trajectory.proposal.payload;
+      const linked=this.#rows<EvaluationRecord>(db,'evaluations',runId).filter(e=>splitOf(e)==='development'&&(e.id===payload.evaluationId||(payload.evidenceIds??[]).includes(e.id)));
+      const attempts=this.#rows<Attempt>(db,'attempts',runId).filter(a=>a.id===payload.attemptId||payload.candidates?.some((c:any)=>c.attemptId===a.id)||linked.some(e=>e.attemptId===a.id)||(payload.evidenceIds??[]).includes(a.evidenceId));
+      const outcome={receipt:structuredClone(receipt),error:error?.slice(0,4096)??null,revision:receipt?.revision??old.trajectory.proposal.revision,incumbent:receipt?old.trajectoryState.incumbent:old.trajectory.context.incumbent,attemptIds:attempts.map(a=>a.id),evaluationIds:linked.map(e=>e.id),materialIds:[...new Set(linked.flatMap(e=>[e.snapshots.baseline.oid,e.snapshots.candidate.oid]))],insightIds:payload.lessonId&&this.#row(db,'lessons',runId,payload.lessonId)?[payload.lessonId]:[]};
+      old.trajectory.outcome=outcome;this.#put(db,'operations',runId,commandId,old);
+    });
+  }
+  trajectories(runId:string):ProposalTrajectory[] {return this.#read(db=>this.#rows<any>(db,'operations',runId).filter(o=>o.trajectory).map(o=>o.trajectory),[]);}
+  #groundingChange(command:BoundCommand,generation:string,change:(db:DatabaseSync,run:ResearchRun)=>void):void {
+    this.#transaction(db=>{const run=this.#run(db,command.runId);if(!run||run.generation!==generation)throw new Error('Stale grounding generation');this.check(run,command);if(!['ready','running'].includes(run.state)||run.active||run.pendingDecisionId||run.material?.pending)throw new Error('Grounding requires quiescent active owner');change(db,run);validate(groundingStateSchema(),run.grounding);run.revision++;this.#save(db,run);});
+  }
+  reserveGrounding(command:BoundCommand,generation:string,catalogId:string|null):void {
+    this.#groundingChange(command,generation,(_db,run)=>{if(run.grounding)throw new Error('Grounding batch already reserved; no duplicate search');run.grounding={batchId:'grounding-'+digest({runId:run.id,epoch:run.epoch,specId:run.spec.identity}).slice(0,32),status:'reserved',catalogId,accessIds:[],sourceIds:[],calls:0,error:null};if(run.activeSince===null)run.activeSince=Date.now();});
+  }
+  groundingCall(command:BoundCommand,generation:string):void {
+    this.#groundingChange(command,generation,(_db,run)=>{const g=run.grounding;if(!g||!['reserved','accessed'].includes(g.status)||g.calls>=1+(run.spec.config.grounding?.maxSources??4))throw new Error('Grounding call budget/state exhausted');g.calls++;});
+  }
+  groundingFailure(command:BoundCommand,generation:string,status:'unavailable'|'blocked'|'interrupted',error:string):void {
+    this.#groundingChange(command,generation,(_db,run)=>{if(!run.grounding||!['reserved','accessed'].includes(run.grounding.status))throw new Error('Grounding result is immutable');run.grounding.status=status;run.grounding.error=error.slice(0,4096);});
+  }
+  #sourceText(access:SourceAccess|SourceInspection):string {
+    if(realpathSync(access.artifact.path)!==access.artifact.path)throw new Error('Source artifact path identity mismatch');const text=readFileSync(access.artifact.path,'utf8');if(Buffer.byteLength(text)>65536||digest(text)!==access.artifact.digest)throw new Error('Source artifact identity mismatch');return text;
+  }
+  recordSourceAccess(command:BoundCommand,generation:string,access:SourceAccess):void {
+    validate(sourceAccessSchema(),access);
+    this.#groundingChange(command,generation,(db,run)=>{const g=run.grounding;if(!g||!['reserved','accessed'].includes(g.status)||g.accessIds.length>=(run.spec.config.grounding?.maxSources??4)||g.accessIds.includes(access.id))throw new Error('Source access bound/state mismatch');if(access.runId!==run.id||access.materialId!==run.spec.source.materialId||access.epoch!==run.epoch||access.specId!==run.spec.identity||access.generation!==generation||access.revision!==run.revision||access.catalogId!==g.catalogId)throw new Error('Source access provenance mismatch');if(this.#sourceText(access).length!==access.characters)throw new Error('Source access length mismatch');this.#artifact(db,run.id,access.id,access);g.accessIds.push(access.id);g.status='accessed';});
+  }
+  completeGrounding(command:BoundCommand,generation:string,native:NonNullable<Binding['literatureResult']>):void {
+    validate(literatureResultSchema(),native.value);
+    this.#groundingChange(command,generation,(db,run)=>{const g=run.grounding;if(!g||g.status!=='accessed'||native.value.batchId!==g.batchId||native.value.blocked||!native.value.sources.length||new Set(native.value.sources.map(s=>s.accessId)).size!==native.value.sources.length)throw new Error('Inspected source completion unavailable or conflicting');
+      for(const source of native.value.sources){const access=this.#row<SourceAccess>(db,'artifact_refs',run.id,source.accessId);if(!g.accessIds.includes(source.accessId)||!access||access.kind!=='source-access'||!this.#sourceText(access).includes(source.passage))throw new Error('Unvisited source or unsupported passage; snippets are not inspection evidence');
+        const {search:_search,fetch:_fetch,characters:_characters,...provenance}=access;
+        const body={...provenance,...source,id:'source-'+digest({batchId:g.batchId,accessId:access.id}).slice(0,32),kind:'source-inspection' as const,revision:run.revision+1,nativeId:native.nativeId,requestId:native.requestId,roleBundleId:native.roleBundleId,model:native.model,validation:'source-linked-hypothesis-not-grade' as const};const inspection={...body,digest:digest(body)};validate(sourceInspectionSchema(),inspection);this.#artifact(db,run.id,inspection.id,inspection);g.sourceIds.push(inspection.id);
+      }g.status='complete';
+    });
+  }
+  #checkSource(db:DatabaseSync,run:ResearchRun,ref:{sourceId:string;runId:string;revision:number;digest:string}):void {
+    const source=this.#row<SourceInspection>(db,'artifact_refs',run.id,ref.sourceId);if(!source||source.kind!=='source-inspection'||run.grounding?.status!=='complete'||!run.grounding.sourceIds.includes(source.id)||ref.runId!==run.id||source.runId!==run.id||ref.revision!==source.revision||ref.digest!==source.digest||source.epoch!==run.epoch||source.specId!==run.spec.identity||source.materialId!==run.spec.source.materialId)throw new Error('Unknown, stale or forged inspected source reference');const {digest:hash,...body}=source;if(digest(body)!==hash||!this.#sourceText(source).includes(source.passage))throw new Error('Source inspection identity mismatch');
+  }
+
   receipt(command: BoundCommand, action: string, payload: unknown): Receipt | undefined {
     return this.#read(db => {
       const old = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", command.runId, command.commandId);
@@ -262,14 +352,15 @@ export class ResearchStore {
     return this.#transaction(db => {
       const run = this.#run(db, command.runId); if (!run || run.generation !== generation) throw new Error("Unknown or stale generation");
       const hash = digest({ command, action, payload });
-      const old = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", run.id, command.commandId);
-      if (old) { if (old.hash !== hash) throw new Error("Conflicting duplicate command ID"); return old.receipt; }
+      const old = this.#row<{ hash: string; receipt?: Receipt; trajectory?: ProposalTrajectory }>(db, "operations", run.id, command.commandId);
+      if (old && old.hash !== hash) throw new Error("Conflicting duplicate command ID");
+      if (old?.receipt) return old.receipt;
       this.check(run, command);
       if (run.material?.pending && !retainPending) throw new Error("Pending integration intent must reconcile before other mutations");
       const result = change(db, run); run.revision++;
       if(retainPending && run.material?.pending)run.material.pending.revision=run.revision;
       const receipt: Receipt = { commandId: command.commandId, runId: run.id, revision: run.revision, action, status: result.status ?? "applied", reason: result.reason ?? null, value: result.value ?? null };
-      this.#put(db, "operations", run.id, command.commandId, { hash, receipt });
+      this.#operation(db, run, command.commandId, { ...old, hash, receipt });
       this.#put(db, "events", run.id, String(run.revision), { revision: run.revision, type: action, commandId: command.commandId, status: receipt.status, reason: receipt.reason });
       this.#save(db, run); return receipt;
     });
@@ -282,6 +373,9 @@ export class ResearchStore {
       const projection = () => ({run, nodes:this.#rows<any>(db,'nodes',run.id), attempts:this.#rows<Attempt>(db,'attempts',run.id), evaluations:this.#rows<EvaluationRecord>(db,'evaluations',run.id), decisions:this.#rows<any>(db,'decisions',run.id)});
       if (action === "propose") {
         if (run.pendingDecisionId) throw new Error("Pending research review blocks expansion");
+        for(const ref of payload.lessonRefs??[])this.#checkLesson(db,run,ref);
+        if(payload.type==='hypothesis'&&run.spec.config.grounding?.mode==='required'&&!(payload.groundingRefs?.length))throw new Error('Required grounded hypothesis needs an inspected source reference');
+        for(const ref of payload.groundingRefs??[])this.#checkSource(db,run,ref);
         const depth=validateNode(projection(),payload as any);
         this.#put(db, "nodes", run.id, payload.nodeId, { ...payload, depth, pruned: false, reviewed: false, insightIds:[], insightRevision:0 }); return { value: { nodeId: payload.nodeId } };
       }
@@ -339,7 +433,15 @@ export class ResearchStore {
           current.insightIds=[...(current.insightIds??[]),payload.lessonId];current.insightRevision=run.revision+1;
           this.#put(db,'nodes',run.id,current.nodeId,current);
         }
-        this.#put(db, "lessons", run.id, payload.lessonId, { ...payload, validation: "unscored-observation" }); return { value: { lessonId: payload.lessonId } };
+        // Direction/project recall must retain the exact evidence-bearing leaf's
+        // grounding, not only the aggregation target's own ancestors. Unrelated
+        // sibling sources are not supporting provenance.
+        const sourceNodes=[...ancestors,...payload.evidenceIds.flatMap((evidenceId:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,evidenceId),ref=this.#row<any>(db,'artifact_refs',run.id,evidenceId),attempt=this.#row<Attempt>(db,'attempts',run.id,e?.attemptId??ref?.attemptId??'');return attempt?ancestry(nodes,attempt.nodeId).map(n=>node(n.nodeId)!):[];})];
+        const linked=payload.evidenceIds.map((id:string)=>this.#row<EvaluationRecord>(db,'evaluations',run.id,id)).filter(Boolean) as EvaluationRecord[];
+        const decisions=this.#rows<any>(db,'decisions',run.id).filter(d=>d.evidenceIds.some((id:string)=>payload.evidenceIds.includes(id))&&!d.evidenceIds.some((id:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,id);return e&&splitOf(e)!=='development';}));
+        const provenance={runId:run.id,revision:run.revision+1,materialId:run.spec.source.materialId,epoch:run.epoch,specId:run.spec.identity,sourceIds:[...new Set(sourceNodes.flatMap(n=>(n.groundingRefs??[]).map((ref:any)=>ref.sourceId)))] as string[],uninspectedSourceRefs:[...new Set(sourceNodes.flatMap(n=>n.sourceRefs))] as string[],materials:[...new Set(linked.flatMap(e=>[e.snapshots.baseline.oid,e.snapshots.candidate.oid]))],applicability:payload.applicability??`${run.spec.config.material.kind}: ${run.spec.config.objective.description}`,outcome:decisions.some(d=>d.status==='measured-keep')?'measured-keep':linked.some(e=>e.validity!=='valid')?'invalid-evaluation':decisions.some(d=>d.decision==='discard')?'discarded':'unscored-observation'};
+        validate(lessonProvenanceSchema,provenance);
+        this.#put(db, "lessons", run.id, payload.lessonId, { ...payload, provenance, validation: "unscored-observation" }); return { value: { lessonId: payload.lessonId } };
       }
       if (!evidence(payload.evidenceIds) || (payload.nodeId && !node(payload.nodeId))) throw new Error("Decision references missing node/evidence");
       if (this.#row(db, "decisions", run.id, payload.decisionId)) throw new Error("Decision ID already exists");
@@ -361,6 +463,7 @@ export class ResearchStore {
     validate(ACTOR_PROPOSAL_SCHEMA, value); const proposal = value as Proposal, run = this.get(runId)!;
     this.check(run, proposal);
     if (proposal.estimatedBudget.attempts !== (proposal.kind === "dispatch" ? proposal.payload.candidates?.length ?? 1 : 0) || proposal.estimatedBudget.evaluatorCalls !== (proposal.kind === 'evaluate' ? run.spec.config.execution==='research' ? evaluationCapacity(this.projection(runId)!) : 1 : 0)) throw new Error("Proposal budget estimate does not match action");
+    this.#read(db=>this.#actorEvidence(db,run,proposal),undefined);
     if (!this.#read(db => this.#evidence(db, run, proposal.expectedEvidence), false)) throw new Error("Proposal expects invalid or unknown native evidence");
     return structuredClone(proposal);
   }
@@ -503,7 +606,7 @@ export class ResearchStore {
       const saved=this.#row<{hash:string;receipt:Receipt}>(db,'operations',run.id,command.commandId);
       if(!saved||saved.hash!==digest({command,action,payload}))throw new Error('Exact admitted dispatch receipt required');
       saved.receipt={...saved.receipt,revision:run.revision+1,status:'blocked',reason};
-      this.#put(db,'operations',run.id,command.commandId,saved);run.error=reason;
+      this.#operation(db,run,command.commandId,saved);run.error=reason;
       return {status:'blocked',reason,value:{commandId:command.commandId,errors}};
     });
   }
@@ -558,7 +661,7 @@ export class ResearchStore {
       m.incumbent = intent.target; m.pending = null; run.revision++; run.state = "ready";
       saved.receipt = { ...saved.receipt, revision: run.revision, status: "applied" };
       const decision = this.#row<Record<string, any>>(db, "decisions", runId, intent.decisionId)!; decision.status = "measured-keep";
-      this.#put(db, "decisions", runId, intent.decisionId, decision); this.#put(db, "operations", runId, intent.commandId, saved);
+      this.#put(db, "decisions", runId, intent.decisionId, decision); this.#operation(db, run, intent.commandId, saved);
       this.#put(db, "events", runId, String(run.revision), { revision: run.revision, type: "incumbent-kept", commandId: intent.commandId, status: "applied", reason: null });
       this.#save(db, run); return saved.receipt;
     });

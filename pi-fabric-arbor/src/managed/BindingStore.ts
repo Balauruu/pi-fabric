@@ -10,6 +10,8 @@ export interface Binding {
   dispatches: Array<{ kind: "actor" | "agent"; name: string; nativeId?: string }>;
   actors: string[]; workers: Array<{ id: string; cwd: string; oid: string; task: string; status?: Terminal }>;
   roleInvocations?: RoleInvocation[];
+  literature?: {runId:string;batchId:string};
+  literatureResult?: {value:import("../research/GroundingContracts.js").LiteratureResult;nativeId:string;requestId:string;roleBundleId:string;model:string};
   error?: string;
 }
 /** PR2 native linkage only. PR3 owns the future transactional research schema. */
@@ -52,6 +54,7 @@ export class BindingStore {
   }
   save(binding: Binding): void {
     const previous = this.get(binding.spec.runId);
+    if(previous?.literatureResult && JSON.stringify(previous.literatureResult)!==JSON.stringify(binding.literatureResult))throw new Error("Literature native completion is immutable");
     for (const [index, prior] of (previous?.roleInvocations ?? []).entries()) {
       const next = binding.roleInvocations?.[index];
       if (!next) throw new Error("Prior operational invocation attribution cannot be removed");

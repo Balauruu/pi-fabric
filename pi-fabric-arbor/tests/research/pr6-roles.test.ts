@@ -12,6 +12,15 @@ async function fixture() {
   const bundles = new RoleBundle(join(root, "state", "roles"), packageRoot);
   return { root, packageRoot, candidate, bundles };
 }
+test('PR10 literature is an explicit frozen role, never a same-path candidate or updated package bootstrap',async()=>{
+ const f=await fixture(),saved=await f.bundles.freeze();
+ const original=await f.bundles.load(saved,'literature' as any,[]);assert.match(original.instructions,/ARBOR_LITERATURE_V1/);
+ await mkdir(join(f.candidate,'skills/fabric-arbor/roles'),{recursive:true});await writeFile(join(f.candidate,'skills/fabric-arbor/roles/literature.md'),'CANDIDATE_LITERATURE_OVERRIDE');
+ await writeFile(join(f.packageRoot,'skills/fabric-arbor/roles/literature.md'),'PACKAGE_LITERATURE_CHANGED');
+ const resumed=new RoleBundle(join(f.root,'state','roles'),f.candidate);assert.deepEqual(await resumed.load(saved,'literature' as any,[]),original);
+ assert.doesNotMatch(original.instructions,/CANDIDATE_LITERATURE_OVERRIDE|PACKAGE_LITERATURE_CHANGED/);
+ await rm(join(saved.directory,'roles/literature.md'));await assert.rejects(resumed.load(saved,'literature' as any,[]),/Operational role unavailable/);
+});
 test("PR6 immutable package bundle survives package changes and reconstruction; candidate path cannot resolve optimizer", async () => {
   const f = await fixture(); const saved = await f.bundles.freeze();
   await mkdir(join(f.candidate, "skills/fabric-arbor/roles"), { recursive: true });

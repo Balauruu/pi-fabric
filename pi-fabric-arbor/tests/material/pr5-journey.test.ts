@@ -64,6 +64,37 @@ async function fixture(t: test.TestContext, options: { direction?:"maximize"|"mi
   const keep = (id: string) => invoke("decide", { decisionId: `keep-${id}`, nodeId: id, decision: "keep", evidenceIds: [`eval-${id}`] });
   return { native, root, cwd, state, store, bindings, service, owner, evaluator, invoke, candidate, keep, before, refs, git, context };
 }
+test('PR10 independent review mixed-split decisions cannot launder held-out outcomes into project lessons',async t=>{
+ const f=await fixture(t,{heldOut:'win'});await f.candidate('one');const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
+ await f.invoke('decide',{decisionId:'mixed-discard',nodeId:'one',decision:'discard',evidenceIds:['eval-one',held.id]});
+ await f.invoke('distill',{lessonId:'dev-lesson',nodeId:'one',insight:'Development observation only',limitations:'Local',evidenceIds:['eval-one']});
+ const hits=f.store.lessons({runId:'run',query:'',limit:8});assert.equal(hits.length,1);assert.equal(hits[0]!.outcome,'unscored-observation');
+});
+test('PR10 second review ordinary actor and trajectory admission reject held-out or mixed evidence',async t=>{
+ const f=await fixture(t,{heldOut:'win'});await f.candidate('one');const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
+ for(const evidenceIds of [[held.id],['eval-one',held.id]]){const command=f.store.binding(f.store.get('run')!,'actor-'+evidenceIds.length),proposal={...command,version:2 as const,kind:'decide' as const,expectedEvidence:['eval-one'],estimatedBudget:{attempts:0,evaluatorCalls:0},rationale:'No test evidence in ordinary actor context',payload:{decisionId:'discard',nodeId:'one',decision:'discard',evidenceIds}};
+ assert.throws(()=>f.store.validateProposal(proposal,'run'),/development|held-out/);
+ assert.throws(()=>f.store.recordProposal(proposal,'g1',{actorId:'actor',nativeId:'activation',requestId:'a'.repeat(64),context:{}}),/development|held-out/);
+ assert.equal(f.store.trajectories('run').length,0);
+ }
+});
+test('PR10 delayed measured-keep trajectory retains original incumbent after a later measured keep',async t=>{
+ const f=await fixture(t,{command:true});await f.candidate('one');const command=f.store.binding(f.store.get('run')!,'actor-keep-one');
+ const payload={decisionId:'keep-one',nodeId:'one',decision:'keep',evidenceIds:['eval-one']},proposal={...command,version:2 as const,kind:'decide' as const,expectedEvidence:['eval-one'],estimatedBudget:{attempts:0,evaluatorCalls:0},rationale:'Exact keep',payload};
+ f.store.recordProposal(proposal,'g1',{actorId:'actor',nativeId:'activation',requestId:'a'.repeat(64),context:{currentIncumbent:f.store.get('run')!.material!.incumbent}});
+ const receipt=await f.invoke('decide',payload,command.commandId),incumbent=f.store.get('run')!.material!.incumbent;assert.equal(receipt.status,'applied');
+ await f.candidate('two','WRITE OTHER');await f.keep('two');assert.notEqual(f.store.get('run')!.material!.incumbent,incumbent);
+ f.store.finishProposal('run',command.commandId,'g1',receipt,null);const outcome=f.store.trajectories('run')[0]!.outcome!;assert.equal(outcome.incumbent,incumbent);assert.equal(outcome.revision,receipt.revision);
+});
+test('PR10 independent review decision and distillation trajectories retain exact evaluation and attempt links',async t=>{
+ const f=await fixture(t);await f.candidate('one');
+ for(const kind of ['decide','distill'] as const){const command=f.store.binding(f.store.get('run')!,'trajectory-'+kind),payload=kind==='decide'?{decisionId:'discard',nodeId:'one',decision:'discard',evidenceIds:['eval-one']}:{lessonId:'lesson',nodeId:'one',insight:'Development observation',limitations:'Local',evidenceIds:['eval-one']};
+ const proposal={...command,version:2 as const,kind,payload,expectedEvidence:['eval-one'],estimatedBudget:{attempts:0,evaluatorCalls:0},rationale:'Interpret exact development evidence'};
+ f.store.recordProposal(proposal,'g1',{actorId:'actor',nativeId:'activation-'+kind,requestId:'a'.repeat(64),context:{evidence:[{id:'eval-one'}]}});
+ const receipt=await f.invoke(kind,payload,command.commandId);f.store.finishProposal('run',command.commandId,'g1',receipt,null);
+ const outcome=f.store.trajectories('run').at(-1)!.outcome!;assert.deepEqual(outcome.evaluationIds,['eval-one']);assert.deepEqual(outcome.attemptIds,['one']);
+ }
+});
 test('PR9 stale held-out approval cannot consume untouched final evidence',async t=>{
  const f=await fixture(t,{heldOut:'win',untouched:'win'});await f.candidate('one');
  const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
