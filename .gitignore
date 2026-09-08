@@ -13,6 +13,11 @@ web-search-cache/
 skills-disabled/
 skill-evaluations/
 
+# Ephemeral documentation
+docs/*
+!docs/wayfinder/
+!docs/wayfinder/**
+
 # Reinstallable dependencies and virtual environments
 npm/node_modules/
 **/.venv/
