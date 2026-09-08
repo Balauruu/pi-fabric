@@ -27,8 +27,10 @@ test('PR6 reviewer native exhausted active budget after baseline admits no actor
  assert.equal(h.value.p.run.execution,'research-stop:active-time-budget',h.root);assert.equal(h.events.filter(e=>e.event==='native.result'&&e.data.ref==='agents.create').length,0);assert.equal(h.value.p.attempts.length,0);
 });
 test('PR6 reviewer native failed attempt reload resume discards original evidence and continues without duplicate',{timeout:240000},async t=>{
- const begin=commandProgram(researchCommand('start',JSON.stringify({runId:'research'}))),resume=commandProgram(researchCommand('resume','research'));
- const program=`const before=await(async()=>{${begin}})();const evidence=before.artifact_refs;await components.reload({id:'arbor'});let p;for(let n=0;n<3;n++)p=await(async()=>{${resume}})();return JSON.stringify({before:{attempt:before.attempts[0],evidence},p:compactProjection(p),evidenceUnchanged:JSON.stringify(p.artifact_refs.slice(0,evidence.length))===JSON.stringify(evidence)});`;
+ const begin=commandProgram(researchCommand('start',JSON.stringify({runId:'research'})));
+ // Separate explicit user resumes need separate single-consumption intents.
+ const resumes=Array.from({length:3},()=>commandProgram(researchCommand('resume','research')));
+ const program=`const before=await(async()=>{${begin}})();const evidence=before.artifact_refs;await components.reload({id:'arbor'});let p;${resumes.map(resume=>`p=await(async()=>{${resume}})();`).join("")}return JSON.stringify({before:{attempt:before.attempts[0],evidence},p:compactProjection(p),evidenceUnchanged:JSON.stringify(p.artifact_refs.slice(0,evidence.length))===JSON.stringify(evidence)});`;
  const h=await host('command',{program,overrides:{objective:{description:'PR6_FAIL_WORKERS',unit:'points'},search:{maxChildren:4,maxActorTurns:3,stopAfterFailures:4},limits:{attempts:2}}});t.after(()=>h.store.close());
  const {before,p}=h.value;assert.equal(before.attempt.state,'failed',h.root);assert.deepEqual(p.attempts[0],before.attempt);assert.equal(h.value.evidenceUnchanged,true);assert.notEqual(p.run.generation,before.attempt.generation);
  assert.equal(p.run.execution,'research-stop:attempt-budget',h.root);assert.equal(p.attempts.length,2);assert.equal(p.lessons.length,2);assert.equal(p.decisions.filter((d:any)=>d.decision==='discard').length,2);assert.equal(h.events.filter(e=>e.event==='research.worker'&&!e.data.didTool).length,2);

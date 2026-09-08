@@ -28,7 +28,7 @@ for(const s of stages)test(`PR8 SIGKILL gap ${s.stage} ${s.name}: reopen observe
   const crash=s.stage===3?"await new Promise<void>((_resolve,reject)=>{const timer=setInterval(()=>{let partial;try{partial=pr8Read(spec.cwd+'/program.cjs','utf8');}catch{return;}if(partial.includes('PR8_PARTIAL_WRITE')){clearInterval(timer);clearTimeout(deadline);pr8Write(process.env.ARBOR_PR8_CRASH_FILE!,JSON.stringify({stage:3,pid:process.pid,at:Date.now(),nativeId:id,partial}));process.kill(process.pid,'SIGKILL');}},5);const deadline=setTimeout(()=>{clearInterval(timer);reject(new Error('Required native partial write not observed'));},20000);});":`if(${s.condition}){pr8Write(process.env.ARBOR_PR8_CRASH_FILE!,JSON.stringify({stage:${s.stage},pid:process.pid,at:Date.now()}));process.kill(process.pid,'SIGKILL');}`;
   await writeFile(path,"import {writeFileSync as pr8Write,readFileSync as pr8Read} from 'node:fs';\n"+source.replace(s.anchor,s.after?s.anchor+crash:crash+s.anchor));
  }});t.after(()=>h.store.close());
- assert.equal(h.value.stage,s.stage);assert.match(h.value.error,/Different native/);const p=h.store.projection('research') as any;
+ assert.equal(h.value.stage,s.stage);assert.match(h.value.error,/Different native|Research resume intent owner unavailable/);const p=h.store.projection('research') as any;
  if(s.stage===1)assert.equal(p.attempts[0].nativeId,null);
  if(s.stage===2)assert.ok(h.events.some(e=>e.event==='native.result'&&e.data.ref==='agents.spawn'));
  if(s.stage===3){assert.equal(p.attempts[0].nativeDigest,null);assert.ok(p.attempts[0].nativeId&&p.attempts[0].state==='running');assert.match(await readFile(join(p.run.material.candidates[0].directory,'program.cjs'),'utf8'),/PR8_PARTIAL_WRITE/);}

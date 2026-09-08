@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs';
 import type {FabricActionDescriptor,FabricCommittedCapabilityView} from 'pi-fabric/protocol';
 import {array,canonical,closed,digest,id,str,validate} from './contracts.js';
 import {sourceSearchInputSchema,sourceSearchOutputSchema,sourceFetchInputSchema,sourceFetchOutputSchema} from './GroundingContracts.js';
-import {bindRequest} from '../evaluators/trust.js';
+import {bindRequest,immutableCopy} from '../evaluators/trust.js';
 export interface SourceCapability {ref:string;descriptorHash:string}
 export interface SourceCatalogEntry {id:string;search:SourceCapability;fetch:SourceCapability}
 export function readSourceCatalog(path:string):SourceCatalogEntry[]{
@@ -16,7 +16,7 @@ export function readSourceCatalog(path:string):SourceCatalogEntry[]{
  * requirements are declared before activation; a run cannot widen this view. */
 export class SourceCatalog {
  readonly entries:readonly SourceCatalogEntry[];readonly view:FabricCommittedCapabilityView;readonly id:string;
- constructor(entries:readonly SourceCatalogEntry[],view:FabricCommittedCapabilityView,readonly call:(ref:string,args:Record<string,unknown>)=>Promise<unknown>,readonly describe?:(ref:string)=>Promise<FabricActionDescriptor|undefined>){this.entries=structuredClone(entries);this.view=structuredClone(view);this.id=digest(this.entries);}
+ constructor(entries:readonly SourceCatalogEntry[],view:FabricCommittedCapabilityView,readonly call:(ref:string,args:Record<string,unknown>)=>Promise<unknown>,readonly describe?:(ref:string)=>Promise<FabricActionDescriptor|undefined>){this.entries=immutableCopy(entries);this.view=immutableCopy(view);this.id=digest(this.entries);Object.freeze(this);}
  binding(catalogId:string,kind:'search'|'fetch'){
   const entry=this.entries.find(e=>e.id===catalogId);if(!entry)throw new Error('Selected grounding catalog is unavailable; explicit quiescent source-catalog registration required');
   const cap=entry[kind],binding=this.view.bindings[cap.ref];if(!binding)throw new Error(`Optional grounding capability unavailable: ${cap.ref}`);

@@ -10,7 +10,8 @@ export interface Binding {
   dispatches: Array<{ kind: "actor" | "agent"; name: string; nativeId?: string }>;
   actors: string[]; workers: Array<{ id: string; cwd: string; oid: string; task: string; status?: Terminal }>;
   roleInvocations?: RoleInvocation[];
-  literature?: {runId:string;batchId:string};
+  literature?: {runId:string;batchId:string;epoch?:string;request?:Record<string,unknown>};
+  literatureResultDigest?: string;
   literatureResult?: {value:import("../research/GroundingContracts.js").LiteratureResult;nativeId:string;requestId:string;roleBundleId:string;model:string};
   error?: string;
 }
@@ -54,6 +55,8 @@ export class BindingStore {
   }
   save(binding: Binding): void {
     const previous = this.get(binding.spec.runId);
+    if(previous?.literature){const {request:oldRequest,...old}=previous.literature,{request:newRequest,...next}=binding.literature??{};if(JSON.stringify(old)!==JSON.stringify(next)||(oldRequest&&JSON.stringify(oldRequest)!==JSON.stringify(newRequest)))throw new Error('Literature assignment/request is immutable');}
+    if(previous?.literatureResultDigest && previous.literatureResultDigest!==binding.literatureResultDigest)throw new Error('Literature completion digest is immutable');
     if(previous?.literatureResult && JSON.stringify(previous.literatureResult)!==JSON.stringify(binding.literatureResult))throw new Error("Literature native completion is immutable");
     for (const [index, prior] of (previous?.roleInvocations ?? []).entries()) {
       const next = binding.roleInvocations?.[index];

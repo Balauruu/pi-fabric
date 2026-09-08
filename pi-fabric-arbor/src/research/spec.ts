@@ -48,7 +48,8 @@ export async function configFile(path: string): Promise<Record<string, unknown>>
   try { const text = await readFile(path, "utf8"); if (text.length > 65536) throw new Error(`Configuration too large: ${path}`); const value: unknown = JSON.parse(text); validate(CONFIG_SCHEMA, value); return value as Record<string, unknown>; }
   catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return {}; throw error; }
 }
-export async function resolveSpec(cwd: string, profile: Record<string, unknown>, project: Record<string, unknown>, overrides: Record<string, unknown>, activeModel?: string): Promise<ResolvedSpec> {
+/** Configuration-only intake preview. No evaluator loads or executable identity claims. */
+export async function resolveConfiguration(cwd: string, profile: Record<string, unknown>, project: Record<string, unknown>, overrides: Record<string, unknown>) {
   const resolved: Record<string, any> = {}, origins: Record<string, string> = {};
   function merge(target: Record<string, any>, layer: Record<string, any>, origin: string, prefix = "") {
     for (const [key, value] of Object.entries(layer)) {
@@ -61,7 +62,10 @@ export async function resolveSpec(cwd: string, profile: Record<string, unknown>,
   const presetPath = Object.hasOwn(overrides, "preset") ? overrides.preset : Object.hasOwn(project, "preset") ? project.preset : profile.preset;
   const preset = typeof presetPath === "string" ? await loadPreset(isAbsolute(presetPath) ? presetPath : join(cwd, presetPath)) : null;
   for (const [origin, layer] of [["built-in", defaults(cwd)], ...(preset ? [[`preset:${preset.id}`, preset.defaults]] as const : []), ["profile", profile], ["project", project], ["explicit", overrides]] as const) { validate(CONFIG_SCHEMA, layer); merge(resolved, layer, origin); }
-  const config = resolved as Config;
+  return {config:resolved as Config,origins,preset,presetPath};
+}
+export async function resolveSpec(cwd: string, profile: Record<string, unknown>, project: Record<string, unknown>, overrides: Record<string, unknown>, activeModel?: string): Promise<ResolvedSpec> {
+  const {config,origins,preset,presetPath}=await resolveConfiguration(cwd,profile,project,overrides);
   if (!isAbsolute(config.material.root)) config.material.root = join(cwd, config.material.root);
   config.material.root = await realpath(config.material.root);
   for (const field of ["mutablePaths", "evaluationInputs", "selectedUntracked"] as const) {

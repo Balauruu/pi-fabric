@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { readFile,writeFile } from 'node:fs/promises';
+import { readFile,writeFile,readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { ResearchStore } from '../../src/research/ResearchStore.js';
@@ -14,6 +14,7 @@ export async function reopenAfterCrash(input:{root:string;cwd:string;modules:str
  assert.equal(exit.code,null,root);assert.equal(exit.signal,'SIGKILL',root);assert.equal(exit.killed,false,root);assert.ok(exit.error);
  const marker=JSON.parse(await readFile(join(root,'crash.json'),'utf8'));assert.equal(marker.stage,stage,root);
  const store=new ResearchStore(join(root,'state/research.sqlite3')),before=store.projection('research')!,snapshot=canonical(before),trace=join(root,'trace.jsonl');
+ const databaseBytes=await readFile(store.path),inventory=(await readdir(join(root,'state'))).sort();
  const priorEvents=(await readFile(trace,'utf8')).trim().split('\n').map(l=>JSON.parse(l));
  const ids=priorEvents.filter(e=>e.event==='native.result'&&['agents.create','agents.spawn'].includes(e.data.ref)).map(e=>e.data.result.id).filter(Boolean);
  const resume=commandProgram(researchCommand('resume','research'));
@@ -24,7 +25,7 @@ export async function reopenAfterCrash(input:{root:string;cwd:string;modules:str
  await Promise.all([writeFile(join(root,'reopen-stdout.log'),out.stdout),writeFile(join(root,'reopen-stderr.log'),out.stderr),writeFile(join(root,'reopen-exit.json'),JSON.stringify(reopenedExit))]);
  assert.deepEqual(reopenedExit,{code:0,signal:null,killed:false,error:null},root);
  const events=(await readFile(trace,'utf8')).trim().split('\n').map(l=>JSON.parse(l)),value=JSON.parse(events.filter(e=>e.event==='main.result').at(-1).data);
- assert.match(value.error,/Different native owning Pi root\/host\/identity|Different native/);assert.notEqual(value.self.ownerHostId,value.owner.ownerHostId);assert.equal(value.denials.length,3);for(const d of value.denials)assert.match(d.error,/Different native/);assert.equal(canonical(store.projection('research')),snapshot);
+ assert.match(value.error,/Different native|Research resume intent owner unavailable/);assert.notEqual(value.self.ownerHostId,value.owner.ownerHostId);assert.equal(value.denials.length,3);for(const d of value.denials)assert.match(d.error,/Different native/);assert.equal(canonical(store.projection('research')),snapshot);assert.deepEqual(await readFile(store.path),databaseBytes);assert.deepEqual((await readdir(join(root,'state'))).sort(),inventory);
  const count=(es:any[])=>es.filter(e=>e.event==='native.result'&&['agents.create','agents.spawn'].includes(e.data.ref)).length;assert.equal(count(events),count(priorEvents));
  await writeFile(join(root,'crash-observation.json'),JSON.stringify({stage,marker,exit,reopenedExit,projectionDigest:digest(before),nativeEffects:count(events),value},null,2));
  return {root,store,events,value:{...value,stage,nativeEffects:count(events),projectionDigest:digest(before)}};

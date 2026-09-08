@@ -172,10 +172,11 @@ test("stop ambiguity matrix accepts only exact local terminal proof", () => {
 });
 
 test("production definition is passive and declares exact requirements; provider close owns storage", async () => {
-  const def = createArborOwnerComponent(); assert.equal(def.guarantee, "managed"); assert.deepEqual(def.requires, ARBOR_OWNER_REFS); assert.deepEqual(def.provides, ["arbor"]);
+  const def = createArborOwnerComponent(); assert.equal(def.guarantee, "managed"); assert.deepEqual(def.requires, ARBOR_OWNER_REFS); assert.deepEqual(def.provides, ["arbor", "arbor_lifetime"]);
+  await mkdir(resolve(".runtime/pr2-passive"),{recursive:true});const stateDirectory=join(await mkdtemp(resolve(".runtime/pr2-passive/case-")),"unused");
   let provider!: FabricProvider; const disposers: Array<() => unknown> = []; let calls = 0;
-  await def.activate({ id: "arbor.owner", signal: new AbortController().signal, call() { calls++; throw new Error("activation call"); }, provide(p: FabricProvider) { provider = p; }, defer(d: () => unknown) { disposers.push(d); } } as unknown as FabricComponentContext, { stateDirectory: resolve(".runtime/pr2-unused") });
-  assert.equal(calls, 0); assert.equal(existsSync(resolve(".runtime/pr2-unused")), false);
+  await def.activate({ id: "arbor.owner", signal: new AbortController().signal, call() { calls++; throw new Error("activation call"); }, provide(p: FabricProvider) { if(p.name === "arbor") provider = p; }, defer(d: () => unknown) { disposers.push(d); } } as unknown as FabricComponentContext, { stateDirectory });
+  assert.equal(calls, 0); assert.equal(existsSync(stateDirectory), false);
   assert.deepEqual((await provider.list({}, context())).map(d => d.name), ["scaffold", "lessons", "runResearch", "resumeAttempt", "reviseRoles", "start", "inspect", "control", "export", "propose", "dispatch", "collect", "evaluate", "distill", "decide", "review", "apply", "undoApply", "substrateStart", "substrateInspect", "substrateCancel"]);
   for (const dispose of disposers.reverse()) await dispose();
   assert.equal(await provider.invoke("inspect", { runId: "absent" }, context()), null);
@@ -187,7 +188,8 @@ test("diagnostic parent lifecycle seam remains passive while exact-dependency ch
   const parent = createArborComponent(read => { diagnostic = read; });
   assert.deepEqual(parent.requires, []);
   await parent.activate({ use(child: any, options: any) {
-    assert.deepEqual(child.requires, ARBOR_OWNER_REFS); assert.equal(options.id, "owner");
+    if(options.id==='owner')assert.deepEqual(child.requires, ARBOR_OWNER_REFS);
+    else { assert.equal(options.id,'drain'); assert.deepEqual(child.requires,['arbor_lifetime.lease']); assert.deepEqual(child.provides,[]); }
     return { status: () => ({ state: "waiting", missing: ["agents.create"] }) };
   }, defer(fn: () => void) { disposers.push(fn); }, call() { throw new Error("No activation calls"); } } as unknown as FabricComponentContext, { stateDirectory: resolve(".runtime/pr2-unused") });
   assert.deepEqual(diagnostic!().missing, ["agents.create"]);

@@ -56,12 +56,14 @@ test("active package manifest has only source exports, one read-only bin, and on
 test("source extension registration is passive and only declares managed component metadata", async () => {
   const registrations: Array<{ name: string; command: { handler(args: string, context: any): unknown } }> = [];
   const definitions: unknown[] = [];
-  await piFabricArbor({ events: { emit(_name: string, event: unknown) { definitions.push(event); }, on() {} }, registerCommand(name: string, command: any) { registrations.push({ name, command }); } } as any);
+  const hooks:string[]=[];
+  await piFabricArbor({ on(name:string){hooks.push(name);}, events: { emit(_name: string, event: unknown) { definitions.push(event); }, on() {} }, registerCommand(name: string, command: any) { registrations.push({ name, command }); } } as any);
   assert.deepEqual(registrations.map((entry) => entry.name), ["arbor"]);
   assert.equal(definitions.length, 1);
+  assert.deepEqual(hooks,["session_shutdown"]);
   const messages: string[] = [];
   await registrations[0]!.command.handler("availability", { hasUI: true, ui: { notify(message: string) { messages.push(message); } } });
-  assert.match(messages[0]!, /transactional-research-observation-only/u);
+  assert.match(messages[0]!, /bounded-owner-led-research/u);
   await assert.rejects(async () => registrations[0]!.command.handler("start", { ui: { notify() {} } }), /owning Pi project/u);
 });
 
@@ -76,8 +78,11 @@ test("all declared skill, role, reference, and read-only Web assets resolve from
   const script = Buffer.from(assets.get("/assets/app.js")!.body).toString("utf8");
   assert.equal(assets.get("/index.html")!.fileName, "index.html");
   assert.equal(assets.get("/assets/app.css")!.fileName, "app.css");
-  assert.doesNotMatch(index, /<(?:form|input|select|textarea)\b/iu);
-  assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|\bPOST\b|\bPUT\b|\bPATCH\b|\bDELETE\b/u);
+  // The sole select navigates existing runs. It is not a mutation form.
+  assert.doesNotMatch(index, /<(?:form|input|textarea)\b/iu);
+  assert.deepEqual(index.match(/<select\b[^>]*>/giu), ['<select id="run" aria-label="Research run">']);
+  assert.doesNotMatch(script, /XMLHttpRequest|WebSocket|\bPOST\b|\bPUT\b|\bPATCH\b|\bDELETE\b|\bmethod\s*:/u);
+  assert.match(script, /EventSource/); // read-only SSE, behavior checked by PR12 server tests
 });
 
 test("CLI reads existing inputs, rejects every mutation verb, and changes no fixture bytes", async () => {

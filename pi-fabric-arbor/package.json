@@ -55,7 +55,10 @@
     "acceptance-ledger.md",
     "docs/pr2-managed-owner-evidence.md",
     "docs/pr3-interface-evidence.md",
-    "docs/pr3-action-manifest.json"
+    "docs/pr3-action-manifest.json",
+    "src/presentation/",
+    "docs/pr12-presentation-evidence.md",
+    "docs/role-maintenance.md"
   ],
   "scripts": {
     "typecheck": "tsc -p tsconfig.build.json",
@@ -72,7 +75,7 @@
     "test:pr11:e2e": "node --import tsx --test --test-concurrency=1 tests/integration/pr11-examples-host.test.ts",
     "audit:pr11": "node --import tsx tests/research/pr11-audit.ts",
     "audit:pr10": "node --import tsx tests/research/pr10-audit.ts",
-    "test:pr10": "node --import tsx --test --test-name-pattern=PR10 tests/research/pr10-experience.test.ts tests/research/pr10-review-bounds.test.ts tests/research/pr10-grounding.test.ts tests/research/pr6-roles.test.ts tests/material/pr5-journey.test.ts",
+    "test:pr10": "node --import tsx --test --test-name-pattern=PR10 tests/research/pr10-delayed.test.ts tests/research/pr10-experience.test.ts tests/research/pr10-review-bounds.test.ts tests/research/pr10-grounding.test.ts tests/research/pr6-roles.test.ts tests/material/pr5-journey.test.ts",
     "test:pr10:e2e": "node --import tsx --test --test-concurrency=1 tests/integration/pr10-grounding-host.test.ts tests/integration/pr10-experience-host.test.ts",
     "test:pr10:experience:e2e": "node --import tsx --test --test-concurrency=1 tests/integration/pr10-experience-host.test.ts",
     "audit:pr9": "node --import tsx tests/research/pr9-audit.ts",
@@ -95,7 +98,11 @@
     "test:pr2:e2e": "node --import tsx --test tests/integration/pr2-production-host.test.ts",
     "test:pr3": "node --import tsx --test tests/research/*.test.ts",
     "test:pr3:e2e": "node --import tsx --test tests/integration/pr3-research-host.test.ts",
-    "manifest:pr3": "node --import tsx tests/research/export-manifest.ts"
+    "manifest:pr3": "node --import tsx tests/research/export-manifest.ts",
+    "test:pr12": "node --import tsx --test --test-name-pattern=PR12 tests/research/pr12-*.test.ts tests/research/service.test.ts tests/material/pr5-journey.test.ts",
+    "test:pr12:e2e": "PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.runtime/pr12-browsers\" node --import tsx --test --test-concurrency=1 tests/integration/pr12-presentation-host.test.ts tests/integration/pr12-component-reload.test.ts tests/integration/pr12-lifetime-host.test.ts",
+    "audit:pr12:lifetime": "node --import tsx tests/research/pr12-lifetime-audit.ts",
+    "audit:pr12": "node --import tsx tests/research/pr12-audit.ts"
   },
   "keywords": [
     "pi-package",
@@ -118,13 +125,14 @@
     "tsx": "4.23.13"
   },
   "peerDependencies": {
-    "pi-fabric": ">=0.83.0 <0.84.0",
-    "@earendil-works/pi-coding-agent": "*"
+    "@earendil-works/pi-coding-agent": "*",
+    "pi-fabric": ">=0.83.0 <0.84.0"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "0.85.1",
     "@types/node": "26.0.0",
     "pi-fabric": "0.83.0",
+    "playwright": "1.63.0",
     "typescript": "6.0.3"
   }
 }

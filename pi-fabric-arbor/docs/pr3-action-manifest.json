@@ -1,5 +1,39 @@
 {
   "version": 2,
+  "ownerProvides": [
+    "arbor",
+    "arbor_lifetime"
+  ],
+  "drainRequires": [
+    "arbor_lifetime.lease"
+  ],
+  "internalCapabilities": [
+    {
+      "ref": "arbor_lifetime.lease",
+      "caller": "owning-Pi-managed-drain-component",
+      "commands": [],
+      "actorCommitment": false,
+      "acquisitionOnly": true,
+      "name": "lease",
+      "description": "Scoped owner-generation teardown obligation; acquisition only",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "null"
+      },
+      "risk": "agent",
+      "effect": {
+        "kind": "scoped",
+        "resources": [
+          "arbor:owner:lifetime"
+        ],
+        "ordering": "ordered"
+      }
+    }
+  ],
   "preset": {
     "type": "object",
     "additionalProperties": false,
@@ -2725,6 +2759,9 @@
     }
   },
   "commandsWithoutProvider": {
+    "dashboard": "owning-Pi session run selection or launch card; shared SourceView facts",
+    "show": "SourceView.project/diff and native Fabric navigation; same ResearchStore projection as arbor.inspect",
+    "browser": "owning-Pi session starts read-only SourceView listener; no effect callback",
     "setup": "owning Pi configuration only",
     "doctor": "read-only diagnostics",
     "availability": "read-only package status",
@@ -3463,6 +3500,45 @@
               "maxItems": 128,
               "minItems": 0
             },
+            "sourceRefs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "sourceId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "runId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "digest": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "sourceId",
+                  "runId",
+                  "revision",
+                  "digest"
+                ]
+              },
+              "maxItems": 128,
+              "minItems": 0
+            },
             "uninspectedSourceRefs": {
               "type": "array",
               "items": {
@@ -3591,6 +3667,7 @@
             "epoch",
             "specId",
             "sourceIds",
+            "sourceRefs",
             "uninspectedSourceRefs",
             "materials",
             "applicability",
@@ -3662,6 +3739,9 @@
             "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
           },
           "resume": {
+            "type": "boolean"
+          },
+          "background": {
             "type": "boolean"
           }
         },
@@ -8117,17 +8197,20 @@
                         "passage": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "claim": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "limitations": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "nativeId": {
                           "type": "string",
@@ -8294,6 +8377,7 @@
                           "type": "string",
                           "enum": [
                             "unscored-json-export",
+                            "research-markdown-export",
                             "source-operation"
                           ]
                         }
@@ -8398,6 +8482,45 @@
                           "maxItems": 128,
                           "minItems": 0
                         },
+                        "sourceRefs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "sourceId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "runId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "revision": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1000000
+                              },
+                              "digest": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              }
+                            },
+                            "required": [
+                              "sourceId",
+                              "runId",
+                              "revision",
+                              "digest"
+                            ]
+                          },
+                          "maxItems": 128,
+                          "minItems": 0
+                        },
                         "uninspectedSourceRefs": {
                           "type": "array",
                           "items": {
@@ -8436,6 +8559,7 @@
                         "epoch",
                         "specId",
                         "sourceIds",
+                        "sourceRefs",
                         "uninspectedSourceRefs",
                         "materials",
                         "applicability",
@@ -8488,7 +8612,7 @@
         ],
         "ordering": "ordered"
       },
-      "description": "Owning Pi execute-policy gate for autonomous research: baseline, persistent proposal actor, bounded candidate operations and exact command/subject evaluation. Agent effects additionally use declared policy-checked managed agents refs."
+      "description": "Owning Pi execute-policy gate for autonomous research: baseline, persistent proposal actor, bounded candidate operations and exact command/subject evaluation. Initial work consumes the agent-admitted fresh start. Resume requires an exact single-use agent-risk arbor.control resume intent, then ordinary execute admission. Captured native calls retain component lifetime, not fresh per-native-call risk checks."
     },
     {
       "ref": "arbor.resumeAttempt",
@@ -10077,6 +10201,11 @@
               }
             },
             "required": []
+          },
+          "expectedSpecId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           }
         },
         "required": [
@@ -14527,17 +14656,20 @@
                         "passage": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "claim": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "limitations": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "nativeId": {
                           "type": "string",
@@ -14704,6 +14836,7 @@
                           "type": "string",
                           "enum": [
                             "unscored-json-export",
+                            "research-markdown-export",
                             "source-operation"
                           ]
                         }
@@ -14808,6 +14941,45 @@
                           "maxItems": 128,
                           "minItems": 0
                         },
+                        "sourceRefs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "sourceId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "runId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "revision": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1000000
+                              },
+                              "digest": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              }
+                            },
+                            "required": [
+                              "sourceId",
+                              "runId",
+                              "revision",
+                              "digest"
+                            ]
+                          },
+                          "maxItems": 128,
+                          "minItems": 0
+                        },
                         "uninspectedSourceRefs": {
                           "type": "array",
                           "items": {
@@ -14846,6 +15018,7 @@
                         "epoch",
                         "specId",
                         "sourceIds",
+                        "sourceRefs",
                         "uninspectedSourceRefs",
                         "materials",
                         "applicability",
@@ -19367,17 +19540,20 @@
                         "passage": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "claim": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "limitations": {
                           "type": "string",
                           "minLength": 1,
-                          "maxLength": 4096
+                          "maxLength": 4096,
+                          "pattern": "\\S"
                         },
                         "nativeId": {
                           "type": "string",
@@ -19544,6 +19720,7 @@
                           "type": "string",
                           "enum": [
                             "unscored-json-export",
+                            "research-markdown-export",
                             "source-operation"
                           ]
                         }
@@ -19648,6 +19825,45 @@
                           "maxItems": 128,
                           "minItems": 0
                         },
+                        "sourceRefs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "sourceId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "runId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 96,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                              },
+                              "revision": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1000000
+                              },
+                              "digest": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              }
+                            },
+                            "required": [
+                              "sourceId",
+                              "runId",
+                              "revision",
+                              "digest"
+                            ]
+                          },
+                          "maxItems": 128,
+                          "minItems": 0
+                        },
                         "uninspectedSourceRefs": {
                           "type": "array",
                           "items": {
@@ -19686,6 +19902,7 @@
                         "epoch",
                         "specId",
                         "sourceIds",
+                        "sourceRefs",
                         "uninspectedSourceRefs",
                         "materials",
                         "applicability",
@@ -20345,7 +20562,9 @@
           "format": {
             "type": "string",
             "enum": [
-              "json"
+              "json",
+              "report",
+              "trajectory"
             ]
           }
         },
@@ -20849,7 +21068,7 @@
         ],
         "ordering": "ordered"
       },
-      "description": "Owning Pi: generate a JSON projection and, for owned material, captured-baseline to incumbent patch idempotently. Never writes source material."
+      "description": "Owning Pi: generate JSON, report Markdown or trajectory Markdown and, for owned material, the captured-baseline delta idempotently. Never writes source material."
     },
     {
       "ref": "arbor.propose",

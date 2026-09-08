@@ -64,6 +64,29 @@ async function fixture(t: test.TestContext, options: { direction?:"maximize"|"mi
   const keep = (id: string) => invoke("decide", { decisionId: `keep-${id}`, nodeId: id, decision: "keep", evidenceIds: [`eval-${id}`] });
   return { native, root, cwd, state, store, bindings, service, owner, evaluator, invoke, candidate, keep, before, refs, git, context };
 }
+test('PR12 admission direct execute resume and stale initial replay fail before effects',async t=>{
+ const f=await fixture(t,{research:true,command:true});let effects=0;f.owner.verifyRoles=async()=>{effects++;};await f.invoke('control','pause');const before=f.store.get('run')!;await assert.rejects(f.service.invoke('runResearch',{...f.store.binding(before,'bypass'),resume:true,background:true},f.context),/Fresh agent-risk/);assert.equal(effects,0);assert.deepEqual(f.store.get('run'),before);await assert.rejects(f.service.invoke('runResearch',{...f.store.binding(before,'initial-replay'),background:true},f.context),/Fresh current-generation/);assert.equal(effects,0);
+});
+test('PR12 admission exact resume intent is single-use generation-bound and cannot be refreshed by replay',async t=>{
+ const f=await fixture(t,{research:true,command:true}),store=f.store;
+ const initial=store.binding(store.get('run')!,'initial');store.claimResearch(initial,identity,'arbor.owner','g1',false);assert.throws(()=>store.claimResearch(initial,identity,'arbor.owner','g1',false),/Stale/);assert.throws(()=>store.claimResearch(store.binding(store.get('run')!,'again'),identity,'arbor.owner','g1',false),/Fresh current-generation/);
+ await f.invoke('control','pause');const command=store.binding(store.get('run')!,'resume-intent'),intent=store.resumeIntent(command,identity,'arbor.owner','g1');assert.match(intent.reason!,/Execution has not started/);assert.equal(store.get('run')!.state,'paused');const admitted=store.binding(store.get('run')!,command.commandId);assert.throws(()=>store.claimResearch(admitted,identity,'arbor.owner','g2',true),/Fresh agent-risk/);assert.throws(()=>store.claimResearch({...admitted,commandId:'other'},identity,'arbor.owner','g1',true),/Fresh agent-risk/);
+ store.claimResearch(admitted,identity,'arbor.owner','g1',true);const claimed=store.get('run')!;assert.deepEqual(store.resumeIntent(command,identity,'arbor.owner','g1'),intent);assert.deepEqual(store.get('run'),claimed);assert.throws(()=>store.claimResearch(store.binding(claimed,command.commandId),identity,'arbor.owner','g1',true),/Fresh agent-risk/);
+ const next=store.binding(claimed,'superseded');store.resumeIntent(next,identity,'arbor.owner','g1');store.control(store.binding(store.get('run')!,'steer'),'g1','steer','Changed after resume intent');assert.throws(()=>store.claimResearch(store.binding(store.get('run')!,next.commandId),identity,'arbor.owner','g1',true),/Fresh agent-risk/);
+});
+
+test('PR12 O2 failed background resume records attributable refusal without changing paused old generation',async t=>{
+ const f=await fixture(t,{research:true,command:true});await f.invoke('control','pause');const before=f.store.get('run')!;
+ const owner=new OwnerExecution(f.owner.call,f.bindings,'arbor.owner','g2',f.store);owner.verifyRoles=async()=>{throw new Error('saved-role-refusal');};const service=new ResearchService(owner,f.store,f.state,join(f.root,'profile'),f.evaluator);
+ const admitted:any=await service.invoke('control',{...f.store.binding(before,'failed-resume'),action:'resume'},f.context);assert.match(admitted.reason,/Execution has not started/);const result:any=await service.invoke('runResearch',{...f.store.binding(f.store.get('run')!,'failed-resume'),resume:true,background:true},f.context);assert.equal(result.run.state,'paused');const claimed=f.store.get('run')!;assert.equal(claimed.generation,before.generation);await service.dispose();assert.deepEqual(f.store.get('run'),claimed);const events=f.store.replay('run')!.events as any[];const refusal=events.find(e=>e.type==='background-refusal');assert.ok(refusal,'Missing background refusal');assert.equal(refusal.commandId,'failed-resume');assert.equal(refusal.status,'blocked');assert.match(refusal.reason,/g2.*saved-role-refusal/);assert.ok(refusal.reason.length<=4096);assert.equal((f.store.projection('run')!.controls as any[]).some(c=>c.commandId==='failed-resume'&&c.status==='queued'),false);
+});
+test('PR12 O2 held background retirement waits and records refusal without terminal overwrite',async t=>{
+ const f=await fixture(t,{research:true,command:true});let release!:()=>void;f.owner.verifyRoles=async()=>{await new Promise<void>(r=>{release=r;});throw new Error('held-role-retired');};await f.service.invoke('runResearch',{...f.store.binding(f.store.get('run')!,'held-background'),background:true},f.context);await f.invoke('control','cancel');const before=f.store.get('run')!;let settled=false;const disposed=f.service.dispose().then(()=>{settled=true;});await new Promise(r=>setImmediate(r));assert.equal(settled,false);release();await disposed;assert.deepEqual(f.store.get('run'),before);assert.equal(before.state,'cancelled');assert.match((f.store.replay('run')!.events as any[]).find(e=>e.type==='background-refusal')?.reason??'',/held-role-retired/);
+});
+
+test('PR12 pending integration export refuses before writing any unregistered artifact',async t=>{
+ const f=await fixture(t);await f.candidate('one');const command=f.store.binding(f.store.get('run')!,'pending-keep');const receipt=f.store.prepareIntegration(command,'g1',{decisionId:'pending-choice',nodeId:'one',decision:'keep',evidenceIds:['eval-one']});assert.equal(receipt.status,'queued');assert.ok(f.store.get('run')!.material!.pending);const before=f.store.projection('run');await assert.rejects(f.invoke('export',{}),/Pending integration/);const {existsSync}=await import('node:fs');assert.equal(existsSync(join(f.state,'runs/run/exports')),false);assert.deepEqual(f.store.projection('run'),before);
+});
 test('PR10 independent review mixed-split decisions cannot launder held-out outcomes into project lessons',async t=>{
  const f=await fixture(t,{heldOut:'win'});await f.candidate('one');const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
  await f.invoke('decide',{decisionId:'mixed-discard',nodeId:'one',decision:'discard',evidenceIds:['eval-one',held.id]});
@@ -102,14 +125,16 @@ test('PR9 stale held-out approval cannot consume untouched final evidence',async
  await assert.rejects(f.invoke('evaluate',{attemptId:'one',evaluationId:'eval-one',validation:'final'}),/changed|mismatch|modified/i);
  assert.equal(f.native.size,before);assert.equal(f.store.evaluations('run').some(e=>e.split==='final'),false);
 });
-test('PR9 held-out-linked lessons and decisions stay out of ordinary product ideation',async t=>{
+test('PR9 PR10 delayed ID held-out-linked lessons and decisions stay out of ordinary product ideation',async t=>{
  const f=await fixture(t,{heldOut:'win'});await f.candidate('one');
  const held=f.store.evaluations('run').find(e=>e.split==='held-out'&&e.attemptId)!;
- await f.invoke('distill',{lessonId:'held-lesson',nodeId:'one',insight:'HELD_GRADE_DETAIL_SENTINEL',limitations:'test-only',evidenceIds:[held.id]});
+ await f.invoke('distill',{lessonId:'dev-safe',nodeId:'one',insight:'Development only',limitations:'Retest',evidenceIds:['eval-one']});
+ await f.invoke('distill',{lessonId:'HELD_GRADE_SENTINEL',nodeId:'one',insight:'HELD_GRADE_DETAIL_SENTINEL',limitations:'test-only',evidenceIds:[held.id]});
  await f.invoke('decide',{decisionId:'held-review',nodeId:'one',decision:'request_review',evidenceIds:[held.id]});
- const p=f.store.projection('run')!;assert.ok(JSON.stringify(p).includes('HELD_GRADE_DETAIL_SENTINEL'));
+ const p=f.store.projection('run')!;assert.ok(JSON.stringify(p).includes('HELD_GRADE_DETAIL_SENTINEL'));assert.ok(JSON.stringify(p.nodes).includes('HELD_GRADE_SENTINEL'));
+ const nested:any=structuredClone(p);(nested.nodes[0] as any).selection={insightIds:['dev-safe','HELD_GRADE_SENTINEL','unknown-lesson'],fallback:{insightIds:['HELD_GRADE_SENTINEL']}};const nestedObservation=researchObservation(nested,0,f.store.evaluations('run'));assert.deepEqual(nestedObservation.nodes[0].selection,{insightIds:['dev-safe'],fallback:{insightIds:[]}});assert.ok(JSON.stringify(f.store.exportProjection('run')).includes('HELD_GRADE_SENTINEL'));
  const observation=researchObservation(p,0,f.store.evaluations('run'));
- assert.doesNotMatch(JSON.stringify(observation),/HELD_GRADE_DETAIL_SENTINEL/);assert.equal(observation.decisions.some((d:any)=>d.evidenceIds.includes(held.id)),false);
+ assert.doesNotMatch(JSON.stringify(observation),/HELD_GRADE_(DETAIL_)?SENTINEL/);assert.equal(observation.decisions.some((d:any)=>d.evidenceIds.includes(held.id)),false);
  await f.invoke('review','held-review');await f.invoke('decide',{decisionId:'held-discard',nodeId:'one',decision:'discard',evidenceIds:[held.id]});
  const after=researchObservation(f.store.projection('run')!,0,f.store.evaluations('run'));
  assert.equal(after.facts.noGain,0,'Test-only decisions cannot drive development convergence');assert.equal(after.recentFacts[0]!.evaluationId,'eval-one');

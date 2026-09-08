@@ -1,3 +1,4 @@
+import { SourceView } from "../presentation/SourceView.js";
 import { constants } from "node:fs";
 import { lstat, open, realpath } from "node:fs/promises";
 import { resolve, sep } from "node:path";
@@ -18,9 +19,12 @@ const MUTATING_COMMANDS = new Set([
 const USAGE = `Usage: pi-fabric-arbor <command> [options]
 
 Read-only commands:
-  availability                         Show installed PR1 capability status
+  availability                         Show installed source-package capability status
   assets                               List packaged skill, role, reference, and Web assets
   asset <asset-id>                     Read one packaged asset
+  inspect --state <directory> --run <run> Read the exact current research revision
+  replay --state <directory> --run <run>  Read saved research events at one revision
+  artifact --state <directory> --run <run> --id <artifact> Retrieve a registered existing artifact
   inspect --file <existing-file>       Read an existing projection or metadata file
   replay --file <existing-jsonl>       Validate and replay existing JSONL records
   artifact --root <root> --path <path> Retrieve an existing regular artifact below root
@@ -125,7 +129,15 @@ async function dispatch(args: readonly string[], io: CliIo): Promise<void> {
     return;
   }
   if (command === "inspect" || command === "replay") {
-    const options = optionMap(rest, new Set(["file"]));
+    const options = optionMap(rest, new Set(["file", "state", "run"]));
+    if(options.has('state')){
+      if(options.has('file')||!options.has('run'))throw new Error('Use --state and --run only');
+      const view=new SourceView(resolve(options.get('state')!));
+      const result=command==='inspect'?view.project(options.get('run')!):view.replay(options.get('run')!);
+      if(!result)throw new Error('Unknown existing research run');
+      io.stdout.write(JSON.stringify(result)+'\n');return;
+    }
+    if(options.has('run'))throw new Error('--run requires --state');
     const file = options.get("file");
     if (!file) throw new Error(`${command} requires --file <existing-file>`);
     const body = await readRegularFile(file);
@@ -134,7 +146,12 @@ async function dispatch(args: readonly string[], io: CliIo): Promise<void> {
     return;
   }
   if (command === "artifact") {
-    const options = optionMap(rest, new Set(["root", "path"]));
+    const options = optionMap(rest, new Set(["root", "path", "state", "run", "id"]));
+    if(options.has('state')){
+      if(options.has('root')||options.has('path')||!options.has('run')||!options.has('id'))throw new Error('Use --state, --run and --id only');
+      io.stdout.write(await new SourceView(resolve(options.get('state')!)).artifact(options.get('run')!,options.get('id')!));return;
+    }
+    if(options.has('run')||options.has('id'))throw new Error('--run/--id require --state');
     const root = options.get("root");
     const path = options.get("path");
     if (!root || !path) throw new Error("artifact requires --root <root> --path <relative-path>");

@@ -4,7 +4,7 @@ import type { Receipt, ResearchRun } from './ResearchStore.js';
 export interface LessonReference { runId:string; lessonId:string; revision:number; digest:string }
 export interface LessonProvenance {
   runId:string; revision:number; materialId:string; epoch:string; specId:string;
-  sourceIds:string[]; uninspectedSourceRefs:string[]; materials:string[]; applicability:string; outcome:string;
+  sourceIds:string[]; sourceRefs:Array<{runId:string;sourceId:string;revision:number;digest:string}>; uninspectedSourceRefs:string[]; materials:string[]; applicability:string; outcome:string;
 }
 export interface LessonHit extends LessonProvenance {
   lessonId:string; nodeId:string; insight:string; limitations:string; evidenceIds:string[];

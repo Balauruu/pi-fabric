@@ -59,7 +59,7 @@ export async function doctorArbor(context: ExtensionCommandContext, installed: b
   if (!owner) blockers.push("No active owner lifecycle observation; reload, then inspect components.status({id:'arbor.owner'}) for effective host diagnostics");
   return { installed, configured: entries.length === 1, enabled: entries.length === 1 && entries[0]!.disabled !== true,
     available: owner?.state === "active" ? "committed exact capabilities (not an inference test)" : "unavailable or unobserved", owner: owner ?? null,
-    tested: "See docs/pr2-managed-owner-evidence.md and docs/pr3-interface-evidence.md and docs/pr4-evaluator-evidence.md; doctor performs no inference", blockers,
+    tested: "See acceptance-ledger.md and docs/pr12-presentation-evidence.md for executed scope; doctor performs no inference", blockers,
     policy: "Global/project files are configured facts; runtime/env overrides and effect approvals remain Fabric-authoritative.",
-    research: "PR3 observations and PR4 exact-material command/agent-suite/provider evaluation with explicit evaluation resume; scored incumbent/dirty capture/research search/source apply/partial-material continuation remain PR5+", cli: "read-only", web: "read-only" };
+    research: "Bounded owner-led research, dirty capture, exact command/agent-suite/provider evaluation, validation-gated owned incumbent and explicit owner review/control/source operations; configured and available do not mean tested", cli: "read-only", web: "read-only" };
 }

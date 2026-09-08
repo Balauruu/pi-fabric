@@ -56,6 +56,11 @@ export function researchObservation(p: Record<string, any>, bytes: number, recor
  // Test-linked interpretations remain available to the owner, never ordinary ideation.
  const excluded = new Set(p.evaluations.filter((e:any)=>splitOf(e)!=='development').map((e:any)=>e.id));
  const developmentLinked = (item:any) => !(item.evidenceIds??[]).some((id:string)=>excluded.has(id));
+ const lessons=p.lessons.filter(developmentLinked),allowed=new Set(lessons.map((l:any)=>l.lessonId));
+ // Actor-only detached projection. Owner inspection/export retains every lesson.
+ // Sanitize all nested node/selection references, not only displayed lesson bodies.
+ const sanitize=(value:any):any=>Array.isArray(value)?value.map(sanitize):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,v])=>[key,key==='insightIds'?(v as string[]).filter(id=>allowed.has(id)):sanitize(v)])):value;
+ p=sanitize({...p,lessons,decisions:p.decisions.filter(developmentLinked)});
  const facts=researchFacts(p), r=p.run,selection=selectionOptions(p);
  const selectionAfter=Object.fromEntries(selection.eligible.map(first=>[first.nodeId,selectionOptions({...p,run:{...r,attemptsUsed:r.attemptsUsed+1},attempts:[...p.attempts,{id:'reserved-observation',nodeId:first.nodeId,state:'reserved'}]})]));
  const recent=facts.outcomes.slice(-8), relevant=new Set(recent.map(o=>o.nodeId));
@@ -64,7 +69,7 @@ export function researchObservation(p: Record<string, any>, bytes: number, recor
  const sources=(p.artifact_refs??[]).filter((a:any)=>a.kind==='source-inspection').slice(0,4).map((s:any)=>({id:s.id,reference:{sourceId:s.id,runId:s.runId,revision:s.revision,digest:s.digest},url:s.url,title:s.title,passage:s.passage,claim:s.claim,limitations:s.limitations,validation:s.validation}));
  return {research:true, grounding:r.grounding??null, sources, interactionMode:r.spec.config.search.mode, selection, selectionAfter, rankings:rankEvaluations(records.filter(e=>splitOf(e)==='development'&&e.attemptId),r.spec.config.objective.direction).map(e=>({evaluationId:e.id,attemptId:e.attemptId})), concurrency:r.spec.config.search.concurrency, currentIncumbent:r.material.incumbent,frontier:nodes, nodes, attempts:p.attempts.slice(-8), recentFacts:recent,
   evidence:p.evaluations.filter((e:any)=>splitOf(e)==='development').slice(-8).map((e:any)=>({id:e.id,baselineOid:e.baselineOid,candidateOid:e.candidateOid,state:e.state,validity:e.validity,quality:e.quality,analysis:e.analysis,invocationIds:e.invocations.map((i:any)=>i.id).slice(-32)})),
-  nativeEvidence:(p.artifact_refs??[]).filter((e:any)=>e.kind==='native-evidence').slice(-8), decisions:p.decisions.filter(developmentLinked).slice(-12),ancestors:p.lessons.filter((l:any)=>developmentLinked(l)&&relevant.has(l.nodeId)).slice(-8),controls:p.controls.slice(-8),steering:r.steering,
+  nativeEvidence:(p.artifact_refs??[]).filter((e:any)=>e.kind==='native-evidence').slice(-8), decisions:p.decisions.filter(developmentLinked).slice(-12),ancestors:p.lessons.filter((l:any)=>relevant.has(l.nodeId)).slice(-8),controls:p.controls.slice(-8),steering:r.steering,
   facts, budgets:{attempts:r.spec.config.limits.attempts-r.attemptsUsed,evaluatorCalls:r.spec.config.limits.evaluatorCalls-facts.evaluatorCalls,evaluationCapacity:evaluationCapacity(p),artifactBytes:r.spec.config.limits.artifactBytes-bytes,activeMs:r.spec.config.limits.activeMs-r.activeMs-(r.activeSince===null?0:Date.now()-r.activeSince),tokens:'observational; unavailable aggregate',cost:'observational; unavailable aggregate'},
   scope:r.spec.config.material.mutablePaths, materialKind:r.spec.config.material.kind};
 }

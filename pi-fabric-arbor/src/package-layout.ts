@@ -45,9 +45,9 @@ export interface ArborAvailability {
   sourceSentinel: string;
   extension: "source-loaded";
   cli: "read-only";
-  web: "read-only-assets";
-  research: "transactional-research-observation-only";
-  evaluation: "exact-material-pair; incumbent-decision-pending";
+  web: "read-only-projection-replay-artifacts";
+  research: "bounded-owner-led-research; requires-configured-active-owner";
+  evaluation: "exact-evaluation-and-owned-incumbent; checks-and-validation-gated";
   component: "managed-definition; setup-and-reload-to-enable";
 }
 
@@ -57,9 +57,9 @@ export function getArborAvailability(): ArborAvailability {
     sourceSentinel: ARBOR_SOURCE_SENTINEL,
     extension: "source-loaded",
     cli: "read-only",
-    web: "read-only-assets",
-    research: "transactional-research-observation-only",
-    evaluation: "exact-material-pair; incumbent-decision-pending",
+    web: "read-only-projection-replay-artifacts",
+    research: "bounded-owner-led-research; requires-configured-active-owner",
+    evaluation: "exact-evaluation-and-owned-incumbent; checks-and-validation-gated",
     component: "managed-definition; setup-and-reload-to-enable",
   });
 }

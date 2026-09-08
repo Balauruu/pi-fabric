@@ -1,5 +1,27 @@
 # Acceptance ledger
 
+## PR12 final implementation and reconciliation review (accepted; publication authorized)
+
+The user explicitly approved revising **A02/A22/A26** and addressing F2–F5. One configured `arbor` application permits one operational `arbor.owner` plus non-operational sibling `arbor.drain`. The guard requires/acquires only `arbor_lifetime.lease`; the owner retains its exact ten native requirements, original `context.call` and signal. The discoverable capability has closed empty args, null output, agent risk, scoped/ordered effect, no command mapping and no actor commitment. Complete metadata belongs in `docs/pr3-action-manifest.json`.
+
+Revision acceptance checks:
+- **F2:** generation-local acquired/unreleased lease plus active guard gates every public mutation. Existing post-await monotone retirement checks and internal exact-owned cleanup remain. Cover waiting/failed guard, diversion, replacement and stale generation.
+- **F3:** admission retirement -> real scoped drain settlement -> native owner unload/abort -> eventual `arbor.close()` storage release. Cover partial/landed activation, retained reads and cleanup failures, without context mutation or private imports.
+- **F4:** mechanically verify both provisions, guard requirements, schemas/caller/risk/effect, and generated manifest. Ordinary refs stay21; actor requires only `agents.self`.
+- **F5:** rerun source/clean-install held create/ask/spawn/wait/stop and actual application/whole-Pi reload cases. Keep exact coverage limits: internal-owner reload returned `Unknown Fabric component: arbor.owner`, not a proven lifecycle outcome. No universal dependency/provider-replacement guarantee. Catalog maintenance remains quiescent.
+
+**Final local gates PASS:** normal **391/391** with both typechecks, targeted **41/41**, full source/clean-installed native/browser PR12 **35/35**, and prior-native PR2–PR11 **8/20/21/9/21/5/42/13/4/9** (152 total). Both `audit:pr12:lifetime` and `audit:pr12` pass against retained current exit-checked logs and clean-installed source/asset identity. A12 preserves its workload, overlap and 80% oracle, measuring **56.83%**. Reconciliation repaired the real already-v2 metadata restamp, retained all ownership/evidence/budget assertions, distinguished new resume intents from exact idempotent replay, and strengthened byte/inventory/no-effect proof. The full audit mechanically preserves prior executable assertions rather than requiring obsolete fixture construction to remain byte-identical. Exact commands, roots, assertions and limits are in [the final current gate](docs/pr12-presentation-evidence.md#final-current-gate). Independent scoped lifetime and final reconciliation reviews **PASS**, with no required fixes. The latter independently checked current fixture/module hashes, every final exit/count, exact replay observations and bounded claims; it did not rerun tests or conduct a fresh full-application audit. Review evidence is retained at `.runtime/pr12-design/final-reconciliation-review.md`. The spec supervisor accepts required A09/A10/A11/A17/A22/A26–A30 evidence within the documented scoped limits and authorizes PR12 commit/publication. PR13 is dependency-ready, with code deletion authorized separately from runtime/user-artifact cleanup. Exact publication identity will be recorded after ordinary push verification.
+
+## Historical PR12 checkpoint before scoped revision (blocked)
+
+**A17 strict cold-read repair verified:** source and clean-installed storage tests pass **8/8 each**, including the unchanged external journal-switch byte/inventory assertion. Cold readers use disposable read-only EXCLUSIVE admission; writers and journal setup are unchanged. Both typechecks and normal checks pass **373/373**. Actual source/installed Pi/CLI/browser journeys pass **2/2**. Exact commands and artifacts are in [the current PR12 checkpoint](docs/pr12-presentation-evidence.md#current-implementation-checkpoint-fail-closed-cold-readers).
+
+**Historical A09/A11/A27/A29 blocker:** the unchanged held-spawn reload cases fail **0/2** on the declared runtime, retaining active1 instead of0. A disposable exploration of the latest published Fabric also fails **0/1** with the same assertion; no host upgrade or Fabric-internal change was made. Authoritative launch delivery and native cleanup settlement remain an external prerequisite. The strict milestone audit still stops at its historical checkpoint and prior full native lanes remain required. HEAD remains `823f5490e86179391505710ff66e7bd580e8aa92`; PR12 stays unstaged/uncommitted/unpublished and PR13 gated.
+
+[PR12 evidence](docs/pr12-presentation-evidence.md) owns the current check ledger. Started from clean full `823f5490e86179391505710ff66e7bd580e8aa92` on `arbor/refactor-pr0-pr1` in the exact refactor worktree. Main remains the sole application/plan editor.
+
+Implemented the shared Pi/CLI/browser projection, no-ID owning-Pi controls and bounded exports. Retained review repairs include two ordinary agent/execute admissions, bounded background refusal, fresh held-ask steering, complete-inventory ambiguity and retired/stale presentation guards. Earlier 36/37 targeted and 21/23 native results are historical, not the current storage or normal-check status. The current checkpoint separates repaired A17 from unresolved native settlement. No PR12 acceptance, staging, commit, publication or PR13 deletion is claimed.
+
 ## PR11 presets, scaffold and runnable packs
 
 [PR11 evidence](docs/pr11-examples-evidence.md) owns exact gates, independent findings/repairs and publication status. Started from clean full PR10 `c8abf2a20e4d72d495cb744ec6589909ee2f4f1c`, verified against tracking/origin; Main exclusively edits app/plan paths. Independent final repair review, full required regressions and current audit PASS; exact publication identity remains a separate observation.
@@ -12,7 +34,13 @@
 
 PR #3 remains draft. PR12-13 are not started or accepted by this checkpoint. Prior milestone sections below retain historical scopes/counts.
 
-## PR10 grounding and experience: independently reviewed deterministic local gate
+## PR10 delayed review repairs (reopened)
+
+The earlier A15/A25 acceptance below is historical and reopened by the delayed review. The five repairs are narrowly verified in [PR10 evidence](docs/pr10-grounding-evidence.md#delayed-review-repair-checkpoint): source29/29, native PR10 4/4 with strengthened source/installed grounding2/2, impacted PR9 native13/13, evaluator45/45, material93/93 and both typechecks pass. Actual completed-native ingestion-crash/reload replay adds zero search/fetch/spawn, and ten negative binding cases per host remain blocked. Final read-only review found no blockers. The whitespace finding is corrected: owner trim already existed, while native schema constraints were missing.
+
+Normal remains red solely on strict PR12 journal admission: groups5/92/20/116 pass5/92/20/115, then the chain stops. Both unchanged held-spawn reload probes still fail active1 versus0. PR12 R2/R3 are not repaired or accepted. All original untracked hashes and user-added tracked lines are preserved, fingerprint unchanged, with all mixed changes unstaged and no commit/publication.
+
+### Historical independently reviewed deterministic local gate
 
 [PR10 phase evidence](docs/pr10-grounding-evidence.md) records implementation, exact test logs and two independent read-only review/repair passes. The start baseline was clean `2cfc98c559bd357d8b75e8b44008f333ea0f5859`; Main exclusively edits app/plan paths.
 

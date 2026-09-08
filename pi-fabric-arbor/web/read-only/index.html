@@ -1,31 +1,14 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
-  <title>Arbor source package</title>
-  <link rel="stylesheet" href="/assets/app.css">
-</head>
-<body>
-  <main>
-    <p class="eyebrow">pi-fabric-arbor</p>
-    <h1>Read-only source package</h1>
-    <p id="status" role="status">Loading packaged asset status.</p>
-    <section aria-labelledby="available-heading">
-      <h2 id="available-heading">Available in PR1</h2>
-      <ul>
-        <li>Source-loaded Pi extension</li>
-        <li>Package and asset inspection</li>
-        <li>Replay and retrieval of existing files through the CLI</li>
-      </ul>
-    </section>
-    <section aria-labelledby="unavailable-heading">
-      <h2 id="unavailable-heading">Not implemented yet</h2>
-      <p>Setup, doctor, research, controls, review, apply, undo, and export generation arrive in later dependency-ordered PRs.</p>
-    </section>
-    <p class="boundary">This page contains no forms, mutation routes, attachment transport, or live-owner connection.</p>
-  </main>
-  <script src="/assets/app.js" defer></script>
-</body>
-</html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Arbor research</title><link rel="stylesheet" href="/assets/app.css"><script defer src="/assets/app.js"></script></head>
+<body><a class="skip" href="#content">Skip to research</a><header><div><p class="eyebrow">PI · FABRIC · ARBOR</p><h1>Research evidence</h1></div><strong class="badge">Read-only</strong></header>
+<main id="content"><p id="status" role="status">Loading current research…</p><label for="run">Research run</label> <select id="run" aria-label="Research run"></select><button id="refresh">Refresh current revision</button>
+<section aria-labelledby="overview-title"><h2 id="overview-title">Current material and incumbent</h2><dl id="overview"></dl><p id="pending" class="notice"></p><p id="uncertainty"></p></section>
+<nav aria-label="Research views"><button data-view="tree" aria-pressed="true">Tree</button><button data-view="evidence" aria-pressed="false">Evidence</button><button data-view="diff" aria-pressed="false">Diff</button><button data-view="logs" aria-pressed="false">Logs</button><button data-view="replay" aria-pressed="false">Replay</button></nav>
+<section id="tree" aria-labelledby="tree-title"><h2 id="tree-title">Hypothesis tree</h2><div id="nodes"></div></section>
+<section id="evidence" hidden aria-labelledby="evidence-title"><h2 id="evidence-title">Exact evaluation evidence</h2><div class="scroll"><table><caption>Native execution, validity and measured decisions are separate</caption><thead><tr><th>Evaluation</th><th>Attempt / split</th><th>Execution / validity</th><th>Comparison / uncertainty</th><th>Decision</th></tr></thead><tbody id="evaluations"></tbody></table></div></section>
+<section id="diff" hidden aria-labelledby="diff-title"><h2 id="diff-title">Candidate diff</h2><p id="diff-binding">Select a frozen candidate from the tree.</p><pre id="patch" tabindex="0" aria-label="Exact parent-to-candidate diff"></pre></section>
+<section id="logs" hidden aria-labelledby="logs-title"><h2 id="logs-title">Native references and failures</h2><p>Fabric owns participant topology, execution status and full logs. In the owning Pi, use /fabric for native controls. Saved summaries below are not a live participant registry.</p><div id="native"></div></section>
+<section id="replay" hidden aria-labelledby="replay-title"><h2 id="replay-title">Saved event replay</h2><p id="replay-status">Replay lists recorded research transitions, not reconstructed historical workspaces.</p><ol id="events"></ol></section>
+<section aria-labelledby="exports-title"><h2 id="exports-title">Existing exports and artifacts</h2><ul id="exports"></ul><p>Retrieval never generates an export. Pending choices can only be answered in the owning Pi.</p></section>
+</main><footer>Descriptive evidence is not statistical superiority. Unknown costs remain observational. No source changes occur here.</footer></body></html>

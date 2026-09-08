@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, realpathSync, openSync, readSync, closeSync } from "node:fs";
 import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { TERMINAL, type NativeOwner, type Terminal } from "../managed/contracts.js";
@@ -38,18 +38,31 @@ export class ResearchStore {
   #closed = false;
   constructor(readonly path: string) {}
   get closed(): boolean { return this.#closed; }
+  prepareOwner():void { if(existsSync(this.path))this.#open(); }
   #open(): DatabaseSync {
     if (this.#closed) throw new Error("Research storage is closed");
     if (!this.#db) {
       mkdirSync(dirname(this.path), { recursive: true });
       const db = new DatabaseSync(this.path);
       try {
-        db.exec("PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL;");
+        db.exec("PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL;");
         const version = Number(db.prepare("PRAGMA user_version").get()!.user_version);
         if ((version !== 0 && version !== 2) || (version === 0 && db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().length > 0)) throw new Error("Unsupported research schema; no legacy import");
+        // Only the owning write-open configures journaling, after schema validation.
+        // SQLite's checkpoint and mode transition require quiescent WAL users.
+        // Never delete sidecars, discard uncheckpointed data or convert on a read.
+        if(String(db.prepare('PRAGMA journal_mode').get()!.journal_mode)==='wal'){
+          const checkpoint=db.prepare('PRAGMA wal_checkpoint(TRUNCATE)').get()!;
+          if(Number(checkpoint.busy)!==0)throw new Error('Research WAL is busy; close existing readers/writers before owner journal setup');
+        }
+        if(String(db.prepare('PRAGMA journal_mode=DELETE').get()!.journal_mode)!=='delete')throw new Error('Research rollback journal requires quiescent existing users');
         db.exec("BEGIN IMMEDIATE; CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, revision INTEGER NOT NULL, generation TEXT NOT NULL, value TEXT NOT NULL);");
         for (const table of TABLES) db.exec(`CREATE TABLE IF NOT EXISTS ${table} (run_id TEXT NOT NULL REFERENCES runs(id), id TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY(run_id,id));`);
-        db.exec("PRAGMA user_version=2; COMMIT;"); this.#db = db;
+        // Re-stamping an already current version dirties the database header
+        // even when every CREATE above was a no-op. Reopening a current owner
+        // must not mutate bytes before an admitted domain operation.
+        if (version === 0) db.exec("PRAGMA user_version=2");
+        db.exec("COMMIT"); this.#db = db;
       } catch (error) { db.close(); throw error; }
     }
     return this.#db;
@@ -57,10 +70,41 @@ export class ResearchStore {
   #read<T>(read: (db: DatabaseSync) => T, absent: T): T {
     if (this.#closed) throw new Error("Research storage is closed");
     if (!this.#db && !existsSync(this.path)) return absent;
+    if(!this.#db){
+      // Refuse WAL before opening a SQLite reader, which can create sidecars even
+      // in read-only mode. Header inspection grants no unlocked projection.
+      // Only owner setup performs a locked checkpoint/mode transition.
+      const fd=openSync(this.path,'r'),header=Buffer.alloc(20);
+      try{readSync(fd,header,0,20,0);}finally{closeSync(fd);}
+      if(header[18]===2||header[19]===2)throw new Error('Read-only WAL projection unavailable. Reload the owning Pi with quiescent WAL users for owner journal setup.');
+    }
+    const cold = this.#db === undefined;
     const db = this.#db ?? new DatabaseSync(this.path, { readOnly: true });
-    try { db.exec("BEGIN"); if (Number(db.prepare("PRAGMA user_version").get()!.user_version) !== 2) throw new Error("Unsupported research schema; no legacy reader"); const result = read(db); db.exec("COMMIT"); return result; }
-    catch (error) { db.exec("ROLLBACK"); throw error; }
-    finally { if (db !== this.#db) db.close(); }
+    try {
+      // Header inspection is only an early refusal. A concurrent DELETE -> WAL
+      // switch must also fail closed at SQLite admission, without creating SHM.
+      // EXCLUSIVE before first access avoids SQLite's shared-memory WAL index.
+      // This connection is read-only and disposable; never change the owner's
+      // locking policy, convert journaling, or retain a hidden reader connection.
+      if (cold) db.exec("PRAGMA locking_mode=EXCLUSIVE");
+      db.exec("PRAGMA busy_timeout=5000; BEGIN");
+      if (Number(db.prepare("PRAGMA user_version").get()!.user_version) !== 2) throw new Error("Unsupported research schema; no legacy reader");
+      const result = read(db);
+      db.exec("COMMIT");
+      return result;
+    } catch (error) {
+      // Admission may fail before BEGIN or SQLite may already have rolled back.
+      // Preserve that primary failure rather than replacing it with ROLLBACK's.
+      try { db.exec("ROLLBACK"); } catch { /* The original read failure wins. */ }
+      if (cold && error instanceof Error && "errcode" in error && error.errcode === 3850) {
+        // SQLITE_IOERR_LOCK: a read-only descriptor cannot take the WAL lock.
+        // Keep the exact SQLite error as cause; do not claim recovery or retry.
+        throw new Error(`Research read-only projection unavailable: ${error.message}`, { cause: error });
+      }
+      throw error;
+    } finally {
+      if (cold) db.close();
+    }
   }
   #transaction<T>(body: (db: DatabaseSync) => T): T {
     const db = this.#open(); db.exec("BEGIN IMMEDIATE");
@@ -104,14 +148,29 @@ export class ResearchStore {
   }
   #save(db: DatabaseSync, run: ResearchRun): void { const result = db.prepare("UPDATE runs SET revision=?,value=? WHERE id=? AND generation=? AND revision=?").run(run.revision, canonical(run), run.id, run.generation, run.revision - 1); if (result.changes !== 1) throw new Error("Stale generation/revision cannot write research facts"); }
   get(id: string): ResearchRun | undefined { return this.#read(db => this.#run(db, id), undefined); }
-  projection(runId: string): Record<string, unknown> | null {
-    return this.#read(db => {
+  #projection(db: DatabaseSync, runId: string): Record<string, unknown> | null {
       const run = this.#run(db, runId); if (!run) return null;
       const projection: Record<string, unknown> = { run, validation: run.material ? "owned-material; exact-incumbent-comparison; descriptive-noise-policy" : run.spec.config.execution === "evaluate" ? "exact-material-evaluation; no-incumbent-adoption-PR5" : "unscored-read-only-observations" };
       for (const table of TABLES.filter(table => table !== "operations")) projection[table] = table === "evaluations" ? this.#rows<EvaluationRecord>(db, table, runId).map(evaluationSummary) : this.#rows(db, table, runId).slice(table === "events" ? -64 : 0);
       if (run.material) projection.validation = validationProjection(run, this.#rows<EvaluationRecord>(db, "evaluations", runId), projection.decisions as any[]);
       return projection;
-    }, null);
+  }
+  projection(runId: string): Record<string, unknown> | null { return this.#read(db => this.#projection(db, runId), null); }
+  ownedRunSelection(sessionId:string):{total:number;runs:ResearchRun[]} {
+    return this.#read(db=>{
+      const owned="json_extract(value,'$.owner.sessionId')=?",live="json_extract(value,'$.state') NOT IN ('completed','cancelled','failed')";
+      const active=Number(db.prepare(`SELECT count(*) AS n FROM runs WHERE ${owned} AND ${live}`).get(sessionId)!.n);
+      const where=owned+(active?` AND ${live}`:'');
+      const total=active||Number(db.prepare(`SELECT count(*) AS n FROM runs WHERE ${owned}`).get(sessionId)!.n);
+      return {total,runs:db.prepare(`SELECT value FROM runs WHERE ${where} ORDER BY rowid DESC LIMIT 128`).all(sessionId).map(r=>JSON.parse(String(r.value)))};
+    },{total:0,runs:[]});
+  }
+  runs(): ResearchRun[] { return this.#read(db => db.prepare('SELECT value FROM runs ORDER BY rowid DESC LIMIT 128').all().map(r => JSON.parse(String(r.value))), []); }
+  replay(runId: string): { revision: number; events: unknown[] } | null {
+    return this.#read(db => { const run=this.#run(db,runId); return run ? {revision:run.revision,events:this.#rows(db,'events',runId)} : null; },null);
+  }
+  exportProjection(runId: string): Record<string, unknown> | null {
+    return this.#read(db => { const p=this.#projection(db,runId); return p ? {...p,trajectories:this.#rows<any>(db,'operations',runId).filter(o=>o.trajectory).map(o=>o.trajectory)} : null; },null);
   }
   beginEvaluation(runId: string, generation: string, finalSelection = false): void {
     this.#transaction(db => {
@@ -185,7 +244,7 @@ export class ResearchStore {
       if(decision?.status!=='pending'||decision.userReceipt||decision.materialId!==command.materialId||decision.epoch!==command.epoch)throw new Error('Pending choice identity mismatch');
       const old=run.generation;
       if(old!==generation){const history=[...new Set([...(run.generationHistory??[]),old])];if(history.length>128)throw new Error('Generation history exhausted');run.generationHistory=history;}
-      run.generation=generation;run.revision++;run.state='awaiting_review';
+      run.generation=generation;run.revision++;run.state='awaiting_review';if(run.spec.config.execution==='research')run.execution='research-stop:awaiting_review';
       if(run.activeSince!==null){run.activeMs+=Date.now()-run.activeSince;run.activeSince=null;}
       decision.revision=run.revision;this.#put(db,'decisions',run.id,run.pendingDecisionId,decision);
       if(db.prepare('UPDATE runs SET revision=?,generation=?,value=? WHERE id=? AND generation=? AND revision=?').run(run.revision,generation,canonical(run),run.id,old,command.revision).changes!==1)throw new Error('Stale review recovery generation');
@@ -273,13 +332,16 @@ export class ResearchStore {
       const terms=[...new Set(query.query.toLowerCase().match(/[\p{L}\p{N}]+/gu)??[])].slice(0,16);
       const matches=terms.length?' AND ('+terms.map(()=>"instr(lower(l.value),?)>0").join(' OR ')+')':'';
       const rows=db.prepare("SELECT l.value FROM lessons l JOIN runs r ON r.id=l.run_id WHERE json_extract(r.value,'$.spec.source.root')=? AND json_extract(l.value,'$.provenance.runId')=l.run_id"+matches+' ORDER BY l.rowid DESC LIMIT 128').all(target.spec.source.root,...terms).map(r=>JSON.parse(String(r.value)));
-      const eligible=rows.filter(l=>{const run=this.#run(db,l.provenance.runId);return run&&l.provenance.specId===run.spec.identity&&this.#evidence(db,run,l.evidenceIds)&&!l.evidenceIds.some((id:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,id);return e&&splitOf(e)!=='development';});});
+      const eligible=rows.filter(l=>{try{this.#checkLesson(db,target,lessonReference(l));return true;}catch{return false;}});
       return selectLessons(eligible,query.query,query.limit);
     },[]);
   }
   #checkLesson(db:DatabaseSync,run:ResearchRun,ref:LessonReference):void {
     const source=this.#run(db,ref.runId),lesson=this.#row<any>(db,'lessons',ref.runId,ref.lessonId);
     if(!source||source.spec.source.root!==run.spec.source.root||!lesson?.provenance||canonical(ref)!==canonical(lessonReference(lesson))||!this.#evidence(db,source,lesson.evidenceIds)||lesson.evidenceIds.some((id:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',source.id,id);return e&&splitOf(e)!=='development';}))throw new Error('Stale or forged project lesson reference');
+    validate(lessonProvenanceSchema,lesson.provenance);
+    if(lesson.provenance.runId!==source.id||lesson.provenance.specId!==source.spec.identity||lesson.provenance.epoch!==source.epoch||lesson.provenance.materialId!==source.spec.source.materialId||canonical(lesson.provenance.sourceIds)!==canonical([...new Set(lesson.provenance.sourceRefs.map((r:any)=>r.sourceId))]))throw new Error('Stale lesson source provenance');
+    for(const ref of lesson.provenance.sourceRefs)this.#checkSource(db,source,ref);
   }
   recordProposal(proposal:Proposal,generation:string,native:{actorId:string;nativeId:string;requestId:string;context:Record<string,any>}):void {
     const p=structuredClone(proposal),n=structuredClone(native);
@@ -330,17 +392,47 @@ export class ResearchStore {
   }
   completeGrounding(command:BoundCommand,generation:string,native:NonNullable<Binding['literatureResult']>):void {
     validate(literatureResultSchema(),native.value);
-    this.#groundingChange(command,generation,(db,run)=>{const g=run.grounding;if(!g||g.status!=='accessed'||native.value.batchId!==g.batchId||native.value.blocked||!native.value.sources.length||new Set(native.value.sources.map(s=>s.accessId)).size!==native.value.sources.length)throw new Error('Inspected source completion unavailable or conflicting');
-      for(const source of native.value.sources){const access=this.#row<SourceAccess>(db,'artifact_refs',run.id,source.accessId);if(!g.accessIds.includes(source.accessId)||!access||access.kind!=='source-access'||!this.#sourceText(access).includes(source.passage))throw new Error('Unvisited source or unsupported passage; snippets are not inspection evidence');
+    this.#groundingChange(command,generation,(db,run)=>{const g=run.grounding;if(!g||!['accessed','blocked','interrupted'].includes(g.status)||native.value.batchId!==g.batchId||native.value.blocked||!native.value.sources.length||new Set(native.value.sources.map(s=>s.accessId)).size!==native.value.sources.length)throw new Error('Inspected source completion unavailable or conflicting');
+      for(const source of native.value.sources){if(!source.passage.trim()||!source.claim.trim()||!source.limitations.trim())throw new Error('Meaningful source passage, claim and limitations required');const access=this.#row<SourceAccess>(db,'artifact_refs',run.id,source.accessId);if(!g.accessIds.includes(source.accessId)||!access||access.kind!=='source-access'||!this.#sourceText(access).includes(source.passage))throw new Error('Unvisited source or unsupported passage; snippets are not inspection evidence');
         const {search:_search,fetch:_fetch,characters:_characters,...provenance}=access;
         const body={...provenance,...source,id:'source-'+digest({batchId:g.batchId,accessId:access.id}).slice(0,32),kind:'source-inspection' as const,revision:run.revision+1,nativeId:native.nativeId,requestId:native.requestId,roleBundleId:native.roleBundleId,model:native.model,validation:'source-linked-hypothesis-not-grade' as const};const inspection={...body,digest:digest(body)};validate(sourceInspectionSchema(),inspection);this.#artifact(db,run.id,inspection.id,inspection);g.sourceIds.push(inspection.id);
-      }g.status='complete';
+      }g.status='complete';g.error=null;
     });
   }
   #checkSource(db:DatabaseSync,run:ResearchRun,ref:{sourceId:string;runId:string;revision:number;digest:string}):void {
     const source=this.#row<SourceInspection>(db,'artifact_refs',run.id,ref.sourceId);if(!source||source.kind!=='source-inspection'||run.grounding?.status!=='complete'||!run.grounding.sourceIds.includes(source.id)||ref.runId!==run.id||source.runId!==run.id||ref.revision!==source.revision||ref.digest!==source.digest||source.epoch!==run.epoch||source.specId!==run.spec.identity||source.materialId!==run.spec.source.materialId)throw new Error('Unknown, stale or forged inspected source reference');const {digest:hash,...body}=source;if(digest(body)!==hash||!this.#sourceText(source).includes(source.passage))throw new Error('Source inspection identity mismatch');
   }
 
+  resumeIntent(command:BoundCommand,owner:NativeOwner,componentId:string,generation:string):Receipt {
+    return this.#transaction(db=>{
+      const run=this.#run(db,command.runId);if(!run||run.spec.config.execution!=='research'||!run.material||canonical(run.owner)!==canonical(owner)||run.componentId!==componentId)throw new Error('Research resume intent owner unavailable');
+      const action='control',payload={action:'resume',instruction:null},hash=digest({command,action,payload});
+      const old=this.#row<{hash:string;receipt:Receipt}>(db,'operations',run.id,command.commandId);
+      if(old){if(old.hash!==hash)throw new Error('Conflicting duplicate command ID');return old.receipt;}
+      this.check(run,command);if(['completed','cancelled','failed'].includes(run.state))throw new Error('Research resume requires nonterminal saved work');
+      const {identity,...body}=run.spec;if(identity!==digest(body))throw new Error('Frozen resolved spec identity changed');
+      run.revision++;if(run.material.pending)run.material.pending.revision=run.revision;
+      const value={state:run.state,specId:run.spec.identity},receipt:Receipt={commandId:command.commandId,runId:run.id,revision:run.revision,action,status:'applied',reason:'Resume intent recorded. Execution has not started and still requires ordinary execute admission.',value};
+      this.#put(db,'operations',run.id,command.commandId,{hash,receipt,resumeIntent:{owner,componentId,generation,materialId:command.materialId,epoch:command.epoch,specId:run.spec.identity,revision:run.revision,claimed:false}});
+      this.#put(db,'controls',run.id,command.commandId,{...command,action:'resume',instruction:null,status:'applied',value});
+      this.#put(db,'events',run.id,String(run.revision),{revision:run.revision,type:'resume-intent',commandId:command.commandId,status:'applied',reason:receipt.reason});this.#save(db,run);return receipt;
+    });
+  }
+  claimResearch(command:BoundCommand,owner:NativeOwner,componentId:string,generation:string,resume:boolean):BoundCommand {
+    return this.#transaction(db=>{
+      const run=this.#run(db,command.runId);if(!run||run.spec.config.execution!=='research'||!run.material||canonical(run.owner)!==canonical(owner)||run.componentId!==componentId)throw new Error('Research admission owner unavailable');
+      this.check(run,command);if(['completed','cancelled','failed'].includes(run.state))throw new Error('Research requires nonterminal saved work');
+      if(resume){
+        const operation=this.#row<any>(db,'operations',run.id,command.commandId),intent=operation?.resumeIntent;
+        if(!intent||intent.claimed||intent.revision!==run.revision||operation.receipt?.revision!==run.revision||canonical(intent.owner)!==canonical(owner)||intent.componentId!==componentId||intent.generation!==generation||intent.materialId!==command.materialId||intent.epoch!==command.epoch||intent.specId!==run.spec.identity)throw new Error('Fresh agent-risk arbor.control resume intent required before execute admission');
+        intent.claimed=true;this.#put(db,'operations',run.id,command.commandId,operation);
+      }else if(run.generation!==generation||run.revision!==0||run.execution!=='not-started'||run.state!=='ready'||run.active||run.pendingDecisionId||run.material.pending)throw new Error('Fresh current-generation start required; use explicit resume intent, never replay');
+      // Claim exactly once before background return or any awaited/native effect.
+      // This is domain operation admission, not a Fabric permission token/queue.
+      run.execution='research-admitted';run.revision++;if(run.material.pending)run.material.pending.revision=run.revision;
+      this.#put(db,'events',run.id,String(run.revision),{revision:run.revision,type:'research-admission',commandId:command.commandId,status:'applied',reason:'Bounded research operation claimed; native work is not settled'});this.#save(db,run);return this.binding(run,command.commandId);
+    });
+  }
   receipt(command: BoundCommand, action: string, payload: unknown): Receipt | undefined {
     return this.#read(db => {
       const old = this.#row<{ hash: string; receipt: Receipt }>(db, "operations", command.runId, command.commandId);
@@ -429,18 +521,21 @@ export class ResearchStore {
         // never replace a stale actor-supplied aggregate and lose sibling insights.
         const ancestors=ancestry(nodes,payload.nodeId).map(ancestor=>node(ancestor.nodeId)!);
         if(ancestors.some(current=>(current.insightIds?.length??0)>=100))throw new Error('Ancestor insight capacity exhausted; no lesson or revision written');
-        for(const current of ancestors){
-          current.insightIds=[...(current.insightIds??[]),payload.lessonId];current.insightRevision=run.revision+1;
-          this.#put(db,'nodes',run.id,current.nodeId,current);
-        }
         // Direction/project recall must retain the exact evidence-bearing leaf's
         // grounding, not only the aggregation target's own ancestors. Unrelated
         // sibling sources are not supporting provenance.
         const sourceNodes=[...ancestors,...payload.evidenceIds.flatMap((evidenceId:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,evidenceId),ref=this.#row<any>(db,'artifact_refs',run.id,evidenceId),attempt=this.#row<Attempt>(db,'attempts',run.id,e?.attemptId??ref?.attemptId??'');return attempt?ancestry(nodes,attempt.nodeId).map(n=>node(n.nodeId)!):[];})];
+        const sourceRefs=[...new Map(sourceNodes.flatMap(n=>n.groundingRefs??[]).map(ref=>[canonical(ref),ref])).values()] as Array<{runId:string;sourceId:string;revision:number;digest:string}>;
+        for(const ref of sourceRefs)this.#checkSource(db,run,ref);
         const linked=payload.evidenceIds.map((id:string)=>this.#row<EvaluationRecord>(db,'evaluations',run.id,id)).filter(Boolean) as EvaluationRecord[];
         const decisions=this.#rows<any>(db,'decisions',run.id).filter(d=>d.evidenceIds.some((id:string)=>payload.evidenceIds.includes(id))&&!d.evidenceIds.some((id:string)=>{const e=this.#row<EvaluationRecord>(db,'evaluations',run.id,id);return e&&splitOf(e)!=='development';}));
-        const provenance={runId:run.id,revision:run.revision+1,materialId:run.spec.source.materialId,epoch:run.epoch,specId:run.spec.identity,sourceIds:[...new Set(sourceNodes.flatMap(n=>(n.groundingRefs??[]).map((ref:any)=>ref.sourceId)))] as string[],uninspectedSourceRefs:[...new Set(sourceNodes.flatMap(n=>n.sourceRefs))] as string[],materials:[...new Set(linked.flatMap(e=>[e.snapshots.baseline.oid,e.snapshots.candidate.oid]))],applicability:payload.applicability??`${run.spec.config.material.kind}: ${run.spec.config.objective.description}`,outcome:decisions.some(d=>d.status==='measured-keep')?'measured-keep':linked.some(e=>e.validity!=='valid')?'invalid-evaluation':decisions.some(d=>d.decision==='discard')?'discarded':'unscored-observation'};
+        const provenance={runId:run.id,revision:run.revision+1,materialId:run.spec.source.materialId,epoch:run.epoch,specId:run.spec.identity,sourceIds:[...new Set(sourceRefs.map(ref=>ref.sourceId))],sourceRefs,uninspectedSourceRefs:[...new Set(sourceNodes.flatMap(n=>n.sourceRefs))] as string[],materials:[...new Set(linked.flatMap(e=>[e.snapshots.baseline.oid,e.snapshots.candidate.oid]))],applicability:payload.applicability??`${run.spec.config.material.kind}: ${run.spec.config.objective.description}`,outcome:decisions.some(d=>d.status==='measured-keep')?'measured-keep':linked.some(e=>e.validity!=='valid')?'invalid-evaluation':decisions.some(d=>d.decision==='discard')?'discarded':'unscored-observation'};
         validate(lessonProvenanceSchema,provenance);
+        for(const current of ancestors){
+          current.insightIds=[...(current.insightIds??[]),payload.lessonId];current.insightRevision=run.revision+1;
+          this.#put(db,'nodes',run.id,current.nodeId,current);
+        }
+
         this.#put(db, "lessons", run.id, payload.lessonId, { ...payload, provenance, validation: "unscored-observation" }); return { value: { lessonId: payload.lessonId } };
       }
       if (!evidence(payload.evidenceIds) || (payload.nodeId && !node(payload.nodeId))) throw new Error("Decision references missing node/evidence");
@@ -537,11 +632,23 @@ export class ResearchStore {
       return {status:error?'blocked':'applied',...(error?{reason:error}:{}),value:{path,digest:contentDigest}};
     });
   }
-  exported(command: BoundCommand, generation: string, path: string, contentDigest: string): Receipt {
-    return this.#commit(command, generation, "export", { format: "json" }, (db, run) => {
-      const id = `export-${digest(command.commandId)}`;
-      this.#artifact(db, run.id, id, { id, commandId: command.commandId, path, digest: contentDigest, kind: "unscored-json-export" });
+  exportReference(command:BoundCommand,path:string,contentDigest:string,format:string){return {id:`export-${digest(command.commandId)}`,commandId:command.commandId,path,digest:contentDigest,kind:format==='json'?'unscored-json-export':'research-markdown-export'};}
+  exported(command: BoundCommand, generation: string, path: string, contentDigest: string, format = "json"): Receipt {
+    return this.#commit(command, generation, "export", { format }, (db, run) => {
+      const ref=this.exportReference(command,path,contentDigest,format);
+      this.#artifact(db, run.id, ref.id, ref);
       return { value: { path, digest: contentDigest } };
+    });
+  }
+  backgroundRefusal(admitted:ResearchRun,command:BoundCommand,generation:string,error:string):void {
+    this.#transaction(db=>{
+      const current=this.#run(db,admitted.id);
+      if(!current||canonical(current.owner)!==canonical(admitted.owner)||current.componentId!==admitted.componentId||current.spec.identity!==admitted.spec.identity)throw new Error('Background refusal ownership changed');
+      // One bounded diagnostic slot, not a command receipt or a domain transition.
+      // Attribute the failing generation even before resume could rebind it. Never
+      // borrow the current generation to overwrite terminal/domain state.
+      db.prepare("DELETE FROM events WHERE run_id=? AND id='background-refusal'").run(admitted.id);
+      this.#put(db,'events',admitted.id,'background-refusal',{revision:current.revision,type:'background-refusal',commandId:command.commandId,status:'blocked',reason:`Generation ${generation}, admitted revision ${command.revision}: ${error}`.slice(0,4096)});
     });
   }
   settle(runId: string, generation: string, state: ResearchRun["state"], execution: string, error: string | null, settlementId = `settle-${generation}`): void {

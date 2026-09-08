@@ -1,3 +1,4 @@
+import { PiPresentation } from "./presentation/PiPresentation.js";
 import { getAgentDir, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { join } from "node:path";
 import {readSourceCatalog} from "./research/SourceCatalog.js";
@@ -5,9 +6,12 @@ import { readCatalog } from "./evaluators/catalog.js";
 import { ARBOR_PACKAGED_ASSETS, getArborAvailability } from "./package-layout.js";
 import { createArborComponent, type DiagnosticReader } from "./managed/definitions.js";
 import { doctorArbor, setupArbor } from "./managed/setup.js";
-import { commandProgram, researchCommand } from "./research/commands.js";
+import { commandProgram } from "./research/commands.js";
 
 export default async function piFabricArbor(pi: ExtensionAPI): Promise<void> {
+  let activeStateDirectory:string|undefined;
+  const presentation = new PiPresentation(pi,()=>activeStateDirectory);
+  pi.on("session_shutdown", () => presentation.close());
   let diagnostic: DiagnosticReader = () => undefined;
   let installed = false;
   let registrationError: string | undefined;
@@ -19,7 +23,7 @@ export default async function piFabricArbor(pi: ExtensionAPI): Promise<void> {
     // Changing it requires a quiescent owning-Pi /reload and explicit run resume.
     const catalog = readCatalog(join(getAgentDir(), "arbor.evaluators.json"));
     const sources=readSourceCatalog(join(getAgentDir(), "arbor.sources.json"));
-    const component = createArborComponent(read => { diagnostic = read; }, catalog, async (ref, invocation) => {
+    const component = createArborComponent((read,directory) => { diagnostic = read; activeStateDirectory=directory; }, catalog, async (ref, invocation) => {
       // Public provider discovery is descriptor inspection only. Never invoke a
       // discovered provider directly or widen the committed optional catalog.
       if (!catalog.some(entry => entry.ref === ref)&&!sources.some(entry=>entry.search.ref===ref||entry.fetch.ref===ref)) throw new Error("Unconfigured evaluator descriptor request");
@@ -37,16 +41,21 @@ export default async function piFabricArbor(pi: ExtensionAPI): Promise<void> {
     description: "Arbor setup/doctor and owning-Pi research commands through normal Fabric policy; CLI/browser stay read-only",
     async handler(rawArgs, context) {
       const args = rawArgs.trim().split(/\s+/u).filter(Boolean);
-      const operation = args[0] ?? "doctor";
+      const operation = args[0] ?? "dashboard";
       if (!["setup", "doctor", "availability", "assets"].includes(operation)) {
         if (!context.isProjectTrusted?.()) throw new Error("Trust the owning Pi project before research commands");
+        if (["dashboard", "show", "browser"].includes(operation)) {
+          await presentation.prepare(operation, rawArgs.trim().slice(operation === "dashboard" ? rawArgs.length : operation.length).trim(), context);
+          return;
+        }
         if (diagnostic()?.state !== "active") {
           const result = await doctorArbor(context, installed, diagnostic(), registrationError);
           const message = `Arbor research unavailable; no action submitted. ${JSON.stringify(result)}`;
           if (context.hasUI) context.ui.notify(message, "warning"); else process.stdout.write(`${message}\n`);
           return;
         }
-        const request = researchCommand(operation, rawArgs.trim().slice(operation.length).trim());
+        const request = await presentation.prepare(operation, rawArgs.trim().slice(operation.length).trim(), context);
+        if (!request) return;
         const code = commandProgram(request);
         const message = `Arbor owning-Pi action request. Execute this exact program once through fabric_exec, preserving all host permissions; report the actual receipt or denial. Do not replace it with direct file/service calls. Submission is not completion.\nARBOR_COMMAND_PROGRAM=${JSON.stringify(code)}`;
         if (context.isIdle()) pi.sendUserMessage(message);

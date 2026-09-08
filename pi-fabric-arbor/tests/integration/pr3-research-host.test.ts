@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile, execFileSync, spawn, type ExecFileException } from "node:child_process";
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { existsSync } from "node:fs";
@@ -47,11 +47,15 @@ const deferredStart = 'await tools.call({ref:"arbor.start",args:{runId:"research
 const bindingFunction = 'const bind=(p,id)=>({runId:p.run.id,materialId:p.run.spec.source.materialId,epoch:p.run.epoch,revision:p.run.revision,commandId:id});';
 
 test("PR3 real native owner: exact effective schemas, actor proposals, owned waits, origins and no scored claims", { timeout: 180000 }, async () => {
-  const expected = ARBOR_ACTIONS.map(a => ({ name: a.name, inputSchema: a.inputSchema, risk: a.risk, effect: a.effect }));
+  // Deduplicate large schemas without assuming every non-projection output is
+  // a receipt. Check each effective descriptor against its authoritative schema.
+  const outputs = [...new Set(ARBOR_ACTIONS.map(a=>JSON.stringify(a.outputSchema??null)))];
+  const outputSchemas = outputs.map(s=>JSON.parse(s));
+  const expected = ARBOR_ACTIONS.map(a => ({ name: a.name, inputSchema: a.inputSchema, output: outputs.indexOf(JSON.stringify(a.outputSchema??null)), risk: a.risk, effect: a.effect }));
   const h = await printHost("native", `
     const before=await agents.members({scope:"local",kinds:["actor","agent"]});
-    const expected=${JSON.stringify(expected)}; const expectedOutputs=${JSON.stringify({ receipt: ARBOR_ACTIONS.find(a=>a.name==="control")!.outputSchema, projection: ARBOR_ACTIONS.find(a=>a.name==="inspect")!.outputSchema })}; const schemaChecks=[];
-    for(const e of expected){const a=await tools.describe({ref:"arbor."+e.name});schemaChecks.push({name:e.name,input:JSON.stringify(a.inputSchema)===JSON.stringify(e.inputSchema),output:e.name.startsWith("substrate") || JSON.stringify(a.outputSchema)===JSON.stringify(["start","inspect","runResearch"].includes(e.name)?expectedOutputs.projection:expectedOutputs.receipt),risk:a.risk===e.risk,effect:JSON.stringify(a.effect)===JSON.stringify(e.effect)});}
+    const expected=${JSON.stringify(expected)}; const expectedOutputs=${JSON.stringify(outputSchemas)}; const schemaChecks=[];
+    for(const e of expected){const a=await tools.describe({ref:"arbor."+e.name});schemaChecks.push({name:e.name,input:JSON.stringify(a.inputSchema)===JSON.stringify(e.inputSchema),output:JSON.stringify(a.outputSchema??null)===JSON.stringify(expectedOutputs[e.output]),risk:a.risk===e.risk,effect:JSON.stringify(a.effect)===JSON.stringify(e.effect)});}
     const p=${start}; const duplicate=${start}; const members=await agents.members({scope:"local",kinds:["actor","agent"]});
     return JSON.stringify({before,schemaChecks,p,duplicate,members});`);
   const { p, duplicate, members } = h.value;
@@ -96,7 +100,10 @@ test("real concurrent duplicate dispatch during held actor ask reserves and spaw
     const results=await Promise.all([tools.call({ref:"arbor.dispatch",args}),tools.call({ref:"arbor.dispatch",args})]);
     await tools.call({ref:"pr2fixture.release",args:{}});await active;
     p=await tools.call({ref:"arbor.inspect",args:{runId:"research"}});return JSON.stringify({results,p});`, { hold: "agents.ask" });
-  assert.deepEqual(h.value.results[0], h.value.results[1]); assert.equal(h.value.p.run.attemptsUsed, 1); assert.equal(h.value.p.run.active, 0); assert.equal(h.value.p.attempts.length, 1); assert.equal(h.events.filter(e => e.event === "worker.observed").length, 1); assert.match(h.value.p.run.error, /Stale/);
+  assert.deepEqual(h.value.results[0], h.value.results[1]); assert.equal(h.value.p.run.attemptsUsed, 1); assert.equal(h.value.p.run.active, 0); assert.equal(h.value.p.attempts.length, 1); assert.equal(h.events.filter(e => e.event === "worker.observed").length, 1);
+  assert.equal(h.value.p.run.error,null);assert.deepEqual(h.value.p.nodes.map((n:any)=>n.nodeId),['manual']);assert.equal(h.value.p.attempts[0].id,'manual-attempt');
+  const asks=h.events.filter(e=>e.event==='actor.observed');assert.ok(asks.length>=2);assert.ok(asks[1].data.data.revision>asks[0].data.data.revision,'Superseded ask must be followed by fresh facts');assert.equal(asks[1].data.data.attempts.length,1);
+  assert.equal(h.events.filter(e=>e.event==='native.result'&&e.data.ref==='agents.spawn').length,1);
 });
 
 for (const policy of ["deny", "ask"]) test(`Fabric ${policy} write policy blocks owner mutation before domain effects in print host`, { timeout: 180000 }, async () => {
@@ -291,7 +298,7 @@ test("real six owner operations collect/distill evidence and reject scored/apply
 
 test("a second real native root cannot mutate or resume frozen research facts", { timeout: 180000 }, async () => {
   const h = await printHost("second-root", `return JSON.stringify(${deferredStart});`);
-  const db = join(h.root, "state/research.sqlite3"), before = await readFile(db);
+  const db = join(h.root, "state/research.sqlite3"), before = await readFile(db), inventory=(await readdir(join(h.root,"state"))).sort();
   const program = `let denied="";try{${deferredStart}}catch(e){denied=String(e)}return JSON.stringify({denied,native:await agents.self()});`;
   const pending = exec(PI, [...flags, "--mode", "json", "-p", "Attempt denied adoption"], { cwd: h.cwd, env: { ...h.env, ARBOR_PR2_PROGRAM: program }, timeout: 60000, maxBuffer: 4*1024*1024 }); pending.child.stdin?.end();
   let failure: unknown; const result = await pending.catch(error => { failure=error; return { stdout:error.stdout ?? "",stderr:error.stderr ?? String(error) }; });
@@ -299,7 +306,7 @@ test("a second real native root cannot mutate or resume frozen research facts", 
   const exit = { code:pending.child.exitCode,signal:pending.child.signalCode,killed:pending.child.killed,error:failure?String(failure):null }; await writeFile(join(h.root,"second-host-exit.json"),JSON.stringify(exit));
   assert.deepEqual(exit,{code:0,signal:null,killed:false,error:null});
   const final = JSON.parse((await events(h.trace)).filter(e=>e.event==="main.result").at(-1).data);
-  assert.match(final.denied,/Different native owning Pi/); assert.notEqual(final.native.id,h.value.run.owner.id); assert.deepEqual(await readFile(db),before);
+  assert.match(final.denied,/Different native owning Pi/); assert.notEqual(final.native.id,h.value.run.owner.id); assert.deepEqual(await readFile(db),before); assert.deepEqual((await readdir(join(h.root,"state"))).sort(),inventory);
 });
 
 test("real concurrent capacity requests cannot overbook a held native spawn reservation", { timeout: 180000 }, async () => {

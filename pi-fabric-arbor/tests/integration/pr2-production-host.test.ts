@@ -135,7 +135,7 @@ for (const hold of ["agents.create", "agents.ask", "agents.spawn"] as const) tes
   assert.ok(value.members.every((p: any) => ["completed", "failed", "stopped", "timed_out"].includes(p.status)));
 });
 
-test("real retirement during an unreturned native create records ambiguity, retains binding and never restarts", { timeout: 180000 }, async () => {
+test("real retirement settles an unreturned native create with exact ownership and no live work", { timeout: 180000 }, async () => {
   const h = await host("reload-create", spec => `
     const active = tools.call({ref:"arbor.substrateStart",args:${JSON.stringify(spec)}});
     await tools.call({ref:"pr2fixture.ready",args:{}});
@@ -146,13 +146,16 @@ test("real retirement during an unreturned native create records ambiguity, reta
     const members = await agents.members({scope:"local",kinds:["actor","agent"]});
     return JSON.stringify({result,retained,loaded,members});`, "agents.create");
   const value = JSON.parse(h.text);
-  assert.equal(value.result.state, "cleanup_pending", `${h.root}: ${h.text}`); assert.deepEqual(value.result, value.retained);
-  assert.match(value.result.error, /unloading/);
-  assert.equal(value.result.actors.length, 0, "revoked native result must not invent a returned handle");
+  // Supersedes the archived lost-create characterization under the approved
+  // scoped lifetime revision, with stricter ownership and cleanup requirements.
+  assert.equal(value.result.state, "interrupted", `${h.root}: ${h.text}`); assert.deepEqual(value.result, value.retained);
+  assert.match(value.result.error, /Late create settled during drain/);
+  const creates=h.events.filter(e=>e.event==='native.result'&&e.data.ref==='agents.create');assert.equal(creates.length,1);
+  const id=creates[0]!.data.result.id;assert.ok(id);assert.deepEqual(value.result.actors,[id]);
+  assert.equal(value.result.dispatches[0].nativeId,id);
+  assert.ok(h.events.some(e=>e.event==='native.result'&&e.data.ref==='agents.stop'&&e.data.result.id===id&&e.data.result.status==='stopped'&&e.data.result.scope==='project'&&!['mesh','remote'].includes(e.data.result.routed)),'Exact local actor stop must settle');
   assert.equal(h.events.filter(e => e.event === "actor.observed").length, 0);
-  assert.equal(h.events.filter(e => e.event === "native.result" && e.data.ref === "agents.create").length, 1);
-  assert.equal(value.members.length, 1, "unobservable-to-owner actor remains retained, not falsely cleaned");
-  assert.equal(value.members[0].status, "idle");
+  assert.deepEqual(value.members,[], 'No unobserved idle actor may survive cleanup');
 });
 
 test("real production doctor/setup remain usable with disabled native capabilities and registration stays passive", { timeout: 180000 }, async () => {

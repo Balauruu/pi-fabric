@@ -1,6 +1,47 @@
 # PR10 grounding, lessons and trajectories evidence
 
-Status: independently reviewed deterministic local PR10 gate PASS. Final publication review is separate; PR11-PR13 remain outstanding and PR #3 stays draft.
+Status: delayed review `fe53d9dcd3b04148b584cae3530c57f1` repairs narrowly verified. Earlier blanket acceptance/reviews below are historical and reopened, not current full acceptance. PR12 remains blocked by R2 strict journal admission and R3 lost held-spawn handle. No staging, commit or publication in this task.
+
+## Delayed review repair checkpoint
+
+Exact root/branch/HEAD verified: `/home/balauru/.pi-profiles/fabric/.worktrees/arbor-refactor`, `arbor/refactor-pr0-pr1`, `823f5490e86179391505710ff66e7bd580e8aa92`. Main alone edited. The original tracked diff and untracked hashes were saved before changes at `/tmp/arbor-pr10-before.patch`, `/tmp/arbor-pr10-before.status` and `/tmp/arbor-pr10-before-untracked.sha256`.
+
+### Acceptance ledger
+
+| Check | Current repair and source citation | Evidence |
+| --- | --- | --- |
+| F1 | `src/research/policy.ts:55-64` builds a development-only actor projection and recursively filters nested `insightIds`. Owner projection/export remains complete. | Red lesson **ID** `HELD_GRADE_SENTINEL`, not only body text. Green node/frontier, nested selection/fallback, allowed development-ID and retained owner-export assertions at `tests/material/pr5-journey.test.ts:128-145`. |
+| F2 | `src/research/ResearchStore.ts:301-317,375-377,441-443,497-512` checks every exact ancestor/evidence-leaf reference before distill writes. Lesson provenance persists immutable run/source/revision/digest refs alongside IDs. Recall and new hypothesis lessonRef admission check the exact source artifact path/digest again. | Drift, deletion and symlink substitution block distill without changing the projection, omit stale cross-run recall and reject previously recalled refs. Evidence-bearing descendant is included, unrelated sibling excluded. Fresh-v2 only, no reader migration. |
+| F3 | `src/research/Grounding.ts:23-34` reconstructs saved assignment for replay only. `src/managed/OwnerExecution.ts:471-505,527-533,552-554,578` verifies saved owner/component/generation lineage, batch/epoch/spec/material/OID/cwd, task, frozen role bundle/request/model and native completion digest. `src/managed/BindingStore.ts:56-66` retains immutable attribution. | Real completed native binding survives a SQLite final-ingestion failure, actual component reload and ordinary public control/execute resume. Both source/clean-installed replay the exact original completion with **zero additional search, fetch or literature spawn**. Ten corrupted/missing/unresolved binding cases per host stay blocked with unchanged effect counts, then restoring the exact saved binding allows replay. No lost-handle adoption or Fabric recovery workaround. |
+| F4 | `src/research/GroundingContracts.ts:12-14` expresses nonwhitespace passage/claim/limitations in native JSON schema. `src/research/ResearchStore.ts:369` guards meaningful text before literal passage matching. | Correction to delayed finding: current owner `src/research/contracts.ts:31` already rejected whitespace with trim, including at HEAD. Owner rejection passed before edits. Native schema assertions reproduced red and now pass. Neither literal containment nor meaningful text proves causal/scientific quality. |
+| F5 | `src/research/SourceCatalog.ts:5,19-32` uses detached recursively immutable entries/view and freezes the instance. Returned capability bindings cannot mutate the expected snapshot or catalog ID. Existing `bindRequest` remains intact. | Original/exposed nested entries, bindings, view data/resource arrays and returned capabilities cannot widen. Both search/fetch reply-alias poison tests preserve captured values/digests, while request mutations still reject before dispatch. |
+
+### Executed gates
+
+All logs and exit files below are under `.runtime/pr10-delayed/`.
+
+| Gate | Observed result |
+| --- | --- |
+| G1 `red-all.log/.exit` | **1/13**, exit1. Twelve intended regression failures before product edits across the five findings. Whitespace failures are native schema assertions, not a claimed owner bypass. |
+| G2 `native-red-boundary.log/.exit` | **0/2**, exit1. Source `command-RxInQR` and installed `command-1AKqGn` saved actual completed literature before ingestion fault, then remained `blocked` after reload/resume instead of `complete`. Earlier native attempts failed in fixture setup and are not reproduction proof. |
+| G3 `targeted-pr10-final.log/.exit` | **29/29**, exit0. Final `npm run test:pr10`, including request/reply alias probes and preserved prior PR10 assertions. |
+| G4 `native-green-first.log/.exit` | **4/4**, exit0. Full `npm run test:pr10:e2e`: source/clean-installed negative lesson reuse, actual proposal export, grounding and crash replay. |
+| G5 `native-negative-final.log/.exit` | **2/2**, exit0. Strengthens the same two grounding cases with ten negative binding permutations per host, not two additional distinct gates. Latest crash roots: `.runtime/pr6-host/command-0Svp20` and `command-yydEWe`. Native/request/source identities and zero-extra-effect counts are in `native-crash.jsonl`. |
+| G6 `native-pr9.log/.exit` | **13/13**, exit0. Impacted full actual held-out/final source/installed native gate, including exact completion replay and unknown-handle refusal. |
+| G7 `targeted-complete.log/.exit` | Source/test typechecks pass, PR10 **27/27** before the two extra alias tests, evaluator **45/45**, material **93/93**. Final typechecks also pass in G8. |
+| G8 `normal-final.log/.exit` | `npm run check` exits1. Package **5/5**, retained source **92/92**, managed **20/20**, research **115/116**. Only the unchanged strict PR12 journal switch fails. The chain stops there. The separately passing evaluator/material groups are not a falsely green normal run. |
+| G9 `pr12-held-spawn.log/.exit` | **0/2**, exit1. Unchanged source/installed held-spawn reload assertions still observe active1 instead of0. R3 remains blocked, independently of PR10 completed-handle replay. |
+| G10 public inventory/preservation | Generated manifest equals current source: **21 actions**, **10 native requirements**, one public skill, exact lesson sourceRefs and registered delayed source gate. Whitespace checks pass and staging is empty. |
+
+Initial typecheck errors (missing canonical import, then unknown test projection fields) were repaired before final typechecks. No broad PR6/7/8/11 native rerun or milestone audit acceptance is inferred from these scoped gates.
+
+### Independent review and preservation
+
+Read-only reviewer `13623649ebcc41fab11180056caae771` found no blocking correctness issue and requested stronger nested-ID and negative replay coverage. Main added both. Final read-only reviewer `c8a48bfed549463186a6b61c393455ae` confirmed both gaps closed with no blocking findings or identified false-positive assertions. Reviewers did not edit or run tests. Main executed every reported gate.
+
+`preservation.json` reconstructs the original mixed tracked files from the saved patch: **23 prior modified files are byte-identical**, seven intentionally shared PR10/PR12 paths changed, and **no original user-added tracked line is missing**. All **12 original untracked file hashes** still match. Fingerprint remains `67b8a1698745a922913187344be038b699ec2a62e6d49ebe0b7c3b1d05e504b7`. Existing CLI/web sources, PR12 blocker probes/checkpoint, package lock and retained artifacts were not edited. Source/index/refs preservation assertions remain active in native hosts.
+
+Changed paths in this task, all under `pi-fabric-arbor/`: `src/research/{policy,ResearchStore,Experience,Grounding,GroundingContracts,SourceCatalog,contracts}.ts`, `src/managed/{OwnerExecution,BindingStore}.ts`, `tests/research/pr10-delayed.test.ts`, `tests/material/pr5-journey.test.ts`, `tests/integration/pr10-grounding-host.test.ts`, `package.json`, `docs/pr3-action-manifest.json`, this evidence file and `acceptance-ledger.md`. All changes remain unstaged. No generic Fabric API/private import, installed-runtime edit, original-checkout operation, paid research, dataset, benchmark skill, artifact cleanup, commit or publication was introduced.
 
 ## Verified baseline and phase log
 

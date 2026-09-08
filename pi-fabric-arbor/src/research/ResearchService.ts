@@ -1,5 +1,8 @@
+import {reportMarkdown,trajectoryMarkdown} from "../presentation/SourceView.js";
+import type {ProposalTrajectory} from "./Experience.js";
 import {scaffold, type ScaffoldRequest} from "../presets/scaffold.js";
-import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
+import { realpath } from "node:fs/promises";
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import type { FabricInvocationContext } from "pi-fabric/protocol";
@@ -27,6 +30,8 @@ import type {SourceCatalog} from "./SourceCatalog.js";
 
 export class ResearchService {
   #researchRuns = new Set<string>();
+  #background = new Map<string,AbortController>();
+  #backgroundFailures:unknown[]=[];
   #starts = new Map<string, { hash: string; pending: Promise<unknown> }>();
   #reviews = new Map<string, { hash: string; pending: Promise<unknown> }>();
   #sources = new Map<string, { hash: string; pending: Promise<Receipt> }>();
@@ -42,7 +47,13 @@ export class ResearchService {
     if (name === "lessons") { const result=this.store.lessons(args as {runId:string;query:string;limit:number});validate(descriptor.outputSchema as Schema,result);return result; }
     if (this.#draining) throw new Error("Arbor research generation is draining");
     const pending = this.#invoke(name, args, context); this.#pending.add(pending);
-    try { const result = await pending; validate(descriptor.outputSchema as Schema, result); return result; } finally { this.#pending.delete(pending); }
+    context.activity?.({type:'progress',message:`Arbor ${name} submitted. Await the actual receipt and settlement.`});
+    try { const result = await pending; validate(descriptor.outputSchema as Schema, result);
+      const value=result as {status?:string;reason?:string|null;run?:{state:string;revision:number;execution:string}};
+      context.activity?.({type:'progress',message:value.run?`Arbor revision ${value.run.revision}: ${value.run.state}; ${value.run.execution}`:`Arbor ${name}: ${value.status??'returned'}${value.reason?': '+value.reason:''}. Acknowledgment is not native completion.`});
+      return result;
+    } catch(error) {context.activity?.({type:'progress',message:`Arbor ${name} failed: ${String(error).slice(0,1024)}`});throw error;}
+    finally { this.#pending.delete(pending); }
   }
   async #invoke(name: string, args: Record<string, any>, context: FabricInvocationContext): Promise<unknown> {
     const identity = await this.owner.identity(context);
@@ -50,13 +61,21 @@ export class ResearchService {
     context.signal?.throwIfAborted();
     if (name === 'scaffold') return scaffold(args as ScaffoldRequest,()=>{if(this.#draining)throw new Error('Arbor research generation is draining');context.signal?.throwIfAborted();});
     if (name === 'start') return this.#start(args, context, identity);
-    if (name === 'runResearch') return this.#runResearch(args,context,identity);
-    if(name==='control' && args.action==='resume' && this.store.get(args.runId)?.spec.config.execution==='research')throw new Error('Autonomous resume requires execute-policy arbor.runResearch; no unchecked command evaluation');
+    if (name === 'runResearch') {
+      if(!this.evaluator)throw new Error('Evaluator unavailable');
+      if(this.#researchRuns.has(args.runId)||this.#background.has(args.runId)||this.owner.busyResearch(args.runId))throw new Error('Research boundary occupied');
+      const binding=this.store.claimResearch(args as BoundCommand,identity,this.owner.componentId,this.owner.generation,args.resume===true),admitted={...args,...binding};
+      return args.background&&!this.store.get(args.runId)?.pendingDecisionId?this.#launchResearch(admitted,context,identity):this.#runResearch(admitted,context,identity);
+    }
+    if(name==='control'&&args.action==='resume'&&this.store.get(args.runId)?.spec.config.execution==='research'){
+      if(this.#researchRuns.has(args.runId)||this.#background.has(args.runId)||this.owner.busyResearch(args.runId))throw new Error('Research resume intent requires quiescent owner');
+      return this.store.resumeIntent(args as BoundCommand,identity,this.owner.componentId,this.owner.generation);
+    }
     if (((name === "control" && args.action === "resume") || (name === "evaluate" && args.payload?.resume === true)) && ["evaluate", "material"].includes(this.store.get(args.runId)?.spec.config.execution ?? "")) {
       if (!this.evaluator) throw new Error("Packaged evaluator unavailable");
       const command: BoundCommand = { runId: args.runId, materialId: args.materialId, epoch: args.epoch, revision: args.revision, commandId: args.commandId };
       const bound = this.store.get(args.runId)!; if (canonical(bound.owner) !== canonical(identity)) throw new Error("Different native owning Pi root/host/identity");
-      if (name === "control" && bound.spec.evaluation?.kind === "command") return this.store.unavailable(command, this.owner.generation, "control", { action: "resume", instruction: null }, "Command evaluation resume requires the execute-policy arbor.evaluate route; /arbor resume selects it through normal policy");
+      if (name === "control" && ["command","provider"].includes(bound.spec.evaluation?.kind ?? "")) return this.store.unavailable(command, this.owner.generation, "control", { action: "resume", instruction: null }, "Command/provider evaluation resume requires the execute-policy arbor.evaluate route; /arbor resume selects it through normal policy");
       if (name === "evaluate" && (args.payload.attemptId !== "exact-material" || !this.store.evaluation(args.runId, args.payload.evaluationId))) throw new Error("Unknown exact evaluation resume binding");
       if(name==='control'&&bound.material?.pending)throw new Error('Pending integration requires execute-policy arbor.evaluate reconciliation; agent-risk control cannot apply an owned ref');
       const action = name === "evaluate" ? "evaluate" as const : "control" as const;
@@ -148,7 +167,7 @@ export class ResearchService {
       this.#reviews.set(key, { hash, pending });
       try { return await pending; } finally { this.#reviews.delete(key); }
     }
-    if (name === "export") return this.#export(command);
+    if (name === "export") return this.#export(command, args.format, context.signal);
     throw new Error(`Unimplemented routing error ${name}`);
   }
   async #reconcilePendingReview(command:BoundCommand,context:FabricInvocationContext,identity:NativeOwner,operation?:{action:'control'|'evaluate';payload:unknown}):Promise<Receipt|undefined> {
@@ -208,7 +227,12 @@ export class ResearchService {
     const journal=recovery??(name==='apply'?await source.prepare(run.material.capture,run.material.incumbent,command.commandId,binding):await source.prepareUndo(run.material.capture,decisionId,command.commandId,binding));
     context.signal?.throwIfAborted();if(this.#draining)throw new Error('Source generation retired before writes');this.store.check(this.store.authorizeSource(run.id,owner,this.owner.componentId,this.owner.generation),command);
     const result=recovery?source.adopt(run.material.capture,journal,binding):source.execute(run.material.capture,journal);
-    return this.store.sourceReceipt(command,this.owner.generation,name,decisionId,source.path(journal.intent.operationId),digest(result),result.state==='applied'?null:result.error??'Source conflict; patch retained',owner,this.owner.componentId);
+    // The operational journal may acquire recovery receipts. Published artifacts
+    // are immutable per-command snapshots, never aliases of that mutable journal.
+    const artifact=join(this.stateDirectory,'runs',run.id,'source-receipts',command.commandId+'.json'),text=canonical(result)+'\n';
+    mkdirSync(dirname(artifact),{recursive:true});
+    try{writeFileSync(artifact,text,{flag:'wx',mode:0o600});}catch(error){if((error as NodeJS.ErrnoException).code!=='EEXIST'||readFileSync(artifact,'utf8')!==text)throw error;}
+    return this.store.sourceReceipt(command,this.owner.generation,name,decisionId,artifact,digest(result),result.state==='applied'?null:result.error??'Source conflict; patch retained',owner,this.owner.componentId);
   }
   async #start(args: Record<string, any>, context: FabricInvocationContext, identity: NativeOwner): Promise<unknown> {
     const hash = digest({ cwd: context.cwd, args });
@@ -220,6 +244,7 @@ export class ResearchService {
       const [profile, project] = await Promise.all([configFile(join(this.profileDirectory, "arbor.defaults.json")), configFile(join(context.cwd, "arbor.config.json"))]);
       const model = context.extensionContext.model;
       const spec = await resolveSpec(context.cwd, profile, project, object(args.overrides ?? {}), model ? `${model.provider}/${model.id}` : undefined);
+      if(args.expectedSpecId!==undefined&&args.expectedSpecId!==spec.identity)throw new Error('Confirmed research configuration changed; repeat owning-Pi intake before capture');
       if(spec.config.grounding?.mode!=='off'&&spec.config.grounding){
         spec.groundingCatalog=null;
         try{if(this.sourceCatalog&&spec.config.grounding.catalog)spec.groundingCatalog={id:this.sourceCatalog.id,bindings:['search','fetch'].map(k=>this.sourceCatalog!.binding(spec.config.grounding!.catalog!,k as 'search'|'fetch').binding)};}catch{/* Unavailability is frozen and reported only for selected grounding. */}
@@ -251,11 +276,11 @@ export class ResearchService {
         const { identity: _identity, ...body } = spec; spec.identity = digest(body);
         material = { capture, incumbent: capture.baseline, baselineEvaluation: null, candidates: [], pending: null };
       }
-      this.store.create({ ...(material ? { material } : {}), id: args.runId, spec, requestHash: hash, owner: identity, componentId: this.owner.componentId, generation: this.owner.generation, epoch: "epoch-1", revision: 0, state: "ready", attemptsUsed: 0, active: 0, createdAt: Date.now(), activeMs: 0, activeSince: spec.config.execution === "inspect" || (spec.config.execution === "evaluate" && spec.evaluation!.kind !== "command") ? Date.now() : null, steering: [], pendingDecisionId: null, execution: "not-started", error: null });
-      // Direct command effects require the execute-risk evaluate action. The Pi
+      this.store.create({ ...(material ? { material } : {}), id: args.runId, spec, requestHash: hash, owner: identity, componentId: this.owner.componentId, generation: this.owner.generation, epoch: "epoch-1", revision: 0, state: "ready", attemptsUsed: 0, active: 0, createdAt: Date.now(), activeMs: 0, activeSince: spec.config.execution === "inspect" || (spec.config.execution === "evaluate" && spec.evaluation!.kind === "agent-suite") ? Date.now() : null, steering: [], pendingDecisionId: null, execution: "not-started", error: null });
+      // Command and provider effects require the execute-risk evaluate action. The Pi
       // start command composes start -> evaluate through normal Fabric policy.
-      if (spec.config.execution === "evaluate" && spec.evaluation!.kind !== "command") await this.evaluator!.evaluate(args.runId, "evaluation-initial", context.signal);
-      if (material && spec.config.execution !== 'research' && spec.evaluation!.kind !== "command") await this.material.invoke("evaluate", this.store.binding(this.store.get(args.runId)!, "initial-material-evaluation"), { attemptId: "baseline", evaluationId: "evaluation-initial" }, context);
+      if (spec.config.execution === "evaluate" && spec.evaluation!.kind === "agent-suite") await this.evaluator!.evaluate(args.runId, "evaluation-initial", context.signal);
+      if (material && spec.config.execution !== 'research' && spec.evaluation!.kind === "agent-suite") await this.material.invoke("evaluate", this.store.binding(this.store.get(args.runId)!, "initial-material-evaluation"), { attemptId: "baseline", evaluationId: "evaluation-initial" }, context);
       if (spec.config.execution === "inspect") {
         if (!spec.source.oid) { this.store.settle(args.runId, this.owner.generation, "paused", "blocked", "Non-Git native capture unavailable until PR5; resolved specification retained"); }
         else {
@@ -271,6 +296,29 @@ export class ResearchService {
     })();
     this.#starts.set(args.runId, { hash, pending });
     try { return await pending; } catch (error) { this.#starts.delete(args.runId); throw error; }
+  }
+  #launchResearch(args:Record<string,any>,context:FabricInvocationContext,identity:NativeOwner):unknown{
+    const run=this.store.get(args.runId);
+    if(!run?.material||run.spec.config.execution!=='research')throw new Error('Select explicit research execution');
+    if(canonical(run.owner)!==canonical(identity))throw new Error('Different native owning Pi root/host/identity');
+    this.store.check(run,args as BoundCommand);context.signal?.throwIfAborted();
+    if(this.#researchRuns.has(run.id)||this.#background.has(run.id))throw new Error('Research boundary occupied');
+    if(!this.evaluator)throw new Error('Evaluator unavailable');
+    // Exact initial/resume admission was claimed synchronously before launch.
+    if(args.resume&&['completed','cancelled','failed'].includes(run.state))throw new Error('Research resume requires nonterminal saved work');
+    // The execute-risk public invocation admits this owner-held operation. The
+    // component, not the completed Main tool turn, owns its lifetime and cleanup.
+    // Return only current saved facts, never a fabricated durable queue receipt.
+    const controller=new AbortController();this.#background.set(run.id,controller);
+    // Do not retain outer QuickJS callbacks or its per-invocation capability lease.
+    // Native calls use the managed component's separately retained committed view.
+    const ownedContext:FabricInvocationContext={cwd:context.cwd,extensionContext:context.extensionContext,parentToolCallId:context.parentToolCallId,nestedToolCallId:context.nestedToolCallId,signal:controller.signal,update:()=>{}};
+    const pending=this.#runResearch(args,ownedContext,identity).catch(error=>{
+      this.store.backgroundRefusal(run,args as BoundCommand,this.owner.generation,String(error));
+      const current=this.store.get(run.id);
+      if(current&&current.generation===this.owner.generation&&['ready','running'].includes(current.state))this.store.settle(run.id,this.owner.generation,'interrupted','background-research-interrupted',String(error).slice(0,4096));
+    }).catch(error=>{if(this.#backgroundFailures.length<16)this.#backgroundFailures.push(error);}).finally(()=>{this.#background.delete(run.id);this.#pending.delete(pending);});
+    this.#pending.add(pending);return this.store.projection(run.id);
   }
   async #runResearch(args: Record<string,any>, context: FabricInvocationContext, identity: NativeOwner): Promise<unknown> {
     const run=this.store.get(args.runId);if(!run?.material || run.spec.config.execution!=='research')throw new Error('Select explicit research execution');
@@ -291,7 +339,7 @@ export class ResearchService {
         if(run.active||run.material.pending||['interrupted','cleanup_pending','running'].includes(run.state)){resumeCommand=await this.material.reconcile(args as BoundCommand,context);}
         else if(run.state!=='paused')throw new Error('Research resume requires quiescent paused owner; terminal work is retained');
         await this.evaluator.resume(resumeCommand,identity,context.signal);
-      }else{this.store.authorize(run.id,identity,this.owner.generation);if(run.execution!=='not-started'||!['ready','running'].includes(run.state))throw new Error('Research requires explicit resume, not replay');}
+      }else{this.store.authorize(run.id,identity,this.owner.generation);}
       if(!await new Grounding(this.owner,this.store,this.stateDirectory,this.sourceCatalog,()=>this.#draining).run(run.id,context)){const blocked=this.store.get(run.id)!;this.store.settle(run.id,this.owner.generation,"paused","research-stop:grounding",blocked.grounding?.error??"Grounding reservation requires reconciliation; no duplicate dispatch");return this.store.projection(run.id);}
       const current=this.store.get(run.id)!;
       const projection=this.store.projection(run.id)!;
@@ -307,21 +355,37 @@ export class ResearchService {
       return this.store.projection(run.id);
     }finally{this.#researchRuns.delete(run.id);}
   }
-  async #export(command: BoundCommand): Promise<Receipt> {
-    const duplicate = this.store.receipt(command, "export", { format: "json" }); if (duplicate) return duplicate;
+  async #export(command: BoundCommand, format: "json" | "report" | "trajectory", signal?: AbortSignal): Promise<Receipt> {
+    const duplicate = this.store.receipt(command, "export", { format }); if (duplicate) return duplicate;
     const run = this.store.get(command.runId)!; this.store.check(run, command);
-    const projection = { ...this.store.projection(command.runId)!, trajectories:this.store.trajectories(command.runId) };
-    const text = canonical(run.material ? { ...projection, materialDelta: await this.material.export(run.id) } : projection) + "\n";
-    if (Buffer.byteLength(text) > run.spec.config.limits.artifactBytes) throw new Error("Export artifact budget exceeded");
-    const path = join(this.stateDirectory, "runs", run.id, "exports", `${command.commandId}.json`);
-    await mkdir(dirname(path), { recursive: true });
-    try { await writeFile(path, text, { flag: "wx", mode: 0o600 }); }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST" || await readFile(path, "utf8") !== text) throw error; }
-    if (this.#draining) throw new Error("Export interrupted during retirement; artifact retained, no stale commit");
-    return this.store.exported(command, this.owner.generation, path, digest(text));
+    if(run.material?.pending)throw new Error('Pending integration intent must reconcile before export');
+    const projection = this.store.exportProjection(command.runId)!;
+    const body = run.material ? { ...projection, materialDelta: await this.material.export(run.id) } : projection;
+    const afterMaterial=this.store.receipt(command,"export",{format});if(afterMaterial)return afterMaterial;
+    // Refuse a changed revision after the Git read instead of exporting mixed facts.
+    this.store.check(this.store.get(run.id)!,command);
+    const text = format === 'json' ? canonical(body)+'\n' : format === 'report' ? reportMarkdown(body) : trajectoryMarkdown(projection.trajectories as ProposalTrajectory[]);
+    const owned=await ownedArtifactBytes(this.store,run.id);
+    const afterAdmission=this.store.receipt(command,"export",{format});if(afterAdmission)return afterAdmission;
+    this.store.check(this.store.get(run.id)!,command);
+    signal?.throwIfAborted();
+    if(this.store.get(run.id)!.material?.pending)throw new Error('Pending integration intent must reconcile before export');
+    if (this.#draining) throw new Error("Export interrupted during retirement; no file written");
+    const path = join(this.stateDirectory, "runs", run.id, "exports", `${command.commandId}.${format === "json" ? "json" : format+".md"}`);
+    const refs=projection.artifact_refs as unknown[],ref=this.store.exportReference(command,path,digest(text),format);
+    const registrationBytes=Buffer.byteLength(canonical([...refs,ref]))-Buffer.byteLength(canonical(refs));
+    if (owned + Buffer.byteLength(text) + registrationBytes > run.spec.config.limits.artifactBytes) throw new Error("Export cumulative artifact budget exceeded");
+    // The bounded final write/receipt has no await: an owner control cannot
+    // change revision between admission and registration. A process/storage
+    // failure still retains the file, never fabricates a committed receipt.
+    mkdirSync(dirname(path), { recursive: true });
+    try { writeFileSync(path, text, { flag: "wx", mode: 0o600 }); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST" || readFileSync(path, "utf8") !== text) throw error; }
+    return this.store.exported(command, this.owner.generation, path, digest(text), format);
   }
   dispose(): Promise<void> {
     this.#draining = true; this.material.draining = true;
+    for(const controller of this.#background.values())controller.abort(new Error('Research owner generation retired'));
     this.#disposed ??= (async () => {
       let failure: unknown;
       try { await this.evaluator?.dispose(); await this.owner.dispose(); } catch (error) { failure = error; }
@@ -329,6 +393,7 @@ export class ResearchService {
       // while a retained facade/review/export invocation can still use them.
       while (this.#pending.size) await Promise.allSettled([...this.#pending]);
       if (failure) throw failure;
+      if(this.#backgroundFailures.length)throw new AggregateError(this.#backgroundFailures,'Background research evidence persistence failed');
     })();
     return this.#disposed;
   }
