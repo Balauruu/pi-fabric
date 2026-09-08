@@ -1,5 +1,7 @@
 # PR3 transactional interface evidence
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 ## Verdict and identity
 
 **Scoped PR3 implementation and final adversarial verification PASS, authorized for milestone publication.** This is not completed scored research or broad A01-A30 acceptance. PR4-PR13 remain unimplemented dependency-scoped work; no PR4 production implementation is included.

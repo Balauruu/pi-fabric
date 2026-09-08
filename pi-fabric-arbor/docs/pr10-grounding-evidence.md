@@ -1,5 +1,7 @@
 # PR10 grounding, lessons and trajectories evidence
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 Status: delayed review `fe53d9dcd3b04148b584cae3530c57f1` repairs narrowly verified. Earlier blanket acceptance/reviews below are historical and reopened, not current full acceptance. PR12 remains blocked by R2 strict journal admission and R3 lost held-spawn handle. No staging, commit or publication in this task.
 
 ## Delayed review repair checkpoint

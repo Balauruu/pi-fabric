@@ -1,5 +1,7 @@
 # PR9 held-out evidence
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 Status: independent Main review of the supplied PR9 diff and repaired scoped gates PASS. User-authorized publication requires full staged review and ordinary push/remote equality; PR #3 remains draft. PR10-PR13 are outstanding.
 
 ## Independent review and repair checkpoint

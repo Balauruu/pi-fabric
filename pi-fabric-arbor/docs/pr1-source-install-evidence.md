@@ -1,5 +1,7 @@
 # PR1 source-only installation evidence
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 Status: **PASS for the repaired PR1 source-only package/install and retained-characterization gate**. PR2 is next. Final review kept the oracle change minimal: source-resolved digest, original direct independent implementation, and no new subprocess/IPC runtime. `npm run check` passed again after that correction: both no-emit checks, 5 package/install tests and 92 retained source tests.
 
 ## Executed environment

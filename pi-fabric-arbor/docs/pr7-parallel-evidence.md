@@ -1,5 +1,7 @@
 # PR7 branching and parallel evidence
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 Status: **repaired PR7 scoped gate PASS; publication requires final independent staged review**. Verified exact root `/home/balauru/.pi-profiles/fabric/.worktrees/arbor-refactor`, branch `arbor/refactor-pr0-pr1`, base HEAD `e8abded64db245ebfca2725bdeca486094e0c1a4`. Existing PR7 diff preserved. User-authorized publication is limited to the reviewed app/plan diff, normal commit/push and an evidence comment on draft PR #3. PR8-13 remain outstanding.
 
 ## Repair acceptance ledger

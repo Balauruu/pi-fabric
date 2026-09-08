@@ -32,6 +32,14 @@ test("PR5 dirty staged/unstaged, selected untracked, modes, symlinks, deletion a
   assert.equal(git(capture.repository, "cat-file", "-t", frozen.oid).trim(), "commit");
   assert.deepEqual(await readFile(join(f.source, ".git/index")), before); assert.equal(git(f.source, "show-ref"), refs); assert.equal(git(f.source, "status", "--porcelain=v1", "-z"), status);
 });
+test('PR13 capture freeze restore export preserve stash custom refs and a dirty sibling worktree',async()=>{
+ const f=await fixture();await writeFile(join(f.source,'prompt'),'stashed');git(f.source,'stash','push','-m','user stash');git(f.source,'update-ref','refs/user/keep',git(f.source,'rev-parse','HEAD').trim());
+ const sibling=join(f.root,'sibling');git(f.source,'worktree','add','-b','sibling',sibling);await writeFile(join(sibling,'prompt'),'sibling staged');git(sibling,'add','prompt');await writeFile(join(sibling,'prompt'),'sibling dirty');await writeFile(join(f.source,'prompt'),'source dirty');
+ const observe=async()=>({refs:git(f.source,'show-ref'),stash:git(f.source,'stash','list'),worktrees:git(f.source,'worktree','list','--porcelain'),source:await readFile(join(f.source,'prompt')),index:await readFile(join(f.source,'.git/index')),sibling:await readFile(join(sibling,'prompt')),siblingIndex:await readFile(git(sibling,'rev-parse','--git-path','index').trim()),status:git(sibling,'status','--porcelain=v1','-z')});
+ const before=await observe(),capture=await f.workspace.capture({root:f.source,mutablePaths:['prompt'],evaluationInputs:['check'],selectedUntracked:[]}),candidate=await f.workspace.materialize(capture,'port',capture.baseline);
+ await writeFile(join(candidate.directory,'prompt'),'improved');const frozen=await f.workspace.freeze(capture,candidate);assert.match(await f.workspace.export(capture,frozen.oid),/improved/);await f.workspace.restore(capture,candidate);assert.deepEqual(await observe(),before);
+});
+
 test("PR5 non-Git capture owns repository, rejects eval-input/scope drift and retains artifacts", async () => {
   const f = await fixture(true); const capture = await f.workspace.capture({ root: f.source, mutablePaths: ["prompt"], evaluationInputs: ["check"], selectedUntracked: [] });
   await assert.rejects(lstat(join(f.source, ".git")));

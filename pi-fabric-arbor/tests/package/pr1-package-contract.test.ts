@@ -44,11 +44,10 @@ test("active package manifest has only source exports, one read-only bin, and on
   assert.equal("prepack" in manifest.scripts, false);
   assert.equal("build" in manifest.scripts, false);
   assert.match(manifest.scripts.test, /test:source/u);
-  assert.match(manifest.scripts["test:source"], /test:source:retained/u);
+  assert.equal(manifest.scripts["test:source:retained"], undefined);
+  assert.ok(manifest.scripts["audit:pr13"]);
   assert.match(manifest.scripts.check, /npm test/u);
-  for (const retained of ["tests/model/*.test.ts", "tests/git/fingerprint.test.ts", "tests/git/workspace.test.ts", "tests/git/promotion-candidate.test.ts", "tests/persistence/*.test.ts", "tests/recovery/dispatch.test.ts", "tests/recovery/outbox.test.ts", "tests/recovery/report.test.ts", "tests/recovery/fault-matrix.test.ts", "tests/concurrency/commands.test.ts", "tests/evaluation/protocol.test.ts", "tests/compatibility/components.test.ts", "tests/compatibility/provider.test.ts"]) {
-    assert.ok(manifest.scripts["test:source:retained"].includes(retained), `retained source lane omitted ${retained}`);
-  }
+  for (const lane of ['test:source:package','test:pr2','test:pr3','test:pr4','test:pr5'])assert.ok(manifest.scripts['test:source'].includes(lane),'Current source contract lane omitted '+lane);
   assert.doesNotMatch(JSON.stringify({ exports: manifest.exports, bin: manifest.bin, files: manifest.files, scripts: manifest.scripts, pi: manifest.pi }), /(?:^|[/.])(?:dist|\.test-dist)(?:[/.]|$)/u);
   assert.equal(manifest.files.some((path: string) => path.startsWith("certification/")), false);
 });

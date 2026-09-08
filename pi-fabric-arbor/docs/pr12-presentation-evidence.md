@@ -1,5 +1,7 @@
 # PR12 presentation gate
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 Status: **Final local PR12 regression and both audits PASS.** The approved A02/A22/A26 and F2–F5 fixes work within current declared Fabric mechanics. Independent read-only reviews **PASS** for both the scoped lifetime revision and final reconciliation, with no required fixes. These are source/retained-evidence reviews, not additional test runs or a fresh full-application design audit. The spec supervisor accepts required PR12 evidence within these scoped limits and authorizes milestone publication followed by dependency-ready PR13. Exact publication identity is recorded in the acceptance ledger after push verification; no runtime/user-artifact cleanup is authorized.
 
 ## Final current gate

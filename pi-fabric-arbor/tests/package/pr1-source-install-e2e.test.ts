@@ -118,7 +118,7 @@ test("clean packed install source-loads in Pi, reloads edited source, and stays 
   for (const path of [
     "bin/pi-fabric-arbor.mjs", "src/extension.ts", "src/package.ts", "src/package-layout.ts",
     "src/cli/read-only.ts", "src/web/SourceWebAssets.ts", "skills/fabric-arbor/SKILL.md",
-    "src/research/contracts.ts", "src/research/spec.ts", "src/research/ResearchStore.ts", "src/research/ResearchService.ts", "src/research/commands.ts", "docs/pr3-action-manifest.json", "docs/pr3-interface-evidence.md",
+    "src/research/contracts.ts", "src/research/spec.ts", "src/research/ResearchStore.ts", "src/research/ResearchService.ts", "src/research/commands.ts", "docs/pr3-action-manifest.json", "docs/pr13-cutover-evidence.md",
     "skills/fabric-arbor/roles/coordinator.md", "skills/fabric-arbor/roles/executor.md",
     "skills/fabric-arbor/roles/literature.md", "web/read-only/index.html", "web/read-only/app.js", "web/read-only/app.css",
   ]) assert.ok(inventory.includes(path), `pack inventory omitted ${path}`);
@@ -195,6 +195,8 @@ test("clean packed install source-loads in Pi, reloads edited source, and stays 
     await rpc.close();
   }
   assert.equal(rpc.stderr.join(""), "");
+  await mkdir(join(projectRoot,".runtime/pr13-gates"),{recursive:true});
+  await writeFile(join(projectRoot,".runtime/pr13-gates/install.json"),JSON.stringify({root,installed,passive:true,reloadedSource:true,inventory},null,2)+"\n");
   const allPaths = await pathsBelow(root);
   assert.equal(allPaths.some((path) => /(?:^|\/)(?:actors|runs)(?:\/|$)/u.test(path) && !path.includes("node_modules")), false, "normal registration created actor/run storage");
   assert.equal(allPaths.some((path) => /arbor.*\.(?:sqlite3?|jsonl)$/u.test(path) && !path.includes("node_modules")), false, "normal registration created Arbor research state");

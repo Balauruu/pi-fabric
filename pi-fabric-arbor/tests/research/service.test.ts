@@ -28,6 +28,14 @@ async function fixture(t: test.TestContext, expectedCloseFailure?: Error) {
   return { root, cwd, profile, store, owner, binding, service, calls, context, invoke, start, command, requestReview, dialogs: () => dialogs, response: (next: typeof response) => { response = next; } };
 }
 
+test('PR13 export persistence gap retries identical bytes once and preserves terminal outcome on conflict',async t=>{
+ const f=await fixture(t);await f.invoke('start',f.start);await f.invoke('control',{...f.command('cancel'),action:'cancel'});assert.equal(f.store.get('research')!.state,'cancelled');
+ const args={...f.command('gap'),format:'json'},before=f.store.projection('research'),save=f.store.exported.bind(f.store);f.store.exported=()=>{throw new Error('PR13 injected receipt persistence failure');};
+ await assert.rejects(f.invoke('export',args),/PR13 injected receipt persistence failure/);const path=join(f.root,'state/runs/research/exports/gap.json'),bytes=await readFile(path);assert.deepEqual(f.store.projection('research'),before);
+ f.store.exported=save;const receipt=await f.invoke('export',args);assert.deepEqual(await f.invoke('export',args),receipt);assert.deepEqual(await readFile(path),bytes);assert.equal((f.store.projection('research')!.artifact_refs as unknown[]).length,1);assert.equal(f.store.get('research')!.state,'cancelled');
+ const conflict={...f.command('conflict'),format:'json'},snapshot=f.store.projection('research'),other=join(f.root,'state/runs/research/exports/conflict.json');await writeFile(other,'newer retained bytes');await assert.rejects(f.invoke('export',conflict));assert.equal(await readFile(other,'utf8'),'newer retained bytes');assert.deepEqual(f.store.projection('research'),snapshot);
+});
+
 test('PR12 confirmed intake identity rejects changed configuration before capture',async t=>{
  const f=await fixture(t);const {resolveSpec}=await import('../../src/research/spec.js');const expected=await resolveSpec(f.cwd,{},{},f.start.overrides,'fake/local');await writeFile(join(f.cwd,'arbor.config.json'),JSON.stringify({objective:{unit:'changed'}}));await assert.rejects(f.invoke('start',{...f.start,expectedSpecId:expected.identity}),/Confirmed research configuration changed/);assert.equal(existsSync(f.store.path),false);assert.equal(existsSync(join(f.root,'state/runs')),false);
 });

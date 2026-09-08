@@ -1,5 +1,7 @@
 # PR8 controls, recovery and source-apply evidence
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 Status: **PR8 scoped gates and final publication reviews PASS**. Final independent terminal-source/pending-review/continuation guard review returned a genuine completed native child result (exit0), with no concrete blockers. Main reviewed the entire34-file staged diff in bounded reads, including all manifest changes, and verified both diff checks and exact PR8-only name/status scope. User-authorized publication requires ordinary push verification; PR #3 stays draft. PR9-PR13 remain unstarted.
 
 Publication checks: `publication-target.log` naturally completes **23/23**, no failures/cancellations/skips/todo, exit0; `publication-audit.log` passes the same exact inventory and boundaries below, exit0. Unchanged full normal/native lanes were inspected for complete totals, not relabeled reruns. `publication-independent-review.md` retains the scoped read-only reviewer result; it did not rerun tests and does not claim full-product acceptance. No production edit was needed in this final publication continuation.

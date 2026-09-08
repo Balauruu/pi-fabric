@@ -1,5 +1,7 @@
 # PR6 research implementation evidence
 
+> Historical milestone evidence at or before PR12 `b509ae7ccb1db2da02272d9eb9d304267c59119f`, retained in the repository but not shipped. Commands, fixed counts and source paths below refer to that historical checkout, not current release gates. See [current cutover evidence](pr13-cutover-evidence.md) and the acceptance ledger. Existing runtime evidence remains untouched.
+
 Status: **PR6 independently reviewed scoped gate PASS**. Accepted for the user-authorized scoped commit/push and draft PR #3 evidence comment, subject to explicit reviewed-path staging and final cached-diff checks. At this independent PR6 gate, PR7 had not started. Subsequent separately authorized PR7 implementation evidence is recorded in [PR7 evidence](pr7-parallel-evidence.md); it does not broaden this historical serial gate. PR8-PR13 still require separate work and acceptance. Historical checkpoints below do not override this gate.
 
 ## Independent Main acceptance ledger
