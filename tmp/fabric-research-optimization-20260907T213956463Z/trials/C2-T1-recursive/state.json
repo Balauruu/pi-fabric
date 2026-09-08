@@ -1,0 +1,242 @@
+{
+  "phase": "blocked",
+  "requirements": [
+    {
+      "id": "R1",
+      "question": "What measured effects do production-relevant LLM prompt techniques have, under which task and model, relative to what comparator, and with what method and cost?",
+      "inclusions": [
+        "measured technique effects",
+        "task and model",
+        "explicit comparator",
+        "methods and cost"
+      ],
+      "reportContribution": "Evidence table retaining outcomes and incompatible settings separately.",
+      "decisionContext": "Select prompting techniques for production systems without treating benchmark gains as universal."
+    },
+    {
+      "id": "R2",
+      "question": "What counterevidence, regressions, and transfer limits constrain use of those techniques?",
+      "inclusions": [
+        "original counterevidence",
+        "failure modes",
+        "task/model transfer limits"
+      ],
+      "reportContribution": "Limits and failure signals that bound recommendations.",
+      "decisionContext": "Avoid techniques that degrade reliability, cost, latency, or safety."
+    },
+    {
+      "id": "R3",
+      "question": "What actionable technique-selection and evaluation rules follow for production use, including failure signals and the smallest resolving evaluation?",
+      "inclusions": [
+        "selection rules",
+        "evaluation design",
+        "operational failure signals"
+      ],
+      "reportContribution": "Operational decision rules and a task-specific evaluation protocol.",
+      "decisionContext": "Choose what to trial now and what measurement would change that choice."
+    }
+  ],
+  "allowance": {
+    "reserved": 6,
+    "used": 3,
+    "repairs": 0
+  },
+  "assignments": {
+    "effects": {
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C2-T1-recursive/streams/effects.md",
+      "reserved": true,
+      "configured": {
+        "model": "openai-codex/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "receipt": {
+        "id": "effects",
+        "role": "researcher",
+        "nativeId": null,
+        "configured": {
+          "model": "openai-codex/gpt-5.6-terra",
+          "thinking": "medium"
+        },
+        "observed": {
+          "model": null,
+          "thinking": null,
+          "status": "error"
+        },
+        "hasText": false,
+        "savedPath": null,
+        "persistenceError": "Error: Fabric agent depth limit reached (2)",
+        "durationMs": 5
+      }
+    },
+    "limits": {
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C2-T1-recursive/streams/limits.md",
+      "reserved": true,
+      "configured": {
+        "model": "openai-codex/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "receipt": {
+        "id": "limits",
+        "role": "researcher",
+        "nativeId": null,
+        "configured": {
+          "model": "openai-codex/gpt-5.6-terra",
+          "thinking": "medium"
+        },
+        "observed": {
+          "model": null,
+          "thinking": null,
+          "status": "error"
+        },
+        "hasText": false,
+        "savedPath": null,
+        "persistenceError": "Error: Fabric agent depth limit reached (2)",
+        "durationMs": 4
+      }
+    },
+    "operations": {
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C2-T1-recursive/streams/operations.md",
+      "reserved": true,
+      "configured": {
+        "model": "openai-codex/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "receipt": {
+        "id": "operations",
+        "role": "researcher",
+        "nativeId": null,
+        "configured": {
+          "model": "openai-codex/gpt-5.6-terra",
+          "thinking": "medium"
+        },
+        "observed": {
+          "model": null,
+          "thinking": null,
+          "status": "error"
+        },
+        "hasText": false,
+        "savedPath": null,
+        "persistenceError": "Error: Fabric agent depth limit reached (2)",
+        "durationMs": 4
+      }
+    }
+  },
+  "receipts": [
+    {
+      "id": "effects",
+      "role": "researcher",
+      "nativeId": null,
+      "configured": {
+        "model": "openai-codex/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "observed": {
+        "model": null,
+        "thinking": null,
+        "status": "error"
+      },
+      "hasText": false,
+      "savedPath": null,
+      "persistenceError": "Error: Fabric agent depth limit reached (2)",
+      "durationMs": 5
+    },
+    {
+      "id": "limits",
+      "role": "researcher",
+      "nativeId": null,
+      "configured": {
+        "model": "openai-codex/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "observed": {
+        "model": null,
+        "thinking": null,
+        "status": "error"
+      },
+      "hasText": false,
+      "savedPath": null,
+      "persistenceError": "Error: Fabric agent depth limit reached (2)",
+      "durationMs": 4
+    },
+    {
+      "id": "operations",
+      "role": "researcher",
+      "nativeId": null,
+      "configured": {
+        "model": "openai-codex/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "observed": {
+        "model": null,
+        "thinking": null,
+        "status": "error"
+      },
+      "hasText": false,
+      "savedPath": null,
+      "persistenceError": "Error: Fabric agent depth limit reached (2)",
+      "durationMs": 4
+    }
+  ],
+  "coverage": {
+    "R1": {
+      "disposition": "blocked",
+      "reason": "agent depth limit"
+    },
+    "R2": {
+      "disposition": "blocked",
+      "reason": "agent depth limit"
+    },
+    "R3": {
+      "disposition": "blocked",
+      "reason": "agent depth limit"
+    }
+  },
+  "nextActions": [
+    "launch research"
+  ],
+  "outcome": {
+    "status": "blocked",
+    "conclusion": "No supported conclusion: delegated research could not start because Fabric agent depth limit reached (2).",
+    "citations": [],
+    "limitations": [
+      "No sources were retrieved.",
+      "No verifier, synthesizer, or validator ran."
+    ],
+    "coverage": [
+      {
+        "questionId": "R1",
+        "disposition": "blocked",
+        "reason": "launch rejected before retrieval"
+      },
+      {
+        "questionId": "R2",
+        "disposition": "blocked",
+        "reason": "launch rejected before retrieval"
+      },
+      {
+        "questionId": "R3",
+        "disposition": "blocked",
+        "reason": "launch rejected before retrieval"
+      }
+    ],
+    "gaps": [
+      "Enable sufficient Fabric agent depth, then rerun the bounded delegated workflow."
+    ],
+    "paths": {
+      "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C2-T1-recursive/RESEARCH.md",
+      "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C2-T1-recursive/state.json"
+    },
+    "verification": "not_run",
+    "reportValidation": "not_run",
+    "stopReason": "systemic pre-execution Fabric agent depth limit reached (2)",
+    "userDecision": "Provide an execution context with at least one additional permitted agent depth."
+  },
+  "phaseDurationsMs": {
+    "initialize": null,
+    "researchAttemptMax": 5,
+    "blockFinalization": 16
+  }
+}

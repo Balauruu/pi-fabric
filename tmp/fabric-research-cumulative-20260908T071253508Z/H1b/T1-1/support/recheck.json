@@ -1,0 +1,5 @@
+{
+  "verdict": "accept",
+  "findings": "D1 resolved. Corrected report line 43 now states “LaMDA 137B GSM8K 14.3% to 17.3%” with “[Table 2].” S1 Appendix B Table 2 gives 14.3% CoT and 17.3% with external calculator. S1 Appendix D.2 explicitly says it “went up from 14.3% to 17.3%” and locates it in Table 2. The only report change is this supported value and locator correction. All other 137 lines, including the calculator-augmented qualification and decision controls, are unchanged.",
+  "limitations": "Recheck used only the specified frozen corpus and no outside sources."
+}

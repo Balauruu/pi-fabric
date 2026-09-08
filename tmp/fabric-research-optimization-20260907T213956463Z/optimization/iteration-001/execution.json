@@ -1,0 +1,205 @@
+{
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "extensions": true,
+  "recursive": false,
+  "startedAt": "2026-09-08T01:25:10.269Z",
+  "elapsedMs": 956195,
+  "attempts": [
+    {
+      "label": "T1-evidence",
+      "ok": true,
+      "id": "2a14c77bb74547f5aff957be6caa6ef1",
+      "status": "completed",
+      "usage": {
+        "input": 49308,
+        "output": 4882,
+        "cacheRead": 131584,
+        "cacheWrite": 0,
+        "cost": 0.1835168
+      }
+    },
+    {
+      "label": "T1-counter",
+      "ok": true,
+      "id": "034ba36c750d45c98f8cce63bb0a1a65",
+      "status": "completed",
+      "usage": {
+        "input": 74586,
+        "output": 4303,
+        "cacheRead": 219136,
+        "cacheWrite": 0,
+        "cost": 0.2446352
+      }
+    },
+    {
+      "label": "T3-evidence",
+      "ok": true,
+      "id": "2b41e59f81ef4029a09b5142257393af",
+      "status": "completed",
+      "usage": {
+        "input": 100948,
+        "output": 7435,
+        "cacheRead": 513536,
+        "cacheWrite": 0,
+        "cost": 0.39382320000000004
+      }
+    },
+    {
+      "label": "T3-counter",
+      "ok": true,
+      "id": "13a3fbff8493449bb94e924040186656",
+      "status": "completed",
+      "usage": {
+        "input": 83337,
+        "output": 6819,
+        "cacheRead": 543232,
+        "cacheWrite": 0,
+        "cost": 0.35714840000000003
+      }
+    },
+    {
+      "label": "T1-verify",
+      "ok": true,
+      "id": "bcdb7c7d485e48d4a9a3eed5e6238676",
+      "status": "completed",
+      "usage": {
+        "input": 43136,
+        "output": 5465,
+        "cacheRead": 199680,
+        "cacheWrite": 0,
+        "cost": 0.191788
+      }
+    },
+    {
+      "label": "T3-verify",
+      "ok": true,
+      "id": "022b64d14c7140f6897ef272e9f2d572",
+      "status": "completed",
+      "usage": {
+        "input": 61559,
+        "output": 5764,
+        "cacheRead": 166912,
+        "cacheWrite": 0,
+        "cost": 0.2256684
+      }
+    },
+    {
+      "label": "T1-synth",
+      "ok": true,
+      "id": "64765627c0d4490db5780aa622b03762",
+      "status": "completed",
+      "usage": {
+        "input": 28441,
+        "output": 4278,
+        "cacheRead": 33792,
+        "cacheWrite": 0,
+        "cost": 0.1149764
+      }
+    },
+    {
+      "label": "T3-synth",
+      "ok": true,
+      "id": "d268dbb8e57642929e0226915de6ec70",
+      "status": "completed",
+      "usage": {
+        "input": 43719,
+        "output": 5482,
+        "cacheRead": 66048,
+        "cacheWrite": 0,
+        "cost": 0.16643159999999999
+      }
+    },
+    {
+      "label": "T1-validate",
+      "ok": true,
+      "id": "755983638c184a238e1e7ca244117af2",
+      "status": "completed",
+      "usage": {
+        "input": 36183,
+        "output": 3234,
+        "cacheRead": 80896,
+        "cacheWrite": 0,
+        "cost": 0.1273532
+      }
+    },
+    {
+      "label": "T3-validate",
+      "ok": true,
+      "id": "d04267bf3608473c82199fbc071c88ba",
+      "status": "completed",
+      "usage": {
+        "input": 68134,
+        "output": 4577,
+        "cacheRead": 285184,
+        "cacheWrite": 0,
+        "cost": 0.2482288
+      }
+    },
+    {
+      "label": "T2-nonregression",
+      "ok": true,
+      "id": "bf1a7795bfba44df8de5d113dd24dd6e",
+      "status": "completed",
+      "usage": {
+        "input": 173589,
+        "output": 6183,
+        "cacheRead": 376832,
+        "cacheWrite": 0,
+        "cost": 0.49674039999999997
+      }
+    },
+    {
+      "label": "T1-A",
+      "ok": true,
+      "id": "cef62b6f00074d64803c7eb566202e35",
+      "status": "completed",
+      "usage": {
+        "input": 40454,
+        "output": 2768,
+        "cacheRead": 70144,
+        "cacheWrite": 0,
+        "cost": 0.12815279999999998
+      }
+    },
+    {
+      "label": "T1-B",
+      "ok": true,
+      "id": "5a48dfcf8db84f0395cf4efb35aa267a",
+      "status": "completed",
+      "usage": {
+        "input": 43820,
+        "output": 3851,
+        "cacheRead": 120832,
+        "cacheWrite": 0,
+        "cost": 0.1580184
+      }
+    },
+    {
+      "label": "T3-A",
+      "ok": true,
+      "id": "533d9dcfa13746bdb7dce9bc45aaee25",
+      "status": "completed",
+      "usage": {
+        "input": 37134,
+        "output": 2683,
+        "cacheRead": 68096,
+        "cacheWrite": 0,
+        "cost": 0.1200832
+      }
+    },
+    {
+      "label": "T3-B",
+      "ok": true,
+      "id": "b186113f1db746e5a023bbd7a17ee2eb",
+      "status": "completed",
+      "usage": {
+        "input": 33418,
+        "output": 2104,
+        "cacheRead": 44032,
+        "cacheWrite": 0,
+        "cost": 0.1008904
+      }
+    }
+  ]
+}

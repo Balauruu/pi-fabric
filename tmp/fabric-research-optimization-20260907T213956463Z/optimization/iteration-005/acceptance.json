@@ -1,0 +1,11 @@
+{
+  "id": "4b733cf792ec4194ad0eaa49698ecde1",
+  "status": "completed",
+  "evidenceAdequate": true,
+  "meaningfulImprovement": false,
+  "materialRegression": true,
+  "matchedParity": false,
+  "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/acceptance-review.md",
+  "reason": "Rejected: T2 loses the incumbent’s independent-restart control and T3 retains verified source/context defects.",
+  "unresolved": []
+}

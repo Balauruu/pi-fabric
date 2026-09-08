@@ -1,0 +1,5 @@
+{
+  "verdict": "correct",
+  "findings": "D1 — Report passage: “LaMDA 137B GSM8K 14.3% to 17.8% ... [Table 1].” Primary evidence: S1-chain-of-thought.md, Appendix B Table 2 lists LaMDA 137B GSM8K 14.3% CoT and 17.3% “+ ext. calc”; Appendix D.2 states it “went up from 14.3% to 17.3%.” Impact: the reported calculator-augmented result is wrong and its table locator is mismatched. Smallest correction: change “17.8%” to “17.3%” and “[Table 1]” to “[Table 2].”",
+  "limitations": "Frozen corpus only. No outside retrieval, writes, delegation, or non-primary materials used."
+}

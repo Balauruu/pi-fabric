@@ -1,0 +1,17 @@
+[
+  {
+    "ok": true,
+    "output": "{\n  \"passed\": true,\n  \"loader\": \"installed Pi loadSkillsFromDir\",\n  \"discovered\": \"wayfinder-ultra\",\n  \"manualOnly\": true,\n  \"diagnostics\": 0,\n  \"originalUnchanged\": true,\n  \"typeContracts\": 8,\n  \"supportFiles\": 4,\n  \"limits\": \"Explicit-path loader and document assertions, not live TUI command or tracker enforcement.\"\n}\n{\n  \"passed\": true,\n  \"actualLocalSmoke\": {\n    \"resolution\": \"T0001 completed/answered\",\n    \"claimReleased\": true,\n    \"downstream\": \"T0002 open/pending; evidence applicable\",\n    \"map\": \"open\",\n    \"sourceUnchanged\": true,\n    \"linksChecked\": 4,\n    \"oneResolutionOnly\": true\n  },\n  \"orderingMetadata\": true,\n  \"limits\": \"One real local happy path; other type/safety branches tested as fresh hypothetical reasoning, not live service integrations.\"\n}\n",
+    "details": null
+  },
+  {
+    "ok": true,
+    "output": "OK wayfinder-ultra: valid frontmatter, local links, and 5 reachable files\n",
+    "details": null
+  },
+  {
+    "ok": true,
+    "output": "257e40665b28ae959ffdcb97d7a72b074360f4a3d201bd84786505308546e434  /home/balauru/.pi-profiles/fabric/skills/engineering/wayfinder/SKILL.md\n D skills/engineering/wayfinder/agents/openai.yaml\n?? skills/wayfinder-ultra/\n",
+    "details": null
+  }
+]

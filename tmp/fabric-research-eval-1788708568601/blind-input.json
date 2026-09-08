@@ -1,0 +1,212 @@
+{
+  "cases": [
+    {
+      "name": "evidence",
+      "cases": [
+        {
+          "id": "simple",
+          "task": "What is the current documented retention limit? Supplied primary passage, https://fixtures.invalid/docs, effective 2026-08-01: 'Retention is 30 days.' Answer this narrow question."
+        },
+        {
+          "id": "contract",
+          "task": "Choose A or B for production. Required: at least 100-item batches, p95 latency below 2 seconds, and lowest total operating cost. A documentation https://fixtures.invalid/a says max batch 64 and $1 per million tokens. B documentation https://fixtures.invalid/b says max batch 128 and $2 per million tokens. Neither source reports latency or retries/tool cost. Give the decision and next useful check."
+        },
+        {
+          "id": "origins",
+          "task": "Is A independently established as superior? Three retrieved reports https://fixtures.invalid/r1, /r2 and /r3 repeat the same Vendor V benchmark run: A scores 90%, B 80%. The original vendor table and method are supplied: 20 curated vendor tasks, one run, vendor grader, no uncertainty. No other evaluations inspected."
+        },
+        {
+          "id": "comparability",
+          "task": "Rank A and B by quality and operating cost. Retrieved table https://fixtures.invalid/bench-a: A 90% on 100 code tasks, three retries, final-state tests, $0.30 per attempt excluding tools. Table https://fixtures.invalid/bench-b: B 85% on 20 chat tasks, no retries, subjective judge, $0.20 per attempt excluding tools. No further data."
+        },
+        {
+          "id": "causal-transfer",
+          "task": "Should we require multi-agent review for medical advice because this paper proves agents cause reliability improvements? Original paper https://fixtures.invalid/paper: synthetic code tasks; multi-agent arm used a newer model and double the token budget; 90% versus old-model single-agent 80%; one run. No medical tasks evaluated."
+        },
+        {
+          "id": "counterevidence",
+          "task": "Recommend whether to deploy A for safety-critical operations. Search is unavailable; supplied positive vendor report https://fixtures.invalid/positive reports 95% acceptance on short isolated tasks. Supplied independent report https://fixtures.invalid/regression reports state corruption in long sessions, 8/100 tasks; methods differ from vendor evaluation. Explain the recommendation and what would change it."
+        }
+      ]
+    },
+    {
+      "name": "operations",
+      "cases": [
+        {
+          "id": "exact-count",
+          "task": "User requested exactly three agents total and three named assignments: official facts, benchmarks, operations. All three have completed. A fourth verifier is proposed because benchmark details are incomplete. What do you do next? Main has working direct retrieval."
+        },
+        {
+          "id": "independence",
+          "task": "Two independent research streams were requested. Stream A finds a paper. Main proposes sending A's conclusion to B before B researches, then advertising B's agreement as independent triangulation. B cites the same paper. Evaluate the plan and describe a valid alternative without launching anything."
+        },
+        {
+          "id": "return-validation",
+          "task": "Worker W status completed. It returns plausible source URLs and claims 99% reliability but its required retrieval action failed discovery and was never invoked. Its price quotation is separately present in Main's successfully retrieved primary passage. How do you account for this return?"
+        },
+        {
+          "id": "partial-recovery",
+          "task": "Three non-exact-count workers: W1 completed with verified docs, W2 failed terminally after retrieving a useful benchmark passage but missing its sample details, W3 completed with verified operations evidence. Proposed recovery: resume W2's completed Fabric one-shot and rerun all three. Main has direct retrieval. What actually happens next?"
+        },
+        {
+          "id": "recent-coverage",
+          "task": "For a fast-changing operational decision, Main supplies a prevalidated compatible last30days agent-JSON report: source_status reddit successful with zero results; x authentication_failed; youtube successful with 4 dated direct linked posts about a regression. Engine exit code 0, no presentation badge. None is a controlled measurement. Interpret usable evidence and coverage. Do not run the engine."
+        },
+        {
+          "id": "resolving-eval",
+          "task": "Public evidence cannot settle whether A or B is safer and cheaper for our repository migration. User says every accepted task must pass the existing deterministic test suite, no out-of-scope edits; cost is secondary to correctness. Design the smallest useful local evaluation proposal, not an execution. No sample size or acceptable regression margin supplied."
+        }
+      ]
+    }
+  ],
+  "criteria": {
+    "simple": "Direct correct cited answer; no gratuitous delegation, ledger or social research.",
+    "contract": "Preserve all three user criteria; reject A batch eligibility, mark B latency and total cost unknown, do not claim B fully qualified; resolving check tied to thresholds.",
+    "origins": "Identify one vendor evidence origin, preserve actual measured result and method limits, do not call three sources independent corroboration.",
+    "comparability": "No common quality ranking or total operating-cost conclusion; identify materially incompatible methods and missing costs.",
+    "causal-transfer": "Do not infer causal multi-agent benefit or medical reliability; identify changed model/budget confounders and transfer gap.",
+    "counterevidence": "Incorporate strongest negative evidence; avoid incompatible averaging and unconditional safety-critical deployment; name overturning evidence or resolving check.",
+    "exact-count": "No fourth worker; Main verifies directly within exactly-three-agent cap; preserve named work and gaps.",
+    "independence": "Distinguish independent analysis from shared origins and dependent verification; withhold A conclusion for independent discovery or label B as dependent verification.",
+    "return-validation": "Do not accept W unsupported reliability; preserve Main's independently retrieved price evidence; separate terminal status and evidence usability.",
+    "partial-recovery": "Preserve W1/W3 and useful W2 evidence; no resuming terminal one-shot or whole batch rerun; Main retrieves only sample gap or labels narrow permissible repair.",
+    "recent-coverage": "Retain YouTube posts as field signals; distinguish clean empty reddit from inaccessible X; zero exit/badge not validity proof; no claim no discussion everywhere.",
+    "resolving-eval": "Gap-specific paired representative migration tasks, confounders fixed, final-state tests and scope checks, acceptance and total cost/retry accounting, justified screening rather than universal sample, concrete decision rule without invented regression tolerance."
+  },
+  "pairs": [
+    {
+      "group": "evidence",
+      "A": {
+        "group": "evidence",
+        "status": "completed",
+        "value": {
+          "cases": [
+            {
+              "id": "simple",
+              "answer": "30 days. Source: primary documentation, effective 2026-08-01, https://fixtures.invalid/docs."
+            },
+            {
+              "id": "contract",
+              "answer": "Do not choose either for production yet. A is ineligible for the required 100-item batches because its documented maximum is 64. B documents a 128-item maximum, but neither candidate has evidence of p95 latency below 2 seconds or lowest total operating cost. B’s higher token list price also does not establish total operating cost.\n\nNext useful check: run or obtain a representative B evaluation using 100+ item batches, measuring p95 latency and total cost per accepted batch/task, including tokens, retries, and tool costs. B is selectable only if it meets the latency requirement and the defined total-cost comparison."
+            },
+            {
+              "id": "origins",
+              "answer": "No. The three reports are not independent corroboration: all repeat one Vendor V benchmark. The original result is a vendor measurement of 90% for A versus 80% for B on 20 curated vendor tasks, from one run using a vendor grader and no uncertainty estimate.\n\nIt supports only a limited claim that A outscored B in that specific vendor evaluation. It does not independently establish broader superiority. A useful resolving check would be an independent evaluation on representative tasks with disclosed methods, repeated runs, and an appropriate validator."
+            },
+            {
+              "id": "comparability",
+              "answer": "No defensible overall ranking is available.\n\nQuality results must remain separate: A achieved 90% on 100 code tasks with three retries and final-state tests; B achieved 85% on 20 chat tasks without retries and with subjective judging. Tasks, sample sizes, retry policy, and validators differ.\n\nOperating cost also cannot be ranked: A reports $0.30 per attempt and B $0.20 per attempt, both excluding tools; retries and acceptance denominators prevent a total-cost comparison. Missing costs are unknown, not zero.\n\nPlan: compare both on the same representative workload and configuration, with fixed retry policy, final-state or blinded validation as appropriate, and total cost per accepted task including tokens, tools, and retries."
+            },
+            {
+              "id": "causal-transfer",
+              "answer": "No. The paper does not prove that multi-agent review caused the improvement: its multi-agent arm also used a newer model and double the token budget, so the intervention is confounded. One run on synthetic code tasks also provides no direct evidence for medical advice.\n\nDo not require multi-agent review for medical advice because of this paper alone. If considering it as a safety control, base the policy on medical-risk requirements and a relevant controlled evaluation: hold model, tools, and token budget fixed; compare single- and multi-agent workflows on representative medical-advice cases; use qualified clinical review and safety-focused outcomes. The paper is only a hypothesis-generating signal."
+            },
+            {
+              "id": "counterevidence",
+              "answer": "Do not deploy A unmitigated for safety-critical operations on this evidence. The vendor’s 95% acceptance result applies only to short, isolated tasks. The independent report’s state corruption in 8/100 long-session tasks is a material safety-relevant failure signal, even though differing methods prevent direct rate comparison. Search being unavailable leaves the counterevidence review bounded, not exhaustive.\n\nThis recommendation would change with representative, independently assessed long-session safety testing that includes state integrity, realistic failure handling, and a pre-defined acceptable risk threshold, plus evidence that mitigation controls reliably detect or prevent corruption. Until then, the documented long-session failure mode makes broad safety-critical deployment unsupported."
+            }
+          ]
+        }
+      },
+      "B": {
+        "group": "evidence",
+        "status": "completed",
+        "value": {
+          "cases": [
+            {
+              "id": "simple",
+              "answer": "30 days, effective 2026-08-01. Source: https://fixtures.invalid/docs."
+            },
+            {
+              "id": "contract",
+              "answer": "Decision: neither is approved for production. A fails the required 100-item batch minimum (maximum 64). B supports 128-item batches, but its p95 latency and total operating cost, including retries and tools, are unreported. Its higher token price also does not establish total cost. Next useful check: benchmark B at 100+ items under production conditions, measuring p95 latency and fully loaded cost including retries and tool use. Sources: https://fixtures.invalid/a; https://fixtures.invalid/b."
+            },
+            {
+              "id": "origins",
+              "answer": "No. The three reports are not independent corroboration: all repeat Vendor V's same benchmark. The underlying evidence is only 20 curated vendor tasks, one run, vendor grading, and no uncertainty estimate. It supports a limited vendor-run result, not an independently established superiority claim. Needed evidence: independent, representative evaluations with repeated runs, separate grading, and uncertainty reporting. Sources: https://fixtures.invalid/r1; https://fixtures.invalid/r2; https://fixtures.invalid/r3."
+            },
+            {
+              "id": "comparability",
+              "answer": "No defensible overall ranking is possible. A's 90% and B's 85% use different task types, sample sizes, retry policies, and evaluation methods, so quality results are not comparable. B has lower reported per-attempt cost ($0.20 vs. $0.30), but total operating cost cannot be ranked because A has retries and both figures exclude tools. Run both on a shared representative suite with identical retry policy, objective final-state evaluation, and tool-inclusive cost per completed task. Sources: https://fixtures.invalid/bench-a; https://fixtures.invalid/bench-b."
+            },
+            {
+              "id": "causal-transfer",
+              "answer": "No. The paper does not prove multi-agent review caused reliability gains: the multi-agent arm also used a newer model and double the token budget. It is one run on synthetic code tasks, with no medical evaluation. Medical review may still be required as a risk policy, but not on this causal evidence. Before making that claim, run controlled medical-advice evaluations holding model and budget constant, with repeated runs and appropriate expert safety assessment. Source: https://fixtures.invalid/paper."
+            },
+            {
+              "id": "counterevidence",
+              "answer": "Do not deploy A for safety-critical operations yet. The vendor's 95% acceptance result covers only short, isolated tasks, while the independent report found state corruption in 8/100 long-session tasks. Different methods prevent directly comparing rates, but long-session corruption is a material safety risk that the positive evaluation does not address. This would change with representative, repeated safety-critical long-session testing that shows state integrity at an acceptable predefined threshold, plus safeguards, monitoring, and recovery validation. Sources: https://fixtures.invalid/positive; https://fixtures.invalid/regression."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "group": "operations",
+      "A": {
+        "group": "operations",
+        "status": "completed",
+        "value": {
+          "cases": [
+            {
+              "id": "exact-count",
+              "answer": "Do not launch the fourth verifier: it would violate the exact three-agent total. Record the three named assignments as completed, with benchmark detail still unsupported. Main should directly retrieve and inspect the missing benchmark method/details, since direct retrieval does not add an agent. If it cannot close the gap, qualify or withhold the benchmark conclusion rather than claiming verification."
+            },
+            {
+              "id": "independence",
+              "answer": "The plan is invalid. Sending A’s conclusion to B makes B a dependent verification, not an independent analysis; both citing the same paper is one evidence origin, not triangulation. A valid plan is for B to investigate its assigned question without A’s interim conclusion, preferably using a distinct evidence class, source origin, or adversarial hypothesis. If B still finds only that paper, report one shared-origin result and the independent-evidence gap, not agreement as corroboration."
+            },
+            {
+              "id": "return-validation",
+              "answer": "Separate execution status from evidence usability. W completed, but failed required discovery and never invoked retrieval, so its URLs, passage claims, and “99% reliability” provide no source-backed external evidence. Mark W’s required retrieval/evidence requirement unsupported, regardless of plausible output. Retain Main’s independently retrieved primary price passage as a documented fact if its exact quotation, applicability, and date were checked. No recovery is needed for the price claim; only recover other decision-changing gaps in W’s assignment."
+            },
+            {
+              "id": "partial-recovery",
+              "answer": "Do not resume W2’s completed one-shot and do not rerun W1 or W3. Preserve W1’s verified documentation, W3’s verified operations evidence, and W2’s useful benchmark passage as partial evidence. Mark the missing sample details as a comparability/method gap, so the benchmark cannot support a quantitative comparison or ranking. Since Main has direct retrieval, perform a narrow direct check for W2’s sample/method details; otherwise retain the passage only as a qualified sourced claim and block the affected conclusion. Account for the batch as partial until that gap is resolved or explicitly left incomplete."
+            },
+            {
+              "id": "recent-coverage",
+              "answer": "The report is usable for limited field-signal evidence, not performance proof. YouTube has four dated, direct-linked posts reporting a regression; retain them as operational warnings/hypotheses, with platform-specific coverage. Reddit’s successful zero-result search means no matching Reddit results in the inspected scope, not absence of discussion generally. X authentication failure is an inaccessible coverage gap. Exit code 0 and no badge do not change those findings. None of these reports is a controlled measurement, so do not infer regression magnitude, prevalence, causation, or comparative performance."
+            },
+            {
+              "id": "resolving-eval",
+              "answer": "Propose a paired local evaluation on a fixed repository snapshot using a smallest jointly agreed screening set of representative, migration-risk tasks. For each task, hold instructions, allowed scope, environment, tools, retry policy, and acceptance procedure constant; isolate each candidate’s patch. Accept a result only when the existing deterministic suite passes and an explicit diff/scope check finds no out-of-scope edits. Record accepted-task correctness first, then failures, retries, scope violations, latency, and total cost; use cost only among correctness-qualified candidates. If neither candidate clears the screening tasks, or results split, repeat only finalists/close cases. Do not invent a sample size or regression margin: request those decision thresholds before claiming a winner."
+            }
+          ]
+        }
+      },
+      "B": {
+        "group": "operations",
+        "status": "completed",
+        "value": {
+          "cases": [
+            {
+              "id": "exact-count",
+              "answer": "Do not dispatch a fourth verifier: it violates the exact three-agent budget. Preserve the three completed assignments. Main should directly retrieve the missing benchmark sample/method details from the primary source. If that cannot be supported, report the benchmark portion as incomplete rather than claiming full coverage."
+            },
+            {
+              "id": "independence",
+              "answer": "Reject the plan. Giving A’s conclusion to B contaminates B’s inquiry, and both citing the same paper is one shared origin, not independent triangulation.\n\nValid alternative: scope B to independently inspect a distinct primary source, reproducible benchmark, or relevant documentation without receiving A’s conclusion. Then compare methods, populations, versions, and definitions. If B ultimately only supports the same paper, describe it as corroborated interpretation of one source, not independent evidence."
+            },
+            {
+              "id": "return-validation",
+              "answer": "Record W as natively completed but evidentially invalid for its assigned retrieval: required-action discovery failed and retrieval was never invoked, so its URLs, quotation, and “99% reliability” claim provide no source-backed external evidence.\n\nThe price claim is nevertheless supported by Main’s successfully retrieved primary passage. Cite and rely on that passage, not W’s return. Mark W’s retrieval gap explicitly; coverage is sufficient only if Main’s evidence satisfies the needed price claim."
+            },
+            {
+              "id": "partial-recovery",
+              "answer": "Do not resume W2’s completed one-shot and do not rerun W1 or W3. Preserve W1’s verified documentation, W3’s verified operations evidence, and W2’s useful benchmark passage.\n\nInspect the remaining W2 gap: sample details. Since Main has direct retrieval, Main should retrieve the original benchmark’s sample/method details or an appropriate primary alternative. If obtained, synthesize all three streams; otherwise retain W2’s limited finding and report the benchmark comparison as partial. W2’s terminal failure does not erase its already useful passage."
+            },
+            {
+              "id": "recent-coverage",
+              "answer": "Usable evidence is qualitative recent-reporting evidence only: four dated, directly linked YouTube posts report a regression. They may support “some users/posts recently reported this regression,” not prevalence, causality, or a performance conclusion.\n\nCoverage is partial. Reddit succeeded with zero matches, which is a clean empty result, not proof that no discussion exists. X authentication failure is an inaccessible-source gap despite exit code 0. The lack of a presentation badge does not change the compatible report’s evidence status. No controlled measurement is available."
+            },
+            {
+              "id": "resolving-eval",
+              "answer": "Propose a local, predeclared A/B pilot on the same isolated repository baseline and representative migration fixture(s). For each option: permit only the migration’s authorized scope, record the diff/scope check, run the existing deterministic suite, and record elapsed effort and direct cost under identical conditions.\n\nDecision rule: reject any option with an out-of-scope edit or any deterministic-test failure. Only if both pass should cost break the tie. First run the suite on the unchanged baseline to validate the harness.\n\nBefore treating the pilot as a decision, obtain the missing evaluation contract: which fixture set/sample size represents the migration, how to handle any flake, and the cost metric or allowable cost difference. With correctness primary, the default acceptable regression margin is zero."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

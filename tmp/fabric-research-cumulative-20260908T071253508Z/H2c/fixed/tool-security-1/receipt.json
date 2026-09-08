@@ -1,0 +1,14 @@
+{
+  "id": "8d2ef687b74a4f899d3e31f3587522f7",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "kernel": "typescript",
+  "elapsedMs": 234701,
+  "phase": "fixed-note composition correction only",
+  "topic": "tool-security",
+  "repeat": 1,
+  "sourceNote": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/fixed/tool-security-2-Y/streams/s1.md",
+  "comparison": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/fixed/tool-security-2-Y/RESEARCH.md",
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2c/fixed/tool-security-1/RESEARCH.md"
+}

@@ -1,0 +1,1 @@
+{"status":"complete","sourceCount":6,"coverage":["R1:complete","R2:complete","R3:complete"],"gaps":["No deployment-specific production evaluation or primary safety standard inspected."],"report":"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/live/T3/RESEARCH.md"}

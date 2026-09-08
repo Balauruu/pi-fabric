@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "id": "2348c428cc274c4c939e5457c54f3d68",
+  "status": "completed",
+  "text": "# VALIDATION\n\n**ACCEPTED: yes**\n\n## Q1 — R1 evidence\nPass. All retained run-design dimensions have source-bound task, model, comparator, method, outcome, and applicable efficiency conditions.\n\n## Q2 — Quantitative fidelity\nPass. Checked original sources support the reported SWE-agent, Agentless, Validation Evidence, LivePlan, SWE-bench, SWE-Bench+, SWE-rebench, AutoCodeRover, and OpenHands values. No material numeric, unit, model, comparator, or method mismatch found.\n\n## Q3 — Causal boundaries\nPass. The report correctly limits same-scaffold ablations to their source harnesses and excludes AutoCodeRover, OpenHands critic scaling, and advisor-based steering from fixed-model causal recommendations.\n\n## Q4 — Reliability and counterevidence\nPass. Harness scope, leakage and weak-test findings, stochasticity, scaffold confounding, and search regression are accurately qualified.\n\n## Q5 — Production experiment\nPass. The paired artifact freezes model, reasoning effort, infrastructure, decoding, tools, and budgets; it separates harness resolution from independent acceptance and records required cost and validation-evidence fields.\n\n## Q6 — Appendix and source traceability\nPass. The appendix covers all accepted retained origins: SWE-agent, Agentless, Validation Evidence, LivePlan, SWE-bench, SWE-Bench+, and SWE-rebench. AutoCodeRover and OpenHands are explicitly discussed as excluded causal references, not retained support.\n\n## Source-unit coverage\n\n| Units | Status |\n|---|---|\n| U1–U3: SWE-agent context, failed edits, repeated runs | Covered |\n| U4–U5: Agentless branching and validation selection | Covered |\n| U6–U7: validation evidence and bug-contrast feedback | Covered |\n| U8: LivePlan steering | Covered and correctly excluded from fixed-model-stack evidence |\n| U9–U11: evaluator meaning, leakage, stochasticity | Covered |\n| U12–U13: AutoCodeRover and OpenHands | Covered as excluded counterexamples, not causal support |\n\n## Errors and bounded corrections\n\nNo material numeric, unit, model, comparator, method, or caveat errors found.\n\nOptional traceability improvement: add relative links to `streams/1.md` and `streams/2.md` from the relevant report sections for fuller local evidence context.",
+  "error": null,
+  "usage": {
+    "input": 63711,
+    "output": 5225,
+    "cacheRead": 273408,
+    "cacheWrite": 0,
+    "cost": 0.2448036
+  }
+}

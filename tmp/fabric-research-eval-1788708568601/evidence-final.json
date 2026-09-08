@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "simple",
+      "answer": "30 days. The documentation states, effective 2026-08-01: “Retention is 30 days.” Evidence: https://fixtures.invalid/docs"
+    },
+    {
+      "id": "contract",
+      "answer": "Do not select either for production yet. A is ineligible because its documented maximum batch is 64, below the required 100. B supports 128-item batches, but its p95 latency, retry/tool costs, and total operating cost are unreported; its $2/M-token list price does not establish lowest total cost. Evidence: https://fixtures.invalid/a, https://fixtures.invalid/b.\n\nNext useful check: run B on representative 100-item batches under the intended production configuration, measuring p95 latency and total cost per accepted batch/task, including tokens, retries, tools, and verification. Approve only if it meets the <2-second threshold and the defined total-cost criterion."
+    },
+    {
+      "id": "origins",
+      "answer": "No. A is not independently established as superior. The three reports repeat one Vendor V benchmark, so they are one evidence origin, not three independent confirmations. That original result was A 90% versus B 80% on 20 curated vendor tasks, one run, graded by the vendor, with no uncertainty reported. It supports only a limited vendor-measured result under those conditions.\n\nEvidence: https://fixtures.invalid/r1, https://fixtures.invalid/r2, https://fixtures.invalid/r3; original Vendor V table/method supplied in the task.\n\nA relevant independent evaluation, with disclosed tasks, repeated runs, independent grading, and uncertainty, would be needed to establish superiority more broadly."
+    },
+    {
+      "id": "comparability",
+      "answer": "No defensible overall ranking is possible.\n\nQuality: A recorded 90% on 100 code tasks with final-state tests and three retries; B recorded 85% on 20 chat tasks with subjective judging and no retries. Different task populations, sample sizes, retry policies, and validators prevent a common quality ranking.\n\nOperating cost: A lists $0.30 per attempt and B $0.20 per attempt, but these exclude tools and are not total operating costs. Their retry policies also differ, so even per-task cost cannot be inferred reliably.\n\nEvidence: https://fixtures.invalid/bench-a; https://fixtures.invalid/bench-b.\n\nUse a paired evaluation on representative shared tasks with fixed configuration, retry policy, tools, and final-state validation; report accepted-task quality and total cost including retries and tools."
+    },
+    {
+      "id": "causal-transfer",
+      "answer": "No. Do not require multi-agent review for medical advice on the basis of this paper. It does not prove the agent arrangement caused the improvement: the multi-agent arm also used a newer model and twice the token budget. It reports one run on synthetic code tasks, not medical advice, so neither causality nor medical transfer is established.\n\nEvidence: https://fixtures.invalid/paper.\n\nIf such a requirement is being considered, test it separately on representative medical-advice scenarios using the same model, token budget, prompts, tools, and safety workflow across single- and multi-agent arms. Use blinded expert review and safety-critical outcome validators; require a reproducible improvement before adopting the review requirement."
+    },
+    {
+      "id": "counterevidence",
+      "answer": "Do not deploy A autonomously for safety-critical operations. The vendor’s 95% acceptance result applies only to short, isolated tasks, while an independent report found state corruption in 8/100 long-session tasks. The methods differ, so the rates are not directly comparable, but state corruption is a material failure mode for this use and the supplied evidence does not bound it adequately.\n\nEvidence: https://fixtures.invalid/positive; https://fixtures.invalid/regression. Search/counterevidence expansion is unavailable, so no absence-of-evidence claim is made.\n\nThis recommendation would change with representative long-session, safety-critical testing showing state integrity under realistic load and recovery conditions, repeated runs, independent validation, and a failure rate below the organization’s predeclared safety threshold. Until then, restrict A to non-safety-critical or independently verified use."
+    }
+  ]
+}

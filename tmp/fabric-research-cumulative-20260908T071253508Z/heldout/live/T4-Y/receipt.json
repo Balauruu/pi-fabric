@@ -1,0 +1,50 @@
+{
+  "topic": "T4",
+  "arm": "Y",
+  "condition": "candidate-H2c",
+  "phase": "fresh live complete research-persistence-synthesis workflow",
+  "streams": [
+    {
+      "id": "s1",
+      "state": "returned",
+      "nativeId": "995d876a73514f39882e09541034213a",
+      "nativeStatus": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "kernel": "typescript",
+      "elapsedMs": 196069,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/heldout/live/T4-Y/streams/s1.md",
+      "roundtrip": true,
+      "sourceBearing": true,
+      "nonempty": true
+    },
+    {
+      "id": "s2",
+      "state": "returned",
+      "nativeId": "87997f0dc11d485f891f5ec496281c37",
+      "nativeStatus": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "kernel": "typescript",
+      "elapsedMs": 211170,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/heldout/live/T4-Y/streams/s2.md",
+      "roundtrip": true,
+      "sourceBearing": true,
+      "nonempty": true
+    }
+  ],
+  "researchMs": 213056,
+  "synthesis": {
+    "id": "dc5d0cb4bee74fdeac4ad338cd54790a",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 166037,
+    "saved": true
+  },
+  "totalElapsedMs": 379168,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/heldout/live/T4-Y/RESEARCH.md",
+  "qualityStatus": "pending independent comparison",
+  "sourceCoverage": "2/2"
+}

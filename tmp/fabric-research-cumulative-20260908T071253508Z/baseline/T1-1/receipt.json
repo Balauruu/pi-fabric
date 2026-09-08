@@ -1,0 +1,13 @@
+{
+  "id": "332ea32ec2484439bd5b38d518103670",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "kernel": "typescript",
+  "elapsedMs": 239229,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/baseline/T1-1/RESEARCH.md",
+  "saved": true,
+  "phase": "fixed-corpus composition",
+  "topic": "T1",
+  "repeat": 1
+}

@@ -1,0 +1,14 @@
+{
+  "id": "s2",
+  "state": "returned",
+  "nativeId": "1a5fe7f2754649afa89e7f85b6da1a11",
+  "nativeStatus": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "kernel": "typescript",
+  "elapsedMs": 467858,
+  "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/heldout/live/T2-X/streams/s2.md",
+  "roundtrip": true,
+  "sourceBearing": true,
+  "nonempty": true
+}

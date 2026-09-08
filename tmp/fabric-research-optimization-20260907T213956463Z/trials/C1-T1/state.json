@@ -1,0 +1,84 @@
+{
+  "phase": "blocked_delegation_depth_limit",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "trial": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1",
+  "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/RESEARCH.md",
+  "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/state.json",
+  "allowance": {
+    "total": 6,
+    "reserved": 6,
+    "used": 0,
+    "repair": 0
+  },
+  "assignments": [
+    {
+      "id": "techniques",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/streams/techniques.md",
+      "reserved": true,
+      "status": "not_started",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "reason": "Fabric agent depth limit reached before launch"
+    },
+    {
+      "id": "limits",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/streams/limits.md",
+      "reserved": true,
+      "status": "not_started",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "reason": "Fabric agent depth limit reached before launch"
+    },
+    {
+      "id": "operations",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/streams/operations.md",
+      "reserved": true,
+      "status": "not_started",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "reason": "Fabric agent depth limit reached before launch"
+    },
+    {
+      "id": "verify",
+      "role": "verifier",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/RESEARCH.md",
+      "reserved": true,
+      "status": "not_started",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "reason": "Fabric agent depth limit reached before launch"
+    },
+    {
+      "id": "synthesize",
+      "role": "synthesizer",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/RESEARCH.md",
+      "reserved": true,
+      "status": "not_started",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "reason": "Fabric agent depth limit reached before launch"
+    },
+    {
+      "id": "validate",
+      "role": "validator",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/C1-T1/RESEARCH.md",
+      "reserved": true,
+      "status": "not_started",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "reason": "Fabric agent depth limit reached before launch"
+    }
+  ],
+  "startedAt": "2026-09-07T21:47:22.168Z",
+  "blockedAt": "2026-09-07T21:48:01.590Z",
+  "stopReason": "Fabric agent depth limit reached (2) before any research worker launched.",
+  "validation": {
+    "verification": "not_run",
+    "reportValidation": "not_run",
+    "reason": "No downstream agent could be launched, so model/thinking/status verification is unavailable."
+  }
+}

@@ -6,11 +6,17 @@ run-history.jsonl
 # Generated runtime state and caches
 .pi/
 fabric/
+runs/
 web-search-cache/
 
 # Skills related
 skills-disabled/
 skill-evaluations/
+
+# Ephemeral documentation
+docs/*
+!docs/wayfinder/
+!docs/wayfinder/**
 
 # Reinstallable dependencies and virtual environments
 npm/node_modules/
@@ -21,4 +27,5 @@ npm/node_modules/
 
 # Local operating-system noise
 .DS_Store
+.directory
 *.log

@@ -1,0 +1,16 @@
+{
+  "id": "02e9ed2d517a4f74a23b453db5c1808c",
+  "status": "completed",
+  "value": {
+    "evidenceAdequate": true,
+    "meaningfulImprovement": false,
+    "materialRegression": true,
+    "matchedParity": false,
+    "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-004/acceptance-review.md",
+    "reason": "Saved Terra-medium live evidence is valid, but T2 and T3 materially lose incumbent-retained decision evidence despite local gains.",
+    "streakCautions": [
+      "Prior reviews 001–003 were chiefly legacy/best-relative and included incomplete T2 evidence. Do not inflate them into five failures."
+    ]
+  },
+  "text": "{\"evidenceAdequate\":true,\"meaningfulImprovement\":false,\"materialRegression\":true,\"matchedParity\":false,\"reportPath\":\"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-004/acceptance-review.md\",\"reason\":\"Saved Terra-medium live evidence is valid, but T2 and T3 materially lose incumbent-retained decision evidence despite local gains.\",\"streakCautions\":[\"Prior reviews 001–003 were chiefly legacy/best-relative and included incomplete T2 evidence. Do not inflate them into five failures.\"]}"
+}

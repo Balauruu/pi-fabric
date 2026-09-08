@@ -1,0 +1,5 @@
+{
+  "verdict": "accept",
+  "findings": "D1 corrected: RESEARCH.md line 45 now says “two were correct by chance,” matching S1 §3.2: “except two that coincidentally arrived at the correct answer.” This is the sole change from pre-correction; all other 137 lines, including decision-critical controls, remain unchanged.",
+  "limitations": "Frozen-corpus recheck only. No outside sources or unrelated changed files were used."
+}

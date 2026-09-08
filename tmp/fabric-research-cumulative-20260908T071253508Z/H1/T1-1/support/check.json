@@ -1,0 +1,5 @@
+{
+  "verdict": "correct",
+  "findings": "D1 — Report passage: “in 50 correct GSM8K LaMDA 137B traces, one was correct by chance.” Source: S1-chain-of-thought.md, §3.2: “all of the generated chains of thought were also logically and mathematically correct except two that coincidentally arrived at the correct answer.” Impact: the reported rationale-error rate is understated (1/50 rather than 2/50). Smallest correction: replace “one” with “two.”",
+  "limitations": "Frozen-corpus check only. No outside retrieval or cross-report comparison performed."
+}

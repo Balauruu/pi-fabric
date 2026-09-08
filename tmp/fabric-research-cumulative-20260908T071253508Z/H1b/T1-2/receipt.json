@@ -1,0 +1,18 @@
+{
+  "phase": "fixed-draft closure implementation repair within H1",
+  "tag": "T1-2",
+  "outcome": "accept",
+  "elapsedMs": 130112,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H1b/T1-2/RESEARCH.md",
+  "incumbent": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/baseline/T1-2/RESEARCH.md",
+  "receipts": [
+    {
+      "id": "9c50b8e3d72549d0aa5b8399634e8e79",
+      "stage": "check",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "kernel": "typescript"
+    }
+  ]
+}

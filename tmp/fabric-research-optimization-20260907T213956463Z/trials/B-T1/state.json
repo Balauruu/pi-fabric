@@ -1,0 +1,97 @@
+{
+  "phase": "research_complete",
+  "trial": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "allowances": {
+    "launches": 7,
+    "repairs": 0
+  },
+  "assignments": [
+    {
+      "id": "reasoning",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/streams/reasoning.md",
+      "reserved": true,
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "error",
+      "resultId": null,
+      "textLength": 0,
+      "saved": false,
+      "observed": null
+    },
+    {
+      "id": "icl-structure",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/streams/icl-structure.md",
+      "reserved": true,
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "error",
+      "resultId": null,
+      "textLength": 0,
+      "saved": false,
+      "observed": null
+    },
+    {
+      "id": "agents-tools",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/streams/agents-tools.md",
+      "reserved": true,
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "error",
+      "resultId": null,
+      "textLength": 0,
+      "saved": false,
+      "observed": null
+    },
+    {
+      "id": "limits",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/streams/limits.md",
+      "reserved": true,
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "error",
+      "resultId": null,
+      "textLength": 0,
+      "saved": false,
+      "observed": null
+    },
+    {
+      "id": "verify",
+      "role": "verify",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/RESEARCH.md",
+      "reserved": true,
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "reserved"
+    },
+    {
+      "id": "synthesize",
+      "role": "synthesize",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/RESEARCH.md",
+      "reserved": true,
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "reserved"
+    },
+    {
+      "id": "validate",
+      "role": "validate",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/RESEARCH.md",
+      "reserved": true,
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "reserved"
+    }
+  ],
+  "paths": {
+    "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/RESEARCH.md",
+    "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1/state.json",
+    "report": null
+  },
+  "createdAt": "2026-09-07T21:48:08.324Z"
+}

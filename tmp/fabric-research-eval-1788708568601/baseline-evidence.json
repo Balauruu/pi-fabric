@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "simple",
+      "answer": "30 days, effective 2026-08-01. Source: https://fixtures.invalid/docs."
+    },
+    {
+      "id": "contract",
+      "answer": "Decision: neither is approved for production. A fails the required 100-item batch minimum (maximum 64). B supports 128-item batches, but its p95 latency and total operating cost, including retries and tools, are unreported. Its higher token price also does not establish total cost. Next useful check: benchmark B at 100+ items under production conditions, measuring p95 latency and fully loaded cost including retries and tool use. Sources: https://fixtures.invalid/a; https://fixtures.invalid/b."
+    },
+    {
+      "id": "origins",
+      "answer": "No. The three reports are not independent corroboration: all repeat Vendor V's same benchmark. The underlying evidence is only 20 curated vendor tasks, one run, vendor grading, and no uncertainty estimate. It supports a limited vendor-run result, not an independently established superiority claim. Needed evidence: independent, representative evaluations with repeated runs, separate grading, and uncertainty reporting. Sources: https://fixtures.invalid/r1; https://fixtures.invalid/r2; https://fixtures.invalid/r3."
+    },
+    {
+      "id": "comparability",
+      "answer": "No defensible overall ranking is possible. A's 90% and B's 85% use different task types, sample sizes, retry policies, and evaluation methods, so quality results are not comparable. B has lower reported per-attempt cost ($0.20 vs. $0.30), but total operating cost cannot be ranked because A has retries and both figures exclude tools. Run both on a shared representative suite with identical retry policy, objective final-state evaluation, and tool-inclusive cost per completed task. Sources: https://fixtures.invalid/bench-a; https://fixtures.invalid/bench-b."
+    },
+    {
+      "id": "causal-transfer",
+      "answer": "No. The paper does not prove multi-agent review caused reliability gains: the multi-agent arm also used a newer model and double the token budget. It is one run on synthetic code tasks, with no medical evaluation. Medical review may still be required as a risk policy, but not on this causal evidence. Before making that claim, run controlled medical-advice evaluations holding model and budget constant, with repeated runs and appropriate expert safety assessment. Source: https://fixtures.invalid/paper."
+    },
+    {
+      "id": "counterevidence",
+      "answer": "Do not deploy A for safety-critical operations yet. The vendor's 95% acceptance result covers only short, isolated tasks, while the independent report found state corruption in 8/100 long-session tasks. Different methods prevent directly comparing rates, but long-session corruption is a material safety risk that the positive evaluation does not address. This would change with representative, repeated safety-critical long-session testing that shows state integrity at an acceptable predefined threshold, plus safeguards, monitoring, and recovery validation. Sources: https://fixtures.invalid/positive; https://fixtures.invalid/regression."
+    }
+  ]
+}

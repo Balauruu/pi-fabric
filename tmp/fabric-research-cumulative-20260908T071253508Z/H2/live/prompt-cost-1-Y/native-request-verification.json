@@ -1,0 +1,109 @@
+{
+  "tag": "prompt-cost-1-Y",
+  "id": "362df3cf01394bab9a1e78da417d108c",
+  "nativeToolCalls": 10,
+  "locatedRequestLines": 10,
+  "calls": [
+    {
+      "line": 51,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 307,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": false,
+      "answer": false,
+      "search": true,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 401,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 508,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 597,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": true,
+      "answer": false,
+      "search": false,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 720,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 813,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 896,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 1020,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 1103,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    }
+  ],
+  "warning": "Earlier agents.log parsed-field scan missed requests despite cursor exhaustion. This bounded known-log search supersedes absence flags. A request is not itself proof of retrieval success."
+}

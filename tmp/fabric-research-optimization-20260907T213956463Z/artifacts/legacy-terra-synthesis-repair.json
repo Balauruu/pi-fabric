@@ -1,0 +1,30 @@
+{
+  "elapsedMs": 195371,
+  "id": "74ece19121dc44cbabd65ba3cad78b37",
+  "name": "legacy-T1-terra-synthesis-repair",
+  "task": "Repair ONLY legacy T1 synthesis which violated required model configuration. Do not rerun existing successful research or edit old artifact. Read ROOT/experiments/run-0101/TASK.md and all four real Terra-medium stream notes under its streams directory, locating with find then reading full needed content/continuations. Read ROOT/candidates/legacy-medium/SKILL.md and references/synthesis-and-reporting.md fully. Follow legacy reconciliation/report method yourself in this leaf: no delegation or agent() helpers. You are required Terra medium. Write new report only to ROOT/experiments/run-0104/RESEARCH.md and method/coverage/timing notes alongside it. Do not read/reuse Sol-high authored prior report as synthesis. Primary evidence notes may be used unchanged. Inspect original decisive/disputed sources yourself using known discovered tools and actual exact passages. Produce the decision-grade prompt-technique guide satisfying T1 with detailed conditional measured evidence, coherent decision structure, operating rules/evaluation artifact, all retained primary source appendix. Keep unknowns. Be source-backed, not verbose padding. No configs/installs or other package/artifact edits. Final text includes exact saved path and limitations, especially that this is same-evidence Terra synthesis repair, not a fresh full end-to-end timing comparison. Use pi.write; original notes remain read-only. Model drift previous full run is excluded from matched timing. Do not claim universal parity or skill completion.\nROOT: /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z",
+  "status": "completed",
+  "runner": "pi",
+  "kernel": "typescript",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "startedAt": 1788823324306,
+  "updatedAt": 1788823519412,
+  "turns": 12,
+  "toolCalls": 11,
+  "text": "Saved repair report:  \n`/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0104/RESEARCH.md`\n\nSupporting notes:\n- `.../run-0104/METHOD.md`\n- `.../run-0104/COVERAGE.md`\n- `.../run-0104/TIMING.md`\n\nLimitations: this is a same-evidence Terra synthesis repair, not a fresh end-to-end study or matched timing comparison. Prior full-run timing is excluded due to model configuration drift. The report does not claim universal parity or skill completion.",
+  "usage": {
+    "input": 84405,
+    "output": 8162,
+    "cacheRead": 349696,
+    "cacheWrite": 0,
+    "cost": 0.3366932
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788823519412,
+  "logFile": "/tmp/pi-fabric-runs-xuEuLQ/74ece19121dc44cbabd65ba3cad78b37/events.jsonl",
+  "sessionId": "1623354"
+}

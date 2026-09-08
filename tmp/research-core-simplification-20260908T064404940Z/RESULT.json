@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "Manual discovery metadata remains valid",
+    "All documentation links resolve",
+    "No removed workflow mechanics remain in active package",
+    "Research request parses and retains pinned runtime and tool grant",
+    "Persisted route has source notes and one report owner",
+    "No-write route passes notes and returns report without writer or engine",
+    "Missing evidence terminates with gaps, not another agent pass",
+    "Evidence content survives simplification"
+  ],
+  "passed": 8,
+  "beforeChars": 62711,
+  "afterChars": 20096,
+  "reductionPercent": 68,
+  "scope": "Artifact conformance and route walkthroughs only. No live research benchmark or quality-improvement claim."
+}

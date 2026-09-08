@@ -1,0 +1,60 @@
+{
+  "phase": "legacy-synthesis-repair",
+  "runs": [
+    {
+      "id": "46f817fffeca4b19b815dbbcefb45ba3",
+      "label": "baseline",
+      "topic": "T1",
+      "pkg": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/baseline-medium",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/REPORT.md",
+      "elapsedMs": 1561172,
+      "sources": 25,
+      "error": null,
+      "receiptError": "Error: Report outside owned directory"
+    },
+    {
+      "id": "0dbdd6940bf24d609d3eb31018c3eaa0",
+      "label": "legacy",
+      "topic": "T1",
+      "pkg": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/legacy-medium",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0101",
+      "report": null,
+      "elapsedMs": 1614899,
+      "sources": 0,
+      "error": "Error: wrong model openai-codex/gpt-5.6-sol; wrong thinking high"
+    },
+    {
+      "id": "7365213594324e2e8abf3e55e05a3f25",
+      "label": "rev-02",
+      "topic": "T1",
+      "pkg": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/RESEARCH.md",
+      "elapsedMs": 1885180,
+      "sources": 19,
+      "error": null,
+      "receiptError": "Error: Report outside owned directory"
+    }
+  ],
+  "launches": [
+    {
+      "id": "0dbdd6940bf24d609d3eb31018c3eaa0",
+      "name": "live-research-103"
+    },
+    {
+      "id": "46f817fffeca4b19b815dbbcefb45ba3",
+      "name": "live-research-103"
+    },
+    {
+      "id": "7365213594324e2e8abf3e55e05a3f25",
+      "name": "live-research-103"
+    }
+  ],
+  "revisions": [],
+  "best": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/baseline-medium",
+  "parity": false,
+  "streak": 0,
+  "practices": null,
+  "error": "Error: Source-backed reference wave incomplete, inspect only failed runs"
+}

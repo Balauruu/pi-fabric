@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "id": "8e5adeabd66341c3b35ab23d55eca98f",
+  "status": "completed",
+  "text": "# VALIDATION\n\n**ACCEPTED: yes**\n\n## Q1. Required-question coverage\nR1–R3 are answered at decision-grade depth with source-bound evaluations, limits, controls, a decision table, resolving evaluation, and appendix.\n\n## Q2. Source-unit coverage\nAll 9 retained units are present, linked to original sources, and retain method, outcome, and limitation. No source-unique unit is missing.\n\n## Q3. Numeric and unit checks\nNo material numeric or unit error found. Verified: τ-bench, ToolSandbox, AgentDojo, ToolBench-X, WebArena, ToolEmu, InjecAgent, evaluator-audit, and τ-bench version-warning claims.\n\n## Q4. Model, comparator, and method checks\nMethods and comparators are materially preserved. AgentDojo’s baseline values are specifically for its “Important message” attack, while the tool-filter values are from its defense comparison. The report should retain those labels if edited, but current wording does not falsely combine the numbers.\n\n## Q5. Caveats and transfer limits\nThe report correctly prevents transfer from simulated, emulated, frozen, benchmark-specific, or evaluator-limited settings to production reliability or security. It does not claim that evaluation proves security.\n\n## Q6. Bounded corrections\nNo required correction. Optional precision improvement: label AgentDojo’s two result groups as separate experiments in the table to make their differing attack/comparator conditions explicit.",
+  "error": null,
+  "usage": {
+    "input": 92600,
+    "output": 3830,
+    "cacheRead": 286720,
+    "cacheWrite": 0,
+    "cost": 0.288504
+  }
+}

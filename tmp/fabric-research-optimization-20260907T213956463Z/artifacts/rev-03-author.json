@@ -1,0 +1,29 @@
+{
+  "id": "1f2c2553e4e5448e90ef83e2eb704ea4",
+  "name": "research-revision-03-composition",
+  "task": "Sole writer of EVALUATION ROOT/candidates/rev-03, no other mutation. First shell verifies exact git top-level /home/balauru/.pi-profiles/fabric. Read ultra-skill-creator and optional evaluation guidance required by user comparison, plus relevant Pi skills docs fully and required references. Read complete rev-02 candidate and blind-T1-A.md and blind-T1-B.md reviews. Clone rev-02 to rev-03, preserving installed skill and prior candidates. Implement ONE coherent mechanism: evidence-preserving final composition with a clean single authoritative report boundary.\n\nActual observed defect: rev-02 run-0103/RESEARCH.md starts with Brief and Requirement contract and contains Pending independent revalidation and Report validation process assertions. Both blind reviewers call this a material coherence regression even though technical evidence is strong. Canonical requirements/assignment reservations belong in code/state, not top of the final answer. Report is authored from a clean task-specific outline by synthesizer only, not successive agents appending administrative paragraphs to one file. Validator returns control dispositions, never appends self-validation claims. Keep concise reader-relevant scope/method/evidence gaps and actual stop reason, but no claimed validated state/log narration. Authoritative final report still single RESEARCH.md. Intermediate evidence/verification must not become a second competing report. Full source notes remain separate single-owner support and code control state. Carefully define ownership/transitions and in-memory no-write variant. Do not merely say be concise or strip the detail.\n\nAlso make original-study measurement preservation part of the same composition boundary: a quoted/recorded contrast travels with its original source/table, model, task, baseline, intervention, metric, budget and caveat as one unit. Do not splice baseline from another paper (actual baseline output confused 56.9% Wei with 56.5% Wang). Use only study-specific illustrative notation, not hardcoded research-topic conclusions. Must preserve useful breadth, exact detail and all material unknowns/counterevidence into final report. A final source appendix is mandatory and checked for decision-grade tasks. Root audit caught canonical checker compares only question while allowing altered inclusions/context/contribution; fix equality and nonempty checks across all fields and test positive/ID-only/mismatch/duplicate cases. Fix full read-back truncation handling if touching example: bounded read API returns truncated text, so cannot naive compare >50KB note to one read. Don't invent unsupported read APIs.\n\nKeep Fabric code-held phase graph, explicit Terra medium for every role, narrow researcher web grants, exact task/stream counts, source provenance/comparability/counterevidence, safe partial statuses, no-write, last30days conditional routing and profile boundaries. Do not optimize away independent evidence acceptance before quality parity. Aim simple rule ownership, remove obsolete duplicated rules when needed for consistency, not arbitrary shortening. No global config/runtime feature changes. Read every changed file fully before edit. Test all links/frontmatter/model/thinking/outcome/one-report references and executable pure contract snippets, plus concrete changed-route walkthrough/behavior probe via legitimate tests (not another interpreter for Fabric). Save diff/hypothesis/check evidence under rev-03/checks. Return candidate path, tests and unresolved limits. No live quality claim, no installing candidate, no grading own report.\nEVALUATION ROOT /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z",
+  "status": "completed",
+  "runner": "pi",
+  "kernel": "typescript",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "startedAt": 1788823867387,
+  "updatedAt": 1788824502208,
+  "turns": 31,
+  "toolCalls": 30,
+  "text": "Candidate: `/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-03`\n\n- Synthesizer is sole `RESEARCH.md` writer. Validator returns control dispositions only.\n- Added source-bound measurement preservation and strict full-field requirement equality.\n- Checks saved under `rev-03/checks/`, including diff, route walkthrough, static checks, and executable contract probes.\n- Tests passed: strict positive/ID-only/mismatch/duplicate cases, multiline read-back, oversized-line rejection, links, frontmatter, Terra-medium settings, outcome schema, and one-report boundary.\n\nLimits: no live quality run, installation, or self-grading performed.",
+  "usage": {
+    "input": 80931,
+    "output": 21656,
+    "cacheRead": 1746432,
+    "cacheWrite": 0,
+    "cost": 0.7710203999999998
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788824502208,
+  "logFile": "/tmp/pi-fabric-runs-xuEuLQ/1f2c2553e4e5448e90ef83e2eb704ea4/events.jsonl",
+  "sessionId": "1652274"
+}

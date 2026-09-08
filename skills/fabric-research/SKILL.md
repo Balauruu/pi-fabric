@@ -1,50 +1,58 @@
 ---
 name: fabric-research
-description: Research external questions, disputed comparisons, literature and published benchmarks, with source-backed synthesis and delegation where useful.
-compatibility: Pi Fabric and installed web-access tools. Recent-discussion research optionally uses the installed last30days skill and its declared environment.
-disable-model-invocation: true
+description: Runs bounded external research streams and synthesizes one detailed, source-backed answer for investigations, comparisons, literature reviews, and substantive decisions.
 ---
 
-# Research
+# Research: frame, investigate, synthesize
 
-Optimize time to a well-supported answer. Main owns the synthesis.
+Build a useful answer from independently researched uncertainties. Main frames and coordinates the work; bounded workers gather evidence; one synthesizer writes the answer. Do not add persistent agents, intermediate coordinators, a separate reviewer, or a rewrite loop.
 
-## Browser rule
+## Recognize an assigned leaf role first
 
-Use search and content-retrieval tools, not browser automation or browser-backed recovery. Set `web_search`'s `workflow: "none"`; do not opt into browser-cookie fetching with `fetch_content.auth`. Use an accessible alternative or report the source gap. Carry this rule into every worker assignment.
+Before framing a plan, distinguish a user investigation from an already-dispatched role. A task beginning `Research this self-contained assignment:`, `Synthesize one final research answer`, or `Collect current discussion for this one assigned stream` is an assigned leaf role, not a new top-level research request.
 
-## Shape the work to the question
+For that leaf role, execute the supplied self-contained task directly with its granted tools and return its requested structured result. Do not frame another `ResearchPlan`, read the orchestration references, load this skill recursively, or launch another researcher/synthesizer. The parent already owns planning, persistence and orchestration. This branch does not change the task's evidence, source-verification, budget or output requirements.
 
-Cover the user's actual questions, definitions, source needs and requested output. Keep relevant dates and versions in the task and source evidence. Use a checklist or comparison table when it prevents omissions, not for every lookup.
+## Choose the route
 
-Start with direct retrieval when Main can efficiently resolve the question, even if it needs several sources. Delegate distinct uncertainties when parallel work or a different method earns its assignment and reconciliation cost. Give each worker the question, its scope, necessary context, useful known sources, and the Browser rule; ask for findings with supporting URLs and passages or locators, contradictions, and remaining gaps. Workers supply evidence, not the final cross-question recommendation.
+| Route | Selection condition | Procedure |
+| --- | --- | --- |
+| Direct lookup | One precise fact, no comparison or multi-step investigation, and no research artifact requested | Retrieve the relevant original source directly and answer inline with its limitation. Create no agent or run directory. If the question expands after the first retrieval, carry that source into a substantive plan before further research. |
+| Substantive research | Any investigation, comparison, literature review, consequential decision, requested artifact, or question with multiple independent uncertainties | Build one `ResearchPlan` and run one TypeScript `fabric_exec` program implementing `ResearchPlan → ResearchRunResult`. Read [runtime](references/runtime.md), [researcher](references/researcher.md), [synthesizer](references/synthesizer.md), and [last30days integration](references/last30days.md) completely before building the program. |
 
-Use as many useful workers as the task needs, accounting for native availability, provider throttling and explicit user budgets; reserve capacity for verification and synthesis. Parallelize independent retrieval and analysis; start dependent checks when their inputs arrive, without waiting for unrelated workers. Avoid repeated searches and transferring entire reports where a focused finding will do.
+## Frame a substantive plan
 
-Configure every worker launched by this skill, including verification and last30days workers, with `runner: "pi"`, `model: "openai-codex/gpt-5.6-terra"`, `thinking: "high"`, and `extensions: true`. Pass these options explicitly to `agent` / `workflow.agent`, `agents.run`, and `agents.spawn` rather than inheriting model or thinking defaults. Before dispatch, confirm the exact model key in `tools.models()`; if unavailable, report the blocker rather than silently substituting a model. This policy does not change Main's model or global defaults.
+Record the central question, intended use, inclusions, exclusions, as-of date or version, time horizon, assumptions, requested report form, persistence mode, stream assignments, and limits. Ask only when an unresolved choice would materially change the investigation. Otherwise use the narrowest reasonable assumption and expose it in the plan.
 
-Have each worker first verify its required actions through effective discovery; Main's tool access does not prove child access. Give workers only the tools their assignment needs, but do not treat an allowlist or prompt as proof of isolation. Prohibit unrelated mutations and further delegation unless explicitly assigned. Permit only necessary task-scoped artifacts, such as the last30days plan and output; do not authorize installs, configuration changes, or publishing.
+Derive streams from independently answerable uncertainties. Give each stream an immutable ID `s1`, `s2`, and so on in assignment order. Each required question belongs to one stream. Honor user-specified streams, counts, budgets, and output structure. Otherwise use one stream for one substantive uncertainty, normally two to four streams, and never derive more than six. Use at most four concurrent streams.
 
-In full-code mode, use `fabric_exec` for all execution, including direct retrieval: `pi.*` for core tools, `extensions.*` for confirmed captured actions, and first-class provider proxies for known actions. Reserve `tools.call({ ref, args })` for discovered or computed refs. Keep intermediate work in code and return compact evidence, decisions and failures.
+A recent-discussion stream is appropriate only when changing practice, regressions, practitioner experience, sentiment, or freshness can change the answer. It counts as one planned stream. The optional engine runs only in persisted mode; inline mode uses the ordinary read-only researcher with a recent-discussion assignment.
 
-For finite fan-out, use `agent` with `parallel` or `pipeline`. Pass thunks to `parallel`, not already-started promises; keep dependent stages ordered. Use `agents.spawn` when Main benefits from consuming or redirecting work between turns. Consume terminal notifications when enabled, or use `agents.wait` when the program needs the result; do not poll for completion. Labels and progress should help follow real work. Use a schema only when machine aggregation benefits from it. Workflow helpers return the schema value or final text; use `agents.run` when native status and usage envelopes are needed. Native budgets and results remain authoritative. Keep Pi and child state in `/home/balauru/.pi-profiles/fabric` via `PI_CODING_AGENT_DIR`; `cwd` does not select a profile.
+## Select persistence deterministically
 
-## Find and check evidence
+Apply these rules in order:
 
-Use the existing `web_search`, `fetch_content`, `get_search_content`, and `source_check` tools with their configured providers; omit provider overrides. Before first use, discover the actions needed for this task with bounded `tools.search` or `tools.list`, then inspect their effective contracts with `tools.describe`. A tool visible outside Fabric is not necessarily registered as `extensions.<name>`. Discovery establishes availability, not working credentials or successful retrieval. If a required action is missing, use an available alternative that preserves the task and Browser rule, or report the capability gap; do not install tools or change configuration to repair it.
+1. Explicit `no writes`, `do not save`, or `inline only` means `inline`.
+2. An explicit request to save, persist, or return a report path means `persisted`.
+3. If both rules match, ask one clarifying question before execution.
+4. Otherwise substantive research defaults to `persisted`.
+5. Direct lookup remains inline unless an artifact was requested, which selects substantive research.
 
-For substantive research, prefer `web_search.queries` with 2–4 distinct angles rather than synonymous repetitions; keep a single query for narrow lookups. Put query text and other awkward content in named `payloads` and use the matching `π` keys.
+Inline mode must perform no directory creation, `pi.write`, file-producing discussion-engine invocation, or other artifact write. Persisted mode writes only inside the newly reserved research run directory.
 
-Check captured results' `isError` before treating them as evidence, and inspect tool-specific failure fields according to the discovered contract. Keep full retrieved results inside the program when useful; return only relevant claims, supporting URLs and passages or locators, contradictions, gaps, and retrieval handles such as `responseId` for later expansion. Use `get_search_content` with `findText` to locate support in stored content instead of repeatedly returning whole reports. Preserve decisive passages and table context when reducing output.
+## Execute once
 
-Prefer original, accessible sources suited to the claim: primary documentation for specifications, original papers for research, reproducible independent measurements for performance, and direct community posts for reported experience. Treat summaries and search answers as leads. For recent-discussion research, read the [last30days integration](references/last30days.md).
+Pass the complete plan as the named payload `plan`. Set top-level `agentBudget` to the number of planned streams plus one synthesizer. When the plan has a token budget, pass the same value as top-level `tokenBudget`. If these capacities cannot be reserved, report the conflict before invoking `fabric_exec`.
 
-Check decisive and disputed claims against the supporting passage or table. Reuse already retrieved evidence when it contains that support; retrieve a lead when it does not. Missing administrative metadata does not invalidate useful evidence. A missing supporting source does limit what can be concluded.
+Run model/tool preflight before agent dispatch or filesystem effects. Dispatch bounded streams without retries, preserve useful partial evidence, and make exactly one synthesis attempt after every stream is terminal or unavailable. Source verification belongs inside that synthesis call. The outer workflow alone writes ordinary stream notes and `RESEARCH.md`.
 
-Trace shared origins: syndicated stories, repeated benchmarks and separate workers citing one paper are not independent corroboration. Resolve material contradictions by inspecting methods, populations, definitions and source authority; keep genuine disagreement visible. Compare numbers only when tasks, versions, settings, samples, metrics and denominators support the comparison. Do not turn vendor claims or anecdotes into measurements, or average incompatible results.
+Return the exact `ResearchRunResult` from the runtime reference. Do not infer completion from a native worker status or an existing path.
 
-## Close the evidence gap, then answer
+## Completion criterion
 
-For delegated batches, account for requested, dispatched and completed items with named gaps, and return `success`, `partial` or `failed` according to usable evidence and coverage. Catch ordinary failures per independent item so one rejection does not discard successful sibling results. Inspect native worker status/error fields when available; receiving text alone does not establish successful completion. Preserve successful work when a tool or worker fails. Inspect the actual failure and recover only the evidence still needed; do not rerun successful siblings or restart a whole batch solely because it is partial. Retry, change sources, delegate or stop according to the remaining gap and the likely value of more work within the user's budget. Stop when support is sufficient or further retrieval is unlikely to change the answer; report material unresolved gaps rather than manufacturing completeness.
+Complete only when one of these is true:
 
-Main synthesizes the answer with citations, separating sourced findings from inference and recommendation. Cover requested outputs, explain decision-changing disagreements and limitations, and keep recommendations within the evidence. When a choice remains unresolved, name the observation or smallest useful evaluation that would settle it.
+- A direct lookup returned the requested fact with an original source and limitations, without agents or files.
+- A substantive run returned `complete`, `partial`, or `blocked` using the runtime's mechanical rules, with exact stream and question coverage, only verified saved paths, and the report or surviving evidence required by that outcome.
+
+Never relaunch a failed stream, run a second synthesizer, add a review agent, or silently substitute unavailable models, tools, sources, or persistence.

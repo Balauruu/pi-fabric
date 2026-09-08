@@ -1,0 +1,103 @@
+{
+  "reason": "prior exact extension-ref grants were unavailable inside leaves; child named tool grants verified by grant-recovery-probe",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "tools": [
+    "read",
+    "web_search",
+    "fetch_content",
+    "get_search_content"
+  ],
+  "launches": [
+    {
+      "kind": "candidate-T1",
+      "topic": "T1",
+      "name": "effects",
+      "id": "8610ce3f66c84bd59ae63fe931bf3bb2",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/repair-streams/effects.md",
+      "elapsedMs": 108034,
+      "error": null
+    },
+    {
+      "kind": "candidate-T1",
+      "topic": "T1",
+      "name": "limits",
+      "id": "9b2327e7d6fe45e08231f9c8799ce191",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/repair-streams/limits.md",
+      "elapsedMs": 163454,
+      "error": null
+    },
+    {
+      "kind": "candidate-T1",
+      "topic": "T1",
+      "name": "operations",
+      "id": "6a8349c7f0ae4e5e9fddc2ffd05338b6",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/repair-streams/operations.md",
+      "elapsedMs": 104270,
+      "error": null
+    },
+    {
+      "kind": "legacy-T2",
+      "topic": "T2",
+      "name": "effects",
+      "id": "e070dcf997d64d50935393636ae4aa8d",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/repair-streams/effects.md",
+      "elapsedMs": 269035,
+      "error": null
+    },
+    {
+      "kind": "legacy-T2",
+      "topic": "T2",
+      "name": "limits",
+      "id": "a2c949853c754495be57c052690fcac2",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/repair-streams/limits.md",
+      "elapsedMs": 287591,
+      "error": null
+    },
+    {
+      "kind": "legacy-T2",
+      "topic": "T2",
+      "name": "operations",
+      "id": "b3defc9f8a1f4553bf967f8bc5275b8a",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/repair-streams/operations.md",
+      "elapsedMs": 295129,
+      "error": null
+    },
+    {
+      "kind": "legacy-T3",
+      "topic": "T3",
+      "name": "reliability",
+      "id": "b2b806079fde49ed9a0943fa7cc2e3d4",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/repair-streams/reliability.md",
+      "elapsedMs": 443271,
+      "error": null
+    },
+    {
+      "kind": "legacy-T3",
+      "topic": "T3",
+      "name": "limits",
+      "id": "894cf5936c3d4256b30a8b6cd27afc7e",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/repair-streams/limits.md",
+      "elapsedMs": 406425,
+      "error": null
+    },
+    {
+      "kind": "legacy-T3",
+      "topic": "T3",
+      "name": "security",
+      "id": "f626f6c538644d5fb10b66271bd4f727",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/repair-streams/security.md",
+      "elapsedMs": 525006,
+      "error": null
+    }
+  ]
+}

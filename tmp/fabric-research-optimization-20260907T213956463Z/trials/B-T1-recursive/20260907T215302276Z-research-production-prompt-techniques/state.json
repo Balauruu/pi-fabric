@@ -1,0 +1,80 @@
+{
+  "phase": "research",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "allowance": {
+    "planned": 6,
+    "used": 3,
+    "remaining": 3
+  },
+  "assignments": [
+    {
+      "id": "R1A",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1-recursive/20260907T215302276Z-research-production-prompt-techniques/streams/reasoning.md",
+      "reserved": true,
+      "status": "failed",
+      "savedPath": null
+    },
+    {
+      "id": "R1B",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1-recursive/20260907T215302276Z-research-production-prompt-techniques/streams/decomposition-agents.md",
+      "reserved": true,
+      "status": "failed",
+      "savedPath": null
+    },
+    {
+      "id": "R1C",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1-recursive/20260907T215302276Z-research-production-prompt-techniques/streams/in-context-reliability.md",
+      "reserved": true,
+      "status": "failed",
+      "savedPath": null
+    }
+  ],
+  "receipts": [
+    {
+      "id": "R1A",
+      "role": "researcher",
+      "nativeId": null,
+      "observedModel": "openai-codex/gpt-5.6-terra",
+      "observedThinking": "medium",
+      "observedStatus": "failed",
+      "hasText": false,
+      "savedPath": null,
+      "persistenceError": null,
+      "error": "Error: Fabric agent depth limit reached (2)"
+    },
+    {
+      "id": "R1B",
+      "role": "researcher",
+      "nativeId": null,
+      "observedModel": "openai-codex/gpt-5.6-terra",
+      "observedThinking": "medium",
+      "observedStatus": "failed",
+      "hasText": false,
+      "savedPath": null,
+      "persistenceError": null,
+      "error": "Error: Fabric agent depth limit reached (2)"
+    },
+    {
+      "id": "R1C",
+      "role": "researcher",
+      "nativeId": null,
+      "observedModel": "openai-codex/gpt-5.6-terra",
+      "observedThinking": "medium",
+      "observedStatus": "failed",
+      "hasText": false,
+      "savedPath": null,
+      "persistenceError": null,
+      "error": "Error: Fabric agent depth limit reached (2)"
+    }
+  ],
+  "paths": {
+    "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1-recursive/20260907T215302276Z-research-production-prompt-techniques/RESEARCH.md",
+    "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1-recursive/20260907T215302276Z-research-production-prompt-techniques/REPORT.md",
+    "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1-recursive/20260907T215302276Z-research-production-prompt-techniques/state.json",
+    "streams": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/trials/B-T1-recursive/20260907T215302276Z-research-production-prompt-techniques/streams"
+  }
+}

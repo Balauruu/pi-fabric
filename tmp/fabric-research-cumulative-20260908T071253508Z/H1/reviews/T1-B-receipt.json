@@ -1,0 +1,7 @@
+{
+  "id": "4f5a30a5d1a74e1f853e460f3e81b5e8",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Verdict: H1 is not a material, repeatable improvement. T1-1 regresses by asserting an unresolved CoT source-conflict value without disclosure. T1-2 is byte-identical to baseline.\n\nAssessment saved: `/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H1/reviews/T1-B.md`"
+}

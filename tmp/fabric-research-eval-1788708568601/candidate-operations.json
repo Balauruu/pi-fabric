@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "exact-count",
+      "answer": "Do not launch the fourth verifier: it would violate the exact three-agent total. Record the three named assignments as completed, with benchmark detail still unsupported. Main should directly retrieve and inspect the missing benchmark method/details, since direct retrieval does not add an agent. If it cannot close the gap, qualify or withhold the benchmark conclusion rather than claiming verification."
+    },
+    {
+      "id": "independence",
+      "answer": "The plan is invalid. Sending A’s conclusion to B makes B a dependent verification, not an independent analysis; both citing the same paper is one evidence origin, not triangulation. A valid plan is for B to investigate its assigned question without A’s interim conclusion, preferably using a distinct evidence class, source origin, or adversarial hypothesis. If B still finds only that paper, report one shared-origin result and the independent-evidence gap, not agreement as corroboration."
+    },
+    {
+      "id": "return-validation",
+      "answer": "Separate execution status from evidence usability. W completed, but failed required discovery and never invoked retrieval, so its URLs, passage claims, and “99% reliability” provide no source-backed external evidence. Mark W’s required retrieval/evidence requirement unsupported, regardless of plausible output. Retain Main’s independently retrieved primary price passage as a documented fact if its exact quotation, applicability, and date were checked. No recovery is needed for the price claim; only recover other decision-changing gaps in W’s assignment."
+    },
+    {
+      "id": "partial-recovery",
+      "answer": "Do not resume W2’s completed one-shot and do not rerun W1 or W3. Preserve W1’s verified documentation, W3’s verified operations evidence, and W2’s useful benchmark passage as partial evidence. Mark the missing sample details as a comparability/method gap, so the benchmark cannot support a quantitative comparison or ranking. Since Main has direct retrieval, perform a narrow direct check for W2’s sample/method details; otherwise retain the passage only as a qualified sourced claim and block the affected conclusion. Account for the batch as partial until that gap is resolved or explicitly left incomplete."
+    },
+    {
+      "id": "recent-coverage",
+      "answer": "The report is usable for limited field-signal evidence, not performance proof. YouTube has four dated, direct-linked posts reporting a regression; retain them as operational warnings/hypotheses, with platform-specific coverage. Reddit’s successful zero-result search means no matching Reddit results in the inspected scope, not absence of discussion generally. X authentication failure is an inaccessible coverage gap. Exit code 0 and no badge do not change those findings. None of these reports is a controlled measurement, so do not infer regression magnitude, prevalence, causation, or comparative performance."
+    },
+    {
+      "id": "resolving-eval",
+      "answer": "Propose a paired local evaluation on a fixed repository snapshot using a smallest jointly agreed screening set of representative, migration-risk tasks. For each task, hold instructions, allowed scope, environment, tools, retry policy, and acceptance procedure constant; isolate each candidate’s patch. Accept a result only when the existing deterministic suite passes and an explicit diff/scope check finds no out-of-scope edits. Record accepted-task correctness first, then failures, retries, scope violations, latency, and total cost; use cost only among correctness-qualified candidates. If neither candidate clears the screening tasks, or results split, repeat only finalists/close cases. Do not invent a sample size or regression margin: request those decision thresholds before claiming a winner."
+    }
+  ]
+}

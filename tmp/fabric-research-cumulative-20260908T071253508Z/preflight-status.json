@@ -1,0 +1,27 @@
+{
+  "id": "22a1addc7838408f9ec2af4e7df9f78c",
+  "name": "preflight-terra-medium",
+  "status": "completed",
+  "runner": "pi",
+  "kernel": "typescript",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "startedAt": 1788851574081,
+  "updatedAt": 1788851766341,
+  "turns": 7,
+  "toolCalls": 6,
+  "usage": {
+    "input": 60285,
+    "output": 1777,
+    "cacheRead": 120320,
+    "cacheWrite": 0,
+    "cost": 0.165958
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788851766341,
+  "logFile": "/tmp/pi-fabric-runs-eTBAbT/22a1addc7838408f9ec2af4e7df9f78c/events.jsonl",
+  "sessionId": "2241160"
+}

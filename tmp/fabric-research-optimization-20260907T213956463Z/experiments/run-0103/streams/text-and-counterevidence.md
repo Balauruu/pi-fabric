@@ -1,0 +1,63 @@
+# Measured Prompt Techniques for Production Text Tasks
+
+## Question, scope, and status
+
+**Question:** Which prompt and scaffold techniques have measured effects for text, reasoning, and tool-using LLM work, and what counterevidence limits transfer?
+
+**Status:** **Qualified.** Original experimental evidence supports measurable but highly conditional effects for demonstrations, format/output constraints, and personas. It does **not** support a universal ranking or a general rule that “more specific” instructions are always better. The supplied cut-off is **2026-09-07**. Sources inspected were available during this research; no claim is made about unpublished or inaccessible work through that future cut-off.
+
+**Decision implication:** Treat prompt text, demonstrations, schema/decoder, model snapshot, and evaluation set as one deployable configuration. Validate the exact configuration on production-like cases, including retries, latency, and tool outcomes.
+
+## Requirement contract
+
+| ID | Exact question | Required inclusions | Expected final-report contribution | Decision context | Status |
+|---|---|---|---|---|---|
+| R1 | Which techniques have measured effects, with exact task, model, comparator, results, method and measured compute/cost where available? | measured effect; exact task/model/comparator/result/method; compute or cost where reported | Technique evidence and comparability-qualified quantitative table. | Choose production prompting/scaffold defaults without a universal ranking. | **Supported, qualified**: evidence is task/model-specific and cost is sparse. |
+| R2 | What strongest counterevidence, regressions and model/task transfer limits constrain adoption? | negative or regressive results; model/task/context transfer limits; conditions that overturn adoption | Counterevidence and limitation analysis. | Avoid deploying prompts whose gains do not transfer to the target workload. | **Supported** for demonstrations, prompt format, persona, and schema coverage. |
+
+## Findings
+
+### Comparability-qualified evidence
+
+| Technique | Task, model, comparator, and method | Measured result | Compute/cost and production qualification |
+|---|---|---|---|
+| Few-shot demonstrations | [Brown et al., 2020](https://arxiv.org/html/2005.14165), GPT-3 175B, no gradient updates. Zero-shot instruction vs one demonstration vs few-shot demonstrations. Few-shot usually used **10–100** examples within a **2,048-token** context window. | Closed-book QA: CoQA F1 **81.5 → 84.0 → 85.0** and TriviaQA accuracy **64.3% → 68.0% → 71.2%** for zero-, one-, and few-shot respectively. | Training compute is not inference cost. The paper does not report a per-request price or latency. Production cost rises directly with demonstration input tokens and may reduce remaining context. |
+| Demonstration/template formatting | [Sclar et al., 2024, *Mind Your Format*](https://arxiv.org/html/2401.06766), 21 models from 770M–70B, four classification datasets: SST-2, DBPedia, AG News, TREC. Compared semantically valid templates, 2/4 random demonstrations, direct/channel/calibrated prediction, three example-selection seeds and ten templates each. | A poor template could reduce strong models/inference methods to **random-guess level**. Even the largest models had score SDs up to **35% of their mean** across evaluated prompt settings. Advanced example selection often lost to random selection once template sensitivity was included. | One setup evaluating ten templates took **17–48 A100-80GB hours**. Best templates did not transfer reliably across models, including within a family, demonstration sets, or prediction methods. |
+| Semantically equivalent instruction/format constraints | [Sclar et al., 2023/2024, *How I Learned to Start Worrying about Prompt Formatting*](https://arxiv.org/html/2310.11324v2), 53 Super-NaturalInstructions classification/multiple-choice tasks, plausible equivalent formats. | LLaMA-2-13B varied by up to **76 accuracy points** between equivalent formats. Across settings, median spread was **7.5 points**. GPT-3.5 showed up to **56 points**, median **6.4 points**, across 320 formats and 53 tasks. | GPT-3.5 FormatSpread search averaged **under US$10 per task**. This is evidence that exact format can matter greatly, not evidence that added detail monotonically helps. |
+| Few-shot counterexample and direct instruction | [Reynolds & McDonell, 2021](https://arxiv.org/html/2102.07350), WMT’14 French→English, GPT-3/API variants. Compared GPT-3-paper-style few-shot formats with zero-shot direct/“Simple Colon” task formats. | The authors report that a simple zero-shot prompt outperformed the original 10-shot-style prompt and that adding one example to their simple-colon prompt performed significantly worse than zero-shot, attributed to semantic contamination from the example. | Their 64-shot replication was infeasible under API constraints and was replaced with 10-shot. Model/API changes and unspecified Babbage/Curie sizes prevent numerical transfer. The decision-changing finding is regression from an added example. |
+| Role/persona prompting | [Pei et al., 2024](https://aclanthology.org/2024.findings-emnlp.888/), 2,410 balanced MMLU questions from 26 subjects, 162 personas, speaker- vs audience-specific and “Imagine” variants, nine open instruction-tuned models from four families. Control: question without persona. Mixed-effects regression. | **No persona** produced statistically better overall performance than control. Some personas reduced performance, for example “ecologist” for Mistral. Audience framing beat speaker framing statistically, but with a **small** effect. | No per-call cost reported. Scope is objective MMLU multiple choice, not open-ended writing, tool use, or proprietary model behavior. |
+| Structured output through constrained decoding | [Beurer-Kellner et al., 2025, *Generating Structured Outputs*](https://arxiv.org/html/2501.10868v1), JSONSchemaBench with 10,000 real-world schemas, six frameworks: Guidance, Outlines, Llamacpp, XGrammar, OpenAI, Gemini. Quality tests: Last Letter, Shuffle Objects, GSM8K, JSON fields `reasoning`/`answer`. | Reported constrained decoding could generate **50% faster** than unconstrained decoding, best empirical schema coverage was about **2×** worst, and downstream accuracy improved up to **4%**. In quality tests, Guidance was about **3%** above LM-only on each task. | Coverage experiment used Llama-3.2-1B-Instruct, temperature 0, one generation, with 40-second compile and generation timeouts. This is decoder/scaffold evidence, not evidence that JSON wording alone causes the gain. |
+| Provider-native strict schema | [OpenAI Structured Outputs documentation](https://developers.openai.com/api/docs/guides/structured-outputs): strict JSON Schema vs JSON mode. | Documented contract: strict Structured Outputs adheres to supported schemas; JSON mode guarantees valid JSON but **not** schema adherence. | Not an independent benchmark. First use of a schema adds latency. Refusals, content filters, max-output truncation, and unsupported/deep/large schemas can still yield incomplete or non-schema content or an error. |
+
+## Analysis
+
+**F1. Demonstrations help when they convey missing task behavior, but are not a free default.** GPT-3’s closed-book QA improvements support trying few-shot examples for a target task. They do not establish that examples improve already-known tasks, strict formatting, or tool calls. Both the WMT study and template studies show that an example’s content, ordering, separators, labels, and placement can overturn the apparent gain.
+
+**F2. “Specificity” should be operationalized as a tested output contract, not prompt length.** The directly measured evidence concerns semantically equivalent formatting and explicit template components, not a clean scalar comparison of terse versus detailed instructions. Formatting alone can cause multi-point to catastrophic score changes. Therefore, add only requirements that map to an evaluated business constraint such as allowed labels, schema fields, evidence citation, or refusal behavior.
+
+**F3. Personas have weak support as an accuracy default.** The broad persona study found no reliably superior persona, despite many roles and models. A role can be retained for tone, policy, or UX if separately validated, but should not be treated as a reasoning or factual-accuracy optimizer.
+
+**F4. For machine-consumed outputs, decoder-level constraints are stronger than prompt-only JSON instructions.** Constrained decoding and provider-native strict schemas target syntax/schema compliance mechanically. They do not prove semantic correctness, correct tool selection, or safe arguments. Schema restrictions can also reduce coverage or reject valid production schemas.
+
+## Counterevidence and transfer limits
+
+- **C1 — Few-shot regression:** A semantically salient example can contaminate the continuation rather than teach an abstract mapping. In the WMT experiment, one example degraded the otherwise successful zero-shot prompt. Test examples separately from the task prompt and include adversarially irrelevant-but-plausible examples.
+- **C2 — Template non-transfer:** The best template did not reliably transfer between models, setups, or even related models. A benchmark win from a tuned prompt is not a portable prompt asset.
+- **C3 — Equivalent wording is not operationally equivalent:** LLaMA-2-13B’s 76-point maximum spread and GPT-3.5’s 56-point maximum spread occurred under plausible, meaning-preserving format variations. A production prompt change needs regression evaluation even if its semantic intent is unchanged.
+- **C4 — Persona gains are non-systematic:** In the MMLU study, no role significantly beat no role overall. Persona search can create an oracle upper bound, but automatically predicting the best persona did not reliably beat random selection.
+- **C5 — Strict structure does not mean correct content:** Constrained decoding assures a formal language only for schemas actually supported and accepted. It cannot make a selected tool, extracted entity, numerical answer, or argument semantically correct.
+- **C6 — API reliability has explicit exceptions:** OpenAI documents refusal, filtering, truncation, unsupported schema, and first-schema latency cases. Handle these paths as first-class outcomes, even with strict mode.
+
+## Production selection guidance
+
+1. **Default for text tasks:** Start zero-shot with a concise task definition, explicit acceptance constraints, and a measured evaluator. Add demonstrations only when they improve the target workload net of input-token cost and context loss.
+2. **Default for parsable/tool outputs:** Use provider-native strict schemas or tested constrained decoding where available. Validate semantic fields and tool arguments after parsing. Track refusal, incomplete, schema-rejection, timeout, and retry rates separately.
+3. **Do not default to personas:** Use them only for a demonstrated target outcome other than unsupported claims of general accuracy.
+4. **Evaluate configurations, not slogans:** Compare baseline, direct instruction, 1/2/4-shot, alternative templates, and strict-schema variants on held-out production-like samples. Preserve model snapshot, temperature, token budgets, retries, tools, grader, sample count, latency, input/output tokens, and cost.
+
+## Coverage and gaps
+
+| Requirement | Coverage | Smallest useful next check | Stop reason |
+|---|---|---|---|
+| **R1 — measured effects with exact task/model/comparator/results/method and compute/cost where available** | **Qualified.** Strong measurements exist for few-shot, templates/formats, personas, and constrained decoding. Cost is reported only for FormatSpread and compute for one template sweep. | Run the proposed matrix on the actual model snapshot, production prompt length, schemas, tools, and retry policy. | Evidence saturation for original accessible studies. No cross-study normalization is valid. |
+| **R2 — strongest regressions and transfer limits** | **Supported.** Demonstration contamination, prompt-format brittleness, template non-transfer, null/regressive persona results, and schema coverage/exception paths were inspected. | Add tool-execution semantic-validity tests, not just JSON-validity tests, for the deployment tool set. | The remaining decision-changing gap is workload-specific, not another generic prompt study. |

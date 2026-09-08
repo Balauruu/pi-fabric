@@ -1,0 +1,69 @@
+{
+  "tag": "prompt-cost-2-X",
+  "id": "e820a954abe9401fa73a92fe41f937c5",
+  "nativeToolCalls": 6,
+  "locatedRequestLines": 6,
+  "calls": [
+    {
+      "line": 47,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 271,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": false,
+      "answer": false,
+      "search": true,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 367,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": true,
+      "answer": false,
+      "search": false,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 646,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 980,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 1224,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    }
+  ],
+  "warning": "Earlier agents.log parsed-field scan missed requests despite cursor exhaustion. This bounded known-log search supersedes absence flags. A request is not itself proof of retrieval success."
+}

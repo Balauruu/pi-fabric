@@ -1,1 +1,0 @@
-Return the frozen synthetic state.

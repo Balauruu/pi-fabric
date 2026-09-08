@@ -1,0 +1,10 @@
+{
+  "positive": true,
+  "idOnlyRejected": true,
+  "inclusionMismatchRejected": true,
+  "contextMismatchRejected": true,
+  "contributionMismatchRejected": true,
+  "duplicateRejected": true,
+  "multilineReadBackExact": true,
+  "oversizedLineRejected": true
+}

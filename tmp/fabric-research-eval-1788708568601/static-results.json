@@ -1,0 +1,17 @@
+[
+  {
+    "ok": true,
+    "output": "{\"checks\": \"pass\", \"files\": 4, \"existing_standalone_validator_exceptions\": [\"references/last30days.md link escapes the skill directory: ../../last30days/docs/reference/json-export.md\", \"references/last30days.md link escapes the skill directory: ../../last30days/skills/last30days/SKILL.md\"], \"external_dependency_links\": \"exist\", \"preserved_policy_anchors\": 9}\n",
+    "details": null
+  },
+  {
+    "ok": true,
+    "output": "{\"loaded\":\"fabric-research\",\"diagnostics\":0,\"manualInvocationPreserved\":true,\"automaticPromptExposure\":false}\n",
+    "details": null
+  },
+  {
+    "ok": true,
+    "output": "(no output)",
+    "details": null
+  }
+]

@@ -1,0 +1,86 @@
+{
+  "candidate": "rev-03",
+  "topic": "T2",
+  "task": "T2 holdout, as of 2026-09-07: produce a decision-grade guide for changing a coding agent's run design while holding its model and reasoning effort fixed. R1: what primary evaluations measure effects of run-design choices (context selection, tool feedback, validation/repair, retries, decomposition) with task, agent/model, comparator, method, outcome, and cost or efficiency conditions? R2: what counterevidence, reliability limits, benchmark leakage or evaluator limitations constrain claims? R3: what actionable fixed-model experiment design and adoption rules follow for a production coding agent? Include original inspected sources, source-bound quantitative contrasts, an operational decision table, a concrete paired evaluation artifact, and a complete retained-source appendix. Do not imply model changes, universal rankings, or unmeasured security claims.",
+  "requirements": [
+    {
+      "id": "R1",
+      "q": "What primary evaluations measure effects of run-design choices at fixed model/effort, with task, agent/model, comparator, method, outcome, and cost or efficiency conditions?"
+    },
+    {
+      "id": "R2",
+      "q": "What counterevidence, reliability limits, benchmark leakage or evaluator limitations constrain claims?"
+    },
+    {
+      "id": "R3",
+      "q": "What actionable fixed-model experiment design and adoption rules follow for a production coding agent?"
+    }
+  ],
+  "phase": "terminal",
+  "launches": [
+    {
+      "phase": "research",
+      "id": "1180ef5d99a948fa8044f16d38738635",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 331400,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/streams/context-feedback.md"
+    },
+    {
+      "phase": "research",
+      "id": "96901d23c81a416caa2576d1e7823540",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 243391,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/streams/validation-repair.md"
+    },
+    {
+      "phase": "research",
+      "id": "ff31882cdc6b47859d7a9d29c3a91196",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 175191,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/streams/evaluation-limits.md"
+    },
+    {
+      "phase": "verify",
+      "id": "ddeef4ae96a04ca587968060d1a7d4ea",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 159214,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/support/verification/disposition.md"
+    },
+    {
+      "phase": "synthesize",
+      "id": "44aa19a63f224d64ab2dc5af821d143e",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 174237,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/RESEARCH.md"
+    },
+    {
+      "phase": "validate",
+      "id": "f53dc5d96ace438f89f1f2c9c116059e",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 102324,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/support/verification/final-validation.md"
+    }
+  ],
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/RESEARCH.md",
+  "reportChars": 21871,
+  "validationPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/support/verification/final-validation.md",
+  "finishedAt": "2026-09-08T00:02:32.115Z",
+  "correction": {
+    "preservedPreCorrection": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2-pre-correction",
+    "writerId": "054ec8fca7d6401480f557a1d2443cc4",
+    "validatorId": "9d12a1775a5f4a6bb2823b949ad6fb90",
+    "validationPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/support/verification/final-validation-correction.md"
+  }
+}

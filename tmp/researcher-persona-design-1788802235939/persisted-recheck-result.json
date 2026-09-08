@@ -1,0 +1,5 @@
+{
+  "id": "d1d7a3460e914f948cb0f036118e5528",
+  "status": "completed",
+  "text": "Assignment: persisted-recheck  \nStatus: complete  \nAnswer: B’s 90% does not justify preference over A’s 80%; tasks, models, and attempt budgets differ.  \nSources: [local synthetic fixture](file:///home/balauru/.pi-profiles/fabric/tmp/researcher-persona-design-1788802235939/fixture.md)  \nArtifact: [persisted note](file:///home/balauru/.pi-profiles/fabric/tmp/researcher-persona-design-1788802235939/persisted-recheck-note.md)  \nCoverage: Q1 qualified; Q2 supported.  \nGaps / next check: Matched evaluation with identical tasks, configuration, attempt budget, grading, denominators, uncertainty, and independent reproduction; production/security/decision-quality evidence remains unknown.  \nStop reason: Complete authorized corpus inspected once; Q1/Q2 addressed."
+}

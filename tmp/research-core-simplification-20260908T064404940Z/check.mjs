@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const base='/home/balauru/.pi-profiles/fabric/skills/fabric-research';
+const run=path.dirname(new URL(import.meta.url).pathname);
+const names=['SKILL.md','researcher.md','references/runtime.md','references/stream-contracts.md','references/synthesis-and-reporting.md','references/last30days.md'];
+const docs=Object.fromEntries(names.map(n=>[n,fs.readFileSync(path.join(base,n),'utf8')]));
+const checks=[];
+function check(name,fn){fn();checks.push(name);}
+check('Manual discovery metadata remains valid',()=>{assert.match(docs['SKILL.md'],/^---\nname: fabric-research\ndescription: .+\ndisable-model-invocation: true\n---/);});
+check('All documentation links resolve',()=>{for(const [file,text] of Object.entries(docs)){for(const m of text.matchAll(/\]\(([^)]+)\)/g)){if(/^https?:/.test(m[1]))continue;const target=path.resolve(path.dirname(path.join(base,file)),m[1].split('#')[0]);assert.ok(fs.existsSync(target),file+': '+target);}}});
+check('No removed workflow mechanics remain in active package',()=>{for(const [file,text] of Object.entries(docs)){assert.doesNotMatch(text,/repair|verifier|validator|revalidat|reportValidation|state\.json|validAssignment|reservation|correction|acceptance ledger|support\/verification/i,file);}});
+check('Research request parses and retains pinned runtime and tool grant',()=>{const code=docs['researcher.md'].match(/```ts\n([\s\S]*?)\n```/)[1].replace(/ satisfies Parameters<typeof agents\.run>\[0\]/,'');const request=vm.runInNewContext(code+'\nresearcherRequest',{});assert.equal(request.runner,'pi');assert.equal(request.model,'openai-codex/gpt-5.6-terra');assert.equal(request.thinking,'medium');assert.equal(request.extensions,true);assert.equal(request.recursive,false);assert.equal(JSON.stringify(request.tools),JSON.stringify(['web_search','fetch_content','get_search_content','read']));assert.equal((request.task.match(/\{\{TASK\}\}/g)||[]).length,1);assert.match(request.task,/Return a substantive Markdown note/);assert.match(request.task,/Do not delegate or create\/edit files/);});
+check('Persisted route has source notes and one report owner',()=>{assert.match(docs['SKILL.md'],/Workflow code saves each returned source note/);assert.match(docs['SKILL.md'],/synthesizer alone writes `RESEARCH.md`/);assert.match(docs['references/synthesis-and-reporting.md'],/Write `RESEARCH.md` once/);});
+check('No-write route passes notes and returns report without writer or engine',()=>{assert.match(docs['SKILL.md'],/create no run directory or files/);assert.match(docs['references/runtime.md'],/Omit `write` in no-write mode/);assert.match(docs['references/last30days.md'],/Do not run the file-producing engine/);assert.match(docs['references/synthesis-and-reporting.md'],/return the full report inline/);});
+check('Missing evidence terminates with gaps, not another agent pass',()=>{assert.match(docs['SKILL.md'],/Do not relaunch streams, add follow-up investigations or cycle through report rewrites/);assert.match(docs['references/runtime.md'],/Handle failures per stream so useful sibling results survive/);assert.match(docs['references/runtime.md'],/If no research can run, return blocked/);assert.match(docs['references/synthesis-and-reporting.md'],/This writing pass is the end of the run/);});
+check('Evidence content survives simplification',()=>{const text=docs['references/synthesis-and-reporting.md'];for(const term of ['baseline','intervention','metric/units','counterevidence','original sources','source appendix','transfer limitation'])assert.ok(text.includes(term),term);});
+const beforeChars=names.reduce((n,f)=>n+fs.readFileSync(path.join(run,'before',f),'utf8').length,0);
+const afterChars=Object.values(docs).reduce((n,t)=>n+t.length,0);
+const result={checks,passed:checks.length,beforeChars,afterChars,reductionPercent:Math.round((1-afterChars/beforeChars)*100),scope:'Artifact conformance and route walkthroughs only. No live research benchmark or quality-improvement claim.'};
+fs.writeFileSync(path.join(run,'RESULT.json'),JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify(result,null,2));

@@ -1,0 +1,27 @@
+{
+  "verifier": {
+    "id": "8ad7b49d21064e5ebad38296c0189cae",
+    "status": "completed",
+    "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/support/repair-verification.md"
+  },
+  "syntheses": [
+    {
+      "id": "7c83528ca8f64b1f995cb1009e013016",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/RESEARCH.md",
+      "error": null
+    },
+    {
+      "id": "4b36ee9e864c4b3abab5fa45f85239b1",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/RESEARCH.md",
+      "error": null
+    },
+    {
+      "id": "de8dbd7a4bd0491f8096ec027b09e2ae",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/RESEARCH.md",
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "criteria": [
+    {
+      "criterion": "research contract",
+      "pass": true
+    },
+    {
+      "criterion": "material-claim ledger",
+      "pass": true
+    },
+    {
+      "criterion": "evidence statuses",
+      "pass": true
+    },
+    {
+      "criterion": "counterevidence",
+      "pass": true
+    },
+    {
+      "criterion": "methodology gates",
+      "pass": true
+    },
+    {
+      "criterion": "return validation",
+      "pass": true
+    },
+    {
+      "criterion": "independence/counts",
+      "pass": true
+    },
+    {
+      "criterion": "contradiction dispositions",
+      "pass": true
+    },
+    {
+      "criterion": "stopping/recency",
+      "pass": true
+    },
+    {
+      "criterion": "recommendation/evaluation/reporting",
+      "pass": true
+    },
+    {
+      "criterion": "final citation repair",
+      "pass": true
+    }
+  ],
+  "preservation": {
+    "frontmatter": true,
+    "existingWorkerPolicy": true,
+    "existingRetrievalVerification": true,
+    "last30daysUnchanged": true
+  },
+  "behavior": {
+    "offlineCases": 15,
+    "affectedCitationCases": 6,
+    "operationsNotRerunAfterCitationOnlyFix": true
+  },
+  "limitations": [
+    "Offline grouped single-sample probes, not live retrieval or agent-failure injection",
+    "Standalone validator retains exactly two pre-existing cross-skill-link restrictions; targets resolve",
+    "Initial blind grading omitted citation coverage; repaired and retested",
+    "Baseline zero-regression-margin grading is interpretively ambiguous; no numeric uplift claimed"
+  ]
+}

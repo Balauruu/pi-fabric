@@ -1,0 +1,75 @@
+{
+  "audit": {
+    "helperMentionedForStages": true,
+    "projections": {
+      "b": {
+        "persistsDetails": true,
+        "returnExcludesDetails": true,
+        "excerptLimit": true,
+        "errorLimit": true
+      },
+      "c": {
+        "page": true,
+        "preservesId": true,
+        "omitsUsage": true,
+        "errorLimit": true
+      },
+      "d": {
+        "candidatePage": true,
+        "flagPage": true,
+        "findingLimit": true,
+        "gapLimit": true
+      },
+      "e": {
+        "packet": true,
+        "noFullSpread": true,
+        "coveragePage": true,
+        "evidencePage": true,
+        "citationPage": true,
+        "limits": true
+      }
+    },
+    "aEffectiveSchemasOnly": true,
+    "currentLiveOutcomes": [
+      {
+        "assignment": "concurrency",
+        "id": "40ab07cb56ee491d8de2b707f273246f",
+        "status": "completed",
+        "hasUsage": true,
+        "hasValue": true
+      },
+      {
+        "assignment": "backups",
+        "id": "e664e4475cc64057b8fba1e075912e88",
+        "status": "completed",
+        "hasUsage": true,
+        "hasValue": true
+      }
+    ],
+    "naturalOutcomes": [
+      {
+        "assignment": "concurrency",
+        "id": "1ff169b39bf643228d8567f23cda2e53",
+        "status": "failed",
+        "hasUsage": true,
+        "hasValue": false
+      },
+      {
+        "assignment": "backups",
+        "id": "94479f3ee142442faca80b8e9b3a3cd6",
+        "status": "completed",
+        "hasUsage": true,
+        "hasValue": true
+      }
+    ],
+    "exactModelAvailable": true
+  },
+  "globalDiffCheck": {
+    "ok": true,
+    "output": "(no output)"
+  },
+  "linkAndStatus": {
+    "ok": true,
+    "output": "last30days absolute targets exist\n M skills/fabric-research/SKILL.md\n M skills/fabric-research/references/last30days.md\n M skills/fabric-research/references/stream-contracts.md\n M skills/fabric-research/references/synthesis-and-reporting.md\n?? skills/fabric-research/references/evidence.schema.json\n"
+  }
+}

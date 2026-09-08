@@ -1,0 +1,337 @@
+{
+  "version": 1,
+  "metricVersion": 2,
+  "actions": [
+    {
+      "ref": "agents.list",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "local",
+              "lineage"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "baseSchemaDigest": "44ff8bdf7ffa89560b98a83f89cb18e2002d82aa52b0e0d1576572ef6478f928"
+    },
+    {
+      "ref": "agents.run",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "A self-contained task for the child agent"
+          },
+          "name": {
+            "type": "string"
+          },
+          "runner": {
+            "type": "string",
+            "enum": [
+              "pi",
+              "veda"
+            ],
+            "description": "Execution harness. Defaults to agents.runner."
+          },
+          "kernel": {
+            "type": "string",
+            "enum": [
+              "typescript",
+              "python",
+              "inherit"
+            ],
+            "description": "Fabric execution language. Omitted/inherit uses the caller executor.kernel; concrete choices require Pi with extensions enabled. Python uses the configured backend; CPython is native execution."
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "process",
+              "tmux",
+              "screen",
+              "localterm",
+              "herdr"
+            ]
+          },
+          "model": {
+            "type": "string",
+            "description": "Pi provider/id, a configured models.aliases name, or a search term resolved to the closest authenticated model (recency from pi-model-sort breaks ties); Claude runtime value or Veda backend model/alias are forwarded verbatim."
+          },
+          "persona": {
+            "type": "string",
+            "description": "Veda persona name for this run, such as frontend, reviewer, worker, or a custom persona."
+          },
+          "thinking": {
+            "type": "string",
+            "enum": [
+              "high",
+              "xhigh",
+              "low",
+              "minimal",
+              "off",
+              "medium"
+            ]
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timeoutMs": {
+            "type": "number",
+            "description": "Optional longer wall-clock limit in milliseconds. Omit to use agents.timeoutMs (60 minutes by default); values below the configured default are ignored."
+          },
+          "extensions": {
+            "type": "boolean"
+          },
+          "recursive": {
+            "type": "boolean"
+          },
+          "cwd": {
+            "type": "string",
+            "description": "Filesystem execution directory for leaf or recursive Pi runs; relative paths resolve from the caller cwd. Does not change project/mesh ownership or grant target project trust."
+          },
+          "worktree": {
+            "type": "boolean"
+          },
+          "schema": {
+            "type": "object",
+            "description": "Optional JSON Schema for validated structured output"
+          }
+        },
+        "required": [
+          "task"
+        ],
+        "additionalProperties": false
+      },
+      "baseSchemaDigest": "83f1ed4e7a190df99c11838b380a6f38da55a987e25be1d41dc376ee453dde64"
+    },
+    {
+      "ref": "agents.spawn",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "A self-contained task for the child agent"
+          },
+          "name": {
+            "type": "string"
+          },
+          "runner": {
+            "type": "string",
+            "enum": [
+              "pi",
+              "claude",
+              "veda"
+            ],
+            "description": "Execution harness. Defaults to agents.runner."
+          },
+          "kernel": {
+            "type": "string",
+            "enum": [
+              "typescript",
+              "python",
+              "inherit"
+            ],
+            "description": "Fabric execution language. Omitted/inherit uses the caller executor.kernel; concrete choices require Pi with extensions enabled. Python uses the configured backend; CPython is native execution."
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "process",
+              "tmux",
+              "screen",
+              "localterm",
+              "herdr"
+            ]
+          },
+          "model": {
+            "type": "string",
+            "description": "Pi provider/id, a configured models.aliases name, or a search term resolved to the closest authenticated model (recency from pi-model-sort breaks ties); Claude runtime value or Veda backend model/alias are forwarded verbatim."
+          },
+          "persona": {
+            "type": "string",
+            "description": "Veda persona name for this run, such as frontend, reviewer, worker, or a custom persona."
+          },
+          "thinking": {
+            "type": "string",
+            "enum": [
+              "xhigh",
+              "high",
+              "medium",
+              "off",
+              "minimal"
+            ]
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timeoutMs": {
+            "type": "number",
+            "description": "Optional longer wall-clock limit in milliseconds. Omit to use agents.timeoutMs (60 minutes by default); values below the configured default are ignored."
+          },
+          "extensions": {
+            "type": "boolean"
+          },
+          "recursive": {
+            "type": "boolean"
+          },
+          "cwd": {
+            "type": "string",
+            "description": "Filesystem execution directory for leaf or recursive Pi runs; relative paths resolve from the caller cwd. Does not change project/mesh ownership or grant target project trust."
+          },
+          "worktree": {
+            "type": "boolean"
+          },
+          "schema": {
+            "type": "object",
+            "description": "Optional JSON Schema for validated structured output"
+          },
+          "residency": {
+            "type": "string",
+            "enum": [
+              "session",
+              "durable"
+            ],
+            "description": "session stops with the current Pi host; durable transfers execution to Fabric's hidden resident host."
+          }
+        },
+        "required": [
+          "task"
+        ],
+        "additionalProperties": false
+      },
+      "baseSchemaDigest": "9b1afb36b69ebc5a391b639a4dd18b790a7bb3808d013d9e8776907da4f056fb"
+    },
+    {
+      "ref": "extensions.get_search_content",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "responseId"
+        ],
+        "properties": {
+          "responseId": {
+            "type": "string",
+            "description": "The responseId from web_search, source_check, or fetch_content"
+          },
+          "query": {
+            "type": "string",
+            "description": "Get content for this query (web_search)"
+          },
+          "queryIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Get content for query at index"
+          },
+          "url": {
+            "type": "string",
+            "description": "Get content for this URL"
+          },
+          "urlIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Get content for URL at index"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Character offset for fetched URL content slices (default 0). Ignored when findText is supplied."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000,
+            "description": "Maximum characters to return for fetched URL content slices (default and max are set by maxInlineContentChars). Ignored when findText is supplied."
+          },
+          "findText": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                },
+                "minItems": 1,
+                "maxItems": 10
+              }
+            ],
+            "description": "Text or texts to find in the selected stored content. When supplied, offset and limit are ignored."
+          },
+          "findMode": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "case-insensitive"
+            ],
+            "description": "Matching mode for findText (default: case-insensitive). Requires findText."
+          }
+        }
+      },
+      "baseSchemaDigest": "9f1f53e10e2b32e547a7ff99556ec75aff6935c0ad8ff596c7a2b6d6e89d114e"
+    }
+  ],
+  "quarantined": [],
+  "applied": [
+    {
+      "kind": "enum-tighten",
+      "ref": "agents.list",
+      "detail": "scope: 2 observed values"
+    },
+    {
+      "kind": "enum-tighten",
+      "ref": "agents.run",
+      "detail": "runner: 2 observed values"
+    },
+    {
+      "kind": "enum-tighten",
+      "ref": "agents.run",
+      "detail": "thinking: 4 observed values"
+    },
+    {
+      "kind": "enum-tighten",
+      "ref": "agents.spawn",
+      "detail": "thinking: 3 observed values"
+    },
+    {
+      "kind": "enum-tighten",
+      "ref": "agents.run",
+      "detail": "thinking: 5 observed values"
+    },
+    {
+      "kind": "enum-tighten",
+      "ref": "extensions.get_search_content",
+      "detail": "findMode: 2 observed values"
+    },
+    {
+      "kind": "enum-tighten",
+      "ref": "agents.spawn",
+      "detail": "thinking: 4 observed values"
+    }
+  ],
+  "gate": {
+    "passed": true,
+    "beforeScore": 0.051937,
+    "afterScore": 0.051921,
+    "reasons": []
+  },
+  "evidenceDigest": "5af5fae2663a5eca23d3d9fd158410399be2c4bf56450970b97d0bd300d213aa"
+}

@@ -1,0 +1,13 @@
+{
+  "modelOK": true,
+  "allRequiredActionsFound": true,
+  "actions": [
+    "extensions.web_search",
+    "extensions.fetch_content",
+    "extensions.get_search_content",
+    "extensions.source_check"
+  ],
+  "agentsRunDescribed": true,
+  "note": "Each action was discovered separately. A prior compound text query was not an availability probe.",
+  "checkedAt": "2026-09-07T06:56:47.877Z"
+}

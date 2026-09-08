@@ -1,0 +1,14 @@
+{
+  "id": "0b851635a74c418b9bad32203a2f2b27",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "kernel": "typescript",
+  "elapsedMs": 162405,
+  "phase": "fixed-note composition correction only",
+  "topic": "prompt-cost",
+  "repeat": 2,
+  "sourceNote": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/fixed/prompt-cost-2-Y/streams/s1.md",
+  "comparison": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/fixed/prompt-cost-2-Y/RESEARCH.md",
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2c/fixed/prompt-cost-2/RESEARCH.md"
+}

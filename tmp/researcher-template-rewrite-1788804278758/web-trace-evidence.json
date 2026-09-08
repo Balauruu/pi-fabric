@@ -1,0 +1,14 @@
+{
+  "id": "d8da3ff40de94fa18f3220af298d736c",
+  "calls": 3,
+  "actions": [
+    "extensions.fetch_content"
+  ],
+  "checks": {
+    "realSourceLinks": true,
+    "fullNote": true,
+    "notWholeCodeFence": true,
+    "contains308": true,
+    "readOnlyTrace": true
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "phase": "finished",
+  "task": "Produce a decision-grade guide to choosing prompt techniques for production text, reasoning and tool-using LLMs, as of 2026-09-07. R1: Which techniques have measured effects, with exact task, model, comparator, results, method and measured compute/cost where available? R2: What strongest counterevidence, regressions and model/task transfer limits constrain adoption? R3: What practical selection rules, failure signals and paired local evaluation follow? Include original inspected sources, quantitative evidence kept under its original conditions, an operational decision table, concrete reusable evaluation artifact, and complete retained-source appendix. Do not invent a universal ranking or force current social research. Scope is technical prompting and scaffold/context boundaries, not aesthetic image/video prompts. Use the scope to select decisive studies without pretending to be an exhaustive systematic review.",
+  "modelRequired": "openai-codex/gpt-5.6-terra",
+  "thinkingRequired": "medium",
+  "allowance": {
+    "total": 8,
+    "reserved": 7,
+    "used": 4,
+    "repairRemaining": 1
+  },
+  "assignments": [
+    {
+      "id": "measured-techniques",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/streams/measured-techniques.md",
+      "status": "terminal",
+      "nativeId": "4c31a260d2884cdb9811d8a6e3bc8aa5",
+      "nativeStatus": "completed",
+      "nativeModel": "openai-codex/gpt-5.6-terra",
+      "nativeThinking": "medium",
+      "hasText": true,
+      "saved": true,
+      "persistenceError": null
+    },
+    {
+      "id": "counterevidence-transfer",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/streams/counterevidence-transfer.md",
+      "status": "terminal",
+      "nativeId": "fdf412b491304352a9eec62d392c977f",
+      "nativeStatus": "completed",
+      "nativeModel": "openai-codex/gpt-5.6-terra",
+      "nativeThinking": "medium",
+      "hasText": true,
+      "saved": true,
+      "persistenceError": null
+    },
+    {
+      "id": "tool-use-scaffolds",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/streams/tool-use-scaffolds.md",
+      "status": "terminal",
+      "nativeId": "2a58991f9b9e400c9868251df579515b",
+      "nativeStatus": "completed",
+      "nativeModel": "openai-codex/gpt-5.6-terra",
+      "nativeThinking": "medium",
+      "hasText": true,
+      "saved": true,
+      "persistenceError": null
+    },
+    {
+      "id": "production-evaluation",
+      "role": "researcher",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/streams/production-evaluation.md",
+      "status": "terminal",
+      "nativeId": "28589252e5a14ea4bc76e3682fabc2c1",
+      "nativeStatus": "completed",
+      "nativeModel": "openai-codex/gpt-5.6-terra",
+      "nativeThinking": "medium",
+      "hasText": true,
+      "saved": true,
+      "persistenceError": null
+    }
+  ],
+  "paths": {
+    "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/REPORT.md",
+    "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/RESEARCH.md",
+    "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/state.json",
+    "timings": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/timings.json"
+  },
+  "verification": {
+    "id": "daf8645c89b84b748b6e349a0344c267",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium"
+  },
+  "synthesis": {
+    "id": "7e39b112b85341d1a469be7c35cb0fc9",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium"
+  },
+  "validation": {
+    "id": "5797771ed6cb48c886253799b3328fbb",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium"
+  },
+  "finalOutcome": {
+    "status": "partial",
+    "conclusion": "REPORT is partially valid as a blocked-decision artifact, but fails complete acceptance: original evidence was uninspected and the source appendix is incomplete. RESEARCH.md now records final validation.",
+    "citations": [
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/RESEARCH.md",
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/REPORT.md"
+    ],
+    "limitations": [
+      "No original sources, methods, or results were independently inspected.",
+      "Appendix B omits Sclar, Pecher, and Plan-and-Solve source pointers.",
+      "The R3 evaluation artifact is proposed but not instantiated or executed."
+    ],
+    "coverage": [
+      {
+        "questionId": "R1",
+        "disposition": "blocked",
+        "reason": "No independently inspected original method, result, comparator, or cost evidence."
+      },
+      {
+        "questionId": "R2",
+        "disposition": "qualified",
+        "reason": "Bounded transfer and failure hypotheses are preserved, but their empirical strength and applicability are unverified."
+      },
+      {
+        "questionId": "R3",
+        "disposition": "qualified",
+        "reason": "REPORT includes a concrete proposed paired-evaluation artifact, but no target thresholds or execution results."
+      }
+    ],
+    "gaps": [
+      "Restore primary-source retrieval and inspect decisive R1/R2 evidence.",
+      "Complete the source appendix and claim-to-method mappings.",
+      "Instantiate and run the paired local evaluation on a named deployment tuple."
+    ],
+    "paths": {
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/REPORT.md",
+      "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/RESEARCH.md",
+      "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/state.json"
+    },
+    "verification": "partial",
+    "reportValidation": "failed",
+    "stopReason": "Original-source retrieval was unavailable. Validation did not browse, delegate, or edit REPORT.md/state.json.",
+    "userDecision": null
+  },
+  "outcomeTransportRepair": {
+    "issue": "agents.run schema value was returned in result.value rather than output/data/result",
+    "repairedAt": "2026-09-07T22:20:37.792Z",
+    "valid": true,
+    "artifactCheck": "ok"
+  }
+}

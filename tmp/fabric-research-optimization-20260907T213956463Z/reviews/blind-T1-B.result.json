@@ -1,0 +1,29 @@
+{
+  "id": "089ebf8ad3984f3196caeea9078b83df",
+  "name": "blind-T1-B",
+  "task": "Independently compare three REAL report variants for the same research question. You are blind to the originating skills. Read exact task then fully read all supplied reports with pi.read continuation (not headings/counts). Inspect their original decisive sources and associated evidence when necessary. Tools available explicitly: core read/find/grep/ls/write, web_search/fetch_content/get_search_content/source_check. Discover schemas before retrieval, configured providers, workflow none, no browser. No delegation, config edits or other mutations. Ignore process labels and prefer useful accurate detail over verbosity. Do not read variant packages, optimization state, other reviews or native logs.\n\nRubric fixed before reports: Q1 complete question/inclusion coverage, Q2 factual and original-source entailment/citation completeness, Q3 preserved exact measured results/comparators/methods/applicability/limits, Q4 counterevidence and uncertainty, Q5 actionable operational selection/failure signals/useful evaluation artifact, Q6 coherent decision structure and complete retained-source appendix. Source count/word count not quality scores. For every pair X/Y, X/Z, Y/Z identify concrete material regressions on either side and meaningful improvements. A winner must not hide regression on any dimension. Distinguish equivalent versus observed tradeoff versus genuinely unavailable evidence. Check decisive numeric claims against actual primary passages, not source summaries. Write full anchored review to assigned path with concrete report section/source citations and minimal resolving checks. Return concise pairwise verdicts and any critical defect. No speed judgment from prose and no claim of universal skill quality from this one case.\n\nTASK QUESTION /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/TASK.md\nVARIANTS [{\"id\":\"X\",\"path\":\"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/RESEARCH.md\"},{\"id\":\"Y\",\"path\":\"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0104/RESEARCH.md\"},{\"id\":\"Z\",\"path\":\"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/REPORT.md\"}]\nWRITE ONLY /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/reviews/blind-T1-B.md",
+  "status": "completed",
+  "runner": "pi",
+  "kernel": "typescript",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "startedAt": 1788823554932,
+  "updatedAt": 1788823682197,
+  "turns": 8,
+  "toolCalls": 7,
+  "text": "Wrote review: `/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/reviews/blind-T1-B.md`\n\nCritical defect: Z conflates Wang et al.’s 56.5% self-consistency baseline with Wei et al.’s separate 56.9% CoT result. No unqualified winner pending correction.",
+  "usage": {
+    "input": 62747,
+    "output": 5574,
+    "cacheRead": 229376,
+    "cacheWrite": 0,
+    "cost": 0.23825720000000003
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788823682197,
+  "logFile": "/tmp/pi-fabric-runs-xuEuLQ/089ebf8ad3984f3196caeea9078b83df/events.jsonl",
+  "sessionId": "1626306"
+}

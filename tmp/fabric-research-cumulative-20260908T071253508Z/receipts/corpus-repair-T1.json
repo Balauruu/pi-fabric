@@ -1,0 +1,7 @@
+{
+  "id": "96581eff53344ca2befae16556993e67",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Completed before trials.\n\n- `sources/S2-cost-tables.md` — raw v2 HTML Table 7/8 markup, cells, headers, qualifications, locators.\n- `INPUT.md` — registers cost supplement.\n- `AUDIT-v2.md` — corrected ToT accounting, matched-restart/token controls, ReAct exact setup.\n- `CORRECTIONS.md` — all changes and reasons.\n\nLimitations recorded: no `14k` match in raw v2 HTML; token slash convention undefined; Table 8 caption/header mismatch preserved."
+}

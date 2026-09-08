@@ -1,0 +1,13 @@
+{
+  "accepted": false,
+  "streak": 2,
+  "evidenceAdequate": true,
+  "meaningfulImprovement": false,
+  "materialRegression": true,
+  "matchedParity": false,
+  "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/acceptance-review.md",
+  "reason": "Rejected: fresh T1/T3 evidence shows material coverage and source-bound detail losses versus legacy; T2 lacks a fresh iteration-002 workflow replay.",
+  "remainingChecks": [
+    "Fresh same-question T2 end-to-end candidate workflow replay against mapped legacy under recorded Terra-medium conditions."
+  ]
+}

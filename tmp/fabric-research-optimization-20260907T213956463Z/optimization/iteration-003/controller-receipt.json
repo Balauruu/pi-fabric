@@ -1,0 +1,9 @@
+{
+  "id": "0fc3e206680b4abe8dddb1db164162a6",
+  "outcome": "tested",
+  "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/candidate",
+  "hypothesis": "Source-bound evidence anchors prevent material evidence loss or distortion.",
+  "evidencePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/VERDICT.md",
+  "summary": "Live Terra-medium T1/T3 tests, T2 nonregression, and two blind comparisons ran. T3 passed validation, but T1 and legacy-coverage regressions prevent parity. Candidate not retained.",
+  "blocker": null
+}

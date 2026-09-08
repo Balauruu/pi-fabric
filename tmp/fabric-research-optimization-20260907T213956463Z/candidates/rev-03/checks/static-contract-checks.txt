@@ -1,0 +1,1 @@
+PASS: frontmatter, all relative Markdown link targets, Terra-medium researcher grant, outcome schema, single-report ownership, and source-appendix rule.

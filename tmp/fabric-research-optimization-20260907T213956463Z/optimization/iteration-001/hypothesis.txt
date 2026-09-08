@@ -1,0 +1,1 @@
+Introduce a compact evidence-retention gate: each material source-unique contribution and quantitative claim maps to a required decision dimension; the final validator rejects publication until retained, correctly source-bound, or explicitly qualified.

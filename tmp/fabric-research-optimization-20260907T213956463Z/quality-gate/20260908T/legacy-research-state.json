@@ -1,0 +1,67 @@
+{
+  "methodAdaptation": "Direct controller launched legacy-method research leaves because legacy transport requires subagent adapter; same Terra-medium model and web scope; no candidate verification stages added.",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "tools": [
+    "read",
+    "extensions.web_search",
+    "extensions.fetch_content",
+    "extensions.get_search_content"
+  ],
+  "launches": [
+    {
+      "topic": "T2",
+      "name": "effects",
+      "id": "d145c78553d246b5b9604e6966c6d0fd",
+      "status": "completed",
+      "elapsedMs": 58727,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/streams/effects.md",
+      "error": null
+    },
+    {
+      "topic": "T2",
+      "name": "limits",
+      "id": "47742a246d0c49b8b12d982c28116f48",
+      "status": "completed",
+      "elapsedMs": 61250,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/streams/limits.md",
+      "error": null
+    },
+    {
+      "topic": "T2",
+      "name": "operations",
+      "id": "f9c3ff5c63eb46338911f6e1a8fdad2e",
+      "status": "completed",
+      "elapsedMs": 50961,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/streams/operations.md",
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "name": "reliability",
+      "id": "b5acc28309f64c88a2e8340b31c53a4a",
+      "status": "completed",
+      "elapsedMs": 111667,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/streams/reliability.md",
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "name": "limits",
+      "id": "3257c15cb1cb4da29b3bfa20f54e87b0",
+      "status": "completed",
+      "elapsedMs": 139258,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/streams/limits.md",
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "name": "security",
+      "id": "6049cbe5d88042e4af0d0489e19c141a",
+      "status": "completed",
+      "elapsedMs": 151801,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/streams/security.md",
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "runStartedAt": "2026-09-07T22:25:37.900Z",
+  "runEndedAt": "2026-09-07T22:35:01.845Z",
+  "phases": [
+    {
+      "phase": "initialize",
+      "startedAt": "2026-09-07T22:25:37.900Z",
+      "endedAt": "2026-09-07T22:25:37.919Z",
+      "wallTimeMs": 19
+    },
+    {
+      "phase": "research",
+      "startedAt": "2026-09-07T22:25:37.924Z",
+      "endedAt": "2026-09-07T22:26:18.878Z",
+      "wallTimeMs": 40954
+    },
+    {
+      "phase": "verify",
+      "startedAt": "2026-09-07T22:26:18.879Z",
+      "endedAt": "2026-09-07T22:28:03.223Z",
+      "wallTimeMs": 104344
+    },
+    {
+      "phase": "repair-and-reverify",
+      "startedAt": "2026-09-07T22:28:03.228Z",
+      "endedAt": "2026-09-07T22:30:43.431Z",
+      "wallTimeMs": 160203
+    },
+    {
+      "phase": "synthesize",
+      "startedAt": "2026-09-07T22:30:43.436Z",
+      "endedAt": "2026-09-07T22:32:54.000Z",
+      "wallTimeMs": 130564
+    },
+    {
+      "phase": "validate",
+      "startedAt": "2026-09-07T22:32:54.004Z",
+      "endedAt": "2026-09-07T22:35:01.812Z",
+      "wallTimeMs": 127808
+    }
+  ],
+  "totalElapsedMs": 563945
+}

@@ -1,0 +1,7 @@
+{
+  "id": "3f8ddff5259747a4bad0b97ed8639228",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Saved conclusive review: [A.md](/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H1b/reviews/A.md).\n\nH1b is blocked by a new T1-1 factual regression: it changes the LaMDA-137B calculator result from primary-supported 17.8% to 17.3%."
+}

@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "exact-count",
+      "answer": "Do not dispatch a fourth verifier: it violates the exact three-agent budget. Preserve the three completed assignments. Main should directly retrieve the missing benchmark sample/method details from the primary source. If that cannot be supported, report the benchmark portion as incomplete rather than claiming full coverage."
+    },
+    {
+      "id": "independence",
+      "answer": "Reject the plan. Giving A’s conclusion to B contaminates B’s inquiry, and both citing the same paper is one shared origin, not independent triangulation.\n\nValid alternative: scope B to independently inspect a distinct primary source, reproducible benchmark, or relevant documentation without receiving A’s conclusion. Then compare methods, populations, versions, and definitions. If B ultimately only supports the same paper, describe it as corroborated interpretation of one source, not independent evidence."
+    },
+    {
+      "id": "return-validation",
+      "answer": "Record W as natively completed but evidentially invalid for its assigned retrieval: required-action discovery failed and retrieval was never invoked, so its URLs, quotation, and “99% reliability” claim provide no source-backed external evidence.\n\nThe price claim is nevertheless supported by Main’s successfully retrieved primary passage. Cite and rely on that passage, not W’s return. Mark W’s retrieval gap explicitly; coverage is sufficient only if Main’s evidence satisfies the needed price claim."
+    },
+    {
+      "id": "partial-recovery",
+      "answer": "Do not resume W2’s completed one-shot and do not rerun W1 or W3. Preserve W1’s verified documentation, W3’s verified operations evidence, and W2’s useful benchmark passage.\n\nInspect the remaining W2 gap: sample details. Since Main has direct retrieval, Main should retrieve the original benchmark’s sample/method details or an appropriate primary alternative. If obtained, synthesize all three streams; otherwise retain W2’s limited finding and report the benchmark comparison as partial. W2’s terminal failure does not erase its already useful passage."
+    },
+    {
+      "id": "recent-coverage",
+      "answer": "Usable evidence is qualitative recent-reporting evidence only: four dated, directly linked YouTube posts report a regression. They may support “some users/posts recently reported this regression,” not prevalence, causality, or a performance conclusion.\n\nCoverage is partial. Reddit succeeded with zero matches, which is a clean empty result, not proof that no discussion exists. X authentication failure is an inaccessible-source gap despite exit code 0. The lack of a presentation badge does not change the compatible report’s evidence status. No controlled measurement is available."
+    },
+    {
+      "id": "resolving-eval",
+      "answer": "Propose a local, predeclared A/B pilot on the same isolated repository baseline and representative migration fixture(s). For each option: permit only the migration’s authorized scope, record the diff/scope check, run the existing deterministic suite, and record elapsed effort and direct cost under identical conditions.\n\nDecision rule: reject any option with an out-of-scope edit or any deterministic-test failure. Only if both pass should cost break the tie. First run the suite on the unchanged baseline to validate the harness.\n\nBefore treating the pilot as a decision, obtain the missing evaluation contract: which fixture set/sample size represents the migration, how to handle any flake, and the cost metric or allowable cost difference. With correctness primary, the default acceptable regression margin is zero."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "validator": {
+    "id": "421b26f9bbca4ad4b1af02bfa4aa83b9",
+    "status": "completed",
+    "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/support/repair-final-validation.md",
+    "error": null
+  },
+  "reviewers": [
+    {
+      "topic": "T1",
+      "reviewer": "A",
+      "id": "9de62eae3c7b456a8ae1ac7147ba5e40",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/repaired-T1-A.md",
+      "error": null
+    },
+    {
+      "topic": "T1",
+      "reviewer": "B",
+      "id": "71538e96d296403fb6262b95fc5ec9e5",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/repaired-T1-B.md",
+      "error": null
+    },
+    {
+      "topic": "T2",
+      "reviewer": "A",
+      "id": "403a02a4b9fa48859560114e57d8154f",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/repaired-T2-A.md",
+      "error": null
+    },
+    {
+      "topic": "T2",
+      "reviewer": "B",
+      "id": "3a3d19249ad54253889b14fa71faf13e",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/repaired-T2-B.md",
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "reviewer": "A",
+      "id": "0924ef25c69b4953bb2a76b8f5c922e2",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/repaired-T3-A.md",
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "reviewer": "B",
+      "id": "ff7ca28d285349328d03c26c710b6a7f",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/repaired-T3-B.md",
+      "error": null
+    }
+  ],
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium"
+}

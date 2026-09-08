@@ -1,0 +1,16 @@
+{
+  "without": {
+    "equal": false,
+    "idx": 4992,
+    "got": "\"\\n[8902 more lines in file. Use offset=101 to continue.]\"",
+    "expected": "\"line-101: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\nline-102: xxxxxxxxxxxxxxxxxxx\"",
+    "len": 5047
+  },
+  "with": {
+    "equal": false,
+    "idx": 4992,
+    "got": "\"\\n[8902 more lines in file. Use offset=101 to continue.]\"",
+    "expected": "\"line-101: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\nline-102: xxxxxxxxxxxxxxxxxxx\"",
+    "len": 5047
+  }
+}

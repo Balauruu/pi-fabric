@@ -1,0 +1,7 @@
+{
+  "id": "b6f7a88a524f46a2b1c18ae048593d53",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Conclusive: H2b has no material regression. Pair 1 modestly improves condition completeness. Pair 2 materially corrects the transfer evaluation strata. Recovered-table context survives in both.\n\nSaved: `/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/reviews/tool-security-B.md`"
+}

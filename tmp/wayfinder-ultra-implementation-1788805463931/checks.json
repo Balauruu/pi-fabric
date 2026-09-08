@@ -1,0 +1,12 @@
+[
+  {
+    "ok": true,
+    "output": "OK wayfinder-ultra: valid frontmatter, local links, and 5 reachable files\n",
+    "details": null
+  },
+  {
+    "ok": true,
+    "output": "{\n  \"passed\": true,\n  \"loader\": \"installed Pi loadSkillsFromDir\",\n  \"discovered\": \"wayfinder-ultra\",\n  \"manualOnly\": true,\n  \"diagnostics\": 0,\n  \"originalUnchanged\": true,\n  \"typeContracts\": 8,\n  \"supportFiles\": 4,\n  \"limits\": \"Explicit-path loader and document assertions, not live TUI command or tracker enforcement.\"\n}\n",
+    "details": null
+  }
+]

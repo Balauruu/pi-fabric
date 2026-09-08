@@ -1,0 +1,19 @@
+{
+  "candidatePackage": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/candidate",
+  "candidateReports": {
+    "T1": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/live/T1/RESEARCH.md",
+    "T2": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/live/T2/RESEARCH.md",
+    "T3": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/live/T3/RESEARCH.md"
+  },
+  "incumbent": {
+    "T1": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/RESEARCH.md",
+    "T2": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/RESEARCH.md",
+    "T3": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0202-rev04-T3/RESEARCH.md"
+  },
+  "legacy": {
+    "T1": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0104/RESEARCH.md",
+    "T2": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/RESEARCH.md",
+    "T3": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/RESEARCH.md"
+  },
+  "limits": "Fresh candidate source sampling/time differs from reused counterpart reports. Quality comparisons only; no matched-speed claim."
+}

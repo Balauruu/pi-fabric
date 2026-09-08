@@ -1,0 +1,87 @@
+{
+  "candidate": "rev-04",
+  "topic": "T3",
+  "task": "T3 holdout, as of 2026-09-07: produce a decision-grade guide to evaluation, reliability, and security boundaries for tool-using agents. R1: which primary evaluations or standards measure tool-agent reliability, task success, failure handling, and security-relevant behavior, with exact environment, agent/model, comparator, method and outcomes? R2: what counterevidence, benchmark/evaluator limits, and transfer constraints prevent overclaiming safety or reliability? R3: what actionable evaluation and operational controls follow for deploying a tool-using agent? Include original inspected sources, source-bound measurements, concrete failure signals, a decision table, a smallest resolving evaluation, and retained-source appendix. Do not present a generic checklist as evidence or claim an evaluation proves security.",
+  "requirements": [
+    {
+      "id": "R1",
+      "q": "Which primary evaluations or standards measure tool-agent reliability, task success, failure handling, and security-relevant behavior, with exact environment, agent/model, comparator, method and outcomes?"
+    },
+    {
+      "id": "R2",
+      "q": "What counterevidence, benchmark/evaluator limits, and transfer constraints prevent overclaiming safety or reliability?"
+    },
+    {
+      "id": "R3",
+      "q": "What actionable evaluation and operational controls follow for deploying a tool-using agent?"
+    }
+  ],
+  "phase": "terminal",
+  "launches": [
+    {
+      "phase": "research",
+      "id": "b2e1d2d3f8c9435ca6ada67bbf031ad9",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 140893,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0202-rev04-T3/streams/reliability.md",
+      "readback": {
+        "total": 115,
+        "pages": 0
+      }
+    },
+    {
+      "phase": "research",
+      "id": "8ebdb45cf84a45fda1c7071a8b94ab59",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 183036,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0202-rev04-T3/streams/security.md",
+      "readback": {
+        "total": 77,
+        "pages": 0
+      }
+    },
+    {
+      "phase": "research",
+      "id": "8a005ea7eeef473e81d3670d78618cb8",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 220915,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0202-rev04-T3/streams/limits.md",
+      "readback": {
+        "total": 100,
+        "pages": 0
+      }
+    },
+    {
+      "phase": "verify",
+      "id": "a61591528dcd4258b4ecc3b8ab005017",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 384554
+    },
+    {
+      "phase": "synthesize",
+      "id": "33eed0af5d99438f8d944c92b1d2e505",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 172480
+    },
+    {
+      "phase": "validate",
+      "id": "7dae7a59e72a46c7ba9cbef3233b7114",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 146152
+    }
+  ],
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0202-rev04-T3/RESEARCH.md",
+  "reportChars": 22503
+}

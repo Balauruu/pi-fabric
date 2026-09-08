@@ -1,0 +1,25 @@
+{
+  "tag": "tool-security-1-Y",
+  "X": "candidate-H2",
+  "Y": "candidate-H2b",
+  "phase": "fixed-source extraction/handoff plus unchanged synthesis",
+  "research": {
+    "id": "9bba73c2b11b4b94829af8d922abee29",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 118434,
+    "roundtrip": true
+  },
+  "synthesis": {
+    "id": "c3b55956d5a440d79119f3d9c191242f",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 115146
+  },
+  "totalElapsedMs": 233804,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/fixed/tool-security-1-Y/RESEARCH.md"
+}

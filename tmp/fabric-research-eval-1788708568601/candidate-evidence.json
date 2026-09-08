@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "simple",
+      "answer": "30 days. Source: primary documentation, effective 2026-08-01, https://fixtures.invalid/docs."
+    },
+    {
+      "id": "contract",
+      "answer": "Do not choose either for production yet. A is ineligible for the required 100-item batches because its documented maximum is 64. B documents a 128-item maximum, but neither candidate has evidence of p95 latency below 2 seconds or lowest total operating cost. B’s higher token list price also does not establish total operating cost.\n\nNext useful check: run or obtain a representative B evaluation using 100+ item batches, measuring p95 latency and total cost per accepted batch/task, including tokens, retries, and tool costs. B is selectable only if it meets the latency requirement and the defined total-cost comparison."
+    },
+    {
+      "id": "origins",
+      "answer": "No. The three reports are not independent corroboration: all repeat one Vendor V benchmark. The original result is a vendor measurement of 90% for A versus 80% for B on 20 curated vendor tasks, from one run using a vendor grader and no uncertainty estimate.\n\nIt supports only a limited claim that A outscored B in that specific vendor evaluation. It does not independently establish broader superiority. A useful resolving check would be an independent evaluation on representative tasks with disclosed methods, repeated runs, and an appropriate validator."
+    },
+    {
+      "id": "comparability",
+      "answer": "No defensible overall ranking is available.\n\nQuality results must remain separate: A achieved 90% on 100 code tasks with three retries and final-state tests; B achieved 85% on 20 chat tasks without retries and with subjective judging. Tasks, sample sizes, retry policy, and validators differ.\n\nOperating cost also cannot be ranked: A reports $0.30 per attempt and B $0.20 per attempt, both excluding tools; retries and acceptance denominators prevent a total-cost comparison. Missing costs are unknown, not zero.\n\nPlan: compare both on the same representative workload and configuration, with fixed retry policy, final-state or blinded validation as appropriate, and total cost per accepted task including tokens, tools, and retries."
+    },
+    {
+      "id": "causal-transfer",
+      "answer": "No. The paper does not prove that multi-agent review caused the improvement: its multi-agent arm also used a newer model and double the token budget, so the intervention is confounded. One run on synthetic code tasks also provides no direct evidence for medical advice.\n\nDo not require multi-agent review for medical advice because of this paper alone. If considering it as a safety control, base the policy on medical-risk requirements and a relevant controlled evaluation: hold model, tools, and token budget fixed; compare single- and multi-agent workflows on representative medical-advice cases; use qualified clinical review and safety-focused outcomes. The paper is only a hypothesis-generating signal."
+    },
+    {
+      "id": "counterevidence",
+      "answer": "Do not deploy A unmitigated for safety-critical operations on this evidence. The vendor’s 95% acceptance result applies only to short, isolated tasks. The independent report’s state corruption in 8/100 long-session tasks is a material safety-relevant failure signal, even though differing methods prevent direct rate comparison. Search being unavailable leaves the counterevidence review bounded, not exhaustive.\n\nThis recommendation would change with representative, independently assessed long-session safety testing that includes state integrity, realistic failure handling, and a pre-defined acceptable risk threshold, plus evidence that mitigation controls reliably detect or prevent corruption. Until then, the documented long-session failure mode makes broad safety-critical deployment unsupported."
+    }
+  ]
+}

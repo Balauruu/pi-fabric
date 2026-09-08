@@ -1,0 +1,14 @@
+{
+  "installed": "/home/balauru/.pi-profiles/fabric/skills/fabric-research",
+  "inventory": [
+    "references/last30days.md",
+    "references/runtime.md",
+    "references/stream-contracts.md",
+    "references/synthesis-and-reporting.md",
+    "researcher.md",
+    "SKILL.md"
+  ],
+  "activeReportContract": false,
+  "staleModelPolicy": false,
+  "journalHasRev04": true
+}

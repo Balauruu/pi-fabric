@@ -1,0 +1,28 @@
+{
+  "tag": "tool-security-2-X",
+  "condition": "X",
+  "case": "tool-security",
+  "repeat": 2,
+  "phase": "fresh live source-retrieval and unchanged synthesis, narrowed actual task",
+  "research": {
+    "id": "3d4dd68b91c5481c98d46402ec090ff0",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 138672,
+    "notePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2/live/tool-security-2-X/streams/s1.md",
+    "roundtrip": true,
+    "sourceBearing": true
+  },
+  "synthesis": {
+    "id": "22d78e094c904a4b886b69677159e873",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 120235
+  },
+  "totalElapsedMs": 259509,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2/live/tool-security-2-X/RESEARCH.md"
+}

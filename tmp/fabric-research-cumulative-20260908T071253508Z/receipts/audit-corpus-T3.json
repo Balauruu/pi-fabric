@@ -1,0 +1,8 @@
+{
+  "id": "6e19cfa901b849fa88f9fdd266a089ef",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "kernel": "typescript",
+  "conclusion": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/corpus/T3/INPUT.md  \n/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/corpus/T3/AUDIT.md  \n\nSource count: 4  \nAccess limits: frozen primary-source corpus only, phase-only tests, no external retrieval or candidate inspection."
+}

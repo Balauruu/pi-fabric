@@ -1,0 +1,11 @@
+references/last30days.md
+references/runtime.md
+references/stream-contracts.md
+references/synthesis-and-reporting.md
+researcher.md
+SKILL.md
+--- changed ---
+Files /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-04/references/stream-contracts.md and /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/candidate/references/stream-contracts.md differ
+Files /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-04/references/synthesis-and-reporting.md and /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/candidate/references/synthesis-and-reporting.md differ
+Files /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-04/researcher.md and /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/candidate/researcher.md differ
+Files /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-04/SKILL.md and /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/candidate/SKILL.md differ

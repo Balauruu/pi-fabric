@@ -1,0 +1,29 @@
+{
+  "id": "f0603ba7ae584bbfa8c47830099e9488",
+  "name": "explicit-web-grant-probe",
+  "task": "Capability probe only, no research report and no files. In one TypeScript fabric_exec program call tools.search({query:\"web_search\",limit:2}), choose actual returned extensions.web_search, describe effective schema, and perform ONE search for \"SQLite online backup API official documentation\" with workflow none, numResults 2, configured provider (omit provider). Return compact actual ref, success/error, and one observed original URL if successful. If discovery empty, report exact list result; do not invent refs or use another provider.",
+  "status": "completed",
+  "runner": "pi",
+  "kernel": "typescript",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "startedAt": 1788820969171,
+  "updatedAt": 1788820998859,
+  "turns": 4,
+  "toolCalls": 3,
+  "text": "`extensions.web_search` — success  \nhttps://www.sqlite.org/backup.html",
+  "usage": {
+    "input": 7509,
+    "output": 993,
+    "cacheRead": 24576,
+    "cacheWrite": 0,
+    "cost": 0.031849199999999994
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788820998859,
+  "logFile": "/tmp/pi-fabric-runs-xuEuLQ/f0603ba7ae584bbfa8c47830099e9488/events.jsonl",
+  "sessionId": "1508055"
+}

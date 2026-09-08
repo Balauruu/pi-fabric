@@ -1,0 +1,7 @@
+{
+  "id": "9eea6699f106473eb5f5120a08fa5998",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "`/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/corpus/FINAL-RECHECK.md`\n\nVerdict: specific material correction required. AgentProp-Bench’s abstract conflicts with its body/Table 2: 0.049 is A1, 0.015 A2, 0.036 consensus.\n\nToT v2 HTML and PDF agree on 5.5k / 1.4k. The token-label semantics remain unresolved. v1 PDF retrieval timed out, so the origin of historical 14k reports remains unestablished."
+}

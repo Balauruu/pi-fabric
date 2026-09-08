@@ -1,0 +1,42 @@
+{
+  "units": "milliseconds since Unix epoch",
+  "main": {
+    "startedAt": 1788819672493,
+    "measuredAt": 1788820054099,
+    "elapsedMs": 381606
+  },
+  "dispatchAndResearch": {
+    "firstStartedAt": 1788819883432,
+    "lastFinishedAt": 1788819978784,
+    "elapsedMs": 95352,
+    "streams": [
+      {
+        "name": "context-contracts",
+        "startedAt": 1788819883432,
+        "finishedAt": 1788819933869,
+        "elapsedMs": 50437
+      },
+      {
+        "name": "parallel-recovery",
+        "startedAt": 1788819883457,
+        "finishedAt": 1788819978784,
+        "elapsedMs": 95327
+      },
+      {
+        "name": "coding-benchmarks",
+        "startedAt": 1788819883445,
+        "finishedAt": 1788819976042,
+        "elapsedMs": 92597
+      },
+      {
+        "name": "counterevidence-evaluation",
+        "startedAt": 1788819883446,
+        "finishedAt": 1788819960328,
+        "elapsedMs": 76882
+      }
+    ]
+  },
+  "notes": [
+    "Documentation/API reading and retrieval discovery occurred before dispatch. Exact per-tool timestamps are not exposed in this runtime, so only native agent and Main lifecycle timings are reported."
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "name": "worker-concurrency.json",
+    "nativeStatus": "failed",
+    "nativeId": "1ff169b39bf643228d8567f23cda2e53",
+    "equal": true,
+    "parts": 3,
+    "maxUnicodeCodePoints": 8000
+  },
+  {
+    "name": "worker-backups.json",
+    "nativeStatus": "completed",
+    "nativeId": "94479f3ee142442faca80b8e9b3a3cd6",
+    "equal": true,
+    "parts": 4,
+    "maxUnicodeCodePoints": 8000
+  }
+]

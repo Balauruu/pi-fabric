@@ -1,0 +1,3 @@
+Permission bounding is recommended only for pre-plannable, separable capabilities. AgentDojo’s measured tool filter reduced GPT-4o targeted ASR from 57.69% to 6.84%, but does not establish security for shared tools, dynamic discovery, persistent contexts, or content manipulation.
+
+`/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/fixed/tool-security-1-Y/RESEARCH.md`
