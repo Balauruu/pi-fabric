@@ -50,7 +50,7 @@
     "docs/research-configuration.md"
   ],
   "scripts": {
-    "prototype:intake": "node src/presentation/issue-8-prototype/terminal.ts",
+    "prototype:intake": "pi --no-session --offline -e src/presentation/issue-8-prototype/terminal.ts --arbor-intake-demo",
     "typecheck": "tsc -p tsconfig.build.json",
     "typecheck:test": "tsc -p tsconfig.test.json",
     "test": "npm run test:source",
