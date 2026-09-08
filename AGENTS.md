@@ -91,3 +91,9 @@ In addition to clearly communicating. It's important that we clearly communicate
 - Do not speculate on abstractions for future requirements.
 - Do not claim completion without evidence.
 - For completed work, concisely restate it but do not overload with response detail.
+
+
+### 4. Local File References
+
+- Show local files and directories as full absolute filesystem paths in inline code or fenced code blocks.
+- Use Markdown links for external web sources only.
