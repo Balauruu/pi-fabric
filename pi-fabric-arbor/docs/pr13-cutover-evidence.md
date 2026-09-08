@@ -1,6 +1,6 @@
 # PR13 hard cutover
 
-Status: **hard-cutover gates, mechanical audit and independent final follow-up review PASS; publication pending.** PR12 was published at `b509ae7ccb1db2da02272d9eb9d304267c59119f`, verified equal to origin before this work.
+Status: **hard-cutover gates, mechanical audit and independent final follow-up review PASS; published as `d5e6da673ec3ecff4b1d528fa61393a63a68a49c` with exact origin equality verified.** PR12 was published at `b509ae7ccb1db2da02272d9eb9d304267c59119f`, verified equal to origin before this work.
 
 ## Acceptance checks
 
@@ -68,4 +68,4 @@ The audit proves **284 tracked deletions**, **43 unchanged production modules**,
 
 The mechanical test was recorded red before deletion (`before-deletion.log`/`.exit`). A final audit caught an old historical command in the shipped ledger; preserving that ledger separately and publishing current-only instructions repaired the packaging defect. Existing v2 production modules needed no changes.
 
-**Limits:** deterministic local experiments, not paid/scientific benchmark validation. Approved root-application/whole-Pi lifetime limits remain; no universal owner-only or dependency/provider-replacement theorem. Every retained PR2–PR10 native lane and unchanged A12 were rerun after deletion. The fresh A12 ratio is 2038/3597 ms (56.66%), with actual overlap and unchanged workload/80% oracle. Test-only tracked certification payloads are removed as specified; actual ignored runtime data, keys and artifacts are untouched. Applicable attribution text and unrelated dependency defaults remain. Independent final follow-up review PASS is recorded below; publication remains a separate observation.
+**Limits:** deterministic local experiments, not paid/scientific benchmark validation. Approved root-application/whole-Pi lifetime limits remain; no universal owner-only or dependency/provider-replacement theorem. Every retained PR2–PR10 native lane and unchanged A12 were rerun after deletion. The fresh A12 ratio is 2038/3597 ms (56.66%), with actual overlap and unchanged workload/80% oracle. Test-only tracked certification payloads are removed as specified; actual ignored runtime data, keys and artifacts are untouched. Applicable attribution text and unrelated dependency defaults remain. Independent final follow-up review PASS is recorded above. PR13 publication at `d5e6da673ec3ecff4b1d528fa61393a63a68a49c` was subsequently observed through ordinary push and exact remote equality.

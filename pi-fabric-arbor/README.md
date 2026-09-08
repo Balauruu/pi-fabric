@@ -1,6 +1,6 @@
 # pi-fabric-arbor
 
-Source-loaded, owner-led research for Pi and Fabric. PR12 is published; the [hard-cutover gate](docs/pr13-cutover-evidence.md) records PR13 verification and limits. The v1 architecture is removed, not migrated.
+Source-loaded, owner-led research for Pi and Fabric. PR12 and PR13 are published; the [hard-cutover gate](docs/pr13-cutover-evidence.md) records verification and limits. The v1 architecture is removed, not migrated.
 
 ## Use
 
