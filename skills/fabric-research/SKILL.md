@@ -7,6 +7,12 @@ description: Runs bounded external research streams and synthesizes one detailed
 
 Build a useful answer from independently researched uncertainties. Main frames and coordinates the work; bounded workers gather evidence; one synthesizer writes the answer. Do not add persistent agents, intermediate coordinators, a separate reviewer, or a rewrite loop.
 
+## Recognize an assigned leaf role first
+
+Before framing a plan, distinguish a user investigation from an already-dispatched role. A task beginning `Research this self-contained assignment:`, `Synthesize one final research answer`, or `Collect current discussion for this one assigned stream` is an assigned leaf role, not a new top-level research request.
+
+For that leaf role, execute the supplied self-contained task directly with its granted tools and return its requested structured result. Do not frame another `ResearchPlan`, read the orchestration references, load this skill recursively, or launch another researcher/synthesizer. The parent already owns planning, persistence and orchestration. This branch does not change the task's evidence, source-verification, budget or output requirements.
+
 ## Choose the route
 
 | Route | Selection condition | Procedure |
