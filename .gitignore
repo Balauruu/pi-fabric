@@ -29,3 +29,6 @@ npm/node_modules/
 .DS_Store
 .directory
 *.log
+
+# Local generated runtime artifacts
+.runtime/
