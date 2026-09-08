@@ -1,0 +1,31 @@
+{
+  "development": [
+    {
+      "id": "sign-positive",
+      "prompt": "Classify integer 3",
+      "expected": "POSITIVE"
+    },
+    {
+      "id": "sign-negative",
+      "prompt": "Classify integer -2",
+      "expected": "NEGATIVE"
+    },
+    {
+      "id": "sign-zero",
+      "prompt": "Classify integer 0",
+      "expected": "ZERO"
+    }
+  ],
+  "heldOut": [
+    {
+      "id": "held-positive",
+      "prompt": "Classify integer 7",
+      "expected": "POSITIVE"
+    },
+    {
+      "id": "held-negative",
+      "prompt": "Classify integer -9",
+      "expected": "NEGATIVE"
+    }
+  ]
+}

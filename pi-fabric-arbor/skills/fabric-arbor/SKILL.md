@@ -1,29 +1,52 @@
 ---
 name: fabric-arbor
-description: Set up, admit, and drive a bounded Arbor research run through pi-fabric when the package, components, actions, and exact certificates are available; otherwise explain the fail-closed blocker or use explicitly labeled fixtures.
+description: Run bounded Arbor research on code, agent instructions, workflows or recipes. Use for research setup and evaluation choices, starting or resuming experiments, inspecting evidence and uncertainty, reviewing candidates, reusing lessons, or explicit export and source apply/undo.
 ---
 
 # Fabric Arbor
 
-## Setup and discovery
+Help the user configure and interpret bounded research. The managed owner executes operations and the persistent coordinator chooses hypotheses. This public guide does not make Main the research driver.
 
-1. Do not assume `arbor.*` actions exist. Inspect Pi's installed packages and pi-fabric component/provider/action discovery first.
-2. If the package is absent, stop and give the pinned `pi install` command from `docs/consumer-installation.md`. Do not install or activate it without the user's request.
-3. Confirm the package extension and this skill are enabled at the intended global or project scope. Project-local resources require project trust and a Pi restart or reload.
-4. Confirm `arbor-runtime` is configured and active. Configure `arbor-web` separately only when detached local monitoring is wanted.
-5. Read the compatibility/admission result before any run. Require one exact supported release from the certified set `pi-fabric@0.76.2 || pi-fabric@0.77.0`, current B0-B12 and Phase 4-7 certificates, release/distribution/platform checks, package-issued boundary wrappers, and `realAgentsEnabled: true` for real work. The current certified host is `pi-fabric@0.77.0`; any other or drifted payload must remain blocked.
-6. If actions are undiscovered or admission is blocked, report the exact blocker. Never invent an action call, relax a version, substitute an artifact root, or treat a fixture as production evidence.
+## Inputs and authority
 
-## Run protocol
+Use the current trusted Pi project and material unless the user selects another root. Resolve existing profile/project/preset configuration before asking questions. Only missing consequential choices need intake: objective, mutable scope, evaluator/checks, exact models and limits. The saved specification owns units, direction, practical gain, repeats, split policy and budgets. Resume uses that saved specification, not changed defaults.
 
-1. Read the run contract and display its immutable digest, metric direction, budgets, editable/protected paths, and trust limitations.
-2. Call discovered `arbor.start` only to persist the contract. Do not imply that it starts workers or evaluators.
-3. Claim the driver lease, retain the returned private fence outside browser-visible data, and follow one package-issued directive at a time.
-4. Process browser intents only when the package reports a driver yield. A promotion request is not authorization.
-5. Never substitute paths, commands, tools, scores, refs, handles, or containment identities into package-issued directives.
-6. Stop on `WRITE_CONFINEMENT_UNAVAILABLE`, `UPSTREAM_CERTIFICATION_REQUIRED`, `COMPATIBILITY_CERTIFICATION_REQUIRED`, `INDETERMINATE`, or `QUARANTINED`. Do not bypass these outcomes.
-7. Before retrying an external effect, reconcile it and require a proven absent or terminal outcome. Worker retry always creates a new attempt.
-8. Build held-out baseline and candidate only from package-issued exact-OID detached-construction directives. Require exact same-policy certificates before promotion.
-9. Treat browser promotion/rollback as requests only. Require a fresh owner-TTY signature and a separate Fabric-policy decision, then plan, apply, and observe exact-OID winner-ref CAS as distinct journaled steps. Never reuse an authorization or infer success from an unobservable ref.
-10. Plan, publish, and observe a report as separate steps. Report fixture evidence as fixture-only, never certified production evidence. Current-host B1 admission and B7/B8/Phase 5 evidence remain independent and never upgrade one another.
-11. Export only complete manifest-verified report generations. Apply retention and manifest-only cleanup after report coverage; uninstalling the Pi package must not delete user state.
+Commands select current runs, candidates and pending choices in Pi. Use `--run RUN` to disambiguate an explicit run from a steering instruction, lesson query or export format. Unknown explicit runs block without selecting another run. Do not ask the user to copy material/revision/native/protocol IDs. When using provider actions programmatically, read the effective schema first and preserve exact returned bindings. Read [actions](references/actions.md) before an operation.
+
+Only the owning Pi may start, control, review, generate exports or apply/undo source changes. Start/resume may return current saved facts while the managed owner continues accepted research. This is not a completion or durable queue receipt. Use the normal pause/steer/cancel commands during active research and inspect saved settlement before reporting completion. CLI and browser read existing facts only, without attachment. An action submission or queued acknowledgment is not completion. Report the actual receipt and observed settlement. Schema/permission denial is a blocker, never permission to call services or edit storage directly.
+
+## Choose the route
+
+| User intent | Procedure |
+| --- | --- |
+| Install, unavailable capability or update | Use `/arbor doctor`. If authorized, `/arbor setup`, then `/reload`. Recheck doctor. Distinguish installed, configured, enabled, available and tested. Do not change host policy to hide a blocker. |
+| Start research | Use `/arbor start` for intake. Verify current material, objective, development evaluator, optional held-out checks, model roles, preset and limits on the launch confirmation. Explicit selected untracked files are required for non-Git material. One start runs baseline and bounded candidate search. |
+| Prepare an example | Follow the packaged [examples guide](../../examples/README.md). Owning-Pi scaffold creates a new unvalidated directory. Preparation is not a successful baseline. No automatic dataset, service or paid model acquisition. |
+| Inspect or compare | `/arbor show` reaches a candidate diff/evidence/native log reference in one selection. Read [evidence interpretation](references/evidence-interpretation.md) before interpreting results. `/arbor browser` starts a session-owned read-only view. Fabric's `/fabric` topology and `/fabric log` own native execution inspection. |
+| Pause, steer, cancel or resume | Use `/arbor pause`, `/arbor steer`, `/arbor cancel` or `/arbor resume`. Pause stops new dispatch at admitted boundaries. Cancel is complete only when owned work settles. `cleanup_pending` or `interrupted` retains uncertainty and artifacts. Unknown handles never justify redispatch. |
+| Review, keep or discard | `/arbor review` selects the pending choice and requires the actual owning-Pi response. Timeout/dismissal never approves. `/arbor keep` and `/arbor discard` select candidates. Keep updates the owned incumbent only, under exact evidence/check/current-incumbent rules. Approval is not a grade or a Fabric permission. |
+| Continue partial work | Select `/arbor continue-partial` or `/arbor restart-parent`, with an explicit same-hypothesis summary. These are distinct, newly charged invocations. Never replay uncertain work or silently change the hypothesis. |
+| Reuse experience | `/arbor lessons` retrieves same-project v2 findings with source/evidence and applicability. Negative findings remain visible. Recalled claims are hypotheses to retest, not current grades. |
+| Save or apply | `/arbor export` generates JSON. `/arbor export report` or `/arbor export trajectory` generates Markdown. Retrieve existing exports from browser/CLI without regeneration. `/arbor apply` is separate explicit source approval. `/arbor undo-apply` requires exact unchanged postimages. Newer edits or mixed outcomes block, preserving the patch. |
+
+## Completion and interpretation
+
+An invalid baseline blocks scored search. Failed checks, native failure, ties and inconclusive evidence cannot become measured wins. Show captured baseline and current owned incumbent separately. Development-only evidence is not transfer; repeated held-out use is adaptive reuse. Descriptive summaries are not statistical superiority. Time/artifact limits are admission bounds; unknown token/cost totals are observational, not hard caps. Trusted worktrees are not containment.
+
+Do not sequence propose/dispatch/collect/evaluate as a replacement coordinator. If research stops, state its recorded reason and the next permitted owning-Pi action. Do not invent progress or invoke a fallback runtime.
+
+Use this concise response shape, with one evidence line per relevant outcome:
+
+```text
+State: <run/revision, observed state and stop reason>
+Evidence: <exact candidate/measurement/decision, checks and uncertainty>
+Next: <permitted action, or no action required>
+```
+
+When a requested result is unavailable, name the missing evidence and do not call the task complete.
+
+## Internal assets
+
+The owner explicitly loads and snapshots [coordinator](roles/coordinator.md), [executor](roles/executor.md), and optional [literature](roles/literature.md) procedures. They are not separately registered skills. [Research strategy](references/research-strategy.md) and [evidence interpretation](references/evidence-interpretation.md) load at governed phases. Candidate skills cannot replace these operational roles. Resume retains the recorded bundle; `/arbor revise-roles` explicitly changes it at quiescence without rewriting prior attribution.
+
+[Role maintenance](../../docs/role-maintenance.md) records all eleven upstream dispositions. Do not copy upstream coordination, fallback storage or benchmark-skill runtimes.

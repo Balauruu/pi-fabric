@@ -1,0 +1,36 @@
+{
+  "id": "arbor-agent",
+  "materialKind": "instructions",
+  "objectiveDefaults": {
+    "description": "Classify integers as POSITIVE, ZERO or NEGATIVE with concise exact labels",
+    "direction": "maximize",
+    "unit": "correctness",
+    "minimumGain": "0.01",
+    "gainKind": "absolute",
+    "qualityVetoes": [
+      "preserve-baseline-correct",
+      "no-native-failures"
+    ]
+  },
+  "evaluator": {
+    "kind": "agent-suite",
+    "repeats": 1,
+    "aggregation": "paired-descriptive"
+  },
+  "limitDefaults": {"evaluatorCalls": 400, "activeMs": 600000},
+  "searchDefaults": {
+    "concurrency": 1,
+    "maxActorTurns": 32
+  },
+  "groundingDefaults": {
+    "mode": "optional",
+    "catalog": null,
+    "query": null,
+    "maxSources": 3,
+    "model": null
+  },
+  "instructions": "Fixed paired task IDs, one trajectory per condition per task. No unsupported seed or three whole-suite repeats. Native usage and latency are observational, comparisons descriptive, not statistical superiority.",
+  "sourceRefs": [
+    "Arbor maintained signed integer task pack v1"
+  ]
+}

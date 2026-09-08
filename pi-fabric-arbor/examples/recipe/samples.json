@@ -1,0 +1,18 @@
+[
+  {
+    "x": -5,
+    "positive": false
+  },
+  {
+    "x": -1,
+    "positive": false
+  },
+  {
+    "x": 2,
+    "positive": true
+  },
+  {
+    "x": 4,
+    "positive": true
+  }
+]

@@ -1,11 +1,6 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": ".test-dist",
-    "declaration": false,
-    "declarationMap": false,
-    "sourceMap": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },

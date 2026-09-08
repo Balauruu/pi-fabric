@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "packs": [
+    {
+      "id": "code",
+      "preset": "code/preset.json",
+      "materialKind": "code",
+      "mutablePaths": [
+        "unique.cjs"
+      ],
+      "evaluationInputs": [
+        "bench.cjs"
+      ],
+      "files": [
+        "unique.cjs",
+        "bench.cjs"
+      ],
+      "evaluator": "command",
+      "unit": "reads",
+      "description": "Reduce input reads for deduplication while preserving first-seen order; deterministic work proxy, not wall-clock speed."
+    },
+    {
+      "id": "agent",
+      "preset": "agent/preset.json",
+      "materialKind": "instructions",
+      "mutablePaths": [
+        "prompt.md"
+      ],
+      "evaluationInputs": [],
+      "files": [
+        "prompt.md"
+      ],
+      "evaluator": "agent-suite",
+      "unit": "correctness",
+      "description": "Improve signed integer classification using fixed paired development tasks and an optional disjoint held-out split."
+    },
+    {
+      "id": "recipe",
+      "preset": "recipe/preset.json",
+      "materialKind": "recipe",
+      "mutablePaths": [
+        "recipe.json"
+      ],
+      "evaluationInputs": [
+        "evaluate.cjs",
+        "samples.json"
+      ],
+      "files": [
+        "recipe.json",
+        "evaluate.cjs",
+        "samples.json"
+      ],
+      "evaluator": "command",
+      "unit": "correct",
+      "description": "Tune a one-dimensional classification recipe against local synthetic labeled data. Non-Git selected-file material; no transfer claim."
+    }
+  ],
+  "environment": {
+    "node": ">=24",
+    "git": "available on PATH for owned material",
+    "inference": "User-selected exact coordinator/executor/subject model identities through native Pi/Fabric; no bundled credentials or paid calls during preparation",
+    "dependencies": "Only Node built-ins in command packs; installed Pi/Fabric peers and Arbor tsx dependency",
+    "optional": "Held-out selection and grounding are explicit run choices; no automatic data or service download"
+  }
+}

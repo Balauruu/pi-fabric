@@ -1,0 +1,8 @@
+{
+  "id": "arbor-exact-agent-fixture",
+  "materialKind": "instructions",
+  "objectiveDefaults": { "description": "Independently grade fixed prompt tasks", "direction": "maximize", "unit": "correctness" },
+  "evaluator": { "kind": "agent-suite", "aggregation": "paired-descriptive", "repeats": 1 },
+  "searchDefaults": { "concurrency": 1 },
+  "sourceRefs": ["Arbor packaged deterministic loading fixture; not a research benchmark"]
+}

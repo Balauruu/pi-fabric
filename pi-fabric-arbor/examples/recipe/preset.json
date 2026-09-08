@@ -1,0 +1,35 @@
+{
+  "id": "arbor-recipe",
+  "materialKind": "recipe",
+  "objectiveDefaults": {
+    "description": "Tune threshold classification accuracy on fixed synthetic development data",
+    "direction": "maximize",
+    "unit": "correct",
+    "minimumGain": "0.01",
+    "gainKind": "relative",
+    "qualityVetoes": [
+      "no-native-failures"
+    ]
+  },
+  "evaluator": {
+    "kind": "command",
+    "repeats": 1,
+    "aggregation": "median"
+  },
+  "limitDefaults": {"evaluatorCalls": 400, "activeMs": 600000},
+  "searchDefaults": {
+    "concurrency": 1,
+    "maxActorTurns": 32
+  },
+  "groundingDefaults": {
+    "mode": "optional",
+    "catalog": null,
+    "query": null,
+    "maxSources": 3,
+    "model": null
+  },
+  "instructions": "Mutable recipe is separate from fixed local data and evaluator. No external dataset, training, statistical or generalization claim.",
+  "sourceRefs": [
+    "Arbor maintained synthetic threshold recipe v1"
+  ]
+}
