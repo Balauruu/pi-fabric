@@ -1,0 +1,109 @@
+{
+  "phase": "ready_for_corrected_trials",
+  "runs": [
+    {
+      "id": "33ea4a20e2dc43538a2faf046522f7a6",
+      "label": "legacy",
+      "topic": "T1",
+      "packagePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/legacy-medium",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0001",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0001/RESEARCH.md",
+      "status": "blocked",
+      "elapsedMs": 343733,
+      "modelIssues": [],
+      "error": "Excluded: inherited default parent tool allowlist omitted web retrieval, confirmed by source-free reports and explicit-grant probes"
+    },
+    {
+      "id": "1fbb1d2c82c746b98f7a4de58d19f5e1",
+      "label": "baseline",
+      "topic": "T1",
+      "packagePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/baseline-medium",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0002/REPORT.md",
+      "status": "blocked",
+      "elapsedMs": 947410,
+      "modelIssues": [],
+      "error": "Excluded: inherited default parent tool allowlist omitted web retrieval, confirmed by source-free reports and explicit-grant probes"
+    },
+    {
+      "id": "28721d37f23646678949d736dfcec74b",
+      "label": "candidate-02",
+      "topic": "T1",
+      "packagePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0003",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0003/RESEARCH.md",
+      "status": "blocked",
+      "elapsedMs": 974495,
+      "modelIssues": [],
+      "error": "Excluded: inherited default parent tool allowlist omitted web retrieval, confirmed by source-free reports and explicit-grant probes"
+    },
+    {
+      "id": "15290efc5ca6491199f8d300b25e001e",
+      "label": "legacy",
+      "topic": "T2",
+      "packagePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/legacy-medium",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0004",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0004/RESEARCH.md",
+      "status": "blocked",
+      "elapsedMs": 536709,
+      "modelIssues": [],
+      "error": "Excluded: inherited default parent tool allowlist omitted web retrieval, confirmed by source-free reports and explicit-grant probes"
+    },
+    {
+      "id": "245e0587ceba43ac9c755d0b51f726bf",
+      "label": "baseline",
+      "topic": "T2",
+      "packagePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/baseline-medium",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0005",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0005/REPORT.md",
+      "status": "blocked",
+      "elapsedMs": 866485,
+      "modelIssues": [],
+      "error": "Excluded: inherited default parent tool allowlist omitted web retrieval, confirmed by source-free reports and explicit-grant probes"
+    },
+    {
+      "id": "c47fbd2e6c654c17ab9c23e5d694d95a",
+      "label": "candidate-02",
+      "topic": "T2",
+      "packagePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02",
+      "dir": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006",
+      "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/RESEARCH.md",
+      "status": "blocked",
+      "elapsedMs": 1206457,
+      "modelIssues": [],
+      "error": "Excluded: inherited default parent tool allowlist omitted web retrieval, confirmed by source-free reports and explicit-grant probes"
+    }
+  ],
+  "launches": [
+    {
+      "id": "33ea4a20e2dc43538a2faf046522f7a6",
+      "name": "research-trial-3"
+    },
+    {
+      "id": "1fbb1d2c82c746b98f7a4de58d19f5e1",
+      "name": "research-trial-3"
+    },
+    {
+      "id": "28721d37f23646678949d736dfcec74b",
+      "name": "research-trial-3"
+    },
+    {
+      "id": "15290efc5ca6491199f8d300b25e001e",
+      "name": "research-trial-6"
+    },
+    {
+      "id": "c47fbd2e6c654c17ab9c23e5d694d95a",
+      "name": "research-trial-6"
+    },
+    {
+      "id": "245e0587ceba43ac9c755d0b51f726bf",
+      "name": "research-trial-6"
+    }
+  ],
+  "revisions": [],
+  "best": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/baseline-medium",
+  "parity": false,
+  "streak": 0,
+  "practices": null,
+  "failure": "Recovered: explicit tool grants at trial executor and leaf levels verified by actual web searches"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "a99f438000c0461fad26b9171b0d6791",
+  "status": "completed",
+  "value": {
+    "outcome": "tested",
+    "candidate": "optimization/iteration-005/candidate",
+    "hypothesis": "Removing the pre-synthesis verifier bottleneck preserves source-unique evidence via one source-checking composer plus independent final acceptance.",
+    "evidencePath": "optimization/iteration-005/EVIDENCE-SUMMARY.md",
+    "summary": "Fresh T1/T2/T3 workflows, corrections, rechecks, two blind comparisons, and mechanical probes completed. T2/T3 retain validation defects, so no promotion recommendation.",
+    "blocker": null
+  },
+  "text": "{\"outcome\":\"tested\",\"candidate\":\"optimization/iteration-005/candidate\",\"hypothesis\":\"Removing the pre-synthesis verifier bottleneck preserves source-unique evidence via one source-checking composer plus independent final acceptance.\",\"evidencePath\":\"optimization/iteration-005/EVIDENCE-SUMMARY.md\",\"summary\":\"Fresh T1/T2/T3 workflows, corrections, rechecks, two blind comparisons, and mechanical probes completed. T2/T3 retain validation defects, so no promotion recommendation.\",\"blocker\":null}"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "59ec8875674c464d86f3b7c401694327",
+  "status": "completed",
+  "value": {
+    "iteration": 1,
+    "incumbentRelativeRejectionVerified": true,
+    "meaningfulGainWithoutRegression": false,
+    "evidenceAdequate": true,
+    "reason": "Live T1 introduced a false source identity and lost incumbent-preserved ToT per-case cost detail, establishing material incumbent-relative regressions.",
+    "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/incumbent-adjudication.md",
+    "unresolved": []
+  },
+  "text": "{\"iteration\":1,\"incumbentRelativeRejectionVerified\":true,\"meaningfulGainWithoutRegression\":false,\"evidenceAdequate\":true,\"reason\":\"Live T1 introduced a false source identity and lost incumbent-preserved ToT per-case cost detail, establishing material incumbent-relative regressions.\",\"reportPath\":\"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/incumbent-adjudication.md\",\"unresolved\":[]}"
+}

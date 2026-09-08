@@ -1,0 +1,20 @@
+[
+  {
+    "i": 0,
+    "ok": true,
+    "output": "(no output)",
+    "error": null
+  },
+  {
+    "i": 1,
+    "ok": true,
+    "output": "{\n  \"six_files_exact\": true,\n  \"frontmatter\": true,\n  \"links\": true,\n  \"terra_medium\": true,\n  \"one_report\": true,\n  \"portfolio_path\": true,\n  \"unchanged_runtime\": true,\n  \"unchanged_last30days\": true\n}\n",
+    "error": null
+  },
+  {
+    "i": 2,
+    "ok": false,
+    "output": "Traceback (most recent call last):\n  File \"<stdin>\", line 12, in <module>\nAssertionError\n",
+    "error": "Traceback (most recent call last):\n  File \"<stdin>\", line 12, in <module>\nAssertionError\n\n\nCommand exited with code 1"
+  }
+]

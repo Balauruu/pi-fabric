@@ -1,0 +1,7 @@
+{
+  "id": "12bba7d57dbe4cd6a2650f2cb6caec7e",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Saved conclusive comparison: `H1b/reviews/B.md`.\n\nPromotion blocked: H1b gains the AgentDojo discrepancy preservation but introduces a material CoT numeric/citation regression in `T1-1`."
+}

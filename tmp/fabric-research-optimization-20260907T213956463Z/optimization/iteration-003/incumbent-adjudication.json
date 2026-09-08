@@ -1,0 +1,14 @@
+{
+  "id": "6fb97a65a1e847d6b81068a5696f77fd",
+  "status": "completed",
+  "value": {
+    "iteration": 3,
+    "incumbentRelativeRejectionVerified": true,
+    "meaningfulGainWithoutRegression": false,
+    "evidenceAdequate": true,
+    "reason": "Candidate gains coexist with a new unsupported T1 Reflexion comparator and material same-topic T3 incumbent coverage and operating-detail losses.",
+    "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/incumbent-adjudication.md",
+    "unresolved": []
+  },
+  "text": "{\"iteration\":3,\"incumbentRelativeRejectionVerified\":true,\"meaningfulGainWithoutRegression\":false,\"evidenceAdequate\":true,\"reason\":\"Candidate gains coexist with a new unsupported T1 Reflexion comparator and material same-topic T3 incumbent coverage and operating-detail losses.\",\"reportPath\":\"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/incumbent-adjudication.md\",\"unresolved\":[]}"
+}

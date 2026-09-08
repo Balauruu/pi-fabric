@@ -1,0 +1,7 @@
+{
+  "id": "d2c16883f396499ca1775119d60501c2",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Verdict: no stable H1 superiority. T3-1 is identical; T3-2 improves S1/S2 detail but retains material source-conflict and condition defects.\n\nSaved: `/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H1/reviews/T3-B.md`"
+}

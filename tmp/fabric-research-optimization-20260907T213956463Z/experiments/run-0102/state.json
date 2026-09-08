@@ -1,0 +1,130 @@
+{
+  "phase": "terminal",
+  "task": "Produce a decision-grade guide to choosing prompt techniques for production text, reasoning and tool-using LLMs, as of 2026-09-07. R1: Which techniques have measured effects, with exact task, model, comparator, results, method and measured compute/cost where available? R2: What strongest counterevidence, regressions and model/task transfer limits constrain adoption? R3: What practical selection rules, failure signals and paired local evaluation follow? Include original inspected sources, quantitative evidence kept under its original conditions, an operational decision table, concrete reusable evaluation artifact, and complete retained-source appendix. Do not invent a universal ranking or force current social research. Scope is technical prompting and scaffold/context boundaries, not aesthetic image/video prompts. Select decisive studies without pretending to be an exhaustive systematic review.",
+  "allowance": {
+    "ceiling": 10,
+    "reason": "planner, 3-4 independent streams, verifier, up to 2 gap repairs, synth and validator"
+  },
+  "assignments": [
+    {
+      "id": "planner",
+      "role": "planner",
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/RESEARCH.md",
+      "reserved": true
+    },
+    {
+      "id": "reasoning-prompt-effects",
+      "role": "researcher",
+      "questionIds": [
+        "R1",
+        "R2"
+      ],
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/reasoning-prompt-effects.md",
+      "reserved": true,
+      "nativeId": "e8afe69ddb9448e1bf0fe364254a161f",
+      "nativeStatus": "completed",
+      "hasText": true,
+      "savedPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/reasoning-prompt-effects.md"
+    },
+    {
+      "id": "context-and-text-effects",
+      "role": "researcher",
+      "questionIds": [
+        "R1",
+        "R2"
+      ],
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/context-and-text-effects.md",
+      "reserved": true,
+      "nativeId": "3b19c80900f74125be03bbc8cd2b3fce",
+      "nativeStatus": "completed",
+      "hasText": true,
+      "savedPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/context-and-text-effects.md"
+    },
+    {
+      "id": "tool-agent-effects",
+      "role": "researcher",
+      "questionIds": [
+        "R1",
+        "R2"
+      ],
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/tool-agent-effects.md",
+      "reserved": true,
+      "nativeId": "4cd6e9103f7b46808f0e126b41207f86",
+      "nativeStatus": "completed",
+      "hasText": true,
+      "savedPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/tool-agent-effects.md"
+    },
+    {
+      "id": "selection-rules-and-local-eval",
+      "role": "researcher",
+      "questionIds": [
+        "R3"
+      ],
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/selection-rules-and-local-eval.md",
+      "reserved": true,
+      "nativeId": "07900b010adb4d99bdabf6e5f6f53893",
+      "nativeStatus": "completed",
+      "hasText": true,
+      "savedPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/streams/selection-rules-and-local-eval.md"
+    },
+    {
+      "id": "verifier",
+      "role": "verifier",
+      "nativeStatus": "completed",
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/RESEARCH.md"
+    },
+    {
+      "id": "synthesizer",
+      "role": "synthesizer",
+      "nativeStatus": "completed",
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/REPORT.md"
+    },
+    {
+      "id": "validator",
+      "role": "validator",
+      "nativeStatus": "completed",
+      "owned": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0102/RESEARCH.md"
+    }
+  ],
+  "coverage": [
+    {
+      "questionId": "R1",
+      "disposition": "qualified",
+      "reason": "Validated report retains separately conditioned measured results and corrected CoT figure."
+    },
+    {
+      "questionId": "R2",
+      "disposition": "qualified",
+      "reason": "Supported only with qualification: within-study counterevidence is checked, while current-deployment transfer remains unmeasured."
+    },
+    {
+      "questionId": "R3",
+      "disposition": "qualified",
+      "reason": "Validated operational rules and paired local evaluation are explicitly bounded inferences."
+    }
+  ],
+  "timings": {
+    "planningMs": 93705,
+    "researchMs": 203043,
+    "verificationMs": 373469,
+    "totalMs": 732155
+  },
+  "error": null,
+  "recovery": "Planner document proves successful worker web_search and fetch_content; prior schema-result extraction failed, so continue from saved planner decomposition without relaunching it.",
+  "validationReconciliation": {
+    "reason": "V1 state/ledger coverage mismatch identified by independent validator",
+    "correctedAt": "2026-09-07T23:09:00.748Z",
+    "reportValidation": "pending final independent recheck",
+    "nativeStatus": "completed",
+    "accepted": true,
+    "completedAt": "2026-09-07T23:10:54.491Z",
+    "secondCorrectionAt": "2026-09-07T23:11:19.939Z",
+    "finalNativeStatus": "completed",
+    "finalCheckedAt": "2026-09-07T23:12:58.296Z",
+    "thirdCorrectionAt": "2026-09-07T23:13:18.769Z",
+    "closureNativeStatus": "completed",
+    "closureCheckedAt": "2026-09-07T23:14:12.983Z"
+  },
+  "reportValidation": "passed",
+  "stopReason": "Stopped after complete read-back of the required persisted artifacts and direct resolution of the sole decisive table-level source gap (G4). No further original retrieval was needed because all remaining material report claims were already covered by prior verifier direct-source dispositions or explicit qualifications. Validation acceptance follows this state reconciliation."
+}

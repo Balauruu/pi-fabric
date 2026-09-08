@@ -1,0 +1,79 @@
+{
+  "tag": "tool-security-2-Y",
+  "id": "f0f086aa2f7b43d2ae8e6f9801eefc5a",
+  "nativeToolCalls": 7,
+  "locatedRequestLines": 7,
+  "calls": [
+    {
+      "line": 80,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 154,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 358,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": false,
+      "answer": false,
+      "search": true,
+      "continuation": false,
+      "read": false
+    },
+    {
+      "line": 595,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 795,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 1036,
+      "toolName": "fabric_exec",
+      "fetch": true,
+      "raw": true,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    },
+    {
+      "line": 1178,
+      "toolName": "fabric_exec",
+      "fetch": false,
+      "raw": false,
+      "answer": false,
+      "search": false,
+      "continuation": true,
+      "read": false
+    }
+  ],
+  "warning": "Earlier agents.log parsed-field scan missed requests despite cursor exhaustion. This bounded known-log search supersedes absence flags. A request is not itself proof of retrieval success."
+}

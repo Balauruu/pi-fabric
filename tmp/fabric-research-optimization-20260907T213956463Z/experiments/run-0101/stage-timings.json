@@ -1,0 +1,50 @@
+{
+  "startedAt": "2026-09-07T22:51:47.279Z",
+  "stageTimingsMs": {
+    "modelDiscovery": 19,
+    "dispatchAndWait": 301443,
+    "initialMainFinalization": 908382,
+    "recoveryFinalizationCompletedAt": "2026-09-07T23:15:12.372Z"
+  },
+  "nativeLeafStatuses": [
+    {
+      "name": "reasoning-interventions",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "toolCalls": 9,
+      "exitCode": 0,
+      "accessTest": true
+    },
+    {
+      "name": "production-text-instructions",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "toolCalls": 7,
+      "exitCode": 0,
+      "accessTest": true
+    },
+    {
+      "name": "tool-agent-scaffolds",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "toolCalls": 8,
+      "exitCode": 0,
+      "accessTest": true
+    },
+    {
+      "name": "adversarial-transfer",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "toolCalls": 11,
+      "exitCode": 0,
+      "accessTest": true
+    }
+  ],
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "accessRecovery": "Initial finalizer stringified agents.wait objects. This repair used native completed-agent text and direct retrieval of 12 captured primary sources without restarting research."
+}

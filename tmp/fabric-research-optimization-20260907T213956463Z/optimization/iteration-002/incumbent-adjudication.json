@@ -1,0 +1,14 @@
+{
+  "id": "3d7cead8f15d47b2b0c22482798794eb",
+  "status": "completed",
+  "value": {
+    "iteration": 2,
+    "incumbentRelativeRejectionVerified": true,
+    "meaningfulGainWithoutRegression": false,
+    "evidenceAdequate": true,
+    "reason": "Candidate gains ToolMaze recovery detail but loses rev04's empirical evaluator-validity evidence and calibrated human-review artifact in T3.",
+    "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/incumbent-adjudication.md",
+    "unresolved": []
+  },
+  "text": "{\"iteration\":2,\"incumbentRelativeRejectionVerified\":true,\"meaningfulGainWithoutRegression\":false,\"evidenceAdequate\":true,\"reason\":\"Candidate gains ToolMaze recovery detail but loses rev04's empirical evaluator-validity evidence and calibrated human-review artifact in T3.\",\"reportPath\":\"/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/incumbent-adjudication.md\",\"unresolved\":[]}"
+}

@@ -1,0 +1,9 @@
+Central question and intended decision: What AgentDojo evidence should constrain deploying a permission-bounded tool agent, and which defense tradeoffs remain unproven?
+Independent uncertainty this stream owns: Original AgentDojo environment, evaluation and defense reliability/security results.
+Exact assigned questions: What does the original v3 evaluate, with exact model, task/security-case sample, metrics, attack selection, defense comparators and utility/attack outcomes? What limitations and operational boundaries matter, and which local comparison would test transfer?
+Required inclusions and contribution to final report: Source-bound quantitative contrasts, environment/evaluator methods, failure conditions, tradeoffs, practical controls and a concrete paired local evaluation design. Keep original source conflicts visible and distinguish measured from proposed controls.
+Scope, definitions, exclusions and time horizon: A narrowed actual T3 question. Only AgentDojo v3 and its linked original appendix as of2026-09-07. No other studies or production-security guarantee.
+Known source URLs or supplied files: https://arxiv.org/html/2406.13352v3
+Relevant method, comparison conditions and resource budget: Preserve attack/defense/configuration boundaries and denominators. Runtime limits only. Fresh live retrieval required, not local historical reports.
+
+CONTROLLED PHASE OVERRIDE: This run isolates extraction/handoff under fixed evidence. Do not perform fresh retrieval despite the original assignment wording. Use ONLY these frozen original source files: /home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/corpus/T3/sources/agentdojo-2406.13352v3.md. Follow full relevant method/result/table/limitation passages with real read continuations. Do not inspect audits, corrections, other reports, historical outputs or candidate skills. No outside-source memory facts.

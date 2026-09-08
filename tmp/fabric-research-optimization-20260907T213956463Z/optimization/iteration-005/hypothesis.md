@@ -1,0 +1,3 @@
+# Hypothesis
+
+Repeated pre-synthesis verification/disposition handoffs discard or distort source-unique detail and constrain narrative coverage. This candidate restores independent parallel research followed by one reconciliation/composer that reads all full evidence and rechecks decisive originals while writing the only report, then independent final source/coverage/contract acceptance and only targeted repair/recheck. It retains quantitative comparability, counterevidence, unknowns, source/claim binding, full source appendix, no-write/blocked gates, and source-note/state ownership. Quality parity is required before any speed conclusion.

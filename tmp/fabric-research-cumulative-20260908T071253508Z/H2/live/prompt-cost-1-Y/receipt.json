@@ -1,0 +1,28 @@
+{
+  "tag": "prompt-cost-1-Y",
+  "condition": "Y",
+  "case": "prompt-cost",
+  "repeat": 1,
+  "phase": "fresh live source-retrieval and unchanged synthesis, narrowed actual task",
+  "research": {
+    "id": "362df3cf01394bab9a1e78da417d108c",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 249616,
+    "notePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2/live/prompt-cost-1-Y/streams/s1.md",
+    "roundtrip": true,
+    "sourceBearing": true
+  },
+  "synthesis": {
+    "id": "07ccc269545842f2a5448708b60d8d38",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 148944
+  },
+  "totalElapsedMs": 398830,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2/live/prompt-cost-1-Y/RESEARCH.md"
+}

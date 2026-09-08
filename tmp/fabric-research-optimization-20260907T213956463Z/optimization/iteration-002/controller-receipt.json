@@ -1,0 +1,9 @@
+{
+  "id": "b0e1d474503c42618d5bc81172eba628",
+  "outcome": "tested",
+  "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/candidate",
+  "hypothesis": "Coverage portfolios prevent repeated headline evidence from displacing material complementary facets.",
+  "evidencePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/VERDICT.md",
+  "summary": "Fresh Terra-medium T1/T3 workflows, T2 nonregression, and blind reviews ran. Candidate is not retained: T1/T3 still regress on legacy evidence coverage. Four production files changed; contract checks passed.",
+  "blocker": null
+}

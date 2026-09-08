@@ -1,0 +1,10 @@
+{
+  "tag": "tool-security-1-Y",
+  "id": "ede759c07a814302a7855ee82629a15c",
+  "pages": 33,
+  "fetchRequestSeen": true,
+  "rawRequestSeen": true,
+  "continuationRequestSeen": true,
+  "outerToolErrors": 3,
+  "interpretation": "Requests observed in complete paged native log. Raw flag is attempted path, not a success or source-fidelity assertion."
+}

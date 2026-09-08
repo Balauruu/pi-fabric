@@ -1,0 +1,7 @@
+{
+  "id": "fff6a2b174dc4bd69872d3d2be2c592d",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Saved: `/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2/reviews/prompt-cost-B.md`\n\nVerdict: conclusive mixed. Pair 1 fails due to a material single-sample comparator error. Pair 2 passes."
+}

@@ -1,0 +1,7 @@
+{
+  "id": "5e0624e0531644a0ae6c634cb126cf8b",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "`/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2/reviews/tool-security-A.md`\n\nVerdict: **Conclusive pass.** Y gains without material regression in both pairs. Pair 1 has one non-material source-scope cleanup."
+}

@@ -1,0 +1,1 @@
+Blocked: Fabric rejected `agents.run` with `Fabric agent depth limit reached (2)`. This session cannot launch the requested researcher child.

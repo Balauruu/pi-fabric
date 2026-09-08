@@ -1,0 +1,32 @@
+{
+  "topic": "T1",
+  "repeat": 1,
+  "phase": "paired fixed-draft publication closure only",
+  "outcome": "accept",
+  "elapsedMs": 302156,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H1/T1-1/RESEARCH.md",
+  "incumbent": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/baseline/T1-1/RESEARCH.md",
+  "receipts": [
+    {
+      "id": "936ea25cc5684d74b1a7b7f9b43f05cb",
+      "stage": "check",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium"
+    },
+    {
+      "id": "fb52ed8664254a44b6fc07d3a84da792",
+      "stage": "correction",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium"
+    },
+    {
+      "id": "9dacb30041b54bc0995a6fd06257e8f8",
+      "stage": "recheck",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium"
+    }
+  ]
+}

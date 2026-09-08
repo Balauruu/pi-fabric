@@ -1,0 +1,80 @@
+{
+  "stage": "stopped after five verified non-improving research revisions",
+  "best": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-04-validated",
+  "parity": false,
+  "streak": 5,
+  "iterations": [
+    {
+      "iteration": 1,
+      "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/candidate",
+      "hypothesis": "Retention-set acceptance prevents silent loss or numeric distortion of material source-unique evidence.",
+      "accepted": false,
+      "parity": false,
+      "streak": 1,
+      "evidence": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/VERDICT.md",
+      "review": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/acceptance-review.md",
+      "reason": "Rejected: live Terra-medium changed-path evidence exists, but T1 has source-identity and retention regressions and T3 fails required report-contract details. No matched speed evidence exists.",
+      "remainingChecks": [
+        "Fresh literal-mapped same-topic T1/T2/T3 legacy-versus-current-candidate whole-workflow comparisons, including matched timing, before any parity or speed claim."
+      ]
+    },
+    {
+      "iteration": 2,
+      "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/candidate",
+      "hypothesis": "Coverage portfolios prevent repeated headline evidence from displacing material complementary facets.",
+      "accepted": false,
+      "parity": false,
+      "streak": 2,
+      "evidence": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/VERDICT.md",
+      "review": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/acceptance-review.md",
+      "reason": "Rejected: fresh T1/T3 evidence shows material coverage and source-bound detail losses versus legacy; T2 lacks a fresh iteration-002 workflow replay.",
+      "remainingChecks": [
+        "Fresh same-question T2 end-to-end candidate workflow replay against mapped legacy under recorded Terra-medium conditions."
+      ]
+    },
+    {
+      "iteration": 3,
+      "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/candidate",
+      "hypothesis": "Source-bound evidence anchors prevent material evidence loss or distortion.",
+      "accepted": false,
+      "parity": false,
+      "streak": 3,
+      "evidence": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/VERDICT.md",
+      "review": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/acceptance-review.md",
+      "reason": "Rejected: live Terra-medium evidence and independent literal-mapped comparisons show material T1 factual/validation failure and T1/T3 legacy coverage losses. No speed evidence exists.",
+      "remainingChecks": [
+        "Fresh literal-mapped same-question T2 end-to-end replay of iteration-003 candidate versus mapped legacy under Terra-medium conditions."
+      ]
+    },
+    {
+      "iteration": 4,
+      "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-004/candidate",
+      "hypothesis": "Verifier-approved source-bound retention units",
+      "accepted": false,
+      "parity": false,
+      "streak": 4,
+      "evidence": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-004/VERDICT.md",
+      "review": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-004/acceptance-review.md",
+      "reason": "Saved Terra-medium live evidence is valid, but T2 and T3 materially lose incumbent-retained decision evidence despite local gains.",
+      "streakCautions": [
+        "Prior reviews 001–003 were chiefly legacy/best-relative and included incomplete T2 evidence. Do not inflate them into five failures."
+      ]
+    },
+    {
+      "iteration": 5,
+      "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/candidate",
+      "hypothesis": "Legacy-shaped parallel research → source-checking composition → independent final acceptance",
+      "accepted": false,
+      "parity": false,
+      "streak": 5,
+      "evidence": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/EVIDENCE-SUMMARY.md",
+      "review": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-005/acceptance-review.md",
+      "reason": "Rejected: T2 loses the incumbent’s independent-restart control and T3 retains verified source/context defects."
+    }
+  ],
+  "practices": null,
+  "error": null,
+  "stoppingEvidenceVerified": true,
+  "bestResearchRevision": "rev-04",
+  "postValidationFix": "Escaped two Markdown backtick pairs in researcher request literal; exact decoded prompt typechecked against live agents.run contract."
+}

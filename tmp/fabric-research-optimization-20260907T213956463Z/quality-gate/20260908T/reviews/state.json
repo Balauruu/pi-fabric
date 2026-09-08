@@ -1,0 +1,60 @@
+{
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "reviewers": [
+    {
+      "topic": "T1",
+      "reviewer": "A",
+      "id": "fc3215fcd36e43429c6d9ee672985da3",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/T1-A.md",
+      "elapsedMs": 113953,
+      "error": null
+    },
+    {
+      "topic": "T1",
+      "reviewer": "B",
+      "id": "128a436e696e4f8ab5245b4cd4575343",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/T1-B.md",
+      "elapsedMs": 88376,
+      "error": null
+    },
+    {
+      "topic": "T2",
+      "reviewer": "A",
+      "id": "556e617573be488f8932715d1fc6aa28",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/T2-A.md",
+      "elapsedMs": 102425,
+      "error": null
+    },
+    {
+      "topic": "T2",
+      "reviewer": "B",
+      "id": "4a36ee55d24342b8832f1f1173d5aa14",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/T2-B.md",
+      "elapsedMs": 157606,
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "reviewer": "A",
+      "id": "627362f2a08449f1b472166224ad6058",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/T3-A.md",
+      "elapsedMs": 72782,
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "reviewer": "B",
+      "id": "ac56f4cb77564cb1985e24b60516943c",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/reviews/T3-B.md",
+      "elapsedMs": 86376,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "frontmatter": true,
+  "sixFiles": true,
+  "topology": true,
+  "noMandatoryPreSynthesisVerifier": true,
+  "finalIndependent": true,
+  "soleReportOwner": true,
+  "narrowRouting": true,
+  "noWrite": true,
+  "blockedZeroSource": true,
+  "gapOnly": true,
+  "modelPolicy": true,
+  "researcherGrant": true,
+  "canonicalEquality": true,
+  "readbackUnchanged": true,
+  "multilineRoundTrip": true,
+  "singleLineRejected": true,
+  "multilineProbeLines": 9001
+}

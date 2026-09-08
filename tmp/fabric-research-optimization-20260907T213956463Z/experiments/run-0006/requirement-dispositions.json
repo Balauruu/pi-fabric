@@ -1,0 +1,22 @@
+[
+  {
+    "questionId": "R1",
+    "disposition": "blocked",
+    "reason": "No inspected primary sources, methods, results, or transfer evidence distinguish the intervention categories."
+  },
+  {
+    "questionId": "R2",
+    "disposition": "blocked",
+    "reason": "No inspected null or regression evidence establishes failure conditions or GPT-5.6 Terra transfer limits."
+  },
+  {
+    "questionId": "R3",
+    "disposition": "qualified",
+    "reason": "The matrix supplies triggers, validation, and stop conditions, but explicitly remains a proposed policy without efficacy evidence."
+  },
+  {
+    "questionId": "R4",
+    "disposition": "qualified",
+    "reason": "The paired protocol covers acceptance, wall time, retries, and failures, but thresholds and uncertainty analysis remain unregistered."
+  }
+]

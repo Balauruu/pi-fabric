@@ -1,0 +1,16 @@
+Local test correction: initial report-boundary assertion rejected T1 semantic schema validation wording, not a workflow validation claim. This source-free test error is excluded from quality evidence.
+The first corrected-shell attempt had quoting syntax failure and is excluded from quality evidence.
+corrected mechanical results:
+frontmatter-file:pass
+frontmatter-name:pass
+terra-medium:pass
+runtime-unchanged:pass
+last30days-unchanged:pass
+canonical-full-field-equality-reused:pass
+partial-stream-contract-reused:pass
+continuation-safe-readback-reused:pass
+report-boundary:pass:/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/live/T1/RESEARCH.md
+report-boundary:pass:/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/live/T3/RESEARCH.md
+no-write-contract-reused:pass (SKILL and runtime byte-identical portions; changed portfolio has no persistence/no-write branch)
+outcome-shape:pass
+changed-production-files:4

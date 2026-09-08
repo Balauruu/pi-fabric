@@ -1,0 +1,57 @@
+{
+  "revision": "rev-04",
+  "hypothesis": "Follow actual continuation offsets after byte or line caps while rejecting marker-shaped source data via declared selected-line boundaries.",
+  "base": "rev-03",
+  "tests": [
+    {
+      "name": "dense",
+      "equal": true,
+      "physicalLines": 901,
+      "readChars": 422100,
+      "continuationCount": 9,
+      "expectedChars": 422100
+    },
+    {
+      "name": "exact800",
+      "equal": true,
+      "physicalLines": 801,
+      "readChars": 7092,
+      "continuationCount": 1,
+      "expectedChars": 7092
+    },
+    {
+      "name": "nonewline",
+      "equal": true,
+      "physicalLines": 801,
+      "readChars": 4697,
+      "continuationCount": 1,
+      "expectedChars": 4697
+    },
+    {
+      "name": "blankfinal",
+      "equal": true,
+      "physicalLines": 5,
+      "readChars": 15,
+      "continuationCount": 0,
+      "expectedChars": 15
+    },
+    {
+      "name": "literal",
+      "equal": true,
+      "physicalLines": 4,
+      "readChars": 78,
+      "continuationCount": 0,
+      "expectedChars": 78
+    },
+    {
+      "name": "singleline",
+      "equal": false,
+      "physicalLines": 1,
+      "readChars": 213,
+      "continuationCount": 0,
+      "expectedChars": 60000
+    }
+  ],
+  "explicitSingleLineLimit": "A >50KB physical single line remains uncheckable by pi.read and must produce an honest persistence failure.",
+  "createdAt": "2026-09-08T00:04:38.385Z"
+}

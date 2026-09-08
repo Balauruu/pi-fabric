@@ -1,0 +1,1 @@
+PASS candidate has exactly six production files; only SKILL.md and synthesis-and-reporting.md changed

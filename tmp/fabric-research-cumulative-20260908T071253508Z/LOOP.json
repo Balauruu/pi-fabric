@@ -1,0 +1,48 @@
+{
+  "incumbent": "incumbent-00",
+  "installedChanged": false,
+  "counter": 2,
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "source-grounded publication closure",
+      "status": "rejected",
+      "implementationRetry": "candidate-H1b citation-local correction",
+      "gain": "T3 reward/scoring predicates and source-count conflict preservation",
+      "regression": "T1 primary-conflict values substituted with mismatched/overconfident citation in both implementations",
+      "evidence": [
+        "H1/reviews/T1-B.md",
+        "H1/reviews/T3-B.md",
+        "H1b/reviews/A.md",
+        "H1b/reviews/B.md"
+      ],
+      "phase": "four paired fixed-draft cases; no live integration or speed claim",
+      "counterAfter": 1
+    },
+    {
+      "id": "H2",
+      "mechanism": "retrieval-format recovery with governing-condition handoff and comparison-label repairs",
+      "status": "rejected",
+      "candidate": "candidate-H2c",
+      "gain": "Recovered evidence and condition fidelity passed four fixed-note compositions with two independent rechecks. T4 held-out comparison positive.",
+      "regression": "T2 live source notes omitted decision-critical direct context-delivery null retained by incumbent.",
+      "evidence": [
+        "H2c/reviews/A.md",
+        "H2c/reviews/B.md",
+        "heldout/FINAL-ADJUDICATION.md"
+      ],
+      "counterAfter": 2
+    }
+  ],
+  "legacyParity": "unestablished",
+  "measuredSpeedImprovement": false,
+  "pending": null,
+  "latestUserDelivery": "Stop run-owned agents when done. Propose necessary skill mutations and report installed status versus baseline.",
+  "status": "stopped by explicit user instruction before H3",
+  "stopReason": "User: Do not start an H3 run. Provide insights and mutation proposals.",
+  "h3Started": false,
+  "acceptedMutations": [],
+  "activeRunOwnedAgents": 0,
+  "installedVerification": "diff -qr --exclude=.directory installed skill versus incumbent-00: exit0, no differences",
+  "report": "RESULT.md"
+}

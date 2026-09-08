@@ -1,0 +1,45 @@
+{
+  "units": "milliseconds",
+  "phases": [
+    {
+      "name": "dispatch_and_native_status_verification",
+      "startedAt": 1788818853530,
+      "endedAt": 1788818861700,
+      "durationMs": 8170
+    },
+    {
+      "name": "independent_research_wait",
+      "startedAt": 1788818861700,
+      "endedAt": 1788818900210,
+      "durationMs": 38510
+    },
+    {
+      "name": "synthesis_and_artifact_write",
+      "startedAt": 1788819008181,
+      "endedAt": 1788819008208,
+      "durationMs": 27
+    }
+  ],
+  "streamResults": [
+    {
+      "name": "S1-controlled-prompting",
+      "durationMs": 45187,
+      "status": "completed"
+    },
+    {
+      "name": "S2-reasoning-compute",
+      "durationMs": 46376,
+      "status": "completed"
+    },
+    {
+      "name": "S3-tool-scaffold-context",
+      "durationMs": 36960,
+      "status": "completed"
+    },
+    {
+      "name": "S4-counterevidence-transfer",
+      "durationMs": 41149,
+      "status": "completed"
+    }
+  ]
+}

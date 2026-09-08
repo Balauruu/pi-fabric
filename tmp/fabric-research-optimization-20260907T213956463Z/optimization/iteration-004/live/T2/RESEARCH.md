@@ -1,0 +1,79 @@
+# Fixed-model coding-agent run design guide
+
+## Decision
+
+Adopt run-design changes only through paired, equal-budget tests on a frozen production-like holdout. The strongest bounded evidence supports: compact task-focused context, actionable edit feedback, staged test-based candidate selection, and diversified bounded localization branches. Do not treat richer navigation, more retries, or added steering as defaults.
+
+These findings are primarily from SWE-bench-family issue repair. They do not establish universal rankings, production security, or cross-language transfer.
+
+## Evidence by run-design choice
+
+| Choice | Source-bound result | Operational implication |
+|---|---|---|
+| Context and edit feedback | In [SWE-agent](https://arxiv.org/html/2405.15793), GPT-4 Turbo on 300 SWE-bench Lite tasks resolved 18.0% (54/300) with a 100-line viewer and last-five observations. Full history resolved 15.0%, whole-file context 12.7%, and iterative search 12.0%. Removing lint feedback reduced resolution from 18.0% to 15.0%. | Compare compact retrieved context with full-history/full-file alternatives. Surface patch-application, syntax, lint, and test failures as concise actionable observations. |
+| Failed-edit recovery | [SWE-agent](https://arxiv.org/html/2405.15793) found failed edits in 51.7% (1,185/2,294) of trajectories. Eventual edit success was 90.5% before a failed edit and 57.2% after one. | Instrument failed edits as a distinct state. Re-read the changed region and prevent repeated identical repair attempts. This is observational evidence, not a randomized recovery-policy result. |
+| Repeated runs | Six identical SWE-agent Lite runs produced 17.33%, 18.00%, 18.00%, 18.67%, 17.33%, and 18.33%, mean 17.94 ± 0.49 percentage points ([Table 10](https://arxiv.org/html/2405.15793)). | Report pass@1 and the full retry curve under a fixed total budget. Low aggregate variance does not imply stable task-level outcomes or an optimal retry count. |
+| Diversified localization branches | [Agentless](https://arxiv.org/html/2407.01489) on 300 SWE-bench Lite tasks with `gpt-4o-2024-05-13`: greedy 40 samples resolved 88/300 (29.33%) at $0.22 average repair cost, merged contexts 85/300 (28.33%) at $0.24, and four localization sets × 10 patches 96/300 (32.00%) at $0.29. | Compare independent bounded localization branches against merged repair context at equal total candidate, token, and time budgets. The 40-sample design is not an optimum proven outside this harness. |
+| Patch selection by test evidence | [Agentless](https://arxiv.org/html/2407.01489) reported 77/300 (25.67%) for majority vote at $0.00 incremental cost, 81/300 (27.00%) for regression filtering at $0.01, and 96/300 (32.00%) for generated reproduction-test selection at $0.25. | Stage inexpensive regression filtering before issue-specific reproduction checks. Measure incremental accepted tasks per dollar and minute, not only harness passes. |
+| Adequacy of test evidence | [Validation Evidence in LLM Repair Agents](https://arxiv.org/html/2607.28871) found that 46.0% of 2,548 positive comparable events were regression-only or misleading, and 23.8% of baseline rollouts closed with only such evidence. | A candidate-only passing test is insufficient closure evidence. Record whether a command fails on the buggy state, passes on the candidate, and, where replayable, passes on the gold-fix state. |
+| Bug-contrast feedback | In a prespecified paired experiment, the same source found bug-contrast feedback reduced evidence-inadequate closure by 7.8 percentage points (95% CI −12.9 to −2.7; *p*=0.0029), increased discriminating evidence by 7.4 points, and added median 11.0 seconds per rollout. Official resolution changed +0.5 points, not detectably. | Use this only to improve test-evidence quality. Both evidence effects were below the prespecified 10-point SESOI, and no repair-success gain was demonstrated. |
+| Event-triggered steering | [Online Monitoring and Corrective Steering](https://arxiv.org/html/2608.06701v1) reports up to +15.2 points, mean +9.9 points, and $0.08 per-instance additional cost for deterministic triggered advice. | Treat deterministic trigger conditions as a hypothesis worth testing against periodic intervention. The intervention adds an advisor model, so it is not a fixed-model-stack result. |
+
+## Reliability limits and counterevidence
+
+- **Harness outcome is narrow.** [SWE-bench](https://arxiv.org/html/2310.06770) defines resolved as applying a patch and passing selected tests. Each task has at least one fail-to-pass test, 40% have at least two, and a median 51 additional tests run. This does not establish semantic completeness, reviewability, deployment safety, or security.
+- **Leakage and weak-test risk are material.** [SWE-Bench+](https://arxiv.org/html/2410.06992v2) manually reviewed 251 SWE-Agent plus GPT-4 passes, finding 32.67% solution leakage and 31.08% suspicious weak-test passes. Filtering changed the reported result from 12.47% to 3.97%; more than 94% of issues predated the studied cutoffs.
+- **Scaffold confounding matters.** [SWE-rebench](https://arxiv.org/html/2505.20411) runs each model five times and reports mean, SEM, and pass@5, explicitly identifying prompts, frameworks, retries, best-of-*N*, and test loops as confounders. Cross-paper percentages are not a common leaderboard.
+- **More tooling can regress.** SWE-agent’s no-search condition reported 15.7% versus 12.0% for iterative search in its relevant interface comparison. The reported mechanism was exhaustive inspection consuming context and budget.
+- **Excluded causal references.** [AutoCodeRover](https://arxiv.org/html/2404.05427) reported 57/300 (19%) pass@1, about four minutes per resolved issue, and $0.43 average cost, but its retrieval, localization, retry, and repair components change together. It is not causal support for any individual run-design lever. An [OpenHands critic report](https://www.openhands.dev/blog/sota-on-swe-bench-verified-with-inference-time-scaling-and-critic-model) reported 60.6% to 66.4% from one to five rollouts, but adds a Qwen 2.5 Coder 32B critic and provides no cost, latency, or selector-error accounting.
+
+## Operational decision table
+
+| Lever | Paired comparison | Adopt only when | Hold or reject when |
+|---|---|---|---|
+| Context selection | Compact ranked retrieval versus current/full context | Independently accepted-task rate rises within token and latency limits | Benefit disappears by task class or extra context raises failures |
+| Edit feedback | Actionable patch/lint/test failures versus content-matched baseline feedback | Failed-edit recovery or accepted-task rate improves | Feedback is noisy or drives repeated repair loops |
+| Test-based selection | Regression filtering, then issue-specific reproduction checks | Incremental accepted tasks justify incremental cost and time | Candidate-only passes rise without hidden-test or independent acceptance improvement |
+| Retries and branches | One path versus bounded independent branches under identical total budget and selector | Marginal accepted yield and evidence quality justify cost | Tail latency, selector error, or leaked/easy-task concentration dominates |
+| Decomposition | Current loop versus bounded localize → patch → test stages | Location recall and accepted yield improve at equal budgets | A simpler merged-context loop is equal or better |
+| Trigger policy | Event-triggered rule versus periodic advice, without adding a model | Triggering improves outcomes under matched conditions | The policy requires an advisor model or adds cost without measurable benefit |
+
+## Concrete paired evaluation artifact
+
+Run each task in baseline arm A and one changed-design arm B from the same repository commit, task text, container image, evaluator commit, model snapshot, reasoning effort, decoding policy, tool permissions, and total token, wall-clock, and patch ceilings. Randomize arm order.
+
+| Field | Required record |
+|---|---|
+| Task identity | `task_id`, repository SHA, language, issue class, difficulty stratum |
+| Fixed conditions | model snapshot, reasoning effort, seed policy, prompt hash, tool-policy hash, budgets |
+| Intervention | context policy, feedback events, branch count, retry cap, selector, decomposition stage |
+| Efficiency | input/output tokens, tool calls, API cost, wall time, retries, patches generated |
+| Test evidence | commands run and buggy/candidate/gold-fix outcomes where replayable |
+| Outcomes | harness-resolved, hidden-test or independent acceptance, termination reason, failure class |
+
+**Primary endpoint:** paired difference in independently accepted tasks on a frozen, leakage-screened holdout.
+
+**Secondary endpoints:** harness-resolved rate, evidence-inadequate closure rate, failed-edit recovery, cost per accepted task, median and p95 latency, and results by task stratum.
+
+**Adoption rule:** pre-register the smallest effect worth operational cost. Adopt only if the lower confidence bound for acceptance or test-evidence quality exceeds that threshold, no important task stratum regresses, and the upper bound for cost and latency remains within the production limit. Keep test-only gains as experimental results.
+
+## Explicit gaps
+
+1. No retained evidence establishes patch/diff output versus full-file generation.
+2. No equivalent retained evidence establishes stateful search-and-repair cycles or RepairAgent’s search-removal and cost contrast.
+3. No retained evidence establishes reflection as a retry counterexample or generated-test false-positive rates from Reflexion.
+4. Cross-language and multimodal transfer remain unmeasured.
+5. Evaluator false negatives and language-coverage limits from SWE-Bench Pro remain unrepresented.
+6. No production-specific effect threshold, cost ceiling, latency target, security measure, or universal optimal retry count is measured.
+
+## Source appendix
+
+| Source | Type and date | Evidence form | Supported contribution | Important limitation |
+|---|---|---|---|---|
+| [SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering](https://arxiv.org/html/2405.15793) | Primary paper, 2024 | Same-interface ablations, trajectory analysis, repeated runs on SWE-bench Lite | Bounded context, lint feedback, failed-edit recovery, and retry variance | Coupled interface components and benchmark-specific results |
+| [Agentless: Demystifying LLM-based Software Engineering Agents](https://arxiv.org/html/2407.01489) | Primary paper, 2024 | Same-pipeline candidate and selector comparisons on SWE-bench Lite | Diversified localization branches and staged test-based patch selection with costs | Candidate count, selector, and benchmark harness are part of the intervention |
+| [Validation Evidence in LLM Repair Agents](https://arxiv.org/html/2607.28871) | Primary paper, 2026 | B/S/G replay analysis and prespecified paired intervention | Candidate-only test passes can be inadequate evidence; bug-contrast feedback improves evidence quality | Replay requires commands and buggy/candidate/gold states; no detectable resolution gain |
+| [Online Monitoring and Corrective Steering of Programming Agents](https://arxiv.org/html/2608.06701v1) | Primary paper, 2026 | Triggered versus periodic advice comparisons | Event-triggered conditions are a testable control hypothesis | Adds an advisor model and is outside a fixed-model-stack intervention |
+| [SWE-bench: Can Language Models Resolve Real-World GitHub Issues?](https://arxiv.org/html/2310.06770) | Primary benchmark paper, 2023 | Executable task-harness specification | Separate harness resolution from broader acceptance | Test passing is not production completeness or security |
+| [SWE-Bench+](https://arxiv.org/html/2410.06992v2) | Primary benchmark audit, 2024 | Manual review of apparent passes | Fresh/private holdouts and evaluator audits are necessary | Reviewed passes and contamination estimates are benchmark- and system-specific |
+| [SWE-rebench](https://arxiv.org/html/2505.20411) | Primary benchmark methodology paper, 2025 | Five-run measurement protocol and confounder analysis | Fixed-model, fixed-budget, single-lever comparisons; report pass@1 separately from pass@*N* | Measurement guidance, not causal evidence for a particular run-design winner |

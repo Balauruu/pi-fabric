@@ -1,0 +1,9 @@
+{
+  "id": "7af4bd331d174b459925962018396331",
+  "outcome": "tested",
+  "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/candidate",
+  "hypothesis": "Retention-set acceptance prevents silent loss or numeric distortion of material source-unique evidence.",
+  "evidencePath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/VERDICT.md",
+  "summary": "Six-file candidate revised and live-tested with 16 Terra-medium roles. T1/T3 validators and blind comparisons found material evidence regressions. T2 nonregression rejected unchanged reuse. Candidate is not retained.",
+  "blocker": null
+}

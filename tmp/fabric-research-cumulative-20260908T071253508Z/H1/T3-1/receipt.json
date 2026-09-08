@@ -1,0 +1,18 @@
+{
+  "topic": "T3",
+  "repeat": 1,
+  "phase": "paired fixed-draft publication closure only",
+  "outcome": "accept",
+  "elapsedMs": 132519,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H1/T3-1/RESEARCH.md",
+  "incumbent": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/baseline/T3-1/RESEARCH.md",
+  "receipts": [
+    {
+      "id": "a58f981480f44e8799ad24e3508c1646",
+      "stage": "check",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium"
+    }
+  ]
+}

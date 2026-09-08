@@ -1,0 +1,37 @@
+{
+  "method": "rev04 live whole-workflow research phase",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "tools": [
+    "read",
+    "extensions.web_search",
+    "extensions.fetch_content",
+    "extensions.get_search_content"
+  ],
+  "launches": [
+    {
+      "name": "effects",
+      "id": "61db34e85b65430db1938c802e2d0d62",
+      "status": "completed",
+      "elapsedMs": 129213,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/streams/effects.md",
+      "error": null
+    },
+    {
+      "name": "limits",
+      "id": "fa6b679b2aaa4c7f9fd4aea5f43cc2c0",
+      "status": "completed",
+      "elapsedMs": 52695,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/streams/limits.md",
+      "error": null
+    },
+    {
+      "name": "operations",
+      "id": "bc3359aa872948dd891513356fe9c543",
+      "status": "completed",
+      "elapsedMs": 205001,
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/streams/operations.md",
+      "error": null
+    }
+  ]
+}

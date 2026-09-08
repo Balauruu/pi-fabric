@@ -1,0 +1,5 @@
+{
+  "verdict": "accept",
+  "findings": "F1: Defect correction applied. RESEARCH.md now states: “§3.1 prose says 74 tools, while Table 1 says 70 tools.” S4 §3.1 says: “We populate AgentDojo with total of 74 tools”; S4 Table 1 says: “Our suite features a total of 70 tools.” F2: The correction preserves decision-critical S4 detail, including the §4.3/Appendix Table 5 ASR discrepancy and the tool-filter failure conditions. Table 5 supports the retained 6.84% (±2.0) value, while §4.3 prose says 7.5%.",
+  "limitations": "Frozen corpus only. No outside sources, audit files, writes, or delegation used."
+}

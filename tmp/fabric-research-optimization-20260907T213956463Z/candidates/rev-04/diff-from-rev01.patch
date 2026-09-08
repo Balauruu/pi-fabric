@@ -1,0 +1,42 @@
+diff --git a/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/diff-from-rev01.patch b/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/diff-from-rev01.patch
+new file mode 100644
+index 0000000..e69de29
+diff --git a/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-01/references/runtime.md b/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/references/runtime.md
+index 3855ac1..125ea65 100644
+--- a/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-01/references/runtime.md
++++ b/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/references/runtime.md
+@@ -69,7 +69,7 @@ There is no incremental durable researcher note before its result arrives. Keep
+ 
+ ## Launch accounting and interruption
+ 
+-The workflow is the sole writer of `state.json`, created before dispatch. Track phase, task-wide allowances, assignment ID/role, input and owned paths, reservation, confirmed native ID (when exposed) or indeterminate launch, observed status, coverage and unresolved work. Serialize state writes from concurrent tasks, or collect them into checked batches with one writer; never race read-modify-write updates. Workflow code writes returned research notes; document-writing roles write only their assigned plan, verification or report artifacts, never control state.
++The workflow is the sole writer of `state.json`, created before dispatch. Track phase, task-wide allowances, assignment ID/role, input and owned paths, reservation, confirmed native ID (when exposed) or indeterminate launch, observed status, coverage and unresolved work. The serialized state writer records a terminal receipt derived from native status plus persistence outcome, so a saved completed result cannot remain only `reserved`. Serialize state writes from concurrent tasks, or collect them into checked batches with one writer; never race read-modify-write updates. Workflow code writes returned research notes; document-writing roles write only their assigned plan, verification or report artifacts, never control state.
+ 
+ 1. Reserve each assignment against the task's allowance and save the state before launching. If persistence fails, do not launch unrecorded work. No-write runs keep reservations in program memory and explicitly lack durable recovery.
+ 2. Dispatch only reserved work with explicit options. With native spawn, persist each returned ID before waiting or starting more work. Catch failures per assignment so one failure does not discard successful siblings; await outstanding work before transferring ownership.
+diff --git a/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-01/references/stream-contracts.md b/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/references/stream-contracts.md
+index 38db58a..71d0445 100644
+--- a/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-01/references/stream-contracts.md
++++ b/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/references/stream-contracts.md
+@@ -9,7 +9,7 @@ Fill the request's task placeholder with:
+ ```text
+ Assignment ID and central question/decision:
+ Intended use and consequence of error:
+-Owned uncertainty and required-question IDs:
++Selected requirement records, verbatim: each `id`, exact `question`, required inclusions, expected report contribution and decision context. IDs alone are invalid.:
+ Scope, definitions, exclusions and relevant dates/versions:
+ Known source URLs and authorized reference/source files:
+ Applicable methodology and comparable variables:
+diff --git a/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-01/references/synthesis-and-reporting.md b/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/references/synthesis-and-reporting.md
+index 381bb4c..309d8b5 100644
+--- a/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-01/references/synthesis-and-reporting.md
++++ b/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/candidates/rev-02/references/synthesis-and-reporting.md
+@@ -94,7 +94,7 @@ Omit irrelevant sections for a focused answer, but do not omit a required questi
+ 
+ The report validator must be independent of the report author. Read back RESEARCH.md and inspect decisive linked evidence and verifier dispositions. Check:
+ 
+-- The actual required questions are answered at the requested depth, with analysis rather than source descriptions or populated slots.
++- The actual required questions are answered at the requested depth, with analysis rather than source descriptions or populated slots. For decision-grade work, `## Source appendix` is mandatory and each retained source row has direct URL, type/date, method or evidence form, supported claim and important limitation; reject an absent or incomplete appendix.
+ - Decisive claims retain applicable results, conditions, counterevidence and uncertainty; recommendations stay within verified coverage. New unsupported report claims are rejected or returned for verification, not silently accepted.
+ - Both RESEARCH.md and the returned `citations` contain original-source links for their material claims, not just local dossier navigation. URLs correspond to inspected support and are neither invented nor temporary retrieval handles; original local-file evidence is explicitly labeled local. Missing links are failed citation checks or explicit coverage gaps. Local file links exist; for heading fragments, derive the actual Markdown heading slug including lowercase and punctuation handling and check the target heading. File existence alone does not validate an anchor. Prefer file-only links if the renderer's convention is uncertain.
+ - Meaningful notes are saved and linked, execution state accounts for assignments, and coverage, unresolved requirements and the actual stop reason agree across the report and ledger. A completed report has no in-progress placeholders. A limit-stopped report explicitly says what is partial.

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "exactInstalledPrompt": true,
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "tools": [
+    "web_search",
+    "fetch_content",
+    "get_search_content",
+    "read"
+  ],
+  "typecheck": "Fabric TypeScript boundary; no research dispatched"
+}

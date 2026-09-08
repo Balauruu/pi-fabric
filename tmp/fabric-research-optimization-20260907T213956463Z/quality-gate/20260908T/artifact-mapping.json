@@ -1,0 +1,23 @@
+{
+  "T1": {
+    "question": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/questions/T1.md",
+    "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/RESEARCH.md",
+    "legacy": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0104/RESEARCH.md",
+    "candidateMethod": "live rev04 whole workflow",
+    "legacyMethod": "valid Terra-only same-evidence synthesis; no fresh e2e timing"
+  },
+  "T2": {
+    "question": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/questions/T2.md",
+    "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0201-rev03-T2/RESEARCH.md",
+    "legacy": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/RESEARCH.md",
+    "candidateMethod": "reused current corrected live T2 because rev03-to-rev04 content method unchanged; direct probe retained",
+    "legacyMethod": "new copied legacy method via disclosed direct-controller research+synthesis transport"
+  },
+  "T3": {
+    "question": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/questions/T3.md",
+    "candidate": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0202-rev04-T3/RESEARCH.md",
+    "legacy": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/RESEARCH.md",
+    "candidateMethod": "existing live rev04 output",
+    "legacyMethod": "new copied legacy method via disclosed direct-controller research+synthesis transport"
+  }
+}

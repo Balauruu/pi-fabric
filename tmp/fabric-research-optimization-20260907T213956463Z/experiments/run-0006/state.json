@@ -1,0 +1,168 @@
+{
+  "version": 2,
+  "phase": "complete",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "outputRoot": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006",
+  "phaseTimingsPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/phase-timings.json",
+  "requirementDispositions": [
+    {
+      "questionId": "R1",
+      "disposition": "blocked",
+      "reason": "No inspected primary sources, methods, results, or transfer evidence distinguish the intervention categories."
+    },
+    {
+      "questionId": "R2",
+      "disposition": "blocked",
+      "reason": "No inspected null or regression evidence establishes failure conditions or GPT-5.6 Terra transfer limits."
+    },
+    {
+      "questionId": "R3",
+      "disposition": "qualified",
+      "reason": "The matrix supplies triggers, validation, and stop conditions, but explicitly remains a proposed policy without efficacy evidence."
+    },
+    {
+      "questionId": "R4",
+      "disposition": "qualified",
+      "reason": "The paired protocol covers acceptance, wall time, retries, and failures, but thresholds and uncertainty analysis remain unregistered."
+    }
+  ],
+  "validationOutcome": {
+    "status": "partial",
+    "conclusion": "Report validation passed for an honestly partial report. No original evidence was retrieved, so R1 and R2 remain blocked; R3 and R4 are qualified proposed policies, not empirical findings.",
+    "citations": [
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/RESEARCH.md:22-43",
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/RESEARCH.md:88-211",
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/RESEARCH.md:229-252",
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/streams/context-tools.md:3-39",
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/streams/contracts-parallel-recovery.md:3-33",
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/streams/repair-1.md:3-41",
+      "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/requirement-dispositions.json"
+    ],
+    "limitations": [
+      "No saved stream contains an original URL or inspected primary empirical evidence, so nonbrowser original-link retrieval was not applicable.",
+      "The configured retrieval provider was unavailable and delegated research hit the Fabric agent-depth limit.",
+      "R4 requires frozen thresholds and a paired uncertainty method before execution."
+    ],
+    "coverage": [
+      {
+        "questionId": "R1",
+        "disposition": "blocked",
+        "reason": "No inspected primary sources, methods, results, or transfer evidence distinguish the intervention categories."
+      },
+      {
+        "questionId": "R2",
+        "disposition": "blocked",
+        "reason": "No inspected null or regression evidence establishes failure conditions or GPT-5.6 Terra transfer limits."
+      },
+      {
+        "questionId": "R3",
+        "disposition": "qualified",
+        "reason": "The matrix supplies triggers, validation, and stop conditions, but explicitly remains a proposed policy without efficacy evidence."
+      },
+      {
+        "questionId": "R4",
+        "disposition": "qualified",
+        "reason": "The paired protocol covers acceptance, wall time, retries, and failures, but thresholds and uncertainty analysis remain unregistered."
+      }
+    ],
+    "gaps": [
+      "Restore authorized configured retrieval and inspect original controlled coding-agent evidence with methods, results, denominators, validators, uncertainty, and failure accounting.",
+      "Run the frozen fixed-model paired evaluation if a Terra-specific operating decision remains necessary.",
+      "Pre-register quality margin, wall-time limit, uncertainty criterion, exclusions, and infrastructure-failure rule before evaluating."
+    ],
+    "paths": {
+      "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/RESEARCH.md",
+      "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0006/state.json"
+    },
+    "verification": "partial",
+    "reportValidation": "passed",
+    "stopReason": "Authorized configured retrieval was unavailable, delegated research reached the Fabric agent-depth limit, and repair-1 retrieved no original evidence.",
+    "userDecision": null
+  },
+  "workers": [
+    {
+      "id": "c1b175b0b5634d88b79da1f62f2fad76",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788819913281,
+      "finishedAt": 1788820006020,
+      "hasText": true
+    },
+    {
+      "id": "9bc686c5dad848ed8ca4cacaa71e4cbb",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788819913280,
+      "finishedAt": 1788820014794,
+      "hasText": true
+    },
+    {
+      "id": "1e920a844de74f1f8ebe53e0fcb265de",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788819913319,
+      "finishedAt": 1788820020040,
+      "hasText": true
+    },
+    {
+      "id": "be3deeecde6b4ecc94c5ec67b0e7aad4",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788819913365,
+      "finishedAt": 1788820036710,
+      "hasText": true
+    },
+    {
+      "id": "58f620b380e242a0bcb9e52aea9d5e9c",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788820036948,
+      "finishedAt": 1788820134357,
+      "hasText": true
+    },
+    {
+      "id": "28cc19e80cfd4cbf9f804e961bfee26a",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788820201648,
+      "finishedAt": 1788820305155,
+      "hasText": true
+    },
+    {
+      "id": "c151f289917e46899b60428b5c3d40ea",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788820305400,
+      "finishedAt": 1788820456743,
+      "hasText": true
+    },
+    {
+      "id": "9c3a67d310d440bca686be02b94983a5",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788820524072,
+      "finishedAt": 1788820693666,
+      "hasText": true
+    },
+    {
+      "id": "19770289071a40afaeb6664054ecfe9f",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788820693895,
+      "finishedAt": 1788820815840,
+      "hasText": true
+    }
+  ],
+  "persistenceAdapter": "Workflow persisted role-returned Markdown after child write calls encountered the incompatible text-field error. The preserved stream/report content is verbatim role output.",
+  "stopReason": "Authorized configured retrieval was unavailable, delegated research reached the Fabric agent-depth limit, and repair-1 retrieved no original evidence."
+}

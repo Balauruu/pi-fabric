@@ -1,0 +1,26 @@
+{
+  "candidateT1Verifier": {
+    "id": "a77f714532624273a7265a6963310061",
+    "status": "completed",
+    "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/support/verification.md",
+    "error": null
+  },
+  "legacySyntheses": [
+    {
+      "topic": "T2",
+      "id": "121cf83f386e4ec492604b4ad9490d37",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/RESEARCH.md",
+      "error": null
+    },
+    {
+      "topic": "T3",
+      "id": "2b67ff15fcd34d33a97fac4ace676945",
+      "status": "completed",
+      "path": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/RESEARCH.md",
+      "error": null
+    }
+  ],
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium"
+}

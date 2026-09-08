@@ -1,0 +1,9 @@
+# Literal artifact mapping
+
+| Case | Exact question | New candidate report | Compared legacy report | Method condition |
+|---|---|---|---|---|
+| T1 | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/questions/T1.md | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/live/T1/RESEARCH.md | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0104/RESEARCH.md | Fresh candidate research, independent verification, synthesis and validation. Legacy is the existing valid Terra-medium same-evidence synthesis, so no matched end-to-end speed claim. |
+| T2 | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/questions/T2.md | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/live/T2-nonregression.md | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T2/RESEARCH.md | Changed-contract nonregression validation of the current literal candidate report. |
+| T3 | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/questions/T3.md | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-002/live/T3/RESEARCH.md | /home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/legacy-T3/RESEARCH.md | Fresh candidate research, independent verification, synthesis and validation. |
+
+Blind reviews use inverse X/Y mapping in A and B for each same-topic comparison. See reviews/T1-A.md, reviews/T1-B.md, reviews/T3-A.md, and reviews/T3-B.md.

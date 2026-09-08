@@ -1,0 +1,9 @@
+{
+  "id": "1ca1f7864fbd4608ab2d17027dfad515",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/quality-gate/20260908T/candidate-T1/RESEARCH.md",
+  "reportBytes": "4186",
+  "error": null
+}

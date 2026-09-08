@@ -1,0 +1,276 @@
+{
+  "phase": "complete",
+  "createdAt": "2026-09-07T22:50:45.716Z",
+  "allowance": {
+    "launches": 11,
+    "reserved": 11,
+    "used": 11,
+    "repair": 1
+  },
+  "assignments": [
+    {
+      "name": "reasoning-measured",
+      "role": "reasoning-measured",
+      "tools": [
+        "web_search",
+        "fetch_content",
+        "get_search_content",
+        "read"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "nativeId": "7f6c5fcfa13c47bc832d295ba9a710db",
+      "elapsedMs": 42674,
+      "nativeStatus": "completed",
+      "stream": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/streams/reasoning-measured.md",
+      "hasText": true,
+      "retrievalProbe": "failed"
+    },
+    {
+      "name": "repair-reasoning-measured",
+      "role": "repair-reasoning-measured",
+      "tools": [
+        "web_search",
+        "fetch_content",
+        "get_search_content",
+        "read"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T22:52:57.861Z",
+      "nativeId": "608f0363ee344cac827fc3e351d77dab",
+      "nativeStatus": "completed",
+      "elapsedMs": 280591,
+      "stream": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/streams/repair-reasoning-measured.md",
+      "hasText": true,
+      "retrievalProbe": "passed"
+    },
+    {
+      "name": "text-and-counterevidence",
+      "role": "text-and-counterevidence",
+      "tools": [
+        "web_search",
+        "fetch_content",
+        "get_search_content",
+        "read"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T22:57:38.482Z",
+      "nativeId": "4a316a32325843feb32c10e505123168",
+      "nativeStatus": "completed",
+      "elapsedMs": 190737,
+      "stream": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/streams/text-and-counterevidence.md",
+      "hasText": true
+    },
+    {
+      "name": "tool-use-and-context",
+      "role": "tool-use-and-context",
+      "tools": [
+        "web_search",
+        "fetch_content",
+        "get_search_content",
+        "read"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T22:57:38.482Z",
+      "nativeId": "4db45772fb1447d48b2596c23f2248c0",
+      "nativeStatus": "completed",
+      "elapsedMs": 232594,
+      "stream": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/streams/tool-use-and-context.md",
+      "hasText": true
+    },
+    {
+      "name": "verifier",
+      "role": "verifier",
+      "tools": [
+        "read",
+        "write",
+        "edit",
+        "source_check",
+        "fetch_content",
+        "get_search_content"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T23:01:31.113Z",
+      "nativeId": "a42b227693b74fefb84119d7946abb26",
+      "nativeStatus": "completed",
+      "elapsedMs": 122035
+    },
+    {
+      "name": "repair-targeted-local-eval",
+      "role": "repair-targeted-local-eval",
+      "tools": [
+        "web_search",
+        "fetch_content",
+        "get_search_content",
+        "read"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T23:03:33.164Z",
+      "nativeId": "1140663ae2a84f168bbf07139c75c6e2",
+      "nativeStatus": "completed",
+      "elapsedMs": 110786,
+      "stream": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/streams/repair-targeted-local-eval.md",
+      "hasText": true
+    },
+    {
+      "name": "reverifier",
+      "role": "reverifier",
+      "tools": [
+        "read",
+        "write",
+        "edit",
+        "source_check",
+        "fetch_content",
+        "get_search_content"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T23:05:23.976Z",
+      "nativeId": "db0a06f5682148268e266877d94e1652",
+      "nativeStatus": "completed",
+      "elapsedMs": 88280
+    },
+    {
+      "name": "synthesizer",
+      "role": "synthesizer",
+      "tools": [
+        "read",
+        "write",
+        "edit"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T23:06:52.366Z",
+      "nativeId": "f70b9b40fd514764b71a7ac60536ae53",
+      "nativeStatus": "completed",
+      "elapsedMs": 189215
+    },
+    {
+      "name": "report-validator",
+      "role": "report-validator",
+      "tools": [
+        "read",
+        "write",
+        "edit",
+        "source_check",
+        "fetch_content",
+        "get_search_content"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "startedAt": "2026-09-07T23:10:01.593Z",
+      "nativeId": "9d01db5f34964cff8dd834d6fc1125b3",
+      "nativeStatus": "completed",
+      "elapsedMs": 194789
+    },
+    {
+      "name": "report-corrector",
+      "role": "report-corrector",
+      "tools": [
+        "read",
+        "write",
+        "edit"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "nativeId": "2e9643f80d834e1fa88c377c6c0d5d29",
+      "nativeStatus": "completed",
+      "elapsedMs": 136445
+    },
+    {
+      "name": "report-revalidator",
+      "role": "report-revalidator",
+      "tools": [
+        "read",
+        "write",
+        "edit",
+        "source_check",
+        "fetch_content",
+        "get_search_content"
+      ],
+      "reserved": true,
+      "status": "completed",
+      "nativeId": "e878c21ad1994e0e829dca8d88eeddad",
+      "nativeStatus": "completed",
+      "elapsedMs": 183264
+    }
+  ],
+  "timings": {
+    "researchProbe": "failed",
+    "recoveryResearchMs": 232625,
+    "totalRecoveryMs": 1350677,
+    "reportCorrectionMs": 319709
+  },
+  "coverage": [
+    {
+      "questionId": "R1",
+      "disposition": "qualified",
+      "reason": "Conditional published effects remain, but no target total cost, latency, retry/tool cost, or acceptance results exist."
+    },
+    {
+      "questionId": "R2",
+      "disposition": "qualified",
+      "reason": "Published counterevidence constrains candidates, but target safety and reliability trade-offs were not measured."
+    },
+    {
+      "questionId": "R3",
+      "disposition": "qualified",
+      "reason": "The paired protocol and provisional baseline are defined, but no target configuration has passed its validator."
+    }
+  ],
+  "nextActions": [],
+  "recovery": {
+    "reason": "The first worker received the researcher.md wrapper rather than its extracted task request and tried forbidden recursive delegation.",
+    "action": "Extracted canonical task body and reran only the failed stream as a new preserved repair stream."
+  },
+  "outcome": {
+    "status": "complete",
+    "conclusion": "Independent revalidation passed. The final report-validation section was appended to RESEARCH.md; appendix completeness, synthesizer completion, qualified R1–R3 coverage, source links, and the reusable but unexecuted local-evaluation artifact were rechecked.",
+    "citations": [
+      "https://arxiv.org/html/2201.11903v6",
+      "https://arxiv.org/abs/2302.04761",
+      "https://arxiv.org/abs/2506.07142"
+    ],
+    "limitations": [
+      "No target workload, validator results, paired executions, total-cost, latency, or safety telemetry was supplied.",
+      "The A0–A4 local evaluation artifact is reusable but unexecuted and has no target thresholds."
+    ],
+    "coverage": [
+      {
+        "questionId": "R1",
+        "disposition": "qualified",
+        "reason": "Conditional benchmark results are retained, but target acceptance, total cost, latency, and tool/retry cost are absent."
+      },
+      {
+        "questionId": "R2",
+        "disposition": "qualified",
+        "reason": "Direct regressions and transfer limits are documented, but target safety and reliability trade-offs remain unmeasured."
+      },
+      {
+        "questionId": "R3",
+        "disposition": "qualified",
+        "reason": "The A0–A4 paired protocol is concrete and reusable, but no target execution or preregistered thresholds select a configuration."
+      }
+    ],
+    "gaps": [
+      "Run the paired protocol on target cases with fixed model, validator, cost, tail-latency, and adversarial-safety telemetry."
+    ],
+    "paths": {
+      "research": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/RESEARCH.md",
+      "state": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103/state.json"
+    },
+    "verification": "passed",
+    "reportValidation": "passed",
+    "stopReason": "The synthesizer completed. Work stops at a qualified literature-backed candidate set because no target workload artifacts or local paired runs were supplied.",
+    "userDecision": null
+  },
+  "correction": {
+    "reason": "Independent validator identified a complete-source-appendix omission and a stale state statement.",
+    "reserved": 2
+  }
+}

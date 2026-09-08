@@ -1,0 +1,5 @@
+{
+  "verdict": "correct",
+  "findings": "D1 — Report passage: “v1.0 synthetic state for four tool environments, 70 tools...” Actual source: S4 §3.1 prose says, “We populate AgentDojo with total of 74 tools,” while Table 1 says, “Our suite features a total of 70 tools.” Impact: the report resolves an explicit primary-source prose/table conflict despite the fixed task requiring preservation of AgentDojo conflicts. Smallest supported correction: replace “70 tools” with “the source conflicts: §3.1 prose says 74 tools, while Table 1 says 70 tools,” and retain the existing ASR conflict qualifier.",
+  "limitations": "Frozen corpus only. No outside retrieval, writes, delegation, or other audit records used."
+}

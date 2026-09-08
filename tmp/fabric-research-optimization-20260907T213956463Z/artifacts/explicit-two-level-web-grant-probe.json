@@ -1,0 +1,60 @@
+{
+  "id": "f8eba48bfd8a45cd9f8b3d0cfec06a0f",
+  "name": "explicit-two-level-web-grant-probe",
+  "task": "Minimal delegation-capability probe. Through TypeScript fabric_exec launch exactly one leaf with agents.run({name:\"nested-web-probe\",model:\"openai-codex/gpt-5.6-terra\",thinking:\"medium\",extensions:true,recursive:false,tools:[\"read\",\"web_search\",\"fetch_content\",\"get_search_content\"],task:\"Discover web_search with tools.search and inspect its schema. Call actual extensions.web_search once with query SQLite online backup API official documentation, workflow none, numResults 2, omit provider. Return compact observed ref, success/error and one original URL. No files or other effects.\"}). Return leaf actual status and text. Do not add an intermediate agent.",
+  "status": "completed",
+  "runner": "pi",
+  "kernel": "typescript",
+  "transport": "process",
+  "cwd": "/home/balauru/.pi-profiles/fabric",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "startedAt": 1788821016095,
+  "updatedAt": 1788821036342,
+  "turns": 2,
+  "toolCalls": 1,
+  "text": "Status: completed\n\nRef: `extensions.web_search`  \nResult: success  \nURL: https://www.sqlite.org/backup.html",
+  "usage": {
+    "input": 1722,
+    "output": 264,
+    "cacheRead": 9216,
+    "cacheWrite": 0,
+    "cost": 0.0084552
+  },
+  "exitCode": 0,
+  "stderr": "",
+  "finishedAt": 1788821036342,
+  "logFile": "/tmp/pi-fabric-runs-xuEuLQ/f8eba48bfd8a45cd9f8b3d0cfec06a0f/events.jsonl",
+  "nestedAgents": [
+    {
+      "id": "7ab0d693a97543bdbfb856e45820f989",
+      "name": "nested-web-probe",
+      "status": "completed",
+      "runner": "pi",
+      "kernel": "typescript",
+      "transport": "process",
+      "cwd": "/home/balauru/.pi-profiles/fabric",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "startedAt": 1788821023991,
+      "updatedAt": 1788821033774,
+      "turns": 2,
+      "toolCalls": 1,
+      "usage": {
+        "input": 3043,
+        "output": 206,
+        "cacheRead": 9216,
+        "cacheWrite": 0,
+        "cost": 0.0104012
+      },
+      "exitCode": 0,
+      "stderr": "",
+      "finishedAt": 1788821033774,
+      "logFile": "/tmp/pi-fabric-runs-xuEuLQ/f8eba48bfd8a45cd9f8b3d0cfec06a0f/nested/7ab0d693a97543bdbfb856e45820f989/events.jsonl",
+      "task": "Discover web_search with tools.search and inspect its schema. Call actual extensions.web_search once with query SQLite online backup API official documentation, workflow none, numResults 2, omit provider. Return compact observed ref, success/error and one original URL. No files or other effects.",
+      "text": "Ref: `extensions.web_search`  \nResult: success  \nURL: https://www.sqlite.org/backup.html"
+    }
+  ],
+  "recursive": true,
+  "sessionId": "1510410"
+}

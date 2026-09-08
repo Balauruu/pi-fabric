@@ -1,0 +1,9 @@
+{
+  "staticOk": true,
+  "staticOutput": "static-contracts-pass\n",
+  "largeChars": 466945,
+  "largeExact": true,
+  "noWriteNoFiles": true,
+  "noWriteTextChars": 326,
+  "continuationStrategy": "strip only the renderer marker delimiter; do not add a newline"
+}

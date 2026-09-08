@@ -1,0 +1,7 @@
+{
+  "id": "6b69b9c05f964cbc8eed1f185449685a",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Repaired T3 corpus:\n\n- `corpus/T3/AUDIT-v2.md`\n- `corpus/T3/CORRECTIONS.md`\n- `corpus/T3/sources/agentprop-bench-2604.16706.md`\n- Updated `corpus/T3/INPUT.md`\n\nRecorded AgentDojo 74/70 and 7.5%/6.84% conflicts, ToolBench-X v1 diagnostic versus v2 twelve-model main-results distinction, and AgentProp-Bench as the κ source. Resolved κ 0.049, 0.015, and 0.036 as different human-reference comparators. Existing snapshots and `AUDIT.md` were preserved.\n\nLimitation: the new AgentProp source preserves relevant primary passages and context, not a full raw HTML mirror."
+}

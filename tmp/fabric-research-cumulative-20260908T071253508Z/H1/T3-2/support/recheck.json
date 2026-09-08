@@ -1,0 +1,5 @@
+{
+  "verdict": "accept",
+  "findings": "D1 and D2 were applied. S2 now states the hybrid backend-state/final-answer metric and confines clean-versus-faulted comparison to the 200-task diagnostic subset. S1 now states the combined action/output reward and explicit-confirmation limitation. The only report changes are these corrections; unaffected decision-critical content remains intact.",
+  "limitations": "Frozen-corpus, read-only recheck using only S1, S2, reports, defect ledger, and task input."
+}

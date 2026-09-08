@@ -1,0 +1,27 @@
+{
+  "candidate": "rev-03",
+  "topic": "T1",
+  "mode": "phase-only composition replay",
+  "frozenEvidence": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0103",
+  "phase": "terminal",
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/experiments/run-0203-rev03-T1-phase-only/RESEARCH.md",
+  "reportChars": 18107,
+  "launches": [
+    {
+      "phase": "synthesis",
+      "id": "4f25a31f76f34a06b5aa7eed74a98d14",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 166201
+    },
+    {
+      "phase": "validation",
+      "id": "5934603575b040558e529bf5e9e8ff86",
+      "status": "completed",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "elapsedMs": 145368
+    }
+  ]
+}

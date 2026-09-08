@@ -1,0 +1,40 @@
+{
+  "pass": true,
+  "children": [
+    {
+      "id": "04be0e9b96184455ad197d37f7c98232",
+      "name": "N1 v2 transition researcher",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "completed"
+    },
+    {
+      "id": "110bb9597702426aa8a961f8cd0ee55b",
+      "name": "N1 independent verifier",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "completed"
+    },
+    {
+      "id": "4599c06b99094662b41691f91bc5f39a",
+      "name": "N1 independent final validator",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "completed"
+    },
+    {
+      "id": "7193094680c842dbbaffe3553e5bc3ba",
+      "name": "N1 v1 policy researcher",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "completed"
+    },
+    {
+      "id": "c8afab78cddf4ed198be3cc9d5b61ea2",
+      "name": "N1 no-write synthesizer",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
+      "status": "completed"
+    }
+  ]
+}

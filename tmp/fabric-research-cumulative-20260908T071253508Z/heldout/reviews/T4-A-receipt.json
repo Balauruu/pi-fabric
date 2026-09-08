@@ -1,0 +1,7 @@
+{
+  "id": "30495f2507d54369bc1a9b94d5dcf0c4",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "conclusion": "Verdict: Y conclusively improves X without material regression. Y does not reach the close historical reference’s broader legacy quality.\n\nSaved: `/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/heldout/reviews/T4-A.md`"
+}

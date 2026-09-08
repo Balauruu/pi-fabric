@@ -1,0 +1,8 @@
+{
+  "id": "403e6c4c1b17403188a852e0ca53aafe",
+  "status": "completed",
+  "model": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "kernel": "typescript",
+  "conclusion": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/corpus/T1/INPUT.md  \n/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/corpus/T1/AUDIT.md  \nSource count: 5  \nUnresolved access limitations: None"
+}

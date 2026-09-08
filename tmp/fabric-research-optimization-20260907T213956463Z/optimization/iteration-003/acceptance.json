@@ -1,0 +1,13 @@
+{
+  "accepted": false,
+  "streak": 3,
+  "evidenceAdequate": true,
+  "meaningfulImprovement": false,
+  "materialRegression": true,
+  "matchedParity": false,
+  "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-003/acceptance-review.md",
+  "reason": "Rejected: live Terra-medium evidence and independent literal-mapped comparisons show material T1 factual/validation failure and T1/T3 legacy coverage losses. No speed evidence exists.",
+  "remainingChecks": [
+    "Fresh literal-mapped same-question T2 end-to-end replay of iteration-003 candidate versus mapped legacy under Terra-medium conditions."
+  ]
+}

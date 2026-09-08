@@ -1,0 +1,1 @@
+Blocked: `agents.run` cannot launch because the Fabric agent-depth limit is already reached (`2`). No research note was produced.

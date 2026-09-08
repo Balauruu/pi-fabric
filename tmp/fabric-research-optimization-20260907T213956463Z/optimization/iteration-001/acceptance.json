@@ -1,0 +1,13 @@
+{
+  "accepted": false,
+  "streak": 1,
+  "evidenceAdequate": true,
+  "meaningfulImprovement": false,
+  "materialRegression": true,
+  "matchedParity": false,
+  "reportPath": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-optimization-20260907T213956463Z/optimization/iteration-001/acceptance-review.md",
+  "reason": "Rejected: live Terra-medium changed-path evidence exists, but T1 has source-identity and retention regressions and T3 fails required report-contract details. No matched speed evidence exists.",
+  "remainingChecks": [
+    "Fresh literal-mapped same-topic T1/T2/T3 legacy-versus-current-candidate whole-workflow comparisons, including matched timing, before any parity or speed claim."
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "tag": "prompt-cost-1-X",
+  "X": "candidate-H2",
+  "Y": "candidate-H2b",
+  "phase": "fixed-source extraction/handoff plus unchanged synthesis",
+  "research": {
+    "id": "8e19f79ee8c8498da27673a36ca9d532",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 101835,
+    "roundtrip": true
+  },
+  "synthesis": {
+    "id": "c78869624ecf4de5b3512a47f0469960",
+    "status": "completed",
+    "model": "openai-codex/gpt-5.6-terra",
+    "thinking": "medium",
+    "kernel": "typescript",
+    "elapsedMs": 119816
+  },
+  "totalElapsedMs": 222193,
+  "report": "/home/balauru/.pi-profiles/fabric/tmp/fabric-research-cumulative-20260908T071253508Z/H2b/fixed/prompt-cost-1-X/RESEARCH.md"
+}

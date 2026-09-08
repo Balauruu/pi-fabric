@@ -1,0 +1,10 @@
+{
+  "tag": "prompt-cost-2-Y",
+  "id": "030b6e4d96084d59b7d4c1a9465971f5",
+  "pages": 30,
+  "fetchRequestSeen": true,
+  "rawRequestSeen": true,
+  "continuationRequestSeen": true,
+  "outerToolErrors": 1,
+  "interpretation": "Requests observed in complete paged native log. Raw flag is attempted path, not a success or source-fidelity assertion."
+}

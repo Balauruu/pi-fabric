@@ -1,0 +1,7 @@
+Central question and intended decision: Should a production reasoning workflow adopt Tree of Thoughts rather than direct or chain-of-thought prompting, and what does its original measured quality/cost evidence actually support?
+Independent uncertainty this stream owns: Result/compute tradeoff and transfer limitations in the original Tree of Thoughts study.
+Exact assigned questions: What are the original Game of24 and CreativeWriting results, generation/prompt token accounting, per-case and experiment costs, exact comparators, model/sample/algorithm conditions, and strongest limitations? What adoption boundary and matched local evaluation follow?
+Required inclusions and contribution to final report: Source-bound numerical contrasts, methods and qualifications, operational tradeoffs and a concrete paired local evaluation design. Preserve measured facts separately from proposed controls.
+Scope, definitions, exclusions and time horizon: A narrowed actual T1 question. Use only this original paper and its original linked formats/appendix as of2026-09-07. No universal technique ranking or outside studies.
+Known source URLs or supplied files: https://arxiv.org/html/2305.10601v2
+Relevant method, comparison conditions and resource budget: Keep model, task, algorithm, budget and metric conditions explicit. No resource budget beyond runtime limits. Fresh live retrieval is required, not local historical reports.

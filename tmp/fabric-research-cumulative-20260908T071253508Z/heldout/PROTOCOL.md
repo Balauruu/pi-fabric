@@ -1,0 +1,9 @@
+# Held-out whole-workflow protocol
+
+T2 is the original actual coding-agent run-design question, not used for candidate training. T4 adapts the actual architecture/decision-tools question in runs/research-architecture-decision-tools-1788797692774/RESEARCH.md using the original supplied URLs. Trial writers do not receive historical report answers, evaluation audits, candidate comparisons or this rationale.
+
+For each condition, Main frames identical independent streams before retrieval. T2: measured interventions owns original controlled run-design results and methods; counterevidence/operations owns evaluation limitations, fixed-model adoption controls and resolving tests. T4: supplied methods owns original playbook and Wayfinder and their boundaries; complementary tools owns primary package/skill evidence, compatibility/provenance and efficacy limits. Two direct research leaves per task, then one direct synthesizer. Same Terra/medium/TypeScript/named web grants and identical original prompt/stream scope. Use incumbent00 vs candidate-H2b only if fixed phase repair passes. Unchanged synthesis and one authoritative RESEARCH.md. No coordinator child, global mutations, dependencies or legacy execution.
+
+Fresh live research tests the entire current research → saved full notes → synthesis path, including source retrieval, state handling, one-report ownership and persistence readback. Record native identities and Date.now elapsed around each phase and complete workflow. This is distinct from fixed-source extraction trials.
+
+Compare each exact pair independently against decisive primary passages. Inspect all material numerical method/comparator/sample/units/conditions and useful operational controls. Judge incumbent-relative gain/no-material-regression separately from source-corrected legacy target. Repeat when a decision depends on stochastic variation. Do not promote source-free, wrong-model, malformed or incomplete-persistence runs.

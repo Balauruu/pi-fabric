@@ -1,0 +1,20 @@
+{
+  "noteRoundtrip": true,
+  "denseRoundtrip": true,
+  "pages": 8,
+  "characters": 99089,
+  "expectedCharacters": 99089,
+  "executionModel": "openai-codex/gpt-5.6-terra",
+  "thinking": "medium",
+  "kernel": "typescript",
+  "directLeaf": true,
+  "namedGrants": [
+    "read",
+    "web_search",
+    "fetch_content",
+    "get_search_content"
+  ],
+  "search": "observed successful",
+  "primaryRetrieval": "observed successful with PDF fallback to full HTML",
+  "counter": 0
+}

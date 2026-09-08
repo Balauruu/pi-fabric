@@ -1,0 +1,21 @@
+{
+  "changedFiles": [
+    "researcher.md",
+    "references/synthesis-and-reporting.md"
+  ],
+  "expectedTwoFiles": true,
+  "frontmatterPreserved": true,
+  "explicitModel": true,
+  "explicitMedium": true,
+  "explicitNamedGrants": true,
+  "leafOnly": true,
+  "singleReport": true,
+  "noRejectedH1Stages": true,
+  "whitespaceOutput": "(no output)",
+  "whitespaceOk": true,
+  "whitespaceDetails": {
+    "trailing": [],
+    "gitNoIndexDifferenceExit": true,
+    "diagnostics": "none; no-index exits nonzero for differing trees"
+  }
+}

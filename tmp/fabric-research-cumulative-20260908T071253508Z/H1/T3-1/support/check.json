@@ -1,0 +1,5 @@
+{
+  "verdict": "accept",
+  "findings": "No material defects found. The report preserves source versions, scope boundaries, AgentDojo’s 7.5% prose versus 6.84% Table 5 conflict, and the distinct evaluator studies.",
+  "limitations": "Frozen-corpus review only. No production-security conclusion is validated."
+}

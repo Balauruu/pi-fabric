@@ -1,0 +1,5 @@
+{
+  "verdict": "accept",
+  "findings": "No material defects found. Reported measurements, versions, conditions, source conflicts, and deployment-transfer limits match the frozen primary evidence.",
+  "limitations": "Frozen-corpus review only. No production-security conclusion is validated."
+}
