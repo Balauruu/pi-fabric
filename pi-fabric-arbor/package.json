@@ -50,6 +50,7 @@
     "docs/research-configuration.md"
   ],
   "scripts": {
+    "prototype:intake": "node src/presentation/issue-8-prototype/terminal.ts",
     "typecheck": "tsc -p tsconfig.build.json",
     "typecheck:test": "tsc -p tsconfig.test.json",
     "test": "npm run test:source",
