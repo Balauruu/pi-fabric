@@ -40,7 +40,7 @@ test("active package manifest has only source exports, one read-only bin, and on
   assert.deepEqual(manifest.bin, { "pi-fabric-arbor": "./bin/pi-fabric-arbor.mjs" });
   assert.deepEqual(manifest.pi, { extensions: ["./src/extension.ts"], skills: ["./skills/fabric-arbor/SKILL.md"] });
   assert.equal(manifest.dependencies.tsx, "4.23.13");
-  assert.equal(manifest.peerDependencies["pi-fabric"], ">=0.83.0 <0.84.0");
+  assert.equal(manifest.peerDependencies["pi-fabric"], ">=0.83.0");
   assert.equal("prepack" in manifest.scripts, false);
   assert.equal("build" in manifest.scripts, false);
   assert.match(manifest.scripts.test, /test:source/u);

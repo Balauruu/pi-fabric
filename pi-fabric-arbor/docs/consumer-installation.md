@@ -1,6 +1,6 @@
 # Source-only installation and availability
 
-Pi packages execute with the user's OS authority. Review source before installation. The package requires Node 24+, peer `pi-fabric >=0.83.0 <0.84.0` and runtime `tsx@4.23.13`. Tests use app-local locked dependencies. No build/prepack, certificates or profile-local helper skills are needed.
+Pi packages execute with the user's OS authority. Review source before installation. The package requires Node 24+, peer `pi-fabric >=0.83.0` and runtime `tsx@4.23.13`. Tests use app-local locked dependencies. No build/prepack, certificates or profile-local helper skills are needed.
 
 ## Install and configure
 

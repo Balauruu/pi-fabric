@@ -107,7 +107,7 @@
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
-    "pi-fabric": ">=0.83.0 <0.84.0"
+    "pi-fabric": ">=0.83.0"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "0.85.1",
