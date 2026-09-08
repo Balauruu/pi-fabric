@@ -139,13 +139,13 @@ Results:
 - `failed`: implementation was attempted but acceptance failed;
 - `abandoned`: work stopped intentionally with reasons.
 
-Routine tests belong inside Implementation. Create a Verification ticket only for a significant independent acceptance boundary.
+Routine tests belong inside Implementation. Create a Verification ticket only for significant independent acceptance.
 
 ## Verification
 
 **Question:** Does an exact subject satisfy the stated claims?
 
-Use for independent acceptance, architecture fitness, security review, performance acceptance, migration rehearsal, or consequential design/code review.
+Use for independent acceptance, architecture fitness, security review, performance acceptance, migration rehearsal, or consequential design/code review. Planning maps permit this type only for planning artifacts with `verification-scope: planning`; see [lifecycle](lifecycle.md).
 
 Required inputs:
 
@@ -217,6 +217,8 @@ Results:
 - `ready`: the prerequisite is usable;
 - `not-ready`: the attempt completed without establishing it;
 - `expired`: a previously ready prerequisite is no longer usable.
+
+Inspection at or after `expires-at` makes a recorded `ready` result inapplicable without rewriting its historical resolution. See [lifecycle](lifecycle.md) for reassessment and explicit expiry updates.
 
 Enabler is not a miscellaneous-task bucket. Work that directly delivers the destination is Implementation or Release.
 

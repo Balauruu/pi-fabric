@@ -52,28 +52,15 @@ Ticket frontmatter:
 - `owner`, `approver`, `claimed-by`, `claimed-at`, `created`, `updated`;
 - `requires`: JSON list of `<ticket-id>:<required-result>` strings;
 - `relates`, `implements`, `verifies`, and `supersedes`: JSON lists of ticket ids;
-- optional `discipline`, `change-kind`, `method`, `subject-revision`, `expires-at`, and `tracker` facets.
+- `discipline`, `change-kind`, `method`, `subject-revision`, `expires-at`, and ticket `tracker` facet keys are always present for a stable machine contract; leave an inapplicable value blank.
+
+Optional ticket fields `acceptance-outcome`, `applicability`, and `verification-scope` are defined by [lifecycle](lifecycle.md). New templates include them. Existing records remain supported without automatic migration.
 
 Use an empty scalar for an unset person/revision and `[]` for an empty list. The deliberately constrained frontmatter is machine-checkable without a YAML dependency.
 
 ## Lifecycle and result
 
-```text
-open -> active -> review -> closed
-          ^          |
-          +----------+
-```
-
-- `open`: defined but unclaimed.
-- `active`: claimed and being worked.
-- `review`: result proposed; required acceptance remains.
-- `closed`: resolution and terminal result recorded.
-
-An `active` or `review` ticket has a claim. An `open` or `closed` ticket does not. Return from review to active when changes are requested.
-
-Lifecycle and result are independent. A closed Verification can result in `fail`; a closed Release can result in `rolled-back`. `disposition` explains why the record closed. Productive type results require `completed`; `cancelled`, `superseded`, and `duplicate` results require the matching administrative disposition. While a ticket is `open`, `active`, or `review`, both result and disposition remain `pending`.
-
-A `planning` map may contain only Investigation, Experiment, Decision, Design, and Enabler tickets. Move the map to `delivery` through an owner-approved scope change before adding Implementation, Verification, or Release; record that approval in the map metadata.
+The [lifecycle contract](lifecycle.md) owns state meanings, transitions, assessment, applicability, and mode-specific ticket eligibility. The [type contracts](ticket-types.md) own terminal result names. Use those contracts when updating the metadata above.
 
 ## Result-aware dependencies
 
@@ -88,13 +75,15 @@ A requirement is satisfied only when:
 1. the referenced ticket exists in the same map;
 2. it is closed;
 3. its current result exactly equals the required result;
-4. it has not been superseded in a way that invalidates the result.
+4. it is currently applicable under the lifecycle contract, including transitive reassessment and expiry checks.
+
+Historical closed dependents retain their recorded results when these conditions cease to hold. Inspection reports reassessment instead of rewriting historical acceptance.
 
 An effective replacement lists the old same-type ticket in `supersedes`; the old ticket then has current result and disposition `superseded`. Its historical resolution remains in the body and Git history. Requirements for its former productive result stop matching immediately.
 
 Only `requires` controls readiness. `relates`, `implements`, `verifies`, and `supersedes` are same-map navigation/traceability relationships and must not accidentally block work.
 
-The requirements graph must be acyclic. The **frontier** is derived: tickets with status `open`, no active claim, and all requirements satisfied. A ticket with no dependencies may be on the frontier immediately. Unless the user names a ticket, order the frontier by priority (`critical` first), then persisted `created` time, then stable id. Never infer age from filesystem timestamps. Persist that exact ordered list in map frontmatter; the validator compares it to the derived value.
+The requirements graph must be acyclic. The **frontier** is derived: tickets with status `open`, no active claim, current applicability, and all requirements satisfied. A ticket with no dependencies may be on the frontier immediately. Unless the user names a ticket, order the frontier by priority (`critical` first), then persisted `created` time, then stable id. Never infer age from filesystem timestamps. Persist that exact ordered list in map frontmatter; the validator compares it to the derived value.
 
 ## Claims and concurrency
 
@@ -138,4 +127,4 @@ Record the decision owner and release owner before asking for acceptance. Approv
 
 A map can be marked `complete` only when its observable success criteria are checked, every `completion-requires` predicate holds at an accepted revision, required approvals are recorded, mandatory fog is empty or explicitly transferred, every listed residual risk names an owner and destination, and a configured tracker mirror is `reconciled` with a verified read time. `completion-requires` is mandatory before completion and prevents a rolled-back or failed release from satisfying a destination that requires successful availability.
 
-The validator can prove structural consistency, not product success or human authority. The map owner remains responsible for the completion judgment.
+Read-only inspection exposes mechanical completion conditions before the status changes, as well as diagnostics, frontier, blockers, and reassessment. No outstanding reassessment is permitted at completion. The validator can prove structural consistency, not product success or human authority. The map owner remains responsible for the completion judgment.

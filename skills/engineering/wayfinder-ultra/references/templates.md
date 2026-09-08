@@ -72,6 +72,9 @@ type: investigation
 status: open
 result: pending
 disposition: pending
+acceptance-outcome: pending
+applicability: current
+verification-scope:
 execution: autonomous
 priority: normal
 owner: <owner>
@@ -150,7 +153,9 @@ Add this before entering `review` or `closed`:
 <Approver, exact subject/revision, decision, and durable reference; or why no approval was required under established policy.>
 ```
 
-Then update frontmatter. Closed productive work normally uses `disposition: completed`; terminal result names are defined by the type contract.
+Then update frontmatter under the [lifecycle contract](lifecycle.md). Set final `acceptance-outcome` only in review or closure. Original Acceptance boxes mean criteria satisfied. Acceptance check boxes mean assessment recorded: state pass, fail, or unassessed with evidence for each criterion. Preserve unchecked original criteria for `not-satisfied` or `not-assessed`. Set `verification-scope: planning` for planning Verification and identify its exact artifact in `subject-revision`.
+
+Closed type-specific work uses `disposition: completed`, even for an unsuccessful result. Administrative results use matching dispositions. Terminal result names are defined by the type contract.
 
 ## Result-aware example
 
