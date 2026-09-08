@@ -8,8 +8,8 @@
   "dependencies": {
     "@juicesharp/rpiv-ask-user-question": "^2.9.0",
     "betterwright": "^2.4.0",
-    "pi-fabric": "^0.89.0",
-    "pi-fovea": "^0.22.1",
+    "pi-fabric": "^0.90.1",
+    "pi-fovea": "^0.22.2",
     "pi-hide-providers": "^0.1.18",
     "pi-invisible-continue": "^0.3.11",
     "pi-toggle-skills": "^0.1.16",
