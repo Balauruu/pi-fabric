@@ -8,3 +8,7 @@ runtime/
 *.sqlite3-wal
 
 # Canonical certification evidence under certification/ is intentionally retained.
+
+# Local QA planning artifacts are intentionally not versioned.
+docs/qa-runbook.md
+docs/qa-results-template.md
